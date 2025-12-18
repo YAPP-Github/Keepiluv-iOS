@@ -1,0 +1,30 @@
+name: Create Notion page on new issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  notion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm i @notionhq/client
+      - run: node .github/scripts/create-notion-page.js
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          ISSUE_BODY_MD: ${{ github.event.issue.body }}
+          GITHUB_ASSIGNEE: ${{ github.event.issue.assignee.login }}
+          GITHUB_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          NOTION_USER_ID_CLXXRLOVE: ${{ secrets.NOTION_USER_ID_CLXXRLOVE }}
+          NOTION_USER_ID_JIHUN32: ${{ secrets.NOTION_USER_ID_JIHUN32 }}
