@@ -1,0 +1,48 @@
+name: CodeRabbit Auto Summary
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  summary:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CodeRabbit summary (once)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            const marker = "<!-- coderabbit-summary-triggered -->";
+            const body = `@coderabbitai summary\n\n${marker}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+
+            const already = comments.some(c => (c.body || "").includes(marker));
+            if (already) {
+              console.log("ℹ️ Summary already triggered. Skipping.");
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body,
+            });
+
+            console.log("✅ Posted CodeRabbit summary trigger comment.");

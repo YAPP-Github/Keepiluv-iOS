@@ -1,0 +1,108 @@
+name: Issue Auto Assign & Create Branch
+
+on:
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  auto:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign author + create branch (linked -> fallback)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const title = issue?.title ?? "";
+            const issueNumber = issue?.number;
+            const author = issue?.user?.login;
+
+            if (!issueNumber || !author) {
+              core.setFailed("Missing issue number or author.");
+              return;
+            }
+
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                assignees: [author],
+              });
+              console.log(`✅ Assigned: ${author}`);
+            } catch (e) {
+              console.warn(`⚠️ Assign failed (continue): ${e.message}`);
+            }
+
+            const allowed = new Set(["feat","fix","refactor","docs","chore","test","style","qa"]);
+            const m = title.match(/^([a-zA-Z]+)\s*:/);
+            let type = (m?.[1] ?? "chore").toLowerCase();
+            if (!allowed.has(type)) type = "chore";
+
+            const branchName = `${type}/#${issueNumber}`;
+            console.log(`🌿 Target branch: ${branchName}`);
+
+            // base branch SHA
+            const { data: repo } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const baseBranch = repo.default_branch;
+
+            const { data: baseRef } = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${baseBranch}`,
+            });
+            const oid = baseRef.object.sha;
+
+            const issueId = issue.node_id;
+            const mutation = `
+              mutation($issueId: ID!, $oid: GitObjectID!, $name: String!) {
+                createLinkedBranch(input: { issueId: $issueId, oid: $oid, name: $name }) {
+                  linkedBranch { ref { name } }
+                }
+              }
+            `;
+
+            let linkedOk = false;
+
+            for (let attempt = 1; attempt <= 2; attempt++) {
+              try {
+                const res = await github.graphql(mutation, { issueId, oid, name: branchName });
+                console.log(`✅ Linked branch created: ${res.createLinkedBranch.linkedBranch.ref.name}`);
+                linkedOk = true;
+                break;
+              } catch (e) {
+                const msg = e?.message ?? String(e);
+                console.warn(`⚠️ createLinkedBranch attempt ${attempt} failed: ${msg}`);
+
+                if (msg.includes("already exists") || msg.includes("has already been taken")) {
+                  console.log(`ℹ️ Branch already exists: ${branchName} (skip)`);
+                  return;
+                }
+              }
+            }
+
+            if (linkedOk) return;
+
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branchName}`,
+                sha: oid,
+              });
+              console.log(`✅ Branch created (fallback): ${branchName} from ${baseBranch}@${oid}`);
+            } catch (e) {
+              if (e.status === 422) {
+                console.log(`ℹ️ Branch already exists (fallback): ${branchName}`);
+              } else {
+                core.setFailed(`❌ Fallback createRef failed: ${e.message}`);
+              }
+            }

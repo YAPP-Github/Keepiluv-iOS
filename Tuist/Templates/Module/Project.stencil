@@ -1,0 +1,14 @@
+//
+//  Project.swift
+//
+//
+//  Created by {{ author }} on {{ date }}.
+//
+
+import ProjectDescription
+import ProjectDescriptionHelpers
+
+let project = ModuleProjectFactory.makeModule(
+    name: "{{ name }}"
+    targets: "{{ target }}"
+)

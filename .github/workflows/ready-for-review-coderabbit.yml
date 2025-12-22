@@ -1,0 +1,49 @@
+name: Request AI Review (CodeRabbit)
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  trigger:
+    if: github.event.label.name == 'final-ai-review'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment to trigger CodeRabbit review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            const triggerText = "@coderabbitai review";
+            const marker = "<!-- final-ai-review-triggered -->";
+            const body = `${triggerText}\n\n${marker}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+              per_page: 100,
+            });
+
+            const alreadyTriggered = comments.some(c => (c.body || "").includes(marker));
+            if (alreadyTriggered) {
+              console.log("ℹ️ Already triggered. Skipping.");
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body,
+            });
+
+            console.log("✅ Posted CodeRabbit trigger comment.");

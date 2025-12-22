@@ -1,0 +1,66 @@
+language: "ko-KR"
+
+reviews:
+  auto_review:
+    enabled: false
+
+  profile: chill
+
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  high_level_summary_placeholder: ""
+  high_level_summary_instructions: >
+    Summarize this pull request for a team using SwiftUI and The Composable Architecture (TCA).
+    Emphasize architectural and behavioral changes, including:
+    - Updates to feature boundaries or reducers
+    - State mutations and action flows
+    - Side effects, async work, and dependency changes
+    - Test coverage additions or modifications, if any
+    Mention relevant linked issues and note any user-visible behavior changes.
+    Keep the summary brief and reviewer-focused.
+
+  in_progress_fortune: false
+  poem: false
+
+  path_filters:
+    - "!**/*.generated.swift"
+    - "!Tuist/Dependencies/**"
+
+  path_instructions:
+    - path: "**/*.swift"
+      instructions: >
+        Review this code with extra attention to SwiftUI and The Composable Architecture (TCA) best practices.
+        Be strict about architectural correctness and state management.
+
+        In particular:
+        - Point out unclear or overly complex SwiftUI view hierarchies
+        - Identify improper state bindings, view state duplication, or unnecessary local state
+        - Flag misuse of TCA concepts (State, Action, Reducer, Store, Scope)
+        - Highlight actions that should be derived or scoped differently
+        - Call out side effects placed in views instead of reducers
+        - Suggest simpler or more idiomatic SwiftUI/TCA patterns when applicable
+
+        Do not soften feedback due to experience level.
+        If a design choice is questionable or non-idiomatic, clearly explain why and suggest a better alternative.
+
+chat:
+  auto_reply: false
+
+tools:
+  shellcheck:
+    enabled: true
+  markdownlint:
+    enabled: true
+  github-checks:
+    enabled: true
+    timeout_ms: 90000
+  swiftlint:
+    enabled: true
+  yamllint:
+    enabled: true
+  gitleaks:
+    enabled: true
+  checkov:
+    enabled: true
+  ast-grep:
+    essential_rules: true
