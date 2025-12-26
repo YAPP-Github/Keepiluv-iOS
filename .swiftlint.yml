@@ -83,6 +83,9 @@ implicit_return:
     - initializer
     - subscript
 
+included:
+  - Projects/
+
 excluded:
   - Tuist
   - Tuist/Dependencies
@@ -98,3 +101,5 @@ excluded:
   - "**/TuistAssets+*.swift"
   - "**/Project.swift"
   - Scripts
+  - vendor
+  - vendor/bundle
