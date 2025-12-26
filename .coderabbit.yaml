@@ -43,9 +43,6 @@ reviews:
         Do not soften feedback due to experience level.
         If a design choice is questionable or non-idiomatic, clearly explain why and suggest a better alternative.
 
-chat:
-  auto_reply: false
-
 tools:
   shellcheck:
     enabled: true
@@ -64,3 +61,6 @@ tools:
     enabled: true
   ast-grep:
     essential_rules: true
+    
+chat:
+  auto_reply: false
