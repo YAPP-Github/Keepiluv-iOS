@@ -8,7 +8,7 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = ModuleProjectFactory.makeModule(
+let project = Project.makeModule(
     name: "{{ name }}"
     targets: "{{ target }}"
 )
