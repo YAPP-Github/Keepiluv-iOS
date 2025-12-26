@@ -52,7 +52,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const baseBranch = repo.default_branch;
+            const baseBranch = "develop";
 
             const { data: baseRef } = await github.rest.git.getRef({
               owner: context.repo.owner,
