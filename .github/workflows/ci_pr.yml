@@ -13,16 +13,14 @@ jobs:
       - name: 🔐 Create temporary keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          MATCH_KEYCHAIN_NAME: ci.keychain-db
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
         run: |
-          KEYCHAIN_PATH="$HOME/Library/Keychains/$MATCH_KEYCHAIN_NAME"
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 3600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-          security list-keychains -d user -s "$KEYCHAIN_PATH"
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+              set -euo pipefail
+              security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME" || true
+              security set-keychain-settings -lut 3600 "$KEYCHAIN_NAME"
+              security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+              security list-keychains -d user -s "$KEYCHAIN_NAME" "$(security default-keychain | tr -d '"')"
+              security default-keychain -s "$KEYCHAIN_NAME"
 
       - name: 💫 Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -58,7 +56,7 @@ jobs:
       - name: 🧹 Teardown()
         if: always()
         env:
-          KEYCHAIN_NAME: ci.keychain-db
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
         run: |
           if [ -n "${KEYCHAIN_NAME:-}" ]; then
             security delete-keychain "$HOME/Library/Keychains/$KEYCHAIN_NAME" || true
