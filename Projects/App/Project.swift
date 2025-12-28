@@ -6,7 +6,16 @@ let project = Project(
     targets: [
         .app(
             implements: .iOS,
-            config: .init()
+            config: .init(
+                scripts: [.swiftLint],
+                settings: .settings(
+                    base: [
+                        "CODE_SIGN_STYLE": "Manual",
+                        "DEVELOPMENT_TEAM": "\(Project.Environment.BundleId.teamId)",
+                        "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)"
+                    ]
+                )
+            )
         )
     ]
 )

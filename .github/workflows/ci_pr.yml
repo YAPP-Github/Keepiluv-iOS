@@ -1,0 +1,68 @@
+name: Fastlane CI (PR)
+
+on:
+  pull_request:
+
+jobs:
+  ci_pr:
+    runs-on: macos-15
+    steps:
+      - name: 🔄 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Create temporary keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+        run: |
+              set -euo pipefail
+              security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME" || true
+              security set-keychain-settings -lut 3600 "$KEYCHAIN_NAME"
+              security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+              security list-keychains -d user -s "$KEYCHAIN_NAME" "$(security default-keychain | tr -d '"')"
+              security default-keychain -s "$KEYCHAIN_NAME"
+
+      - name: 💫 Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.0"
+          bundler-cache: true
+
+      - name: 🛠 Install Tuist (manual binary)
+        run: |
+          TUIST_VERSION=4.118.0
+          mkdir -p ~/.tuist-bin
+          curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
+          unzip -o tuist.zip -d ~/.tuist-bin
+          chmod +x ~/.tuist-bin/tuist
+          echo "$HOME/.tuist-bin" >> $GITHUB_PATH
+
+      - name: 🛠 Install tuist dependencies
+        run: tuist install
+
+      - name: 🧰 Install SwiftLint
+        run: |
+          brew install swiftlint
+          swiftlint version
+
+      - name: 🧪 Run PR Checks (build + test)
+        env:
+          MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
+          DIST_TEAM_ID: ${{ secrets.DIST_TEAM_ID }}
+        run: bundle exec fastlane ci_pr
+
+      - name: 🧹 Teardown()
+        if: always()
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+        run: |
+          if [ -n "${KEYCHAIN_NAME:-}" ]; then
+            security delete-keychain "$HOME/Library/Keychains/$KEYCHAIN_NAME" || true
+          fi

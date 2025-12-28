@@ -1,0 +1,196 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+def match_with_optional_keychain(type:, readonly:)
+  options = { type: type, readonly: readonly }
+
+  if ENV["CI"] == "true"
+    options[:keychain_name] = ENV.fetch("KEYCHAIN_NAME")
+    options[:keychain_password] = ENV.fetch("KEYCHAIN_PASSWORD")
+  end
+
+  match(**options)
+end
+
+platform :ios do
+  WORKSPACE_NAME     = "Twix.xcworkspace"
+  MAIN_APP_SCHEME    = "Twix"
+  WORKSPACE_SCHEME   = "Twix-Workspace"
+
+  BUNDLE_ID          = ENV["APP_IDENTIFIER"]
+  APPLE_ID           = ENV["APPLE_ID"]
+
+  MODULE_SCHEMES = %w[CoreNetwork DomainAuth FeatureOnboarding SharedDesignSystem]
+
+  desc "Show project info"
+  lane :info do
+    generate
+
+    UI.header("📱 Booket Project Information")
+    UI.message("Workspace: #{WORKSPACE_NAME}")
+    UI.message("Main App Scheme: #{MAIN_APP_SCHEME}")
+    UI.message("Bundle ID: #{BUNDLE_ID}")
+    UI.message("Apple ID: #{APPLE_ID || 'Not set'}")
+
+    UI.message("\n🔧 Environment Variables:")
+    UI.message("  - DEV_TEAM_ID: #{ENV['DEV_TEAM_ID']}")
+    UI.message("  - DIST_TEAM_ID: #{ENV['DIST_TEAM_ID']}")
+    UI.message("  - APP_IDENTIFIER: #{BUNDLE_ID}")
+    UI.message("  - APPLE_ID: #{APPLE_ID}")
+
+    UI.message("\n📦 Module Schemes:")
+    MODULE_SCHEMES.each { |scheme| UI.message("  - #{scheme}") }
+
+    UI.message("\n📋 All Available Schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  # 사용 금지
+  lane :setup_signing do
+    unlock_keychain(
+      path: "~/Library/Keychains/login.keychain-db",
+      password: ENV["KEYCHAIN_PASSWORD"]
+    )
+
+    match(type: "development", readonly: false)
+    match(type: "appstore", readonly: false)
+  end
+
+  lane :load_signing do
+    if ENV["CI"] != "true"
+      unlock_keychain(
+        path: "~/Library/Keychains/login.keychain-db",
+        password: ENV["KEYCHAIN_PASSWORD"]
+      )
+    end
+
+    match_with_optional_keychain(type: "development", readonly: true)
+    match_with_optional_keychain(type: "appstore", readonly: true)
+  end
+
+  lane :archive_for_ci do
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      skip_package_ipa: true
+    )
+  end
+
+  lane :archive_for_upload do
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      skip_package_ipa: false
+    )
+  end
+
+  desc "Generate Tuist project"
+  lane :generate do
+    UI.message("🏗️ Generating Tuist project...")
+
+    if ENV["CI"] == "true"
+      sh("cd .. && tuist generate")
+    else
+      sh("cd .. && make generate")
+    end
+    
+    UI.success("✅ Tuist project generated!")
+
+    UI.message("📋 Available schemes:")
+    sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
+  end
+
+  desc "Build all modules (without main app)"
+  lane :build_modules do
+    UI.message("🔨 Building all modules...")
+
+    MODULE_SCHEMES.each do |scheme|
+      UI.message("Building #{scheme}...")
+      xcodebuild(
+        workspace: WORKSPACE_NAME,
+        scheme: scheme,
+        configuration: "Debug",
+        sdk: "iphonesimulator",
+        xcargs: [
+          "CODE_SIGNING_ALLOWED=NO",
+          "CODE_SIGN_IDENTITY=''",
+          "CODE_SIGNING_REQUIRED=NO"
+        ].join(" ")
+      )
+    end
+
+    UI.success("✅ All modules built successfully!")
+  end
+
+  lane :build_app_simulator do
+    UI.message("📱 Building app target (simulator, no signing)...")
+
+    xcodebuild(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Debug",
+      sdk: "iphonesimulator",
+      xcargs: "CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' "
+    )
+  end
+
+  desc "Run SwiftLint"
+  lane :lint do
+    sh("cd .. && swiftlint lint --config .swiftlint.yml")
+  end
+
+  desc "CI for pull requests: build modules + test modules"
+  lane :ci_pr do
+    begin
+      generate
+      lint
+      build_app_simulator
+    rescue => e
+      UI.error("CI failed: #{e.message}")
+      raise e
+    end
+  end
+
+  lane :ci_main do
+    generate
+    lint
+    load_signing
+    archive_for_ci
+  end
+
+  lane :release_tag do
+    generate
+    load_signing
+    archive_for_upload
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_P8_BASE64"],
+      is_key_content_base64: true
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

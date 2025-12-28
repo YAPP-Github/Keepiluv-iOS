@@ -1,0 +1,105 @@
+opt_in_rules:
+  - attributes                          # 속성(Attributes) 정렬 및 스타일 통일
+  - array_init                          # Array(repeating:count:) 오용 방지
+  - closure_body_length                 # 클로저 본문 길이 제한
+  - closure_end_indentation             # 클로저 끝 들여쓰기 정렬
+  - closure_spacing                     # 클로저 앞뒤 공백 스타일 통일
+  - collection_alignment                # 여러 줄 컬렉션 요소 들여쓰기 정렬
+  - comma_inheritance                   # 프로토콜 목록의 콤마 위치 통일
+  - discouraged_assert                  # assert() 대신 XCTAssert 사용 권장
+  - discouraged_none_name               # enum case "none" 이름 사용 지양(TCA에서 오류 발생시 제거)
+  - discouraged_object_literal          # #colorLiteral 등 Object Literal 사용 지양
+  - empty_count                         # .count == 0 대신 .isEmpty 사용 권장
+  - empty_string                        # "" 비교 대신 .isEmpty 사용 권장
+  - explicit_type_interface             # 변수 타입 명시 요구 (타입 추론 금지 옵션)
+  - fatal_error_message                 # fatalError()에 메시지 반드시 포함
+  - file_name_no_space                  # 파일 이름에 공백 금지
+  - force_unwrapping                    # ! 강제 언래핑 금지
+  - function_default_parameter_at_end   # 기본값 파라미터는 마지막에 위치
+  - identical_operands                  # 좌우 피연산자가 동일한 비교 금지
+  - implicit_return                     # 리턴 키워드 붙이기 필수
+  - incompatible_concurrency_annotation # concurrency annotation(@MainActor 등) 올바르게 사용
+  - indentation_width                   # 들여쓰기 폭 규칙 통일
+  - joined_default_parameter            # 기본값 파라미터는 한 줄로 붙여쓰기
+  - let_var_whitespace                  # let/var 선언 시 공백 스타일 통일
+  - literal_expression_end_indentation  # 리터럴 종료 들여쓰기 통일
+  - modifier_order                      # 접근제어자/수식어 순서 강제 (public → static → final 등)
+  - multiline_arguments                 # 여러 줄 함수 인자 정렬 규칙 적용
+  - multiline_arguments_brackets        # 여러 줄 인자 괄호 위치 정렬
+  - multiline_function_chains           # 메서드 체인 줄바꿈 및 들여쓰기 통일
+  - multiline_literal_brackets          # 여러 줄 리터럴의 괄호/대괄호 위치 통일
+  - multiline_parameters                # 여러 줄 함수 파라미터 정렬
+  - multiline_parameters_brackets       # 여러 줄 파라미터 괄호 정렬
+  - no_empty_block                      # 비어있는 코드 블록 금지
+  - no_magic_numbers                    # 이해하기 어려운 숫자 상수(매직 넘버) 금지
+  - number_separator                    # 큰 숫자 리터럴에 _ 구분자 사용
+  - operator_usage_whitespace           # 연산자 주변 공백 스타일 통일
+  - optional_enum_case_matching         # Optional enum 패턴 매칭 시 올바른 비교 사용
+  - period_spacing                      # . 점 앞뒤 공백 스타일 통일
+  - prefer_self_in_static_references    # static 멤버는 Self로 참조 권장
+  - prefer_zero_over_explicit_init      # Int(0) 대신 0 사용 권장
+  - private_swiftui_state               # SwiftUI @State는 private 붙이기
+  - redundant_nil_coalescing            # 불필요한 ?? nil 제거
+  - self_binding                        # self를 다른 변수로 shadowing 금지
+  - sorted_imports                      # import 정렬
+  - superfluous_else                    # return 이후 else 제거 (불필요한 else 금지)
+  - type_contents_order                 # 타입 내부 구성 요소 순서 정렬
+  - unneeded_parentheses_in_closure_argument # 클로저 인자 괄호 제거
+  - vertical_parameter_alignment_on_call # 함수 호출 시 파라미터 세로 정렬
+  - vertical_whitespace_closing_braces   # 닫는 중괄호 위 불필요한 빈 줄 금지
+  - vertical_whitespace_between_cases    # case 사이에 빈 줄 필요
+  - weak_delegate                        # delegate는 weak 권장
+  - yoda_condition                       # Yoda 조건형(값 == 변수) 금지
+
+  # 아래 룰은 존재하지 않는 룰이라고 함 (swiftlint latest=0.62.2_1 기준)
+  # - unneeded_throws_rethrows             # 불필요한 throws/rethrows 제거
+  # - multiline_call_arguments            # 여러 줄 함수 호출 인자 정렬
+
+
+analyzer_rules:
+  - unused_declaration
+  - unused_import
+
+type_name:
+  min_length:
+    warning: 3
+    error: 1
+  max_length:
+    warning: 40
+    error: 50
+
+# 특정 함수(reducer body)의 경우 disable swiftlint 주석으로 막기
+function_body_length:
+  warning: 30
+  error: 50
+
+type_body_length:
+  warning: 200
+  error: 400
+
+implicit_return:
+  included:
+    - function
+    - initializer
+    - subscript
+
+included:
+  - Projects/
+
+excluded:
+  - Tuist
+  - Tuist/Dependencies
+  - Carthage
+  - Pods
+  - .build
+  - Derived
+  - fastlane
+  - "**/*.generated.swift"
+  - "**/Derived/**"
+  - "**/*.tuist.generated.swift"
+  - "**/TuistBundle+*.swift"
+  - "**/TuistAssets+*.swift"
+  - "**/Project.swift"
+  - Scripts
+  - vendor
+  - vendor/bundle

@@ -1,0 +1,5 @@
+app_identifier(ENV["APP_IDENTIFIER"])
+apple_id(ENV["APPLE_ID"])
+
+team_id(ENV["DEV_TEAM_ID"])
+itc_team_id(ENV["DIST_TEAM_ID"])

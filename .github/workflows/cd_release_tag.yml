@@ -1,0 +1,69 @@
+name: Fastlane CD (Release Tag)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release_tag:
+    runs-on: macos-15
+    steps:
+      - name: 🔄 Checkout source code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Create temporary keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+        run: |
+              set -euo pipefail
+              security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME" || true
+              security set-keychain-settings -lut 3600 "$KEYCHAIN_NAME"
+              security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
+              security list-keychains -d user -s "$KEYCHAIN_NAME" "$(security default-keychain | tr -d '"')"
+              security default-keychain -s "$KEYCHAIN_NAME"
+
+      - name: 💫 Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3.0"
+          bundler-cache: true
+
+      - name: 🛠 Install Tuist (manual binary)
+        run: |
+          TUIST_VERSION=4.118.0
+          mkdir -p ~/.tuist-bin
+          curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
+          unzip -o tuist.zip -d ~/.tuist-bin
+          chmod +x ~/.tuist-bin/tuist
+          echo "$HOME/.tuist-bin" >> $GITHUB_PATH
+
+      - name: 🛠 Install tuist dependencies
+        run: tuist install
+
+      - name: 🚀 Run Release (archive + upload)
+        env:
+          MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
+          DIST_TEAM_ID: ${{ secrets.DIST_TEAM_ID }}
+          
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: bundle exec fastlane release_tag
+
+      - name: 🧹 Teardown()
+        if: always()
+        env:
+          KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+        run: |
+          if [ -n "${KEYCHAIN_NAME:-}" ]; then
+            security delete-keychain "$HOME/Library/Keychains/$KEYCHAIN_NAME" || true
+          fi
