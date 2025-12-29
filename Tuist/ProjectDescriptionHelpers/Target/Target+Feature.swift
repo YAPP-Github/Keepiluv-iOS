@@ -77,9 +77,15 @@ public extension Target {
     /// - Returns: Feature 예제 앱 타겟 설정이 적용된 `Target`
     static func feature(example module: Module.Feature, config: TargetConfig) -> Self {
         var newConfig = config
-        newConfig.name = Module.Feature.name + module.rawValue + "Example"
+        let exampleName = Module.Feature.name + module.rawValue + "Example"
+        newConfig.name = exampleName
         newConfig.sources = .exampleSources
         newConfig.product = .app
+        newConfig.bundleId = Project.Environment.BundleId.bundlePrefix
+        newConfig.destinations = .iOS
+        newConfig.resources = ["Resources/**"]
+        newConfig.productName = exampleName
+        newConfig.deploymentTargets = Project.Environment.deploymentTarget
         
         return makeTarget(config: newConfig)
     }

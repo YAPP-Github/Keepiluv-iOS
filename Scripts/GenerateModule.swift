@@ -47,7 +47,7 @@ func registerModuleDependency() {
         makeScaffold(target: .interface)
         makeScaffold(target: .sources)
         targetString += """
-        
+
             .\(lowercasedLayer)(
                 interface: .\(lowercasedModuleName),
                 config: .init()
@@ -59,7 +59,7 @@ func registerModuleDependency() {
                         .\(lowercasedLayer)(interface: .\(lowercasedModuleName))
                     ]
                 )
-            ),
+            )
     """
     } else {
         makeScaffold(target: .sources)
@@ -68,7 +68,7 @@ func registerModuleDependency() {
             .\(lowercasedLayer)(
                 implements: .\(lowercasedModuleName),
                 config: .init()
-            ),
+            )
     """
     }
     
@@ -76,6 +76,8 @@ func registerModuleDependency() {
     if hasUnitTests {
         makeScaffold(target: .testing)
         makeScaffold(target: .tests)
+        targetString += ","
+        
         if hasInterface {
             targetString += """
         
@@ -94,8 +96,7 @@ func registerModuleDependency() {
                             .\(lowercasedLayer)(testing: .\(lowercasedModuleName))
                         ]
                     )
-                ),
-        
+                )
         """
         } else {
             targetString += """
@@ -115,14 +116,14 @@ func registerModuleDependency() {
                             .\(lowercasedLayer)(testing: .\(lowercasedModuleName))
                         ]
                     )
-                ),
-        
+                )
         """
         }
     }
 
     if hasExample {
         makeScaffold(target: .example)
+        targetString += ","
         if hasInterface {
             targetString += """
             
@@ -134,7 +135,6 @@ func registerModuleDependency() {
                         ]
                     )
                 )
-        
         """
         } else {
             targetString += """
@@ -147,7 +147,6 @@ func registerModuleDependency() {
                         ]
                     )
                 )
-        
         """
         }
     }
@@ -195,7 +194,6 @@ let project = Project.makeModule(
     name: Module.\(layer.rawValue).name + Module.\(layer.rawValue).\(lowercasedModuleName).rawValue,
     targets: \(targetString)
 )
-
 """
     writeContentInFile(
         path: currentPath + "Projects/\(layer.rawValue)/\(moduleName)/Project.swift",

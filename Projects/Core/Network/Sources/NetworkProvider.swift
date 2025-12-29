@@ -62,19 +62,19 @@ private extension NetworkProvider {
         }
         
         switch httpResponse.statusCode {
-        case 200...299:
+        case HTTPStatusCode.success:
             guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
                 throw NetworkError.decodingError
             }
             return decodedResponse
             
-        case 401 :
+        case HTTPStatusCode.unauthorized:
             throw NetworkError.authorizationError
             
-        case 400...499:
+        case HTTPStatusCode.badRequest:
             throw NetworkError.badRequestError
             
-        case 500...599 :
+        case HTTPStatusCode.serverError:
             throw NetworkError.serverError
             
         default:

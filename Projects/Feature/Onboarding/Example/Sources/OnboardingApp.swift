@@ -1,14 +1,14 @@
 //
-//  {{ name }}View.swift
+//  OnboardingView.swift
 //
 //
-//  Created by {{ author }} on {{ date }}.
+//  Created by Jihun on 12/29/25.
 //
 
 import SwiftUI
 
 @main
-struct {{ name }}App: App {
+struct OnboardingApp: App {
     var body: some Scene {
         WindowGroup {
             Text("Hello Twix")

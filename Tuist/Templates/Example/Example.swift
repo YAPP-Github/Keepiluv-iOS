@@ -22,7 +22,7 @@ private let template = Template(
     ],
     items: [
         .file(
-            path: "Projects/\(layerAttribute)/\(nameAttribute)/Example/Sources/AppView.swift",
+            path: "Projects/\(layerAttribute)/\(nameAttribute)/Example/Sources/\(nameAttribute)App.swift",
             templatePath: "Source.stencil"
         )
     ]
