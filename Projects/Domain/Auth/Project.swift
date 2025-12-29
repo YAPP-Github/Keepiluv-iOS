@@ -3,7 +3,7 @@ import ProjectDescriptionHelpers
 
 let project = Project.makeModule(
     name: Module.Domain.name + Module.Domain.auth.rawValue,
-    targets: [    
+    targets: [
         .domain(
             interface: .auth,
             config: .init()
@@ -31,7 +31,6 @@ let project = Project.makeModule(
                     .domain(testing: .auth)
                 ]
             )
-        ),
-
+        )
     ]
 )

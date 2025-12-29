@@ -3,7 +3,7 @@ import ProjectDescriptionHelpers
 
 let project = Project.makeModule(
     name: Module.Core.name + Module.Core.network.rawValue,
-    targets: [    
+    targets: [
         .core(
             interface: .network,
             config: .init()
@@ -31,7 +31,6 @@ let project = Project.makeModule(
                     .core(testing: .network)
                 ]
             )
-        ),
-
+        )
     ]
 )

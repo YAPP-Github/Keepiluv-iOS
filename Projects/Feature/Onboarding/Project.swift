@@ -3,7 +3,7 @@ import ProjectDescriptionHelpers
 
 let project = Project.makeModule(
     name: Module.Feature.name + Module.Feature.onboarding.rawValue,
-    targets: [    
+    targets: [
         .feature(
             interface: .onboarding,
             config: .init()
@@ -32,7 +32,6 @@ let project = Project.makeModule(
                 ]
             )
         ),
-    
         .feature(
             example: .onboarding,
             config: .init(
@@ -41,6 +40,5 @@ let project = Project.makeModule(
                 ]
             )
         )
-
     ]
 )
