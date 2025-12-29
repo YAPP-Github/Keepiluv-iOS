@@ -11,7 +11,7 @@ opt_in_rules:
   - discouraged_object_literal          # #colorLiteral 등 Object Literal 사용 지양
   - empty_count                         # .count == 0 대신 .isEmpty 사용 권장
   - empty_string                        # "" 비교 대신 .isEmpty 사용 권장
-  - explicit_type_interface             # 변수 타입 명시 요구 (타입 추론 금지 옵션)
+  # - explicit_type_interface             # 변수 타입 명시 요구 (타입 추론 금지 옵션) -> 저번에 제외하기로 했는데 안빠져 있어 제외
   - fatal_error_message                 # fatalError()에 메시지 반드시 포함
   - file_name_no_space                  # 파일 이름에 공백 금지
   - force_unwrapping                    # ! 강제 언래핑 금지
@@ -30,7 +30,7 @@ opt_in_rules:
   - multiline_literal_brackets          # 여러 줄 리터럴의 괄호/대괄호 위치 통일
   - multiline_parameters                # 여러 줄 함수 파라미터 정렬
   - multiline_parameters_brackets       # 여러 줄 파라미터 괄호 정렬
-  - no_empty_block                      # 비어있는 코드 블록 금지
+  # - no_empty_block                    # 비어있는 코드 블록 금지 -> public init () { } 할 경우가 많아서 제외
   - no_magic_numbers                    # 이해하기 어려운 숫자 상수(매직 넘버) 금지
   - number_separator                    # 큰 숫자 리터럴에 _ 구분자 사용
   - operator_usage_whitespace           # 연산자 주변 공백 스타일 통일
@@ -43,7 +43,7 @@ opt_in_rules:
   - self_binding                        # self를 다른 변수로 shadowing 금지
   - sorted_imports                      # import 정렬
   - superfluous_else                    # return 이후 else 제거 (불필요한 else 금지)
-  - type_contents_order                 # 타입 내부 구성 요소 순서 정렬
+  # - type_contents_order               # 타입 내부 구성 요소 순서 정렬 -> SwiftUI의 경우 init() 아래 body(연산 프로퍼티)를 정의하는 경우가 많아서 제외
   - unneeded_parentheses_in_closure_argument # 클로저 인자 괄호 제거
   - vertical_parameter_alignment_on_call # 함수 호출 시 파라미터 세로 정렬
   - vertical_whitespace_closing_braces   # 닫는 중괄호 위 불필요한 빈 줄 금지
@@ -55,6 +55,10 @@ opt_in_rules:
   # - unneeded_throws_rethrows             # 불필요한 throws/rethrows 제거
   # - multiline_call_arguments            # 여러 줄 함수 호출 인자 정렬
 
+
+# Enter로 개행 시 whitespace가 자동 적용 되는데 empty_line일 경우 무시하게끔 수정
+trailing_whitespace:
+  ignores_empty_lines: true
 
 analyzer_rules:
   - unused_declaration
