@@ -5,17 +5,13 @@ import PackageDescription
     import struct ProjectDescription.PackageSettings
 
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,]
-        productTypes: [:]
+        productTypes: ["ComposableArchitecture": .staticFramework,]
     )
 #endif
 
 let package = Package(
     name: "Twix",
     dependencies: [
-        // Add your own dependencies here:
-        // You can read more about dependencies here:
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.1")
     ]
 )
