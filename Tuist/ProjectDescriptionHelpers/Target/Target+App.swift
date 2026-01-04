@@ -29,7 +29,6 @@ public extension Target {
             newConfig.sources = .sources
             newConfig.resources = ["Resources/**"]
             newConfig.productName = Project.Environment.appName
-            newConfig.deploymentTargets = Project.Environment.deploymentTarget
         }
         
         return .makeTarget(config: newConfig)
@@ -46,7 +45,6 @@ public extension Target {
     ) -> Self {
         var newConfig = config
         newConfig.name = Module.Extension.name + module.rawValue
-        newConfig.deploymentTargets = Project.Environment.deploymentTarget
         newConfig.destinations = .iOS
         
         return .makeTarget(config: newConfig)

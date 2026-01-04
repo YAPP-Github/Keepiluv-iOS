@@ -71,7 +71,7 @@ public struct TargetConfig {
         product: Product = .staticLibrary,
         productName: String? = nil,
         bundleId: String = "",
-        deploymentTargets: DeploymentTargets? = nil,
+        deploymentTargets: DeploymentTargets? = Project.Environment.deploymentTarget,
         infoPlist: InfoPlist? = .default,
         sources: SourceFilesList? = nil,
         resources: ResourceFileElements? = nil,
