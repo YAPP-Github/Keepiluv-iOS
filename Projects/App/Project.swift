@@ -8,6 +8,9 @@ let project = Project(
             implements: .iOS,
             config: .init(
                 scripts: [.swiftLint],
+                dependencies: [
+                    .feature
+                ],
                 settings: .settings(
                     base: [
                         "CODE_SIGN_STYLE": "Manual",

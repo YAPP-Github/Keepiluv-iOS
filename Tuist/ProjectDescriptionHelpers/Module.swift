@@ -87,6 +87,7 @@ public extension Module {
     ///
     /// 디자인 시스템, UI 컴포넌트, 범용 유틸리티 등을 포함합니다.
     enum Shared: String, CaseIterable {
+        case thirdPartyLib = "ThirdPartyLib"
         case designSystem = "DesignSystem"
         
         /// Shared 타겟 이름의 기본 prefix입니다.

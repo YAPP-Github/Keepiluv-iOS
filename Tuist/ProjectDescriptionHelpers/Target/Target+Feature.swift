@@ -85,7 +85,6 @@ public extension Target {
         newConfig.destinations = .iOS
         newConfig.resources = ["Resources/**"]
         newConfig.productName = exampleName
-        newConfig.deploymentTargets = Project.Environment.deploymentTarget
         
         return makeTarget(config: newConfig)
     }

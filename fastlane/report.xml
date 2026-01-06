@@ -5,22 +5,42 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000312">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000324">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: unlock_keychain" time="7.825985">
+      <testcase classname="fastlane.lanes" name="1: Switch to ios generate lane" time="0.00027">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: match" time="1.432397">
+      <testcase classname="fastlane.lanes" name="2: cd .. &amp;&amp; make generate" time="3.189318">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: match" time="1.381197">
+      <testcase classname="fastlane.lanes" name="3: xcodebuild -workspace ../Twix.xcworkspace -list" time="2.553961">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: Switch to ios lint lane" time="0.000253">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: cd .. &amp;&amp; swiftlint lint --config .swiftlint.yml" time="2.024134">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: Switch to ios build_app_simulator lane" time="0.000141">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: xcodebuild" time="40.64033">
         
       </testcase>
     

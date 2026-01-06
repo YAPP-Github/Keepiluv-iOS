@@ -25,9 +25,9 @@ public extension Target {
     static func shared(implements module: Module.Shared, config: TargetConfig) -> Self {
         var newConfig = config
         newConfig.name = Module.Shared.name + module.rawValue
-       
+        newConfig.sources = .sources
+        
         if module == .designSystem {
-            newConfig.sources = .sources
             newConfig.resources = ["Resources/**"]
             newConfig.product = .staticFramework
         }
