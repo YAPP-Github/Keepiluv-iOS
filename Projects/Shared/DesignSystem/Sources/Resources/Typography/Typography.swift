@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-
-/// 모듈 전반에서 공통으로 사용하는 Typography 토큰입니다.
-
 // swiftlint:disable identifier_name
 // Figma 이름 그대로 따라가기 위해 disable
+/// 모듈 전반에서 공통으로 사용하는 Typography 토큰입니다.
 public enum TypographyToken {
     case h1_28b
     case h2_24r
