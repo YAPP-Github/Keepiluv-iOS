@@ -10,6 +10,7 @@ let project = Project.makeModule(
         )
     ],
     resourceSynthesizers: [
-        .fonts()
+        .fonts(),
+        .assets()
     ]
 )
