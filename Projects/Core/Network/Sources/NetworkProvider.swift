@@ -7,21 +7,69 @@
 
 import Foundation
 
-import CoreNetworkInterface
+@preconcurrency import CoreNetworkInterface
 
-public struct NetworkProvider: NetworkProviderProtocol {
+public struct NetworkProvider: NetworkProviderProtocol, Sendable {
+    private let session: URLSession
+    private let interceptors: [NetworkInterceptor]
 
-    public init() { }
+    /// NetworkProvider를 생성합니다.
+    /// - Parameter interceptors: 네트워크 요청을 intercept할 Interceptor 배열 (기본값: 빈 배열)
+    public init(interceptors: [NetworkInterceptor] = []) {
+        let configuration = URLSessionConfiguration.default
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.urlCache = nil
 
+        self.session = URLSession(
+            configuration: configuration,
+            delegate: nil,
+            delegateQueue: nil
+        )
+        self.interceptors = interceptors
+    }
+
+    // swiftlint:disable:next function_body_length
     public func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
         guard let url = makeURL(endpoint: endpoint) else {
             throw NetworkError.invalidURLError
         }
 
         let request = try makeURLRequest(url: url, endpoint: endpoint)
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        return try processResponse(data: data, response: response)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            var createdTask: URLSessionDataTask?
+            let task = session.dataTask(with: request) { [interceptors] data, response, error in
+                if let task = createdTask {
+                    if let data = data {
+                        interceptors.forEach { $0.didReceiveData(task, data: data) }
+                    }
+                    interceptors.forEach { $0.didCompleteTask(task, error: error) }
+                }
+
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                guard let data = data, let response = response else {
+                    continuation.resume(throwing: NetworkError.invalidResponseError)
+                    return
+                }
+
+                do {
+                    let result: T = try self.processResponse(data: data, response: response)
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            createdTask = task
+
+            interceptors.forEach { $0.didCreateTask(task) }
+
+            task.resume()
+        }
     }
 }
 
