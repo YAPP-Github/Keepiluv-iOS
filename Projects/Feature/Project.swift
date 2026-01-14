@@ -8,8 +8,11 @@ let project = Project.makeModule(
             config: .init(
                 sources: .sources,
                 dependencies: [
-                    .domain
-                ] + Module.Feature.allCases.map { .feature(implements: $0) }
+                    ] + Module.Domain.allCases.map { .domain(interface: $0) } + [
+                    .core(implements: .logging),
+                    .core(implements: .network),
+                    .core(interface: .network)
+                ] + Module.Feature.allCases.map { .feature(interface: $0) }
             )
         )
     ]
