@@ -7,13 +7,13 @@
 
 import SwiftUI
 
+/// 토글 버튼의 스타일 타입을 정의합니다.
 public enum TXToggleButtonType {
     case myCheck
     case coupleCheck
 }
 
 extension TXToggleButtonType {
-    
     func fillColor(isSelected: Bool) -> Color {
         switch self {
         case .myCheck, .coupleCheck:
@@ -25,6 +25,7 @@ extension TXToggleButtonType {
         switch self {
         case .myCheck:
             return Color.Gray.gray500
+            
         case .coupleCheck:
             return isSelected ? Color.Gray.gray500 : Color.Gray.gray200
         }
@@ -33,9 +34,10 @@ extension TXToggleButtonType {
     func strokeBorderWidth(isSelected: Bool) -> CGFloat {
         switch self {
         case .myCheck:
-            return 1
+            return LineWidth.m
+            
         case .coupleCheck:
-            return isSelected ? 0 : 1
+            return isSelected ? 0 : LineWidth.m
         }
     }
     
@@ -43,6 +45,7 @@ extension TXToggleButtonType {
         switch self {
         case .myCheck:
             return Color.Common.white
+            
         case .coupleCheck:
             return .clear
         }
@@ -51,7 +54,8 @@ extension TXToggleButtonType {
     var strokeWidth: CGFloat {
         switch self {
         case .myCheck:
-            return 1.4
+            return LineWidth.xl
+            
         case .coupleCheck:
             return 0
         }
