@@ -50,6 +50,7 @@ public extension Module {
     /// UI와 사용자 상호작용 로직을 중심으로 설계됩니다.
     enum Feature: String, CaseIterable {
         case onboarding = "Onboarding"
+        case mainTab = "MainTab"
 
         /// Feature 타겟 이름의 기본 prefix입니다.
         public static let name: String = "Feature"
