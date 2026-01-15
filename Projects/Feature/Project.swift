@@ -8,11 +8,12 @@ let project = Project.makeModule(
             config: .init(
                 sources: .sources,
                 dependencies: [
-                    ] + Module.Domain.allCases.map { .domain(interface: $0) } + [
+                    .external(dependency: .ComposableArchitecture),
                     .core(implements: .logging),
-                    .core(implements: .network),
-                    .core(interface: .network)
-                ] + Module.Feature.allCases.map { .feature(interface: $0) }
+                ] + Module.Feature.allCases.flatMap { [
+                    .feature(interface: $0),
+                    .feature(implements: $0)
+                ] }
             )
         )
     ]
