@@ -11,50 +11,57 @@ public extension Image {
     enum Icon { }
 }
 
+/// 모듈 전반에서 공통으로 사용하는 Icon형식의 Image 입니다.
 public extension Image.Icon {
     enum Illustration { }
     enum Symbol { }
 }
 
+/// 모듈 전반에서 공통으로 사용하는 Illustration형식의 Icon 입니다.
 public extension Image.Icon.Illustration {
-    static let add = SharedDesignSystemAsset.Icons.Illustration.iconAdd.swiftUIImage
-    static let delete = SharedDesignSystemAsset.Icons.Illustration.iconDelete.swiftUIImage
-    static let drug = SharedDesignSystemAsset.Icons.Illustration.iconDrug.swiftUIImage
-    static let emoji1 = SharedDesignSystemAsset.Icons.Illustration.iconEmoji1.swiftUIImage
-    static let emoji2 = SharedDesignSystemAsset.Icons.Illustration.iconEmoji2.swiftUIImage
-    static let emoji3 = SharedDesignSystemAsset.Icons.Illustration.iconEmoji3.swiftUIImage
-    static let emoji4 = SharedDesignSystemAsset.Icons.Illustration.iconEmoji4.swiftUIImage
-    static let emoji5 = SharedDesignSystemAsset.Icons.Illustration.iconEmoji5.swiftUIImage
-    static let emojiAdd = SharedDesignSystemAsset.Icons.Illustration.iconEmojiAdd.swiftUIImage
-    static let exercise = SharedDesignSystemAsset.Icons.Illustration.iconExercise.swiftUIImage
-    static let fire = SharedDesignSystemAsset.Icons.Illustration.iconFire.swiftUIImage
-    static let heart = SharedDesignSystemAsset.Icons.Illustration.iconHeart.swiftUIImage
-    static let success = SharedDesignSystemAsset.Icons.Illustration.iconSuccess.swiftUIImage
+    typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Icons.Illustration
+    
+    static let add = IllustrationAsset.iconAdd.swiftUIImage
+    static let delete = IllustrationAsset.iconDelete.swiftUIImage
+    static let drug = IllustrationAsset.iconDrug.swiftUIImage
+    static let emoji1 = IllustrationAsset.iconEmoji1.swiftUIImage
+    static let emoji2 = IllustrationAsset.iconEmoji2.swiftUIImage
+    static let emoji3 = IllustrationAsset.iconEmoji3.swiftUIImage
+    static let emoji4 = IllustrationAsset.iconEmoji4.swiftUIImage
+    static let emoji5 = IllustrationAsset.iconEmoji5.swiftUIImage
+    static let emojiAdd = IllustrationAsset.iconEmojiAdd.swiftUIImage
+    static let exercise = IllustrationAsset.iconExercise.swiftUIImage
+    static let fire = IllustrationAsset.iconFire.swiftUIImage
+    static let heart = IllustrationAsset.iconHeart.swiftUIImage
+    static let success = IllustrationAsset.iconSuccess.swiftUIImage
 }
 
+/// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.
 public extension Image.Icon.Symbol {
-    static let icAlert = SharedDesignSystemAsset.Icons.Symbol.icAlert.swiftUIImage
-    static let icArrow1MLeft = SharedDesignSystemAsset.Icons.Symbol.icArrow1MLeft.swiftUIImage
-    static let icArrow1MRight = SharedDesignSystemAsset.Icons.Symbol.icArrow1MRight.swiftUIImage
-    static let icArrow1SRight = SharedDesignSystemAsset.Icons.Symbol.icArrow1SRight.swiftUIImage
-    static let icArrow3Left = SharedDesignSystemAsset.Icons.Symbol.icArrow3Left.swiftUIImage
-    static let icArrow3Right = SharedDesignSystemAsset.Icons.Symbol.icArrow3Right.swiftUIImage
-    static let icArrow4 = SharedDesignSystemAsset.Icons.Symbol.icArrow4.swiftUIImage
-    static let icCheck = SharedDesignSystemAsset.Icons.Symbol.icCheck.swiftUIImage
-    static let icCloseM = SharedDesignSystemAsset.Icons.Symbol.icCloseM.swiftUIImage
-    static let icCloseS = SharedDesignSystemAsset.Icons.Symbol.icCloseS.swiftUIImage
-    static let icEdit = SharedDesignSystemAsset.Icons.Symbol.icEdit.swiftUIImage
-    static let icFlash = SharedDesignSystemAsset.Icons.Symbol.icFlash.swiftUIImage
-    static let icMeatball = SharedDesignSystemAsset.Icons.Symbol.icMeatball.swiftUIImage
-    static let icMinus = SharedDesignSystemAsset.Icons.Symbol.icMinus.swiftUIImage
-    static let icPlus = SharedDesignSystemAsset.Icons.Symbol.icPlus.swiftUIImage
-    static let icReturn = SharedDesignSystemAsset.Icons.Symbol.icReturn.swiftUIImage
-    static let icSetting = SharedDesignSystemAsset.Icons.Symbol.icSetting.swiftUIImage
-    static let icTurn = SharedDesignSystemAsset.Icons.Symbol.icTurn.swiftUIImage
-    static let selectedNone1 = SharedDesignSystemAsset.Icons.Symbol.selectedNone1.swiftUIImage
-    static let selectedNone2 = SharedDesignSystemAsset.Icons.Symbol.selectedNone2.swiftUIImage
-    static let selectedNone = SharedDesignSystemAsset.Icons.Symbol.selectedNone.swiftUIImage
-    static let selectedSelected1 = SharedDesignSystemAsset.Icons.Symbol.selectedSelected1.swiftUIImage
-    static let selectedSelected2 = SharedDesignSystemAsset.Icons.Symbol.selectedSelected2.swiftUIImage
-    static let selectedSelected = SharedDesignSystemAsset.Icons.Symbol.selectedSelected.swiftUIImage
+    typealias SymbolAsset = SharedDesignSystemAsset.ImageAssets.Icons.Symbol
+    
+    static let alert = SymbolAsset.icAlert.swiftUIImage
+    static let arrow1MLeft = SymbolAsset.icArrow1MLeft.swiftUIImage
+    static let arrow1MRight = SymbolAsset.icArrow1MRight.swiftUIImage
+    static let arrow1SRight = SymbolAsset.icArrow1SRight.swiftUIImage
+    static let arrow3Left = SymbolAsset.icArrow3Left.swiftUIImage
+    static let arrow3Right = SymbolAsset.icArrow3Right.swiftUIImage
+    static let arrow4 = SymbolAsset.icArrow4.swiftUIImage
+    static let check = SymbolAsset.icCheck.swiftUIImage
+    static let closeM = SymbolAsset.icCloseM.swiftUIImage
+    static let closeS = SymbolAsset.icCloseS.swiftUIImage
+    static let edit = SymbolAsset.icEdit.swiftUIImage
+    static let flash = SymbolAsset.icFlash.swiftUIImage
+    static let meatball = SymbolAsset.icMeatball.swiftUIImage
+    static let minus = SymbolAsset.icMinus.swiftUIImage
+    static let plus = SymbolAsset.icPlus.swiftUIImage
+    static let icReturn = SymbolAsset.icReturn.swiftUIImage
+    static let setting = SymbolAsset.icSetting.swiftUIImage
+    static let turn = SymbolAsset.icTurn.swiftUIImage
+    static let selectedNone1 = SymbolAsset.selectedNone1.swiftUIImage
+    static let selectedNone2 = SymbolAsset.selectedNone2.swiftUIImage
+    static let selectedNone = SymbolAsset.selectedNone.swiftUIImage
+    static let selectedSelected1 = SymbolAsset.selectedSelected1.swiftUIImage
+    static let selectedSelected2 = SymbolAsset.selectedSelected2.swiftUIImage
+    static let selectedSelected = SymbolAsset.selectedSelected.swiftUIImage
 }
