@@ -8,7 +8,9 @@ let project = Project.makeModule(
             implements: .thirdPartyLib,
             config: .init(
                 dependencies: [
-                    .SPM.composableArchitecture
+                    .external(dependency: .ComposableArchitecture),
+                    .external(dependency: .Pulse),
+                    .external(dependency: .PulseUI),
                 ]
             )
         )
