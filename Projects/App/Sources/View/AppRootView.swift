@@ -9,7 +9,6 @@ import SwiftUI
 
 import ComposableArchitecture
 import Feature
-import FeatureMainTab
 
 struct AppRootView: View {
 

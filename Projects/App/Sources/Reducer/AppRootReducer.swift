@@ -7,7 +7,6 @@
 
 import ComposableArchitecture
 import Feature
-import FeatureMainTab
 
 @Reducer
 struct AppRootReducer {

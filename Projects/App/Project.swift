@@ -9,8 +9,7 @@ let project = Project(
             config: .init(
                 scripts: [.swiftLint],
                 dependencies: [
-                    .feature,
-                    .feature(implements: .mainTab)
+                    .feature
                 ],
                 settings: .settings(
                     base: [
