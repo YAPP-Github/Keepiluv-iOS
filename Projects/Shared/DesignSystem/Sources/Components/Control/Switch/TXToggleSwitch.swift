@@ -31,6 +31,7 @@ private struct TXToggleSwitchStyle: ToggleStyle {
     let frameWidth: CGFloat = 48
     let frameHeight: CGFloat = 30
     let frameRadius: CGFloat = 32
+    let borderWidth: CGFloat = 32
     
     let circleSize: CGFloat = 22
     var circleRadius: CGFloat {
@@ -40,13 +41,15 @@ private struct TXToggleSwitchStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack(alignment: configuration.isOn ? .trailing : .leading) {
             RoundedRectangle(cornerRadius: frameRadius)
+                .fill(configuration.isOn ? Color.Gray.gray500 : Color.Common.white)
+                .stroke(Color.Gray.gray500, lineWidth: LineWidth.l)
                 .frame(width: frameWidth, height: frameHeight)
-                .foregroundStyle(configuration.isOn ? Color.Common.white : Color.Gray.gray500)
+                .foregroundStyle(configuration.isOn ? Color.Gray.gray500 : Color.Common.white)
                 
             RoundedRectangle(cornerRadius: circleRadius)
                 .frame(width: circleSize, height: circleSize)
                 .padding(Spacing.spacing4)
-                .foregroundStyle(configuration.isOn ? Color.Gray.gray500 : Color.Common.white)
+                .foregroundStyle(configuration.isOn ? Color.Common.white : Color.Gray.gray500)
                 .onTapGesture {
                     withAnimation {
                         configuration.$isOn.wrappedValue.toggle()
@@ -60,5 +63,4 @@ private struct TXToggleSwitchStyle: ToggleStyle {
     @Previewable @State var isOn = false
     
     TXToggleSwitch(isOn: $isOn)
-        .background(Color.Status.warning)
 }
