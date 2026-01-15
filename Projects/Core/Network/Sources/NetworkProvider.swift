@@ -6,8 +6,7 @@
 //
 
 import Foundation
-
-@preconcurrency import CoreNetworkInterface
+import CoreNetworkInterface
 
 public struct NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
@@ -16,15 +15,7 @@ public struct NetworkProvider: NetworkProviderProtocol, Sendable {
     /// NetworkProvider를 생성합니다.
     /// - Parameter interceptors: 네트워크 요청을 intercept할 Interceptor 배열 (기본값: 빈 배열)
     public init(interceptors: [NetworkInterceptor] = []) {
-        let configuration = URLSessionConfiguration.default
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-        configuration.urlCache = nil
-
-        self.session = URLSession(
-            configuration: configuration,
-            delegate: nil,
-            delegateQueue: nil
-        )
+        self.session = URLSession.shared
         self.interceptors = interceptors
     }
 
