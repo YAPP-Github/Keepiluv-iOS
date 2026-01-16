@@ -16,18 +16,21 @@ public extension TargetDependency {
     /// 각 case는 SPM 패키지를 나타내며,
     /// `TargetDependency.external(dependency:)`와 유기적으로 사용됩니다.
     enum External: String {
+        case GoogleSignIn
+        case GoogleSignInSwift
+
         case KakaoSDKCommon
         case KakaoSDKAuth
         case KakaoSDKUser
-        
+
         case KakaoSDKShare
         case KakaoSDKTalk
         case Lottie
-        
+
         case Pulse
         case PulseUI
         case PulseProxy
-        
+
         case ComposableArchitecture
     }
     
