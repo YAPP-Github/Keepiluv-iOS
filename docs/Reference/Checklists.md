@@ -3,6 +3,7 @@
 > Feature를 구현할 때 빠뜨리지 말아야 할 항목들
 
 ## Interface 구현 체크리스트
+Auth / MainTab / Onboarding은 예외 Feature로 취급되어 이 체크리스트를 강제하지 않습니다.
 
 ### Reducer
 
@@ -149,6 +150,7 @@ public struct AuthLoginClient { }
 ---
 
 ## 테스트 체크리스트
+현재 단계에서는 테스트 항목을 적용하지 않습니다.
 
 ### Reducer 테스트
 
@@ -169,6 +171,7 @@ public struct AuthLoginClient { }
 ---
 
 ## Tuist 프로젝트 설정 체크리스트
+현재 단계에서는 테스트/Testing 타겟 추가를 필수로 보지 않습니다.
 
 ### Project.swift
 
@@ -204,7 +207,7 @@ public struct AuthLoginClient { }
 
 ### 아키텍처
 
-- [ ] Interface/Sources 분리 올바른가?
+- [ ] Interface/Sources 분리 올바른가? (예외 Feature: Auth / MainTab / Onboarding 제외)
 - [ ] public/internal 접근 제어자 올바른가?
 - [ ] Dependency 올바르게 주입했는가?
 - [ ] Reducer는 순수 함수인가? (Side Effect 없는가?)

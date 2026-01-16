@@ -84,6 +84,10 @@ Feature/Auth/
 - 의존성 최소화
 - 테스트 용이
 
+**예외**:
+- Auth / MainTab / Onboarding은 App에서 직접 Path를 관리하는 중간 관리자 Feature로 취급합니다.
+- 위 Feature는 Interface/Implementation 분리 규칙을 강제하지 않습니다.
+
 ### 2. Dependency Injection
 
 모든 의존성은 TCA Dependency로 주입:

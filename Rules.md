@@ -42,6 +42,11 @@ Feature
  └── Sources (Feature Root)
 ```
 
+### 예외 Feature (App 직접 Path 관리)
+- Auth / MainTab / Onboarding은 App에서 직접 Path를 관리하는 중간 관리자 Feature로 취급합니다.
+- 위 Feature는 Interface/Implementation 분리 규칙을 **강제하지 않습니다**.
+- 그 외 Feature는 분리 규칙을 **반드시 유지**합니다.
+
 ## Reducer 생성 규칙
 - Interface에는 Reducer의 시그니처만 둡니다. (body는 외부 Reduce 주입)
 - Implementation에서 실제 Reduce를 구성하는 init을 제공합니다.
@@ -74,6 +79,7 @@ Feature Root(Sources)에서 각 Feature의 구현체를 조립합니다.
 
 - Root가 구현 모듈을 직접 의존하고 Reducer/View를 주입합니다.
 - 외부 모듈은 Interface에만 의존합니다.
+- Feature Root에서 타입 재노출이 필요할 경우 **Interface 타입만 재노출**합니다.
 
 ## ViewFactory 도입 기준
 기본 규칙: 모든 Feature에 강제하지 않습니다.
