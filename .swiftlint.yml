@@ -19,7 +19,7 @@ opt_in_rules:
   - identical_operands                  # 좌우 피연산자가 동일한 비교 금지
   - implicit_return                     # 리턴 키워드 붙이기 필수
   - incompatible_concurrency_annotation # concurrency annotation(@MainActor 등) 올바르게 사용
-  - indentation_width                   # 들여쓰기 폭 규칙 통일
+  # - indentation_width                   # 들여쓰기 폭 규칙 통일
   - joined_default_parameter            # 기본값 파라미터는 한 줄로 붙여쓰기
   - let_var_whitespace                  # let/var 선언 시 공백 스타일 통일
   - literal_expression_end_indentation  # 리터럴 종료 들여쓰기 통일
