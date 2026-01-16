@@ -55,7 +55,7 @@ extension View {
     public func insideRectEdgeBorder(width: CGFloat, edges: [Edge], color: Color) -> some View {
         overlay {
             ZStack {
-                ForEach(edges, id: \ .self) { edge in
+                ForEach(edges, id: \.self) { edge in
                     Rectangle()
                         .fill(color)
                         .frame(
