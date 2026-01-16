@@ -49,6 +49,7 @@ public extension Module {
     /// 화면 단위 또는 사용자 플로우 단위로 구성되며,
     /// UI와 사용자 상호작용 로직을 중심으로 설계됩니다.
     enum Feature: String, CaseIterable {
+        case auth = "Auth"
         case onboarding = "Onboarding"
         case mainTab = "MainTab"
 
@@ -78,6 +79,7 @@ public extension Module {
     enum Core: String, CaseIterable {
         case network = "Network"
         case logging = "Logging"
+        case storage = "Storage"
 
         /// Core 타겟 이름의 기본 prefix입니다.
         public static let name: String = "Core"
