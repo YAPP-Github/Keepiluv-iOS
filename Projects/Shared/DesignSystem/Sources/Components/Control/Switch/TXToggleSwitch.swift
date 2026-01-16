@@ -9,13 +9,13 @@ import SwiftUI
 
 /// 디자인 시스템에서 사용하는 토글 스위치 컴포넌트입니다.
 public struct TXToggleSwitch: View {
-    @Binding var isOn: Bool
+    @Binding public var isOn: Bool
     
     /// 바인딩된 상태값으로 토글 스위치를 초기화합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// TXToggleSwitch(isOn: $store.sending(\.isOn)
+    /// TXToggleSwitch(isOn: $store.sending(\.isOn))
     /// ```
     public init(isOn: Binding<Bool>) {
         self._isOn = isOn
