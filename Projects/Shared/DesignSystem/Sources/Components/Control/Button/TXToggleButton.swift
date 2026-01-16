@@ -9,8 +9,8 @@ import SwiftUI
 
 /// 디자인 시스템에서 사용하는 토글 버튼 컴포넌트입니다.
 public struct TXToggleButton: View {
-    @Binding var isSelected: Bool
-    let buttonType: TXToggleButtonType
+    @Binding public var isSelected: Bool
+    private let buttonType: TXToggleButtonType
 
     /// 바인딩된 선택 상태와 버튼 타입으로 토글 버튼을 초기화합니다.
     ///
@@ -33,7 +33,6 @@ private struct TXToggleButtonStyle: ToggleStyle {
     let type: TXToggleButtonType
     
     func makeBody(configuration: Configuration) -> some View {
-        
         Circle()
             .fill(type.fillColor(isSelected: configuration.isOn))
             .strokeBorder(
