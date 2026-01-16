@@ -30,7 +30,7 @@ public struct TXShapeButton: View {
     /// )
     /// ```
     public init(
-        buttonType: TXShapeButtonType,
+        type buttonType: TXShapeButtonType,
         action: @escaping () -> Void
     ) {
         self.buttonType = buttonType
@@ -114,7 +114,7 @@ private extension TXShapeButton {
     VStack(spacing: 10) {
         HStack {
             TXShapeButton(
-                buttonType: .smallRoundedRectangle(
+                type: .smallRoundedRectangle(
                     config: .init(
                         text: "보러가기",
                         backgroundColor: Color.Common.white,
@@ -125,7 +125,7 @@ private extension TXShapeButton {
             )
 
             TXShapeButton(
-                buttonType: .smallRoundedRectangle(
+                type: .smallRoundedRectangle(
                     config: .init(
                         text: "보러가기",
                         backgroundColor: Color.Gray.gray500,
@@ -138,7 +138,7 @@ private extension TXShapeButton {
 
         HStack {
             TXShapeButton(
-                buttonType: .mediumRoundedRectangle(
+                type: .mediumRoundedRectangle(
                     config: .init(
                         text: "취소",
                         backgroundColor: Color.Common.white,
@@ -149,7 +149,7 @@ private extension TXShapeButton {
             )
 
             TXShapeButton(
-                buttonType: .mediumRoundedRectangle(
+                type: .mediumRoundedRectangle(
                     config: .init(
                         text: "취소",
                         backgroundColor: Color.Gray.gray500,
@@ -160,7 +160,7 @@ private extension TXShapeButton {
             )
         }
         TXShapeButton(
-            buttonType: .longRoundedRectangle(
+            type: .longRoundedRectangle(
                 config: .init(
                     text: "확인",
                     backgroundColor: Color.Gray.gray500,
@@ -173,7 +173,7 @@ private extension TXShapeButton {
 
         HStack(spacing: 20) {
             TXShapeButton(
-                buttonType: .rectangle(
+                type: .rectangle(
                     config: .init(
                         edges: [.top, .bottom, .leading],
                         frameSize: CGSize(width: 60, height: 60),
@@ -189,7 +189,7 @@ private extension TXShapeButton {
             )
 
             TXShapeButton(
-                buttonType: .rectangle(
+                type: .rectangle(
                     config: .init(
                         edges: [.top, .bottom, .leading],
                         frameSize: CGSize(width: 60, height: 60),
@@ -202,7 +202,7 @@ private extension TXShapeButton {
             )
 
             TXShapeButton(
-                buttonType: .rectangle(
+                type: .rectangle(
                     config: .init(
                         edges: [.top, .bottom, .trailing],
                         frameSize: CGSize(width: 60, height: 60),
@@ -220,7 +220,7 @@ private extension TXShapeButton {
 
         HStack {
             TXShapeButton(
-                buttonType: .circle(
+                type: .circle(
                     config: .init(
                         frameSize: CGSize(width: 56, height: 56),
                         image: Image.Icon.Symbol.plus,
