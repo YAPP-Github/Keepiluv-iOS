@@ -9,7 +9,7 @@ let project = Project.makeModule(
                 sources: .sources,
                 dependencies: [
                     .core
-                ] + Module.Domain.allCases.map { .domain(implements: $0) }
+                ] + Module.Domain.allCases.map { .domain(interface: $0) }
             )
         )
     ]
