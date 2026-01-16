@@ -5,10 +5,13 @@
 //  Created by 정지훈 on 12/26/25.
 //
 
-import Foundation
 import CoreNetworkInterface
+import Foundation
 
-public struct NetworkProvider: NetworkProviderProtocol, Sendable {
+public final class NetworkProvider: NetworkProviderProtocol, Sendable {
+    /// Singleton 인스턴스
+    public static let shared = NetworkProvider()
+
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
 

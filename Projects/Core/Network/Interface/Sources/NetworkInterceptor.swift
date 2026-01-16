@@ -8,7 +8,7 @@
 import Foundation
 
 /// 네트워크 요청의 생명주기를 intercept하여 로깅, 모니터링 등의 작업을 수행하는 프로토콜
-public protocol NetworkInterceptor {
+public protocol NetworkInterceptor: Sendable {
     /// URLSessionTask가 생성될 때 호출됩니다.
     /// - Parameter task: 생성된 URLSessionTask
     func didCreateTask(_ task: URLSessionTask)
