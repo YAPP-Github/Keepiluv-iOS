@@ -21,26 +21,27 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const pr = context.payload.pull_request;
-
+            
             const marker = "<!-- coderabbit-summary -->";
-            const placeholder = `@coderabbitai summary\n\n${marker}`;
+            const body = "@coderabbitai summary\n\n" + marker;
 
-            const body = pr.body || "";
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
 
-            if (body.includes(marker)) {
-              console.log("ℹ️ Summary placeholder already present. Skipping.");
+            if (comments.some(c => (c.body || "").includes(marker))) {
+              console.log("ℹ️ Summary already triggered. Skipping.");
               return;
             }
 
-            const newBody = body
-              ? `${placeholder}\n\n---\n\n${body}`
-              : placeholder;
-
-            await github.rest.pulls.update({
+            await github.rest.issues.createComment({
               owner,
               repo,
-              pull_number: pr.number,
-              body: newBody,
+              issue_number: pr.number,
+              body,
             });
 
-            console.log("✅ Inserted CodeRabbit summary placeholder into PR body.");
+            console.log("✅ Triggered CodeRabbit summary via comment.");
