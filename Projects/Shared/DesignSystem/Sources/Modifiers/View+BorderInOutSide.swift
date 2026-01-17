@@ -52,7 +52,11 @@ extension View {
     /// Rectangle()
     ///     .insideRectEdgeBorder(width: 1, edges: [.top, .bottom], color: .gray)
     /// ```
-    public func insideRectEdgeBorder(width: CGFloat, edges: [Edge], color: Color) -> some View {
+    public func insideRectEdgeBorder(
+        width: CGFloat,
+        edges: [Edge],
+        color: Color
+    ) -> some View {
         overlay {
             ZStack {
                 ForEach(edges, id: \.self) { edge in
