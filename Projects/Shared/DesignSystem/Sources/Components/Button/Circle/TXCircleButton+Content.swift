@@ -45,5 +45,4 @@ extension TXCircleButton.Content {
             return CGSize(width: 24, height: 24)
         }
     }
-    
 }

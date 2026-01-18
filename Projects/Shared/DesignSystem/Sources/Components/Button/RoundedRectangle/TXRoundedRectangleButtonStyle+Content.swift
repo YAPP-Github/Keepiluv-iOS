@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 extension TXRoundedRectangleButton.Style {
     /// 작은 버튼에서 사용하는 텍스트 콘텐츠를 정의합니다.
     public enum SmallContent {

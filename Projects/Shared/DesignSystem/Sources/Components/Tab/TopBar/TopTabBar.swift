@@ -17,6 +17,7 @@ import SwiftUI
 /// ```
 public struct TopTabBar: View {
     public typealias Item = Style.Item
+    
     @State private var selectedItem: Item = .inProgress
     private let style: Style
     private let onSelect: (Item) -> Void

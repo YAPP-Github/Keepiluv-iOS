@@ -34,7 +34,7 @@ public struct TXRoundedRectangleButton: View {
 
     public var body: some View {
         Button(action: action) {
-            label
+            label()
         }
     }
 }
@@ -45,11 +45,10 @@ private extension TXRoundedRectangleButton {
         Text(style.text)
             .typography(style.font)
             .foregroundStyle(style.colorStyle.foregroundColor)
-        
     }
     
     @ViewBuilder
-    var label: some View {
+    func label() -> some View {
         Group {
             if style.fixedFrame {
                 baseText()
@@ -68,10 +67,9 @@ private extension TXRoundedRectangleButton {
             lineWidth: style.borderWidth
         )
     }
-    
-    
 }
 
+// swiftlint:disable closure_body_length
 #Preview {
     VStack(spacing: 10) {
         HStack {
@@ -121,3 +119,4 @@ private extension TXRoundedRectangleButton {
         .padding(.horizontal, 20)
     }
 }
+// swiftlint:enable closure_body_length
