@@ -42,7 +42,7 @@ extension TXCircleButton.Content {
             return CGSize(width: 44, height: 44)
             
         case .clear:
-            return CGSize(width: 14, height: 14)
+            return CGSize(width: 24, height: 24)
         }
     }
     
