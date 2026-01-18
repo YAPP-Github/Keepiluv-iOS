@@ -15,7 +15,7 @@ import SwiftUI
 ///     print(item)
 /// }
 /// ```
-public struct TopTabBar: View {
+public struct TXTopTabBar: View {
     public typealias Item = Style.Item
     
     @State private var selectedItem: Item = .inProgress
@@ -47,7 +47,7 @@ public struct TopTabBar: View {
 }
 
 // MARK: - SubViews
-private extension TopTabBar {
+private extension TXTopTabBar {
     func tabItem(title: String, isSelected: Bool) -> some View {
         let color = isSelected ? style.selectedColor : style.unselectedColor
         
@@ -68,7 +68,7 @@ private extension TopTabBar {
 
 #Preview {
     VStack {
-        TopTabBar(style: .plain(content: .goal))
+        TXTopTabBar(style: .plain(content: .goal))
         
         Spacer()
     }

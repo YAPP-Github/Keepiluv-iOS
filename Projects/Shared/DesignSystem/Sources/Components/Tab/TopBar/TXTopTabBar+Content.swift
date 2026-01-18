@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension TopTabBar.Style {
+extension TXTopTabBar.Style {
     /// 탭바에 표시되는 콘텐츠 정의입니다.
     public enum Content {
         case goal
