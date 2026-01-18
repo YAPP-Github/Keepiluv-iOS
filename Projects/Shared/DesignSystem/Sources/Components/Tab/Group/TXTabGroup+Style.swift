@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-extension TabGroup {
+extension TXTabGroup {
     public enum Style {
         case plain(content: Content)
     }
 }
 
-extension TabGroup.Style {
+extension TXTabGroup.Style {
     var items: [TXRoundedRectangleButton.Style.SmallContent] {
         switch self {
         case let .plain(content):

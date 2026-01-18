@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-extension TopTabBar {
+extension TXTopTabBar {
     public enum Style {
         case plain(content: Content)
     }
 }
 
-extension TopTabBar.Style {
-    var items: [TopTabBar.Style.Item] {
+extension TXTopTabBar.Style {
+    var items: [TXTopTabBar.Style.Item] {
         switch self {
         case let .plain(content):
             return content.items

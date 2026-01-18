@@ -15,7 +15,7 @@ import SwiftUI
 ///     print(item)
 /// }
 /// ```
-public struct TabGroup: View {
+public struct TXTabGroup: View {
     public typealias Item = TXRoundedRectangleButton.Style.SmallContent
     
     @State private var selectedItem: Item?
@@ -40,7 +40,7 @@ public struct TabGroup: View {
 }
 
 // MARK: - SubViews
-private extension TabGroup {
+private extension TXTabGroup {
     func tabItem(_ item: Item) -> some View {
         TXRoundedRectangleButton(
             style: .small(
@@ -57,5 +57,5 @@ private extension TabGroup {
 }
 
 #Preview {
-    TabGroup(style: .plain(content: .period))
+    TXTabGroup(style: .plain(content: .period))
 }
