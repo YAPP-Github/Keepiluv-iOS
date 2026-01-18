@@ -17,10 +17,19 @@ extension TXRoundedRectangleButton {
 }
 
 extension TXRoundedRectangleButton.Style {
-    var width: CGFloat {
+    var fixedFrame: Bool {
         switch self {
         case .small:
-            return 77
+            return false
+        case .medium, .long:
+            return true
+        }
+    }
+
+    var width: CGFloat? {
+        switch self {
+        case .small:
+            return nil
             
         case .medium:
             return 151
@@ -30,14 +39,34 @@ extension TXRoundedRectangleButton.Style {
         }
     }
     
-    var height: CGFloat {
+    var height: CGFloat? {
         switch self {
         case .small:
-            return 32
+            return nil
             
         case .medium, .long:
             return 52
             
+        }
+    }
+    
+    var horizontalPadding: CGFloat? {
+        switch self {
+        case let .small(content, _):
+            return content.horizontalPadding
+            
+        case .medium, .long:
+            return nil
+        }
+    }
+    
+    var verticalPadding: CGFloat? {
+        switch self {
+        case let .small(content, _):
+            return content.verticalPadding
+            
+        case .medium, .long:
+            return nil
         }
     }
     
