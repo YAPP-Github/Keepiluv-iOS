@@ -11,8 +11,8 @@ extension TXRoundedRectangleButton {
     /// 라운드 사각형 버튼의 크기와 콘텐츠 조합을 정의합니다.
     public enum Style {
         case small(content: SmallContent, colorStyle: ColorStyle)
-        case medium(content:MediumContent, colorStyle: ColorStyle)
-        case long(content:LongContent, colorStyle: ColorStyle)
+        case medium(content: MediumContent, colorStyle: ColorStyle)
+        case long(content: LongContent, colorStyle: ColorStyle)
     }
 }
 
@@ -21,6 +21,7 @@ extension TXRoundedRectangleButton.Style {
         switch self {
         case .small:
             return false
+            
         case .medium, .long:
             return true
         }
@@ -46,7 +47,6 @@ extension TXRoundedRectangleButton.Style {
             
         case .medium, .long:
             return 52
-            
         }
     }
     
@@ -108,19 +108,18 @@ extension TXRoundedRectangleButton.Style {
             
         case let .long(content, _):
             return content.text
-            
         }
     }
     
     var colorStyle: ColorStyle {
         switch self {
-        case let .small(_ ,colorStyle):
+        case let .small(_, colorStyle):
             return colorStyle
             
-        case let .medium(_ ,colorStyle):
+        case let .medium(_, colorStyle):
             return colorStyle
             
-        case let .long(_ ,colorStyle):
+        case let .long(_, colorStyle):
             return colorStyle
         }
     }

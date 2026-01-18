@@ -29,6 +29,7 @@ extension TopTabBar.Style {
             switch self {
             case .inProgress:
                 return "진행중"
+                
             case .done:
                 return "종료"
             }
