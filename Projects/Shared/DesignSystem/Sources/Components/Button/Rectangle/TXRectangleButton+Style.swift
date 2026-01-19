@@ -26,11 +26,11 @@ extension TXRectangleButton.Style {
     var font: TypographyToken? {
         switch self {
         case let .blankLeft(content, _):
-            guard let _ = content.text else { return nil }
+            guard content.text != nil else { return nil }
             return .t2_16b
             
         case let .blankRight(content, _):
-            guard let _ = content.text else { return nil }
+            guard content.text != nil else { return nil }
             return .t2_16b
         }
     }

@@ -11,16 +11,26 @@ extension TXRoundedRectangleButton {
     /// 라운드 사각형 버튼의 크기와 콘텐츠 조합을 정의합니다.
     public enum Style {
         case small(content: SmallContent, colorStyle: ColorStyle)
-        case medium(content:MediumContent, colorStyle: ColorStyle)
-        case long(content:LongContent, colorStyle: ColorStyle)
+        case medium(content: MediumContent, colorStyle: ColorStyle)
+        case long(content: LongContent, colorStyle: ColorStyle)
     }
 }
 
 extension TXRoundedRectangleButton.Style {
-    var width: CGFloat {
+    var fixedFrame: Bool {
         switch self {
         case .small:
-            return 77
+            return false
+            
+        case .medium, .long:
+            return true
+        }
+    }
+
+    var width: CGFloat? {
+        switch self {
+        case .small:
+            return nil
             
         case .medium:
             return 151
@@ -30,14 +40,33 @@ extension TXRoundedRectangleButton.Style {
         }
     }
     
-    var height: CGFloat {
+    var height: CGFloat? {
         switch self {
         case .small:
-            return 32
+            return nil
             
         case .medium, .long:
             return 52
+        }
+    }
+    
+    var horizontalPadding: CGFloat? {
+        switch self {
+        case let .small(content, _):
+            return content.horizontalPadding
             
+        case .medium, .long:
+            return nil
+        }
+    }
+    
+    var verticalPadding: CGFloat? {
+        switch self {
+        case let .small(content, _):
+            return content.verticalPadding
+            
+        case .medium, .long:
+            return nil
         }
     }
     
@@ -79,19 +108,18 @@ extension TXRoundedRectangleButton.Style {
             
         case let .long(content, _):
             return content.text
-            
         }
     }
     
     var colorStyle: ColorStyle {
         switch self {
-        case let .small(_ ,colorStyle):
+        case let .small(_, colorStyle):
             return colorStyle
             
-        case let .medium(_ ,colorStyle):
+        case let .medium(_, colorStyle):
             return colorStyle
             
-        case let .long(_ ,colorStyle):
+        case let .long(_, colorStyle):
             return colorStyle
         }
     }
