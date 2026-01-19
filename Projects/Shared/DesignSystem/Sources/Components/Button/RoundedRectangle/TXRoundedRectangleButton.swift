@@ -34,20 +34,42 @@ public struct TXRoundedRectangleButton: View {
 
     public var body: some View {
         Button(action: action) {
-            Text(style.text)
-                .typography(style.font)
-                .foregroundStyle(style.colorStyle.foregroundColor)
-                .frame(height: style.height)
-                .frame(maxWidth: style.width)
-                .background(style.colorStyle.backgroundColor, in: shape)
-                .insideBorder(
-                    style.colorStyle.borderColor,
-                    shape: shape,
-                    lineWidth: style.borderWidth
-                )
+            label()
         }
     }
 }
+
+private extension TXRoundedRectangleButton {
+    
+    func baseText() -> some View {
+        Text(style.text)
+            .typography(style.font)
+            .foregroundStyle(style.colorStyle.foregroundColor)
+    }
+    
+    @ViewBuilder
+    func label() -> some View {
+        Group {
+            if style.fixedFrame {
+                baseText()
+                    .frame(height: style.height)
+                    .frame(maxWidth: style.width)
+            } else {
+                baseText()
+                    .padding(.horizontal, style.horizontalPadding)
+                    .padding(.vertical, style.verticalPadding)
+            }
+        }
+        .background(style.colorStyle.backgroundColor, in: shape)
+        .insideBorder(
+            style.colorStyle.borderColor,
+            shape: shape,
+            lineWidth: style.borderWidth
+        )
+    }
+}
+
+// swiftlint:disable closure_body_length
 #Preview {
     VStack(spacing: 10) {
         HStack {
@@ -97,3 +119,4 @@ public struct TXRoundedRectangleButton: View {
         .padding(.horizontal, 20)
     }
 }
+// swiftlint:enable closure_body_length
