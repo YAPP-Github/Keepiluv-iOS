@@ -8,7 +8,7 @@
 import Foundation
 
 /// 인증 토큰을 나타내는 타입입니다.
-public struct Token: Equatable {
+public struct Token: Equatable, Sendable {
     public let accessToken: String
     public let refreshToken: String
     public let expiresAt: Date

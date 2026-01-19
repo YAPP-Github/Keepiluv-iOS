@@ -20,7 +20,6 @@ import Foundation
 ///
 /// let token = try await authClient.signIn(.apple)
 /// ```
-@preconcurrency
 public struct AuthClient: Sendable {
     /// 소셜 로그인을 수행하고 Token을 반환합니다.
     ///
@@ -54,6 +53,8 @@ public struct AuthClient: Sendable {
 // MARK: - TestDependencyKey
 
 extension AuthClient: TestDependencyKey {
+    private static let oneHourInSeconds: TimeInterval = 3_600
+
     /// Preview에서 사용할 기본값입니다.
     public static var previewValue = Self(
         signIn: { _ in
@@ -61,7 +62,7 @@ extension AuthClient: TestDependencyKey {
             Token(
                 accessToken: "preview_access_token",
                 refreshToken: "preview_refresh_token",
-                expiresAt: Date().addingTimeInterval(3600)
+                expiresAt: Date().addingTimeInterval(oneHourInSeconds)
             )
         },
         loadToken: { nil },
