@@ -47,7 +47,10 @@ public extension Image.Icon.Symbol {
     static let arrow3Left = SymbolAsset.icArrow3Left.swiftUIImage
     static let arrow3Right = SymbolAsset.icArrow3Right.swiftUIImage
     static let arrow4 = SymbolAsset.icArrow4.swiftUIImage
-    static let check = SymbolAsset.icCheck.swiftUIImage
+    static let unCheckMe = SymbolAsset.icUnCheckMe.swiftUIImage
+    static let checkMe = SymbolAsset.icCheckMe.swiftUIImage
+    static let unCheckYou = SymbolAsset.icUnCheckYou.swiftUIImage
+    static let checkYou = SymbolAsset.icCheckYou.swiftUIImage
     static let closeM = SymbolAsset.icCloseM.swiftUIImage
     static let closeS = SymbolAsset.icCloseS.swiftUIImage
     static let edit = SymbolAsset.icEdit.swiftUIImage
