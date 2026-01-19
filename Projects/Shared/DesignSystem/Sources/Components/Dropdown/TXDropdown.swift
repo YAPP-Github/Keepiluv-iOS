@@ -16,72 +16,63 @@ import SwiftUI
 /// }
 /// ```
 public struct TXDropdown: View {
-
-    /// 드롭다운에서 제공하는 기본 선택 항목입니다.
-    public enum Item: CaseIterable {
-        case edit
-        case done
-        case delete
-
-        public var title: String {
-            switch self {
-            case .edit: return "수정하기"
-            case .done: return "끝내기"
-            case .delete: return "삭제하기"
-            }
-        }
-    }
-
-    private let items: [Item] = Item.allCases
+    public typealias Item = TXDropdown.Style.Item
+    
+    private let style: Style
     private let onSelect: (Item) -> Void
     
-    public init(onSelect: @escaping (Item) -> Void) {
+    public init(
+        style: Style = .config(.goal),
+        onSelect: @escaping (Item) -> Void
+    ) {
+        self.style = style
         self.onSelect = onSelect
     }
 
     public var body: some View {
-        dropdown
+        VStack(spacing: 0) {
+            ForEach(style.items.indices, id: \.self) { index in
+                dropdownItem(at: index)
+                
+                if index != style.items.indices.last {
+                    divider
+                }
+            }
+        }
+        .insideBorder(
+            style.borderColor,
+            shape: RoundedRectangle(cornerRadius: style.radius),
+            lineWidth: style.borderWidth
+        )
+        .shadow(
+            color: style.shadowColor,
+            radius: style.shadowRadius,
+            x: style.shadowX,
+            y: style.shadowY
+        )
+        .frame(width: style.width)
     }
 }
 
 // MARK: - SubViews
 private extension TXDropdown {
-    var dropdown: some View {
-        VStack(spacing: 0) {
-            ForEach(items.indices, id: \.self) { index in
-                Button {
-                    onSelect(items[index])
-                } label: {
-                    dropdownItem(at: index)
-                }
-
-                if index != items.indices.last {
-                    Rectangle()
-                        .frame(height: LineWidth.m)
-                        .foregroundStyle(Color.Gray.gray500)
-                }
-            }
-        }
-        .insideBorder(
-            Color.Gray.gray500,
-            shape: RoundedRectangle(cornerRadius: 8),
-            lineWidth: LineWidth.m
-        )
-        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
-        .frame(width: 88)
+    func dropdownItem(at index: Int) -> some View {
+        Text(style.items[index].title)
+            .typography(style.font)
+            .foregroundStyle(style.foregroundColor)
+            .frame(maxWidth: .infinity, maxHeight: style.itemHeight, alignment: .leading)
+            .padding(.leading, style.leadingPadding)
     }
     
-    func dropdownItem(at index: Int) -> some View {
-        Text(items[index].title)
-            .typography(.b2_14r)
-            .foregroundStyle(Color.Gray.gray500)
-            .frame(maxWidth: .infinity, maxHeight: 44, alignment: .leading)
-            .padding(.leading, Spacing.spacing7)
+    var divider: some View {
+        Rectangle()
+            .frame(height: style.separatorHeight)
+            .foregroundStyle(style.separatorColor)
     }
 }
 
 #Preview {
     VStack {
-        TXDropdown(onSelect: { _ in })
+        TXDropdown(style: .config(.goal), onSelect: { _ in })
     }
 }
