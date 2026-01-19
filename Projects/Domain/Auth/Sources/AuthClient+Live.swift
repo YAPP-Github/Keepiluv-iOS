@@ -8,10 +8,7 @@
 
 import ComposableArchitecture
 import CoreLogging
-import CoreNetwork
 import CoreNetworkInterface
-import CoreStorage
-import CoreStorageInterface
 import DomainAuthInterface
 import Foundation
 
@@ -21,16 +18,16 @@ extension AuthClient: @retroactive DependencyKey {
             try await performSignIn(with: provider)
         },
         loadToken: {
-            try await TokenManager.shared.loadTokenFromStorage {
-                guard let storedToken = try KeychainTokenStorage.shared.load() else {
-                    return nil
-                }
-                return storedToken.toDomainToken()
-            }
+            @Dependency(\.tokenManager)
+            var tokenManager
+
+            return try await tokenManager.loadTokenFromStorage()
         },
         signOut: {
-            await TokenManager.shared.clearToken()
-            try KeychainTokenStorage.shared.delete()
+            @Dependency(\.tokenManager)
+            var tokenManager
+
+            try await tokenManager.deleteTokenFromStorage()
         }
     )
 }
@@ -38,6 +35,11 @@ extension AuthClient: @retroactive DependencyKey {
 // MARK: - Private Implementation
 private extension AuthClient {
     static func performSignIn(with provider: AuthProvider) async throws -> Token {
+        @Dependency(\.networkClient)
+        var networkClient
+        @Dependency(\.tokenManager)
+        var tokenManager
+
         let logger = TXLogger(label: "Auth")
         let loginProvider = createLoginProvider(for: provider)
         let loginResult = try await loginProvider.performLogin()
@@ -49,7 +51,7 @@ private extension AuthClient {
         logger.debug("identityToken: \(identityToken)")
 
         let endpoint = createAuthEndpoint(for: provider, identityToken: identityToken)
-        let response: SignInResponse = try await NetworkProvider.shared.request(endpoint: endpoint)
+        let response: SignInResponse = try await networkClient.request(endpoint: endpoint)
 
         let token = Token(
             accessToken: response.accessToken,
@@ -57,8 +59,7 @@ private extension AuthClient {
             expiresAt: response.expiresAt
         )
 
-        try KeychainTokenStorage.shared.save(token.toStoredToken())
-        await TokenManager.shared.saveToken(token)
+        try await tokenManager.saveTokenToStorage(token)
 
         return token
     }
@@ -87,27 +88,5 @@ private extension AuthClient {
         case .google:
             return .signInWithGoogle(idToken: identityToken)
         }
-    }
-}
-
-// MARK: - Helper Extensions
-
-private extension Token {
-    func toStoredToken() -> StoredToken {
-        StoredToken(
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            expiresAt: expiresAt
-        )
-    }
-}
-
-private extension StoredToken {
-    func toDomainToken() -> Token {
-        Token(
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            expiresAt: expiresAt
-        )
     }
 }
