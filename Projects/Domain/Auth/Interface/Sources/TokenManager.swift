@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreStorageInterface
 import Foundation
 
 /// 토큰 상태를 관리하는 Singleton Actor입니다.
@@ -25,10 +26,9 @@ import Foundation
 /// await TokenManager.shared.clearToken()
 /// ```
 public actor TokenManager {
-    /// Singleton 인스턴스
+    
     public static let shared = TokenManager()
 
-    /// 메모리에 캐시된 현재 토큰
     private var cachedToken: Token?
 
     private init() {}
@@ -41,17 +41,14 @@ public actor TokenManager {
         cachedToken
     }
 
-    /// 토큰의 AccessToken을 반환합니다.
     public var accessToken: String? {
         cachedToken?.accessToken
     }
 
-    /// 토큰의 RefreshToken을 반환합니다.
     public var refreshToken: String? {
         cachedToken?.refreshToken
     }
 
-    /// 토큰이 만료되었는지 확인합니다.
     public var isTokenExpired: Bool {
         guard let token = cachedToken else { return true }
         return token.expiresAt < Date()
@@ -60,26 +57,87 @@ public actor TokenManager {
     /// 토큰을 메모리 캐시에 저장합니다.
     ///
     /// - Parameter token: 저장할 토큰
-    /// - Note: Keychain 저장은 별도로 수행해야 합니다 (AuthClient에서)
+    /// - Note: 저장소 저장은 `saveTokenToStorage(_:)`에서 수행합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// await tokenManager.saveToken(token)
+    /// ```
     public func saveToken(_ token: Token) {
         cachedToken = token
     }
 
     /// 토큰을 메모리 캐시에서 삭제합니다.
     ///
-    /// - Note: Keychain 삭제는 별도로 수행해야 합니다 (AuthClient에서)
+    /// - Note: 저장소 삭제는 `deleteTokenFromStorage()`에서 수행합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// await tokenManager.clearToken()
+    /// ```
     public func clearToken() {
         cachedToken = nil
     }
 
     /// 영구 저장소에서 토큰을 로드하여 캐시합니다.
     ///
-    /// - Parameter loader: Keychain에서 토큰을 로드하는 클로저
     /// - Returns: 로드된 토큰. 없으면 nil
-    public func loadTokenFromStorage(loader: () async throws -> Token?) async throws -> Token? {
-        let token = try await loader()
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let token = try await tokenManager.loadTokenFromStorage()
+    /// ```
+    public func loadTokenFromStorage() async throws -> Token? {
+        @Dependency(\.tokenStorage)
+        var tokenStorage
+
+        guard let storedToken = try tokenStorage.load() else {
+            cachedToken = nil
+            return nil
+        }
+
+        let token = Token(
+            accessToken: storedToken.accessToken,
+            refreshToken: storedToken.refreshToken,
+            expiresAt: storedToken.expiresAt
+        )
         cachedToken = token
         return token
+    }
+
+    /// 토큰을 저장소에 저장하고 캐시에 반영합니다.
+    ///
+    /// - Parameter token: 저장할 토큰
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// try await tokenManager.saveTokenToStorage(token)
+    /// ```
+    public func saveTokenToStorage(_ token: Token) async throws {
+        @Dependency(\.tokenStorage)
+        var tokenStorage
+
+        let storedToken = StoredToken(
+            accessToken: token.accessToken,
+            refreshToken: token.refreshToken,
+            expiresAt: token.expiresAt
+        )
+        try tokenStorage.save(storedToken)
+        cachedToken = token
+    }
+
+    /// 토큰을 저장소에서 삭제하고 캐시를 초기화합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// try await tokenManager.deleteTokenFromStorage()
+    /// ```
+    public func deleteTokenFromStorage() async throws {
+        @Dependency(\.tokenStorage)
+        var tokenStorage
+
+        try tokenStorage.delete()
+        cachedToken = nil
     }
 
     /// 토큰을 업데이트합니다 (Refresh Token 플로우용).
@@ -88,7 +146,15 @@ public actor TokenManager {
     ///   - accessToken: 새로운 액세스 토큰
     ///   - expiresAt: 새로운 만료 시간
     /// - Note: RefreshToken은 유지됩니다
-    public func updateAccessToken(_ accessToken: String, expiresAt: Date) {
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// await tokenManager.updateAccessToken(accessToken, expiresAt: expiresAt)
+    /// ```
+    public func updateAccessToken(
+        _ accessToken: String,
+        expiresAt: Date
+    ) {
         guard let currentRefreshToken = cachedToken?.refreshToken else { return }
         cachedToken = Token(
             accessToken: accessToken,
