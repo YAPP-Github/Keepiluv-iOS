@@ -18,7 +18,6 @@ public final class PulseNetworkInterceptor: NetworkInterceptor {
     /// PulseNetworkInterceptor를 생성합니다.
     /// - Parameter label: Feature 또는 모듈을 구분하기 위한 레이블 (예: "Home", "Profile")
     public init(label: String) {
-        // Label별 Store와 전역 Store 둘 다에 로깅
         self.labelLogger = NetworkLogger(store: .labeledStore(name: label)) { config in
             config.label = label
         }
