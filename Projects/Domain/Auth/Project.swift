@@ -18,7 +18,8 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .domain(interface: .auth),
-                    .core,
+                    .core(implements: .logging),
+                    .core(interface: .network),
                     .external(dependency: .KakaoSDKCommon),
                     .external(dependency: .KakaoSDKAuth),
                     .external(dependency: .KakaoSDKUser),

@@ -158,6 +158,13 @@ public func example(
 ) -> ReturnType { ... }
 ```
 
+## 외부 의존성 참조 규칙 (필수)
+서로 다른 계층(Feature/Domain/Core) 간 참조는 Interface만으로 해결 가능한지 먼저 검증합니다.
+
+- Interface만으로 해결 가능하면 해당 방식만 사용합니다.
+- Interface만으로 불가능한 경우에만 implements를 허용하며, 불가능한 이유를 문서화합니다.
+- 전체 모듈 참조(예: `.domain`, `.core`)로 대체하는 결정은 원칙적으로 지양하며, 구조적 필요성이 명확할 때만 허용합니다.
+
 ## TCA Dependency + Interface 규칙 메모
 Interface에 TestDependencyKey를 두면 MFA 규칙상 Testing 모듈 분리 원칙과 충돌 가능성이 있으므로,
 팀 합의로 허용하거나 Testing 모듈로 대체하는 방안을 추후 결정합니다.

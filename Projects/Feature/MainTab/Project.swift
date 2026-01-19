@@ -13,6 +13,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .feature(interface: .mainTab),
+                    .core(implements: .logging),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
