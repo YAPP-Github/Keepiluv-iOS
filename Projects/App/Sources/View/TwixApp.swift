@@ -1,4 +1,8 @@
 import ComposableArchitecture
+import CoreNetwork
+import CoreNetworkInterface
+import CoreStorage
+import CoreStorageInterface
 import GoogleSignIn
 import KakaoSDKAuth
 import KakaoSDKCommon
@@ -21,6 +25,9 @@ struct TwixApp: App {
                     initialState: AppRootReducer.State()
                 ) {
                     AppRootReducer()
+                } withDependencies: {
+                    $0.networkClient = .liveValue
+                    $0.tokenStorage = .liveValue
                 }
             )
             .onOpenURL { url in

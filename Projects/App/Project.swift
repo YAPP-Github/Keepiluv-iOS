@@ -36,6 +36,10 @@ let project = Project(
                     .feature,
                     .feature(implements: .auth),
                     .core(implements: .logging),
+                    .core(interface: .network),
+                    .core(implements: .network),
+                    .core(interface: .storage),
+                    .core(implements: .storage),
                     .external(dependency: .KakaoSDKAuth),
                     .external(dependency: .KakaoSDKCommon),
                     .external(dependency: .GoogleSignIn)

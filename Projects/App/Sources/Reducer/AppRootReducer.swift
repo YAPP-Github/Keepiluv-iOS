@@ -12,9 +12,6 @@ import Foundation
 
 @Reducer
 struct AppRootReducer {
-    @Dependency(\.authClient)
-    var authClient
-    
     @Dependency(\.tokenManager)
     var tokenManager
 
@@ -85,9 +82,7 @@ struct AppRootReducer {
 //                    키체인에 토큰이 저장되는 형식이므로, 로그아웃 기능 구현 전까지 임시 조치
 //                    await send(.checkAuthResult(.failure(NSError())))
                     do {
-                        let token = try await tokenManager.loadTokenFromStorage {
-                            try await authClient.loadToken()
-                        }
+                        let token = try await tokenManager.loadTokenFromStorage()
                         await send(.checkAuthResult(.success(token)))
                     } catch {
                         await send(.checkAuthResult(.failure(error)))
