@@ -4,9 +4,6 @@
 
 ## 📌 빠른 참조
 
-**새로운 작업을 시작할 때는 README.md를 먼저 읽어주세요!**
-
-- [README.md](./README.md) - 프로젝트 전체 개요 및 문서 인덱스
 - [팀 규칙](./Rules.md) - 반드시 지켜야 할 팀 합의사항
 
 ---
@@ -15,7 +12,7 @@
 
 - **아키텍처**: SwiftUI + TCA + Micro Features Architecture
 - **빌드 시스템**: Tuist
-- **핵심 원칙**: Interface/Implementation 분리, Dependency Injection, ViewFactory 패턴
+- **핵심 원칙**: Interface/Implementation 분리, Dependency Injection, ViewFactory 패턴, TokenManager 단일 중재(직접 TokenStorage 접근 금지)
 
 ---
 
@@ -35,6 +32,7 @@
 ### 코드 작성 시 참고
 1. [네이밍 규칙](./docs/Reference/NamingConventions.md) - Action, File 네이밍
 2. [체크리스트](./docs/Reference/Checklists.md) - Feature 구현 체크리스트
+3. [파일 구조화 규칙](./docs/Reference/FileOrganization.md) - 파일 분리 및 구조화
 
 ---
 
@@ -93,6 +91,7 @@ docs: 문서 수정
 ### 레퍼런스
 - [네이밍 규칙](./docs/Reference/NamingConventions.md)
 - [체크리스트](./docs/Reference/Checklists.md)
+- [파일 구조화 규칙](./docs/Reference/FileOrganization.md)
 
 ### 예제
 - [Auth Feature](./docs/Examples/Auth.md)
