@@ -25,5 +25,10 @@ public protocol SocialLoginProviderProtocol {
     ///
     /// - Returns: 로그인 결과 (identityToken, userID 등)
     /// - Throws: 로그인 실패 시 `AuthLoginError`
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let result = try await provider.performLogin()
+    /// ```
     func performLogin() async throws -> AuthLoginResult
 }

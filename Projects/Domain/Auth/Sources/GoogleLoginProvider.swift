@@ -55,9 +55,13 @@ private extension GoogleLoginProvider {
     }
 
     func getClientID() throws -> String {
+        enum ErrorCode {
+            static let missingClientID = -2
+        }
+
         guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_ID") as? String else {
             throw AuthLoginError.providerError(
-                NSError(domain: "GoogleLoginProvider", code: -2, userInfo: [
+                NSError(domain: "GoogleLoginProvider", code: ErrorCode.missingClientID, userInfo: [
                     NSLocalizedDescriptionKey: "GOOGLE_CLIENT_ID가 설정되지 않았습니다."
                 ])
             )

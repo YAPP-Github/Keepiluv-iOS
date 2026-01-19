@@ -24,7 +24,7 @@ public final class AppleLoginProvider: NSObject, SocialLoginProviderProtocol {
     }
 
     public func performLogin() async throws -> AuthLoginResult {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
 
             let appleIDProvider = ASAuthorizationAppleIDProvider()

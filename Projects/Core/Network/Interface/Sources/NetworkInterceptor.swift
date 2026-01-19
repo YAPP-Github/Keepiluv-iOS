@@ -11,17 +11,32 @@ import Foundation
 public protocol NetworkInterceptor: Sendable {
     /// URLSessionTask가 생성될 때 호출됩니다.
     /// - Parameter task: 생성된 URLSessionTask
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// interceptor.didCreateTask(task)
+    /// ```
     func didCreateTask(_ task: URLSessionTask)
 
     /// URLSessionDataTask가 데이터를 수신했을 때 호출됩니다.
     /// - Parameters:
     ///   - task: 데이터를 수신한 URLSessionDataTask
     ///   - data: 수신한 데이터
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// interceptor.didReceiveData(task, data: data)
+    /// ```
     func didReceiveData(_ task: URLSessionDataTask, data: Data)
 
     /// URLSessionTask가 완료되었을 때 호출됩니다.
     /// - Parameters:
     ///   - task: 완료된 URLSessionTask
     ///   - error: 에러가 발생한 경우 전달되는 Error 객체 (성공 시 nil)
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// interceptor.didCompleteTask(task, error: error)
+    /// ```
     func didCompleteTask(_ task: URLSessionTask, error: Error?)
 }
