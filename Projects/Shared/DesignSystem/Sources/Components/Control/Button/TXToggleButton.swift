@@ -7,62 +7,78 @@
 
 import SwiftUI
 
-/// 디자인 시스템에서 사용하는 토글 버튼 컴포넌트입니다.
+/// 디자인 시스템에서 사용하는 토글 버튼 그룹 컴포넌트입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// TXToggleButton(
+///     style: .group(content: .goalCheck),
+///     isMyChecked: $isMyChecked,
+///     isCoupleChecked: isCoupleChecked
+/// )
+/// ```
 public struct TXToggleButton: View {
-    @Binding public var isSelected: Bool
-    private let buttonType: TXToggleButtonType
+    
+    public typealias Item = Style.Item
+    
+    private let style: Style
+    @Binding public var isMyChecked: Bool
+    private let isCoupleChecked: Bool
 
-    /// 바인딩된 선택 상태와 버튼 타입으로 토글 버튼을 초기화합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXToggleButton(isSelected: $isSelected, buttonType: .coupleCheck)
-    /// ```
-    public init(isSelected: Binding<Bool>, buttonType: TXToggleButtonType) {
-        self._isSelected = isSelected
-        self.buttonType = buttonType
+    public init(
+        style: Style,
+        isMyChecked: Binding<Bool>,
+        isCoupleChecked: Bool
+    ) {
+        self.style = style
+        self._isMyChecked = isMyChecked
+        self.isCoupleChecked = isCoupleChecked
     }
     
     public var body: some View {
-        Toggle("", isOn: $isSelected)
-            .toggleStyle(TXToggleButtonStyle(type: buttonType))
+        HStack(spacing: style.spacing) {
+            ForEach(style.items, id: \.self) { item in
+                toggleButton(item)
+            }
+        }
     }
 }
 
-private struct TXToggleButtonStyle: ToggleStyle {
-    let type: TXToggleButtonType
-    
-    func makeBody(configuration: Configuration) -> some View {
-        Circle()
-            .fill(type.fillColor(isSelected: configuration.isOn))
-            .strokeBorder(
-                type.strokeBorderColor(isSelected: configuration.isOn),
-                lineWidth: type.strokeBorderWidth(isSelected: configuration.isOn)
-            )
-            .stroke(type.strokeColor, lineWidth: type.strokeWidth)
-            .frame(width: type.circleFrameSize, height: type.circleFrameSize)
-            .overlay(
-                type.selectedImage
-                    .resizable()
-                    .frame(width: type.selectedImageWidth, height: type.selectedImageHeight)
-                    .foregroundStyle(type.selectedImageColor)
-                    .opacity(configuration.isOn ? 1 : 0)
-            )
-            .frame(width: type.buttonFrameSize, height: type.buttonFrameSize)
+// MARK: - SubViews
+private extension TXToggleButton {
+    @ViewBuilder
+    func toggleButton(_ item: Item) -> some View {
+        let isSelected = isSelected(for: item)
+        style.image(for: item, isSelected: isSelected)
+            .zIndex(style.zIndex(for: item))
             .onTapGesture {
-                configuration.$isOn.wrappedValue.toggle()
+                isMyChecked.toggle()
             }
     }
 }
 
-#Preview {
-    @Previewable @State var mySelected = false
-    @Previewable @State var coupleSelected = false
-    VStack {
-        HStack {
-            TXToggleButton(isSelected: $mySelected, buttonType: .myCheck)
-            TXToggleButton(isSelected: $coupleSelected, buttonType: .coupleCheck)
+// MARK: - Helpers
+private extension TXToggleButton {
+    func isSelected(for item: Item) -> Bool {
+        switch item {
+        case .myCheck:
+            return isMyChecked
+            
+        case .coupleCheck:
+            return isCoupleChecked
         }
+    }
+}
+
+#Preview {
+    @Previewable @State var isMyChecked = false
+    
+    VStack {
+        TXToggleButton(
+            style: .group(content: .goalCheck),
+            isMyChecked: $isMyChecked,
+            isCoupleChecked: true
+        )
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(.cyan)
