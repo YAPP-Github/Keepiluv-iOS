@@ -23,7 +23,7 @@ enum AuthEndpoint: Endpoint {
     var baseURL: URL {
         guard let urlString = Configuration.apiBaseURL,
               let url = URL(string: urlString) else {
-            return URL(string: "https://httpbin.org")!
+            return Configuration.fallbackURL
         }
         return url
     }
@@ -70,13 +70,17 @@ enum AuthEndpoint: Endpoint {
 // MARK: - Configuration
 
 private enum Configuration {
+    /// Fallback URL for development/testing
+    static let fallbackURL = URL(string: "https://httpbin.org")! // swiftlint:disable:this force_unwrapping
+
     static var apiBaseURL: String? {
         ProcessInfo.processInfo.environment["API_BASE_URL"] ??
         Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
     }
 
     static var isProduction: Bool {
-        apiBaseURL != nil && !apiBaseURL!.contains("httpbin")
+        guard let baseURL = apiBaseURL else { return false }
+        return !baseURL.contains("httpbin")
     }
 }
 
@@ -108,35 +112,5 @@ private struct SignInRequest: Encodable {
         self.accessToken = nil
         self.idToken = idToken
         self.provider = provider
-    }
-}
-
-/// 로그인 응답 DTO
-struct SignInResponse: Decodable {
-    let accessToken: String
-    let refreshToken: String
-    let expiresAt: Date
-
-    enum CodingKeys: String, CodingKey {
-        case accessToken = "access_token"
-        case refreshToken = "refresh_token"
-        case expiresAt = "expires_at"
-        case url
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        if let accessToken = try? container.decode(String.self, forKey: .accessToken),
-           let refreshToken = try? container.decode(String.self, forKey: .refreshToken),
-           let expiresAt = try? container.decode(Date.self, forKey: .expiresAt) {
-            self.accessToken = accessToken
-            self.refreshToken = refreshToken
-            self.expiresAt = expiresAt
-        } else {
-            self.accessToken = "dummy_access_token_\(UUID().uuidString.prefix(8))"
-            self.refreshToken = "dummy_refresh_token_\(UUID().uuidString.prefix(8))"
-            self.expiresAt = Date().addingTimeInterval(3600)
-        }
     }
 }
