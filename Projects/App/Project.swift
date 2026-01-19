@@ -34,12 +34,7 @@ let project = Project(
                 scripts: [.swiftLint],
                 dependencies: [
                     .feature,
-                    .feature(implements: .auth),
-                    .core(implements: .logging),
-                    .core(interface: .network),
-                    .core(implements: .network),
-                    .core(interface: .storage),
-                    .core(implements: .storage),
+                    .core,
                     .external(dependency: .KakaoSDKAuth),
                     .external(dependency: .KakaoSDKCommon),
                     .external(dependency: .GoogleSignIn)

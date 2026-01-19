@@ -30,6 +30,8 @@ public actor TokenManager {
     public static let shared = TokenManager()
 
     private var cachedToken: Token?
+    @Dependency(\.tokenStorage)
+    var tokenStorage
 
     private init() {}
 
@@ -88,9 +90,6 @@ public actor TokenManager {
     /// let token = try await tokenManager.loadTokenFromStorage()
     /// ```
     public func loadTokenFromStorage() async throws -> Token? {
-        @Dependency(\.tokenStorage)
-        var tokenStorage
-
         guard let storedToken = try tokenStorage.load() else {
             cachedToken = nil
             return nil
@@ -114,9 +113,6 @@ public actor TokenManager {
     /// try await tokenManager.saveTokenToStorage(token)
     /// ```
     public func saveTokenToStorage(_ token: Token) async throws {
-        @Dependency(\.tokenStorage)
-        var tokenStorage
-
         let storedToken = StoredToken(
             accessToken: token.accessToken,
             refreshToken: token.refreshToken,
@@ -133,9 +129,6 @@ public actor TokenManager {
     /// try await tokenManager.deleteTokenFromStorage()
     /// ```
     public func deleteTokenFromStorage() async throws {
-        @Dependency(\.tokenStorage)
-        var tokenStorage
-
         try tokenStorage.delete()
         cachedToken = nil
     }
