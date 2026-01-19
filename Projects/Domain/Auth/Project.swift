@@ -8,6 +8,7 @@ let project = Project.makeModule(
             interface: .auth,
             config: .init(
                 dependencies: [
+                    .core(interface: .storage),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
