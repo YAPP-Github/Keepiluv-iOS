@@ -5,10 +5,11 @@
 //  Created by 정지훈 on 12/26/25.
 //
 
-import Foundation
+import ComposableArchitecture
 import CoreNetworkInterface
+import Foundation
 
-public struct NetworkProvider: NetworkProviderProtocol, Sendable {
+public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
 
@@ -62,6 +63,10 @@ public struct NetworkProvider: NetworkProviderProtocol, Sendable {
             task.resume()
         }
     }
+}
+
+extension NetworkClient: DependencyKey {
+    public static let liveValue = Self(provider: NetworkProvider())
 }
 
 private extension NetworkProvider {

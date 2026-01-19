@@ -62,6 +62,7 @@ Projects/
 ### Core 계층
 - 네트워크, 로깅 등 인프라
 - Feature에서 사용하는 공통 기능
+- Core/Network, Core/Storage는 singleton을 사용하지 않고 DI 가능한 구조로 제공합니다.
 
 ### Shared 계층
 - 디자인 시스템
@@ -84,9 +85,23 @@ Feature/Auth/
 - 의존성 최소화
 - 테스트 용이
 
+**예외 (App 직접 조립 Feature)**:
+- Auth / Onboarding / MainTab은 App에서 직접 Path를 관리하는 중간 관리자 Feature로 취급합니다.
+- 위 Feature는 Interface/Implementation 분리 및 ViewFactory 강제 규칙에서 예외입니다.
+- App은 위 Feature를 `makeView(_:)` 없이 직접 조립할 수 있습니다.
+- 위 Feature는 내부 하위 Feature 조립 시 Implementation 모듈을 직접 import 할 수 있습니다.
+- 위 Feature는 자식 Feature를 Interface-only `makeView(_:)` 대신 직접 생성할 수 있습니다.
+
+**그 외 Feature**:
+- Interface 모듈만 import합니다.
+- 외부 조립은 Interface layer의 `makeView(_:)` 또는 동등한 factory를 통해서만 이뤄집니다.
+
 ### 2. Dependency Injection
 
-모든 의존성은 TCA Dependency로 주입:
+모든 의존성은 TCA Dependency Container로 주입합니다.
+- 모든 모듈에서 TCA Dependency Container를 사용합니다.
+- 계층 간 연결은 Interface 모듈만 노출하며, liveValue는 Implementation 모듈에서 제공합니다.
+- 의존성 조립은 App/Feature Root에서 `.withDependency`로 명시적으로 수행합니다.
 ```swift
 @Dependency(\.authLoginClient) var authLoginClient
 ```
