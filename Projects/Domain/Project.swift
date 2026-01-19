@@ -7,9 +7,7 @@ let project = Project.makeModule(
         .domain(
             config: .init(
                 sources: .sources,
-                dependencies: [
-                    .core
-                ] + Module.Domain.allCases.map { .domain(implements: $0) }
+                dependencies: Module.Domain.allCases.map { .domain(implements: $0) }
             )
         )
     ]

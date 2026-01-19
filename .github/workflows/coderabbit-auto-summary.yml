@@ -20,20 +20,19 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prNumber = context.payload.pull_request.number;
-
-            const marker = "<!-- coderabbit-summary-triggered -->";
-            const body = `@coderabbitai summary\n\n${marker}`;
+            const pr = context.payload.pull_request;
+            
+            const marker = "<!-- coderabbit-summary -->";
+            const body = "@coderabbitai summary\n\n" + marker;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
-              issue_number: prNumber,
+              issue_number: pr.number,
               per_page: 100,
             });
 
-            const already = comments.some(c => (c.body || "").includes(marker));
-            if (already) {
+            if (comments.some(c => (c.body || "").includes(marker))) {
               console.log("ℹ️ Summary already triggered. Skipping.");
               return;
             }
@@ -41,8 +40,8 @@ jobs:
             await github.rest.issues.createComment({
               owner,
               repo,
-              issue_number: prNumber,
+              issue_number: pr.number,
               body,
             });
 
-            console.log("✅ Posted CodeRabbit summary trigger comment.");
+            console.log("✅ Triggered CodeRabbit summary via comment.");
