@@ -6,13 +6,18 @@ let project = Project.makeModule(
     targets: [
         .core(
             interface: .storage,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .core(
             implements: .storage,
             config: .init(
                 dependencies: [
-                    .core(interface: .storage)
+                    .core(interface: .storage),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),

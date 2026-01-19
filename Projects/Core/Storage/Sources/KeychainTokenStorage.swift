@@ -6,6 +6,7 @@
 //  Created by Jiyong
 //
 
+import ComposableArchitecture
 import CoreStorageInterface
 import Foundation
 import Security
@@ -14,9 +15,6 @@ import Security
 ///
 /// AccessToken과 RefreshToken을 별도의 키로 분리하여 저장합니다.
 public final class KeychainTokenStorage: TokenStorageProtocol {
-    /// Singleton 인스턴스
-    public static let shared = KeychainTokenStorage()
-
     private let service: String
     private let accessTokenKey: String
     private let refreshTokenKey: String
@@ -169,4 +167,8 @@ public enum KeychainError: Error, LocalizedError {
             return "Keychain 데이터 형식 오류"
         }
     }
+}
+
+extension TokenStorageClient: DependencyKey {
+    public static let liveValue = Self(storage: KeychainTokenStorage())
 }
