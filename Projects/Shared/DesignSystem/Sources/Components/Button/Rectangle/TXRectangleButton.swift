@@ -12,29 +12,62 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// TXRectangleButton(
-///     style: .blankLeft(content: .close, colorStyle: .white),
+///     config: .blankLeft(
+///         image: Image.Icon.Symbol.closeM,
+///         imageSize: CGSize(width: 24, height: 24),
+///         colorStyle: .white
+///     ),
 ///     action: { }
 /// )
 /// ```
 public struct TXRectangleButton: View {
-    private let style: Style
+    public struct Configuration {
+        let text: String?
+        let font: TypographyToken?
+        let image: Image?
+        let imageSize: CGSize?
+        let frameSize: CGSize
+        let colorStyle: ColorStyle
+        let borderWidth: CGFloat = LineWidth.m
+        let edges: [Edge]
+
+        public init(
+            frameSize: CGSize,
+            colorStyle: ColorStyle,
+            edges: [Edge],
+            text: String? = nil,
+            font: TypographyToken? = nil,
+            image: Image? = nil,
+            imageSize: CGSize? = nil
+        ) {
+            self.frameSize = frameSize
+            self.colorStyle = colorStyle
+            self.edges = edges
+            self.text = text
+            self.font = font
+            self.image = image
+            self.imageSize = imageSize
+        }
+    }
+
+    private let config: Configuration
     private let action: () -> Void
 
     public init(
-        style: Style,
+        config: Configuration,
         action: @escaping () -> Void
     ) {
-        self.style = style
+        self.config = config
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            if let text = style.text,
-               let font = style.font {
+            if let text = config.text,
+               let font = config.font {
                 textLabel(text: text, font: font)
-            } else if let image = style.image,
-                      let imageSize = style.imageSize {
+            } else if let image = config.image,
+                      let imageSize = config.imageSize {
                 iconLabel(image: image, imageSize: imageSize)
             } else {
                 EmptyView()
@@ -44,16 +77,15 @@ public struct TXRectangleButton: View {
 }
 
 private extension TXRectangleButton {
-    
     func baseLabel(@ViewBuilder content: () -> some View) -> some View {
         content()
-            .foregroundStyle(style.colorStyle.foregroundColor)
-            .frame(width: style.frameSize.width, height: style.frameSize.height)
-            .background(style.colorStyle.backgroundColor)
+            .foregroundStyle(config.colorStyle.foregroundColor)
+            .frame(width: config.frameSize.width, height: config.frameSize.height)
+            .background(config.colorStyle.backgroundColor)
             .insideRectEdgeBorder(
-                width: style.borderWidth,
-                edges: style.edges,
-                color: style.colorStyle.borderColor
+                width: config.borderWidth,
+                edges: config.edges,
+                color: config.colorStyle.borderColor
             )
     }
     
@@ -77,17 +109,21 @@ private extension TXRectangleButton {
 #Preview {
     HStack(spacing: 20) {
         TXRectangleButton(
-            style: .blankLeft(content: .close, colorStyle: .white),
+            config: .blankLeftClose(),
             action: { }
         )
 
         TXRectangleButton(
-            style: .blankLeft(content: .save, colorStyle: .white),
+            config: .blankLeftSave(text: "저장", colorStyle: .white),
             action: { }
         )
 
         TXRectangleButton(
-            style: .blankRight(content: .back, colorStyle: .white),
+            config: .blankRightBack(
+                image: Image.Icon.Symbol.arrow3Left,
+                imageSize: CGSize(width: 24, height: 24),
+                colorStyle: .white
+            ),
             action: { }
         )
     }
