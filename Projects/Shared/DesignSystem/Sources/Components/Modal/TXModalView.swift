@@ -13,40 +13,66 @@ import SwiftUI
 /// ```swift
 /// TXModalView(
 ///     isPresented: $isPresented,
-///     image: .Icon.Illustration.drug,
-///     title: "제목",
-///     subTitle: "설명",
-///     onDelete: { }
+///     config: .confirm(
+///         image: .Icon.Symbol.drug
+///         title: "제목",
+///         subTitle: "설명",
+///         onConfirm: { }
+///     )
 /// )
 /// ```
 public struct TXModalView: View {
+    public struct Configuration {
+        public let image: Image
+        public let imageSize: CGSize
+        public let imageFrameSize: CGSize
+        public let title: String
+        public let subTitle: String
+        public let onConfirm: () -> Void
+
+        public init(
+            image: Image,
+            imageSize: CGSize,
+            imageFrameSize: CGSize,
+            title: String,
+            subTitle: String,
+            onConfirm: @escaping () -> Void
+        ) {
+            self.image = image
+            self.imageSize = imageSize
+            self.imageFrameSize = imageFrameSize
+            self.title = title
+            self.subTitle = subTitle
+            self.onConfirm = onConfirm
+        }
+    }
     
     @Binding public var isPresented: Bool
-    
-    private let image: Image
-    private let title: String
-    private let subTitle: String
-
-    private let onDelete: () -> Void
+    private let config: Configuration
     
     public init(
         isPresented: Binding<Bool>,
-        image: Image,
-        title: String,
-        subTitle: String,
-        onDelete: @escaping () -> Void
+        config: Configuration
     ) {
         self._isPresented = isPresented
-        self.image = image
-        self.title = title
-        self.subTitle = subTitle
-        self.onDelete = onDelete
+        self.config = config
     }
     
     public var body: some View {
         ZStack {
             dimBackground
-            modalContent
+            
+            VStack(spacing: 0) {
+                modalImage
+                titleText
+                subtitleText
+                actionButtons
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.white)
+                    .frame(width: 350)
+            )
         }
     }
 }
@@ -61,25 +87,11 @@ private extension TXModalView {
             }
     }
 
-    var modalContent: some View {
-        VStack(spacing: 0) {
-            modalImage
-            titleText
-            subtitleText
-            actionButtons
-        }
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.white)
-                .frame(width: 350)
-        )
-    }
-
     var modalImage: some View {
-        image
+        config.image
             .resizable()
-            .frame(width: 42, height: 42)
-            .frame(width: 64, height: 64)
+            .frame(width: config.imageSize.width, height: config.imageSize.height)
+            .frame(width: config.imageFrameSize.width, height: config.imageFrameSize.height)
             .insideBorder(
                 Color.Gray.gray100,
                 shape: .circle,
@@ -89,14 +101,14 @@ private extension TXModalView {
     }
 
     var titleText: some View {
-        Text(title)
+        Text(config.title)
             .typography(.t1_18eb)
             .multilineTextAlignment(.center)
             .padding(.top, Spacing.spacing7)
     }
 
     var subtitleText: some View {
-        Text(subTitle)
+        Text(config.subTitle)
             .typography(.b2_14r)
             .padding(.top, Spacing.spacing6)
     }
@@ -108,7 +120,7 @@ private extension TXModalView {
                 isPresented = false
             },
             actionRight: {
-                
+                config.onConfirm()
             }
         )
         .padding(.top, Spacing.spacing9)
@@ -120,14 +132,13 @@ private extension TXModalView {
     VStack {
         TXModalView(
             isPresented: .constant(true),
-            image: .Icon.Illustration.drug,
-            title:
-                     """
-                     매일 비타민 먹기
-                     목표를 이루셨나요?
-                     """,
-            subTitle: "목표를 완료해도 저장된 사진은 사라지지 않아요",
-            onDelete: { }
+            config:.deleteGoal(
+                image: .Icon.Illustration.drug,
+                title: "매일 비타민 먹기\n목표를 이루셨나요?",
+                onConfirm: {
+                    
+                }
+            )
         )
     }
 }
