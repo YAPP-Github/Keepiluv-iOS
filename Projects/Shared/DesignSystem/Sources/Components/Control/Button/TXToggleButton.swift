@@ -12,32 +12,59 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// TXToggleButton(
-///     style: .group(content: .goalCheck),
+///     config: .goalCheck(),
 ///     isMyChecked: $isMyChecked,
 ///     isCoupleChecked: isCoupleChecked
 /// )
 /// ```
 public struct TXToggleButton: View {
+    public enum Item {
+        case myCheck
+        case coupleCheck
+    }
     
-    public typealias Item = Style.Item
+    public struct Configuration {
+        public let items: [Item]
+        public let spacing: CGFloat
+        public let leftImage: Image
+        public let leftSelectedImage: Image
+        public let rightImage: Image
+        public let rightSelectedImage: Image
+        
+        public init(
+            items: [Item],
+            spacing: CGFloat,
+            leftImage: Image,
+            leftSelectedImage: Image,
+            rightImage: Image,
+            rightSelectedImage: Image,
+        ) {
+            self.items = items
+            self.spacing = spacing
+            self.leftImage = leftImage
+            self.leftSelectedImage = leftSelectedImage
+            self.rightImage = rightImage
+            self.rightSelectedImage = rightSelectedImage
+        }
+    }
     
-    private let style: Style
+    private let config: Configuration
     @Binding public var isMyChecked: Bool
     private let isCoupleChecked: Bool
 
     public init(
-        style: Style,
+        config: Configuration,
         isMyChecked: Binding<Bool>,
         isCoupleChecked: Bool
     ) {
-        self.style = style
+        self.config = config
         self._isMyChecked = isMyChecked
         self.isCoupleChecked = isCoupleChecked
     }
     
     public var body: some View {
-        HStack(spacing: style.spacing) {
-            ForEach(style.items, id: \.self) { item in
+        HStack(spacing: config.spacing) {
+            ForEach(config.items, id: \.self) { item in
                 toggleButton(item)
             }
         }
@@ -49,8 +76,8 @@ private extension TXToggleButton {
     @ViewBuilder
     func toggleButton(_ item: Item) -> some View {
         let isSelected = isSelected(for: item)
-        style.image(for: item, isSelected: isSelected)
-            .zIndex(style.zIndex(for: item))
+        image(for: item, isSelected: isSelected)
+            .zIndex(zIndex(for: item))
             .onTapGesture {
                 isMyChecked.toggle()
             }
@@ -68,6 +95,26 @@ private extension TXToggleButton {
             return isCoupleChecked
         }
     }
+    
+    func image(for item: Item, isSelected: Bool) -> Image {
+        switch item {
+        case .myCheck:
+            return isSelected ? config.leftSelectedImage : config.leftImage
+            
+        case .coupleCheck:
+            return isSelected ? config.rightSelectedImage : config.rightImage
+        }
+    }
+    
+    func zIndex(for item: Item) -> Double {
+        switch item {
+        case .myCheck:
+            return 2
+            
+        case .coupleCheck:
+            return 1
+        }
+    }
 }
 
 #Preview {
@@ -75,7 +122,7 @@ private extension TXToggleButton {
     
     VStack {
         TXToggleButton(
-            style: .group(content: .goalCheck),
+            config: .goalCheck(),
             isMyChecked: $isMyChecked,
             isCoupleChecked: true
         )
