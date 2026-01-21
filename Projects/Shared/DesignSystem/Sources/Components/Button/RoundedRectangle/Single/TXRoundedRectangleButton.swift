@@ -12,23 +12,60 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// TXRoundedRectangleButton(
-///     style: .medium(content: .cancel, colorStyle: .white),
+///     config: .medium(text: "취소", colorStyle: .white),
 ///     action: { }
 /// )
 /// ```
 public struct TXRoundedRectangleButton: View {
-    private let style: Style
+    public struct Configuration {
+        let text: String
+        let font: TypographyToken
+        let colorStyle: ColorStyle
+        let fixedFrame: Bool
+        let radius: CGFloat
+        let borderWidth: CGFloat
+        let width: CGFloat?
+        let height: CGFloat?
+        let horizontalPadding: CGFloat?
+        let verticalPadding: CGFloat?
+        
+        public init(
+            text: String,
+            font: TypographyToken,
+            colorStyle: ColorStyle,
+            fixedFrame: Bool,
+            radius: CGFloat,
+            borderWidth: CGFloat,
+            width: CGFloat? = nil,
+            height: CGFloat? = nil,
+            horizontalPadding: CGFloat? = nil,
+            verticalPadding: CGFloat? = nil
+        ) {
+            self.text = text
+            self.font = font
+            self.colorStyle = colorStyle
+            self.fixedFrame = fixedFrame
+            self.radius = radius
+            self.borderWidth = borderWidth
+            self.width = width
+            self.height = height
+            self.horizontalPadding = horizontalPadding
+            self.verticalPadding = verticalPadding
+        }
+    }
+    
+    private let config: Configuration
     private let action: () -> Void
 
     private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: style.radius)
+        RoundedRectangle(cornerRadius: config.radius)
     }
 
     public init(
-        style: Style,
+        config: Configuration,
         action: @escaping () -> Void
     ) {
-        self.style = style
+        self.config = config
         self.action = action
     }
 
@@ -42,29 +79,29 @@ public struct TXRoundedRectangleButton: View {
 private extension TXRoundedRectangleButton {
     
     func baseText() -> some View {
-        Text(style.text)
-            .typography(style.font)
-            .foregroundStyle(style.colorStyle.foregroundColor)
+        Text(config.text)
+            .typography(config.font)
+            .foregroundStyle(config.colorStyle.foregroundColor)
     }
     
     @ViewBuilder
     func label() -> some View {
         Group {
-            if style.fixedFrame {
+            if config.fixedFrame {
                 baseText()
-                    .frame(height: style.height)
-                    .frame(maxWidth: style.width)
+                    .frame(height: config.height)
+                    .frame(maxWidth: config.width)
             } else {
                 baseText()
-                    .padding(.horizontal, style.horizontalPadding)
-                    .padding(.vertical, style.verticalPadding)
+                    .padding(.horizontal, config.horizontalPadding)
+                    .padding(.vertical, config.verticalPadding)
             }
         }
-        .background(style.colorStyle.backgroundColor, in: shape)
+        .background(config.colorStyle.backgroundColor, in: shape)
         .insideBorder(
-            style.colorStyle.borderColor,
+            config.colorStyle.borderColor,
             shape: shape,
-            lineWidth: style.borderWidth
+            lineWidth: config.borderWidth
         )
     }
 }
@@ -74,44 +111,43 @@ private extension TXRoundedRectangleButton {
     VStack(spacing: 10) {
         HStack {
             TXRoundedRectangleButton(
-                style: .small(
-                    content: .goToDetail,
+                config: .small(
+                    text: "보러가기",
                     colorStyle: .white
                 ),
                 action: { }
             )
             
             TXRoundedRectangleButton(
-                style: .small(
-                    content: .goToDetail,
+                config: .small(
+                    text: "보러가기",
                     colorStyle: .black
                 ),
                 action: { }
             )
         }
-
+        
         HStack {
-            
             TXRoundedRectangleButton(
-                style: .medium(
-                    content: .cancel,
+                config: .medium(
+                    text: "취소",
                     colorStyle: .white
                 ),
                 action: { }
             )
             
             TXRoundedRectangleButton(
-                style: .medium(
-                    content: .goalCompleted,
+                config: .medium(
+                    text: "목표 완료",
                     colorStyle: .black
                 ),
                 action: { }
             )
         }
-
+        
         TXRoundedRectangleButton(
-            style: .long(
-                content: .confirm,
+            config: .long(
+                text: "확인",
                 colorStyle: .black
             ),
             action: { }

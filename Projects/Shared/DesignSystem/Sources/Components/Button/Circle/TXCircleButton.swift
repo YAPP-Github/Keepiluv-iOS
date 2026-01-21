@@ -12,38 +12,57 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// TXCircleButton(
-///     style: .medium(content: .plus, colorStyle: .black),
+///     config: .plus(colorStyle: .black),
 ///     action: { }
 /// )
 /// ```
 public struct TXCircleButton: View {
-    private let style: Style
+    public struct Configuration {
+        let image: Image
+        let frameSize: CGSize
+        let imageSize: CGSize
+        let colorStyle: ColorStyle
+
+        public init(
+            image: Image,
+            frameSize: CGSize,
+            imageSize: CGSize,
+            colorStyle: ColorStyle
+        ) {
+            self.image = image
+            self.frameSize = frameSize
+            self.imageSize = imageSize
+            self.colorStyle = colorStyle
+        }
+    }
+
+    private let config: Configuration
     private let action: () -> Void
 
     public init(
-        style: Style,
+        config: Configuration,
         action: @escaping () -> Void
     ) {
-        self.style = style
+        self.config = config
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            style.image
+            config.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(style.colorStyle.foregroundColor)
-                .frame(width: style.imageSize.width, height: style.imageSize.height)
-                .frame(width: style.frameSize.width, height: style.frameSize.height)
-                .background(style.colorStyle.backgroundColor, in: .circle)
+                .foregroundStyle(config.colorStyle.foregroundColor)
+                .frame(width: config.imageSize.width, height: config.imageSize.height)
+                .frame(width: config.frameSize.width, height: config.frameSize.height)
+                .background(config.colorStyle.backgroundColor, in: .circle)
         }
     }
 }
 
 #Preview(traits: .sizeThatFitsLayout) {
     TXCircleButton(
-        style: .medium(content: .plus, colorStyle: .black),
+        config: .plus(colorStyle: .black),
         action: { }
     )
 }

@@ -7,62 +7,125 @@
 
 import SwiftUI
 
-/// 디자인 시스템에서 사용하는 토글 버튼 컴포넌트입니다.
+/// 디자인 시스템에서 사용하는 토글 버튼 그룹 컴포넌트입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// TXToggleButton(
+///     config: .goalCheck(),
+///     isMyChecked: $isMyChecked,
+///     isCoupleChecked: isCoupleChecked
+/// )
+/// ```
 public struct TXToggleButton: View {
-    @Binding public var isSelected: Bool
-    private let buttonType: TXToggleButtonType
+    public enum Item {
+        case myCheck
+        case coupleCheck
+    }
+    
+    public struct Configuration {
+        public let items: [Item]
+        public let spacing: CGFloat
+        public let leftImage: Image
+        public let leftSelectedImage: Image
+        public let rightImage: Image
+        public let rightSelectedImage: Image
+        
+        public init(
+            items: [Item],
+            spacing: CGFloat,
+            leftImage: Image,
+            leftSelectedImage: Image,
+            rightImage: Image,
+            rightSelectedImage: Image,
+        ) {
+            self.items = items
+            self.spacing = spacing
+            self.leftImage = leftImage
+            self.leftSelectedImage = leftSelectedImage
+            self.rightImage = rightImage
+            self.rightSelectedImage = rightSelectedImage
+        }
+    }
+    
+    private let config: Configuration
+    @Binding public var isMyChecked: Bool
+    private let isCoupleChecked: Bool
 
-    /// 바인딩된 선택 상태와 버튼 타입으로 토글 버튼을 초기화합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXToggleButton(isSelected: $isSelected, buttonType: .coupleCheck)
-    /// ```
-    public init(isSelected: Binding<Bool>, buttonType: TXToggleButtonType) {
-        self._isSelected = isSelected
-        self.buttonType = buttonType
+    public init(
+        config: Configuration,
+        isMyChecked: Binding<Bool>,
+        isCoupleChecked: Bool
+    ) {
+        self.config = config
+        self._isMyChecked = isMyChecked
+        self.isCoupleChecked = isCoupleChecked
     }
     
     public var body: some View {
-        Toggle("", isOn: $isSelected)
-            .toggleStyle(TXToggleButtonStyle(type: buttonType))
+        HStack(spacing: config.spacing) {
+            ForEach(config.items, id: \.self) { item in
+                toggleButton(item)
+            }
+        }
     }
 }
 
-private struct TXToggleButtonStyle: ToggleStyle {
-    let type: TXToggleButtonType
-    
-    func makeBody(configuration: Configuration) -> some View {
-        Circle()
-            .fill(type.fillColor(isSelected: configuration.isOn))
-            .strokeBorder(
-                type.strokeBorderColor(isSelected: configuration.isOn),
-                lineWidth: type.strokeBorderWidth(isSelected: configuration.isOn)
-            )
-            .stroke(type.strokeColor, lineWidth: type.strokeWidth)
-            .frame(width: type.circleFrameSize, height: type.circleFrameSize)
-            .overlay(
-                type.selectedImage
-                    .resizable()
-                    .frame(width: type.selectedImageWidth, height: type.selectedImageHeight)
-                    .foregroundStyle(type.selectedImageColor)
-                    .opacity(configuration.isOn ? 1 : 0)
-            )
-            .frame(width: type.buttonFrameSize, height: type.buttonFrameSize)
+// MARK: - SubViews
+private extension TXToggleButton {
+    @ViewBuilder
+    func toggleButton(_ item: Item) -> some View {
+        let isSelected = isSelected(for: item)
+        image(for: item, isSelected: isSelected)
+            .zIndex(zIndex(for: item))
             .onTapGesture {
-                configuration.$isOn.wrappedValue.toggle()
+                isMyChecked.toggle()
             }
     }
 }
 
-#Preview {
-    @Previewable @State var mySelected = false
-    @Previewable @State var coupleSelected = false
-    VStack {
-        HStack {
-            TXToggleButton(isSelected: $mySelected, buttonType: .myCheck)
-            TXToggleButton(isSelected: $coupleSelected, buttonType: .coupleCheck)
+// MARK: - Helpers
+private extension TXToggleButton {
+    func isSelected(for item: Item) -> Bool {
+        switch item {
+        case .myCheck:
+            return isMyChecked
+            
+        case .coupleCheck:
+            return isCoupleChecked
         }
+    }
+    
+    func image(for item: Item, isSelected: Bool) -> Image {
+        switch item {
+        case .myCheck:
+            return isSelected ? config.leftSelectedImage : config.leftImage
+            
+        case .coupleCheck:
+            return isSelected ? config.rightSelectedImage : config.rightImage
+        }
+    }
+    
+    func zIndex(for item: Item) -> Double {
+        switch item {
+        case .myCheck:
+            return 2
+            
+        case .coupleCheck:
+            return 1
+        }
+    }
+}
+
+#Preview {
+    @Previewable @State var isMyChecked = false
+    
+    VStack {
+        TXToggleButton(
+            config: .goalCheck(),
+            isMyChecked: $isMyChecked,
+            isCoupleChecked: true
+        )
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(.cyan)

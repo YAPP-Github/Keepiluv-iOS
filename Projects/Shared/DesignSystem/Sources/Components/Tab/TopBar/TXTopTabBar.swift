@@ -11,33 +11,49 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TopTabBar(style: .plain(content: .goal)) { item in
+/// TXTopTabBar(config: .goal()) { item in
 ///     print(item)
 /// }
 /// ```
 public struct TXTopTabBar: View {
-    public typealias Item = Style.Item
+    public struct Configuration {
+        let items: [String]
+        let font: TypographyToken = .t2_16b
+        let selectedColor: Color = Color.Gray.gray500
+        let unselectedColor: Color = Color.Gray.gray200
+        let height: CGFloat = 36
+        let bottomPadding: CGFloat = Spacing.spacing6
+        let underlineHeight: CGFloat = LineWidth.l
+        let underlineBottomPadding: CGFloat = Spacing.spacing2
+        
+        public init(items: [String]) {
+            self.items = items
+        }
+    }
+
+    public typealias Item = String
     
-    @State private var selectedItem: Item = .inProgress
-    private let style: Style
+    @State private var selectedItem: Item = ""
+    private let config: Configuration
     private let onSelect: (Item) -> Void
     
     public init(
-        style: Style,
+        config: Configuration,
         onSelect: @escaping (Item) -> Void = { _ in }
     ) {
-        self.style = style
+        self.config = config
         self.onSelect = onSelect
+        self._selectedItem = State(initialValue: config.items.first ?? "")
     }
     
     public var body: some View {
         HStack(spacing: 0) {
-            ForEach(style.items, id: \.self) { item in
+            ForEach(config.items, id: \.self) { item in
                 Button {
                     selectedItem = item
                     onSelect(item)
                 } label: {
-                    tabItem(title: item.title, isSelected: selectedItem == item)
+                    tabItem(title: item, isSelected: selectedItem == item)
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: .infinity)
@@ -49,18 +65,18 @@ public struct TXTopTabBar: View {
 // MARK: - SubViews
 private extension TXTopTabBar {
     func tabItem(title: String, isSelected: Bool) -> some View {
-        let color = isSelected ? style.selectedColor : style.unselectedColor
+        let color = isSelected ? config.selectedColor : config.unselectedColor
         
         return Text(title)
-            .typography(style.font)
+            .typography(config.font)
             .foregroundStyle(color)
-            .frame(maxWidth: .infinity, maxHeight: style.height)
-            .padding(.bottom, style.bottomPadding)
+            .frame(maxWidth: .infinity, maxHeight: config.height)
+            .padding(.bottom, config.bottomPadding)
             .overlay(
                 Rectangle()
                     .foregroundStyle(color)
-                    .frame(height: style.underlineHeight)
-                    .padding(.bottom, style.underlineBottomPadding),
+                    .frame(height: config.underlineHeight)
+                    .padding(.bottom, config.underlineBottomPadding),
                 alignment: .bottom
             )
     }
@@ -68,7 +84,7 @@ private extension TXTopTabBar {
 
 #Preview {
     VStack {
-        TXTopTabBar(style: .plain(content: .goal))
+        TXTopTabBar(config: .goal())
         
         Spacer()
     }
