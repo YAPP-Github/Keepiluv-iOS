@@ -24,6 +24,17 @@ public struct CardHeaderView: View {
     private let config: Configuration
     
     /// 스타일과 아이콘/제목을 전달해 카드 헤더를 구성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// CardHeaderView(
+    ///     config: .goalCheckClosed(
+    ///         goalName: "목표 이름",
+    ///         iconImage: .Icon.Illustration.exercise,
+    ///         isMyChecked: .constant(false)
+    ///     )
+    /// )
+    /// ```
     public init(config: Configuration) {
         self.config = config
     }
