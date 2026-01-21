@@ -103,7 +103,7 @@ private extension TXModalView {
 
     var actionButtons: some View {
         TXRoundedRectangleGroupButton(
-            style: .plain(.modal),
+            config: .modal(),
             actionLeft: {
                 isPresented = false
             },

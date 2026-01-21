@@ -11,62 +11,91 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXRoundedRectangleGroupButton(style: .plain(.modal)) {
-///     print("cancel")
-/// } actionRight: {
-///     print("delete")
-/// }
+/// TXRoundedRectangleGroupButton(
+///     config: .modal(),
+///     actionLeft: {
+///         print("cancel")
+///     },
+///     actionRight: {
+///         print("delete")
+///     }
+/// )
 /// ```
 public struct TXRoundedRectangleGroupButton: View {
-    
-    typealias Item = TXRoundedRectangleGroupButton.Style.Item
+    public struct Configuration {
+        let leftText: String
+        let rightText: String
+        let spacing: CGFloat = Spacing.spacing5
+        let verticalPadding: CGFloat = Spacing.spacing5
+        let horizontalPadding: CGFloat = Spacing.spacing8
+        let leftColorStyle: ColorStyle
+        let rightColorStyle: ColorStyle
 
-    private let style: Style
+        public init(
+            leftText: String,
+            rightText: String,
+            leftColorStyle: ColorStyle,
+            rightColorStyle: ColorStyle
+        ) {
+            self.leftText = leftText
+            self.rightText = rightText
+            self.leftColorStyle = leftColorStyle
+            self.rightColorStyle = rightColorStyle
+        }
+    }
+
+    private let config: Configuration
     private let actionLeft: () -> Void
     private let actionRight: () -> Void
     
     public init(
-        style: Style = .plain(.modal),
+        config: Configuration = .modal(),
         actionLeft: @escaping () -> Void,
         actionRight: @escaping () -> Void
     ) {
-        self.style = style
+        self.config = config
         self.actionLeft = actionLeft
         self.actionRight = actionRight
     }
 
     public var body: some View {
-        HStack(spacing: style.spacing) {
-            ForEach(style.items, id: \.self) { item in
-                groupButton(item)
-            }
+        HStack(spacing: config.spacing) {
+            leftButton
+            rightButton
         }
-        .padding(.vertical, Spacing.spacing5)
-        .padding(.horizontal, Spacing.spacing8)
+        .padding(.vertical, config.verticalPadding)
+        .padding(.horizontal, config.horizontalPadding)
     }
 }
 
 // MARK: - SubViews
 private extension TXRoundedRectangleGroupButton {
-    @ViewBuilder
-    func groupButton(_ item: Item) -> some View {
+    var leftButton: some View {
         TXRoundedRectangleButton(
-            style: .medium(
-                content: item.buttonContent,
-                colorStyle: item.colorStyle
+            config: .medium(
+                text: config.leftText,
+                colorStyle: config.leftColorStyle
             ),
-            action: action(for: item)
+            action: actionLeft
+        )
+    }
+    
+    var rightButton: some View {
+        TXRoundedRectangleButton(
+            config: .medium(
+                text: config.rightText,
+                colorStyle: config.rightColorStyle
+            ),
+            action: actionRight
         )
     }
 }
 
-// MARK: - Helpers
-private extension TXRoundedRectangleGroupButton {
-    func action(for item: Item) -> () -> Void {
-        style.action(
-            for: item,
-            actionLeft: actionLeft,
-            actionRight: actionRight
-        )
-    }
+
+#Preview {
+    TXRoundedRectangleGroupButton(
+        config: .modal(),
+        actionLeft: { },
+        actionRight: { }
+    )
 }

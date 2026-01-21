@@ -7,32 +7,49 @@
 
 import SwiftUI
 
-/// 여러 개의 TXRoundedRectangleButton.Style.SmallContent 버튼을 그룹으로 제공하는 컴포넌트입니다.
+/// 여러 개의 TXRoundedRectangleButton 텍스트 버튼을 그룹으로 제공하는 컴포넌트입니다.
 ///
 /// ## 사용 예시
 /// ```swift
-/// TabGroup(style: .plain(content: .period)) { item in
+/// TXTabGroup(config: .period()) { item in
 ///     print(item)
 /// }
 /// ```
 public struct TXTabGroup: View {
-    public typealias Item = TXRoundedRectangleButton.Style.SmallContent
+    public struct Configuration {
+        let items: [String]
+        let spacing: CGFloat = Spacing.spacing5
+        let selectedColorStyle: ColorStyle
+        let unselectedColorStyle: ColorStyle
+
+        public init(
+            items: [String],
+            selectedColorStyle: ColorStyle,
+            unselectedColorStyle: ColorStyle
+        ) {
+            self.items = items
+            self.selectedColorStyle = selectedColorStyle
+            self.unselectedColorStyle = unselectedColorStyle
+        }
+    }
+
+    public typealias Item = String
     
     @State private var selectedItem: Item?
-    private let style: Style
+    private let config: Configuration
     private let onSelect: (Item) -> Void
     
     public init(
-        style: Style,
+        config: Configuration,
         onSelect: @escaping (Item) -> Void = { _ in }
     ) {
-        self.style = style
+        self.config = config
         self.onSelect = onSelect
     }
     
     public var body: some View {
-        HStack(spacing: style.spacing) {
-            ForEach(style.items, id: \.self) { item in
+        HStack(spacing: config.spacing) {
+            ForEach(config.items, id: \.self) { item in
                 tabItem(item)
             }
         }
@@ -43,11 +60,11 @@ public struct TXTabGroup: View {
 private extension TXTabGroup {
     func tabItem(_ item: Item) -> some View {
         TXRoundedRectangleButton(
-            style: .small(
-                content: item,
+            config: .small(
+                text: item,
                 colorStyle: selectedItem == item
-                ? style.selectedColorStyle
-                : style.unselectedColorStyle
+                ? config.selectedColorStyle
+                : config.unselectedColorStyle
             )
         ) {
             selectedItem = item
@@ -57,5 +74,5 @@ private extension TXTabGroup {
 }
 
 #Preview {
-    TXTabGroup(style: .plain(content: .period))
+    TXTabGroup(config: .period())
 }
