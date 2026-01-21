@@ -15,6 +15,16 @@ extension CardHeaderView {
         case goalStats(goalCount: Int)
     }
     
+    /// CardHeaderView에 필요한 스타일/데이터를 묶는 설정 값입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalAdd(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     action: { }
+    /// )
+    /// ```
     public struct Configuration {
         let goalName: String
         let iconImage: Image
@@ -54,6 +64,16 @@ extension CardHeaderView {
 }
 
 extension CardHeaderView.Configuration {
+    /// 체크 상태 표시가 있는 카드 헤더 구성을 생성합니다. (열림 상태)
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalCheckOpened(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     isMyChecked: .constant(false)
+    /// )
+    /// ```
     public static func goalCheckOpened(
         goalName: String,
         iconImage: Image,
@@ -69,6 +89,16 @@ extension CardHeaderView.Configuration {
         )
     }
 
+    /// 체크 상태 표시가 있는 카드 헤더 구성을 생성합니다. (닫힘 상태)
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalCheckClosed(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     isMyChecked: .constant(false)
+    /// )
+    /// ```
     public static func goalCheckClosed(
         goalName: String,
         iconImage: Image,
@@ -84,6 +114,16 @@ extension CardHeaderView.Configuration {
         )
     }
 
+    /// 추가 액션이 있는 카드 헤더 구성을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalAdd(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     action: { }
+    /// )
+    /// ```
     public static func goalAdd(
         goalName: String,
         iconImage: Image,
@@ -103,6 +143,16 @@ extension CardHeaderView.Configuration {
         )
     }
 
+    /// 편집 액션이 있는 카드 헤더 구성을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalEdit(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     action: { }
+    /// )
+    /// ```
     public static func goalEdit(
         goalName: String,
         iconImage: Image,
@@ -122,6 +172,16 @@ extension CardHeaderView.Configuration {
         )
     }
 
+    /// 목표 통계 정보가 있는 카드 헤더 구성을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = CardHeaderView.Configuration.goalStats(
+    ///     goalName: "목표 이름",
+    ///     iconImage: .Icon.Illustration.exercise,
+    ///     goalCount: 3
+    /// )
+    /// ```
     public static func goalStats(
         goalName: String,
         iconImage: Image,
