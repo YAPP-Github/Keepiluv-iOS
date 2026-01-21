@@ -10,19 +10,12 @@ import SwiftUI
 extension TXTopAppBar {
     /// TopAppBar의 스타일을 정의합니다.
     public enum Style {
-        /// 메인 타이틀 스타일 (좌측 타이틀만 표시)
         case mainTitle(title: String)
-
-        /// 홈 화면 스타일 (서브타이틀, 메인타이틀, 우측 아이콘)
         case home(
             subTitle: String,
             mainTitle: String
         )
-
-        /// 서브 타이틀 스타일 (뒤로가기, 중앙 타이틀, 닫기 버튼)
         case subTitle(title: String)
-
-        /// 타이틀 없음 스타일 (닫기 버튼만)
         case noTitle
     }
 }
