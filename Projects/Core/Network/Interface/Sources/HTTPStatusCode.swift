@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// HTTP 상태 코드 범위를 정의하는 열거형입니다.
 public enum HTTPStatusCode {
     public static let success = 200...299
     public static let badRequest = 400

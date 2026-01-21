@@ -6,13 +6,18 @@ let project = Project.makeModule(
     targets: [
         .core(
             interface: .network,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .core(
             implements: .network,
             config: .init(
                 dependencies: [
-                    .core(interface: .network)
+                    .core(interface: .network),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),

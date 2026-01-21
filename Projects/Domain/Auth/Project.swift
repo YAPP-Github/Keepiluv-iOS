@@ -6,13 +6,25 @@ let project = Project.makeModule(
     targets: [
         .domain(
             interface: .auth,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .core(interface: .storage),
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .domain(
             implements: .auth,
             config: .init(
                 dependencies: [
-                    .domain(interface: .auth)
+                    .domain(interface: .auth),
+                    .core(implements: .logging),
+                    .core(interface: .network),
+                    .external(dependency: .KakaoSDKCommon),
+                    .external(dependency: .KakaoSDKAuth),
+                    .external(dependency: .KakaoSDKUser),
+                    .external(dependency: .GoogleSignIn),
+                    .external(dependency: .GoogleSignInSwift)
                 ]
             )
         ),

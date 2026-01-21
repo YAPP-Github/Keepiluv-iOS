@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 네트워크 요청 과정에서 발생할 수 있는 에러를 정의합니다.
 public enum NetworkError: Error {
     case invalidURLError
     case invalidResponseError
