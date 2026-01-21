@@ -190,7 +190,7 @@ private extension TXTopAppBar {
 
             HStack(spacing: 0) {
                 TXRectangleButton(
-                    style: .blankLeft(content: .back, colorStyle: .white),
+                    config: .blankRightBack(),
                     action: { onAction?(.backTapped) }
                 )
 
@@ -203,7 +203,7 @@ private extension TXTopAppBar {
                 Spacer()
 
                 TXRectangleButton(
-                    style: .blankRight(content: .close, colorStyle: .white),
+                    config: .blankLeftClose(),
                     action: { onAction?(.closeTapped) }
                 )
             }
