@@ -49,13 +49,6 @@ public struct TXDropdown: View {
     }
 
     public var body: some View {
-        dropdown
-    }
-}
-
-// MARK: - SubViews
-private extension TXDropdown {
-    var dropdown: some View {
         VStack(spacing: 0) {
             ForEach(config.items.indices, id: \.self) { index in
                 Button {
@@ -84,7 +77,10 @@ private extension TXDropdown {
         )
         .frame(width: config.width)
     }
-    
+}
+
+// MARK: - SubViews
+private extension TXDropdown {
     func dropdownItem(at index: Int) -> some View {
         Text(config.items[index])
             .typography(config.textTypography)

@@ -33,9 +33,6 @@ public struct MainTabReducer {
 
     public init() { }
 
-    @Dependency(\.mainTabLogger)
-    var logger
-
     public var body: some ReducerOf<Self> {
         Reduce { _, action in
             switch action {
@@ -44,17 +41,4 @@ public struct MainTabReducer {
             }
         }
     }
-}
-
-extension DependencyValues {
-    var mainTabLogger: TXLogger {
-        get { self[MainTabLoggerKey.self] }
-        set { self[MainTabLoggerKey.self] = newValue }
-    }
-}
-
-private enum MainTabLoggerKey: DependencyKey {
-    static let liveValue: TXLogger = {
-        return TXLogger(label: "MainTab")
-    }()
 }

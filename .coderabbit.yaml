@@ -43,24 +43,21 @@ reviews:
         Do not soften feedback due to experience level.
         If a design choice is questionable or non-idiomatic, clearly explain why and suggest a better alternative.
 
-chat:
-  auto_reply: false
-
-tools:
-  shellcheck:
-    enabled: true
-  markdownlint:
-    enabled: true
-  github-checks:
-    enabled: true
-    timeout_ms: 90000
-  swiftlint:
-    enabled: true
-  yamllint:
-    enabled: true
-  gitleaks:
-    enabled: true
-  checkov:
-    enabled: true
-  ast-grep:
-    essential_rules: true
+  tools:
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+    github-checks:
+      enabled: true
+      timeout_ms: 90000
+    swiftlint:
+      enabled: true
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    checkov:
+      enabled: true
+    ast-grep:
+      essential_rules: true
