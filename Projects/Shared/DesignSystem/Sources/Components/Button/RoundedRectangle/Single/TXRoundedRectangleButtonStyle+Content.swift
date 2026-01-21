@@ -19,6 +19,7 @@ extension TXRoundedRectangleButton.Style {
     /// 중간 버튼에서 사용하는 텍스트 콘텐츠를 정의합니다.
     public enum MediumContent {
         case cancel
+        case delete
         case goalCompleted
     }
     
@@ -59,6 +60,9 @@ extension TXRoundedRectangleButton.Style.MediumContent {
         switch self {
         case .cancel:
             return "취소"
+            
+        case .delete:
+            return "삭제"
             
         case .goalCompleted:
             return "목표 완료"
