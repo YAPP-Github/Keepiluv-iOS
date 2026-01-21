@@ -26,7 +26,6 @@ public struct TXTopTabBar: View {
         let underlineHeight: CGFloat = LineWidth.l
         let underlineBottomPadding: CGFloat = Spacing.spacing2
         
-        
         public init(items: [String]) {
             self.items = items
         }

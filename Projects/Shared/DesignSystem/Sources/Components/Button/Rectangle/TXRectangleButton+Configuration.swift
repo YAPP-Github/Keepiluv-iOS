@@ -15,14 +15,13 @@ public extension TXRectangleButton.Configuration {
         colorStyle: ColorStyle = .white
     ) -> Self {
         .init(
+            frameSize: CGSize(width: 60, height: 60),
+            colorStyle: colorStyle,
+            edges: [.top, .bottom, .trailing],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
-            imageSize: imageSize,
-            frameSize: CGSize(width: 60, height: 60),
-            colorStyle: colorStyle,
-            borderWidth: LineWidth.m,
-            edges: [.top, .bottom, .trailing]
+            imageSize: imageSize
         )
     }
     
@@ -33,14 +32,13 @@ public extension TXRectangleButton.Configuration {
         colorStyle: ColorStyle = .white
     ) -> Self {
         .init(
+            frameSize: CGSize(width: 60, height: 60),
+            colorStyle: colorStyle,
+            edges: [.top, .bottom, .trailing],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
             imageSize: imageSize,
-            frameSize: CGSize(width: 60, height: 60),
-            colorStyle: colorStyle,
-            borderWidth: LineWidth.m,
-            edges: [.top, .bottom, .trailing]
         )
     }
 
@@ -51,14 +49,13 @@ public extension TXRectangleButton.Configuration {
         colorStyle: ColorStyle = .white
     ) -> Self {
         .init(
+            frameSize: CGSize(width: 60, height: 60),
+            colorStyle: colorStyle,
+            edges: [.top, .bottom, .leading],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
-            imageSize: imageSize,
-            frameSize: CGSize(width: 60, height: 60),
-            colorStyle: colorStyle,
-            borderWidth: LineWidth.m,
-            edges: [.top, .bottom, .leading]
+            imageSize: imageSize
         )
     }
 }
