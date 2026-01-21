@@ -136,9 +136,7 @@ private extension GoalEditCardView {
                 startDate: "yyyy년 m월 d일",
                 endDate: "미설정",
             ),
-            action: {
-                
-            }
+            action: { }
         )
     )
     .padding(.horizontal, 20)
