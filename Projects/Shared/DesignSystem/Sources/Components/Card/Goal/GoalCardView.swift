@@ -29,11 +29,6 @@ public struct GoalCardView: View {
         struct Placeholder {
             let image: Image
             let text: String
-            
-            init(image: Image, text: String) {
-                self.image = image
-                self.text = text
-            }
         }
         
         let headerConfig: CardHeaderView.Configuration
@@ -194,6 +189,7 @@ private extension GoalCardView {
     }
 }
 
+// swiftlint: disable closure_body_length
 #Preview {
     @Previewable @State var isMyChecked = false
     
@@ -246,3 +242,4 @@ private extension GoalCardView {
         }
     }
 }
+// swiftlint: enable closure_body_length
