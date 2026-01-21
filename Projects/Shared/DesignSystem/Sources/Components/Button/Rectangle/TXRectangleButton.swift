@@ -28,27 +28,25 @@ public struct TXRectangleButton: View {
         let imageSize: CGSize?
         let frameSize: CGSize
         let colorStyle: ColorStyle
-        let borderWidth: CGFloat
+        let borderWidth: CGFloat = LineWidth.m
         let edges: [Edge]
 
         public init(
+            frameSize: CGSize,
+            colorStyle: ColorStyle,
+            edges: [Edge],
             text: String? = nil,
             font: TypographyToken? = nil,
             image: Image? = nil,
-            imageSize: CGSize? = nil,
-            frameSize: CGSize,
-            colorStyle: ColorStyle,
-            borderWidth: CGFloat,
-            edges: [Edge]
+            imageSize: CGSize? = nil
         ) {
+            self.frameSize = frameSize
+            self.colorStyle = colorStyle
+            self.edges = edges
             self.text = text
             self.font = font
             self.image = image
             self.imageSize = imageSize
-            self.frameSize = frameSize
-            self.colorStyle = colorStyle
-            self.borderWidth = borderWidth
-            self.edges = edges
         }
     }
 

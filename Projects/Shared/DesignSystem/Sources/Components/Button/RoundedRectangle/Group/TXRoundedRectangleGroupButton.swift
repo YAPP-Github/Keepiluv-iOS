@@ -91,7 +91,6 @@ private extension TXRoundedRectangleGroupButton {
     }
 }
 
-
 #Preview {
     TXRoundedRectangleGroupButton(
         config: .modal(),
