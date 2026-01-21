@@ -30,7 +30,7 @@ public struct GoalDetailReducer {
             case pending
         }
         
-        public var item: DetailCompltedItem
+        public var item: DetailCompletedItem
         public var currentUser: UserType
         public var status: Status
         public var selectedEmojiIndex: Int?
@@ -46,7 +46,7 @@ public struct GoalDetailReducer {
         /// )
         /// ```
         public init(
-            item: DetailCompltedItem,
+            item: DetailCompletedItem,
             currentUser: UserType,
             status: Status,
             selectedEmojiIndex: Int? = nil
