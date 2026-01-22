@@ -78,6 +78,7 @@ public extension Module {
     /// 네트워크, 로깅, 저장소 등 기술적 기반을 담당하며,
     /// Feature/Domain에서 재사용되도록 설계됩니다.
     enum Core: String, CaseIterable {
+        case captureSession = "CaptureSession"
         case network = "Network"
         case logging = "Logging"
         case storage = "Storage"
