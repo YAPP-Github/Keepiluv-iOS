@@ -73,39 +73,13 @@ private extension GoalDetailView {
             .frame(width: 336, height: 336)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(alignment: .bottom) {
-                commentCircle
+                CommentCircle(commentText: store.item.commentText)
                     .padding(.bottom, 26)
             }
             .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
-    var commentCircle: some View {
-        ZStack {
-            HStack(spacing: -14) {
-                ForEach(Array(store.item.commentText), id: \.self) { _ in
-                    Circle()
-                        .outsideBorder(.black, shape: .circle, lineWidth: 2)
-                        .frame(width: 62, height: 62)
-                }
-            }
-            
-            HStack(spacing: -14) {
-                ForEach(Array(store.item.commentText), id: \.self) { _ in
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 62, height: 62)
-                }
-            }
-            
-            HStack(spacing: -14) {
-                ForEach(Array(store.item.commentText), id: \.self) { char in
-                    Text(String(char))
-                        .typography(.h1_28b)
-                        .frame(width: 62, height: 62)
-                }
-            }
-        }
-    }
+    
     
     var createdAtText: some View {
         Text(store.item.createdAt)
