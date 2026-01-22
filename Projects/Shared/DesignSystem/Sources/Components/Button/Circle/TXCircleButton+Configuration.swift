@@ -46,4 +46,17 @@ public extension TXCircleButton.Configuration {
             colorStyle: colorStyle
         )
     }
+    
+    static func cameraChange(
+        frameSize: CGSize = CGSize(width: 56, height: 56),
+        imageSize: CGSize = CGSize(width: 24, height: 24),
+        colorStyle: ColorStyle = .gray400
+    ) -> Self {
+        .init(
+            image: Image.Icon.Symbol.turn,
+            frameSize: frameSize,
+            imageSize: imageSize,
+            colorStyle: colorStyle
+        )
+    }
 }
