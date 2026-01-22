@@ -14,8 +14,8 @@ import ComposableArchitecture
 public struct GoalDetailReducer {
     let reducer: Reduce<State, Action>
     
-    @ObservableState
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
+    @ObservableState
     public struct State {
         
         /// 목표 카드의 사용자 타입을 나타냅니다.
@@ -93,6 +93,7 @@ extension GoalDetailReducer.State {
         switch currentUser {
         case .you:
             return "\(item.name)\n님은 아직인가봐요!"
+            
         case .me:
             return "인증샷을\n올려보세요!"
         }
@@ -102,6 +103,7 @@ extension GoalDetailReducer.State {
         switch currentUser {
         case .me:
             return "업로드하기"
+            
         case .you:
             return "찔러보세요"
         }
