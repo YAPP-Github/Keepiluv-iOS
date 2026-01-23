@@ -6,13 +6,18 @@ let project = Project.makeModule(
     targets: [
         .core(
             interface: .captureSession,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .core(
             implements: .captureSession,
             config: .init(
                 dependencies: [
-                    .core(interface: .captureSession)
+                    .core(interface: .captureSession),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
