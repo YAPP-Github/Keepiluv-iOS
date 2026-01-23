@@ -9,6 +9,7 @@ import SwiftUI
 
 public extension Image {
     enum Icon { }
+    enum Illustration { }
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Icon형식의 Image 입니다.
@@ -67,4 +68,11 @@ public extension Image.Icon.Symbol {
     static let selectedSelected1 = SymbolAsset.selectedSelected1.swiftUIImage
     static let selectedSelected2 = SymbolAsset.selectedSelected2.swiftUIImage
     static let selectedSelected = SymbolAsset.selectedSelected.swiftUIImage
+}
+
+public extension Image.Illustration {
+    typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Illustration
+    
+    static let keepiluv = IllustrationAsset.illustKeepiluv.swiftUIImage
+    static let poke = IllustrationAsset.illustPoke.swiftUIImage
 }

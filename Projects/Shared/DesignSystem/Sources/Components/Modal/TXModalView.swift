@@ -24,26 +24,26 @@ import SwiftUI
 public struct TXModalView: View {
     public struct Configuration {
         public let image: Image
-        public let imageSize: CGSize
-        public let imageFrameSize: CGSize
         public let title: String
         public let subTitle: String
+        public let imageSize: CGSize
+        public let imageFrameSize: CGSize
         public let onConfirm: () -> Void
 
         public init(
             image: Image,
-            imageSize: CGSize,
-            imageFrameSize: CGSize,
             title: String,
             subTitle: String,
+            imageSize: CGSize,
+            imageFrameSize: CGSize,
             onConfirm: @escaping () -> Void
         ) {
             self.image = image
-            self.imageSize = imageSize
-            self.imageFrameSize = imageFrameSize
             self.title = title
             self.subTitle = subTitle
             self.onConfirm = onConfirm
+            self.imageSize = imageSize
+            self.imageFrameSize = imageFrameSize
         }
     }
     
@@ -132,12 +132,10 @@ private extension TXModalView {
     VStack {
         TXModalView(
             isPresented: .constant(true),
-            config:.deleteGoal(
+            config: .deleteGoal(
                 image: .Icon.Illustration.drug,
                 title: "매일 비타민 먹기\n목표를 이루셨나요?",
-                onConfirm: {
-                    
-                }
+                onConfirm: { }
             )
         )
     }
