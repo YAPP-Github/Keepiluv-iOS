@@ -24,7 +24,7 @@ extension ProofPhotoReducer {
                     
                     let session = await captureSessionClient.setUpCaptureSession(.front)
                     
-                    await send(.completedSetupCaptureSession(session: session))
+                    await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
             // MARK: - Action
@@ -32,13 +32,25 @@ extension ProofPhotoReducer {
                 return .run { send in
                     let imageData = try await captureSessionClient.capturePhoto()
                     
-                    await send(.completedCapture(imageData: imageData))
+                    await send(.captureCompleted(imageData: imageData))
                     captureSessionClient.stopRunning()
+                }
+                
+            case .switchButtonTapped:
+                return .run { [isFront = state.isFront] send in
+                    let isFront = !isFront
+                    await captureSessionClient.switchCamera(isFront)
+                    
+                    await send(.cameraSwitched)
                 }
             
             // MARK: - Update State
-            case let .completedSetupCaptureSession(session):
+            case let .setupCaptureSessionCompleted(session):
                 state.captureSession = session
+                return .none
+                
+            case .cameraSwitched:
+                state.isFront.toggle()
                 return .none
                 
             default: return .none
