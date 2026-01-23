@@ -49,7 +49,9 @@ public struct GoalDetailView: View {
             }
         }
         .fullScreenCover(
-            isPresented: $store.isPresentedProofPhoto) {
+            isPresented: $store.isPresentedProofPhoto,
+            onDismiss: { store.send(.proofPhotoDismissed) }
+        ) {
             IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
                 ProofPhotoView(store: store)
             }

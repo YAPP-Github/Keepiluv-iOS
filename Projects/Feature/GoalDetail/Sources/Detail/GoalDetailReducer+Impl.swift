@@ -18,6 +18,11 @@ extension GoalDetailReducer {
 
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
             switch action {
+            // MARK: - LifeCycle
+            case .proofPhotoDismissed:
+                state.proofPhoto = nil
+                return .none
+                
             // MARK: - Action
             case .bottomButtonTapped:
                 if case .pending = state.status {
