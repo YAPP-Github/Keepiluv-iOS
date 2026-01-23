@@ -28,6 +28,9 @@ public struct ProofPhotoView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(.black)
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 
@@ -56,31 +59,37 @@ private extension ProofPhotoView {
             .padding(.top, 25)
     }
 
+    @ViewBuilder
     var photoPreview: some View {
-        // FIXME: - 쉐도우, Preview 처리 
-        SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
-            .resizable()
-            .aspectRatio(1, contentMode: .fit)
-            .insideBorder(
-                .white.opacity(0.2),
-                shape: RoundedRectangle(cornerRadius: 76),
-                lineWidth: 2
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 76))
-            .overlay(alignment: .top) {
-                previewTopControls
+        Group {
+            if let session = store.captureSession {
+                CameraPreview(session: session)
+                    .aspectRatio(1, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 76))
+                    .overlay(alignment: .top) {
+                        previewTopControls
+                    }
+                    .overlay(alignment: .bottom) {
+                        CommentCircle(commentText: store.commentText)
+                            .padding(.bottom, 26)
+                    }
+                    .insideBorder(
+                        .white.opacity(0.2),
+                        shape: RoundedRectangle(cornerRadius: 76),
+                        lineWidth: 2
+                    )
+            } else {
+                Rectangle()
+                    .aspectRatio(1, contentMode: .fit)
             }
-            .overlay(alignment: .bottom) {
-                CommentCircle(commentText: store.commentText)
-                    .padding(.bottom, 26)
-            }
-            .padding(.top, 38)
+        }
+        .padding(.top, 38)
     }
 
     var previewTopControls: some View {
         HStack {
             Button {
-                store.send(.flashButtonTapped)
+                
             } label: {
                 Image.Icon.Symbol.flash
                     .renderingMode(.template)
@@ -92,7 +101,7 @@ private extension ProofPhotoView {
             Spacer()
 
             Button {
-                store.send(.zoomButtonTapped)
+                
             } label: {
                 Text(store.scopeText)
                     .typography(.t2_16b)
@@ -115,7 +124,7 @@ private extension ProofPhotoView {
             Spacer()
 
             TXCircleButton(config: .cameraChange()) {
-                store.send(.switchCameraButtonTapped)
+                
             }
         }
         .padding(.horizontal, 41)
@@ -124,7 +133,7 @@ private extension ProofPhotoView {
     
     var galleryButton: some View {
         Button {
-            store.send(.galleryButtonTapped)
+            
         } label: {
             store.galleryThumbnail
                 .resizable()
@@ -140,7 +149,7 @@ private extension ProofPhotoView {
     
     var captureButton: some View {
         Button {
-            store.send(.captureButtonTapped)
+            
         } label: {
             Circle()
                 .fill(.white)
@@ -164,8 +173,6 @@ private extension ProofPhotoView {
     ProofPhotoView(
         store: Store(
             initialState: ProofPhotoReducer.State(
-                titleText: "인증샷을 올려보세요~",
-                commentText: "안녕하세요",
                 galleryThumbnail: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
             ),
             reducer: {
