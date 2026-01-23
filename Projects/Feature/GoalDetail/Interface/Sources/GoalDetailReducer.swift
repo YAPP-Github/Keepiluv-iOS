@@ -33,7 +33,6 @@ public struct GoalDetailReducer {
         public var item: DetailCompletedItem
         public var currentUser: UserType
         public var status: Status
-        public var selectedEmojiIndex: Int?
         
         /// 상태를 생성합니다.
         ///
@@ -49,12 +48,10 @@ public struct GoalDetailReducer {
             item: DetailCompletedItem,
             currentUser: UserType,
             status: Status,
-            selectedEmojiIndex: Int? = nil
         ) {
             self.item = item
             self.currentUser = currentUser
             self.status = status
-            self.selectedEmojiIndex = selectedEmojiIndex
         }
     }
     
