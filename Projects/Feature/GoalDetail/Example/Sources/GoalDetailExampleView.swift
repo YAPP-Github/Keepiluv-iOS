@@ -14,9 +14,6 @@ import CoreCaptureSession
 import SharedDesignSystem
 
 struct GoalDetailExampleView: View {
-    
-    @State var isPresented: Bool = false
-    
     var body: some View {
         GoalDetailView(
             store: Store(
