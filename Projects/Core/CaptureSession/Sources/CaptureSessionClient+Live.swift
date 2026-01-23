@@ -20,11 +20,7 @@ extension CaptureSessionClient: @retroactive DependencyKey {
                 
                 return manager.session
             },
-            stopRunning: { manager.stopRunning() },
-            capturePhoto: { try await manager.capturePhoto() },
-            switchCamera: { isFront in
-                await manager.switchCamera(isFront: isFront)
-            }
+            stopRunning: { manager.stopRunning() }
         )
     }()
 }
