@@ -65,7 +65,7 @@ private extension TXTextField {
     
     var clearButton: some View {
         TXCircleButton(
-            config: .clear(colorStyle: .gray)
+            config: .clear(colorStyle: .gray200)
         ) {
             text = ""
         }

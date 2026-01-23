@@ -10,7 +10,8 @@ import SwiftUI
 public enum ColorStyle {
     case black
     case white
-    case gray
+    case gray200
+    case gray400
 }
 
 extension ColorStyle {
@@ -22,7 +23,7 @@ extension ColorStyle {
         case .white:
             return Color.Gray.gray500
             
-        case .gray:
+        case .gray200, .gray400:
             return Color.Common.white
         }
     }
@@ -35,8 +36,11 @@ extension ColorStyle {
         case .white:
             return Color.Common.white
             
-        case .gray:
+        case .gray200:
             return Color.Gray.gray200
+            
+        case .gray400:
+            return Color.Gray.gray400
         }
     }
     
