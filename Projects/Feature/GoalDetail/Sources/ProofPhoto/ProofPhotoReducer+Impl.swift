@@ -16,18 +16,18 @@ extension ProofPhotoReducer {
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
             switch action {
                 
-                // MARK: - Life Cycle
+            // MARK: - Life Cycle
             case .onAppear:
                 return .run { send in
-                    let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                    guard isAuthorized else { return }
-                    
                     let session = await captureSessionClient.setUpCaptureSession(.front)
                     
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
-                // MARK: - Action
+            // MARK: - Action
+            case .closeButtonTapped:
+                return .send(.delegate(.closeProofPhoto))
+
             case .captureButtonTapped:
                 return .run { send in
                     let imageData = try await captureSessionClient.capturePhoto()

@@ -57,6 +57,13 @@ public struct ProofPhotoReducer {
         case setupCaptureSessionCompleted(session: AVCaptureSession)
         case captureCompleted(imageData: Data)
         case cameraSwitched
+
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        public enum Delegate {
+            case closeProofPhoto
+        }
     }
 
     /// 외부에서 주입된 Reduce로 리듀서를 구성합니다.
