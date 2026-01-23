@@ -12,7 +12,8 @@ import ComposableArchitecture
 /// GoalDetail 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
 public struct GoalDetailReducer {
-    let reducer: Reduce<State, Action>
+    private let reducer: Reduce<State, Action>
+    private let proofPhotoReducer: ProofPhotoReducer
     
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
@@ -33,6 +34,9 @@ public struct GoalDetailReducer {
         public var item: DetailCompletedItem
         public var currentUser: UserType
         public var status: Status
+        
+        public var proofPhoto: ProofPhotoReducer.State?
+        public var isPresentedProofPhoto: Bool = false
         
         /// 상태를 생성합니다.
         ///
@@ -56,24 +60,28 @@ public struct GoalDetailReducer {
     }
     
     /// GoalDetail 화면에서 발생하는 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
         
+        case bottomButtonTapped
+        case setProofPhotoPresented(Bool)
+        case proofPhoto(ProofPhotoReducer.Action)
     }
     
-    /// 외부에서 주입된 Reduce로 리듀서를 구성합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// let reducer = GoalDetailReducer(
-    ///     reducer: Reduce { _, _ in .none }
-    /// )
-    /// ```
-    public init(reducer: Reduce<State, Action>) {
+    public init(
+        reducer: Reduce<State, Action>,
+        proofPhotoReducer: ProofPhotoReducer
+    ) {
         self.reducer = reducer
+        self.proofPhotoReducer = proofPhotoReducer
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
+            .ifLet(\.proofPhoto, action: \.proofPhoto) {
+                proofPhotoReducer
+            }
     }
 }
 
