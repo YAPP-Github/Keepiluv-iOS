@@ -66,6 +66,29 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
             session.stopRunning()
         }
     }
+    
+    func capturePhoto() async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            sessionQueue.async { [weak self] in
+                guard let self else {
+                    continuation.resume(throwing: CaptureSessionError.sessionDeallocated)
+                    return
+                }
+
+                guard self.session.outputs.contains(self.photoOutput) else {
+                    continuation.resume(throwing: CaptureSessionError.sessionNotConfigured)
+                    return
+                }
+
+                if !self.session.isRunning {
+                    self.session.startRunning()
+                }
+
+                self.continuation = continuation
+                self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+            }
+        }
+    }
 }
 
 // MARK: - AVCapturePhotoCaptureDelegate
