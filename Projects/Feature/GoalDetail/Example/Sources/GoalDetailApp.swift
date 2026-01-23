@@ -12,14 +12,9 @@ import ComposableArchitecture
 
 @main
 struct GoalDetailApp: App {
-    var captureSessionClient = CaptureSessionClient.liveValue
-    
     var body: some Scene {
         WindowGroup {
             GoalDetailExampleView()
-                .task {
-                    _ = await captureSessionClient.fetchIsAuthorized()
-                }
         }
     }
 }

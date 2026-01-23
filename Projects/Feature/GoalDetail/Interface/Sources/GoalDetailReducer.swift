@@ -63,8 +63,14 @@ public struct GoalDetailReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - Action
         case bottomButtonTapped
-        case setProofPhotoPresented(Bool)
+        
+        // MARK: - State Update
+        case authorizationCompleted(isAuthorized: Bool)
+        case setProofPhotoPresented(isPresented: Bool)
+        
+        // MARK: - Reducer
         case proofPhoto(ProofPhotoReducer.Action)
     }
     
