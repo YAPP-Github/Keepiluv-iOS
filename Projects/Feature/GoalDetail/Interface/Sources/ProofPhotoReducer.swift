@@ -24,7 +24,7 @@ public struct ProofPhotoReducer {
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
         public var imageData: Data?
-        public var isFront: Bool = true
+        public var isFront: Bool = false
         public var isFlashOn: Bool = false
 
         /// 상태를 생성합니다.
