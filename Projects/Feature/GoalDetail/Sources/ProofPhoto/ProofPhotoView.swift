@@ -149,7 +149,7 @@ private extension ProofPhotoView {
     
     var captureButton: some View {
         Button {
-            
+            store.send(.captureButtonTapped)
         } label: {
             Circle()
                 .fill(.white)

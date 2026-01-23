@@ -20,7 +20,8 @@ extension CaptureSessionClient: @retroactive DependencyKey {
                 
                 return manager.session
             },
-            stopRunning: { manager.stopRunning() }
+            stopRunning: { manager.stopRunning() },
+            capturePhoto: { try await manager.capturePhoto() }
         )
     }()
 }

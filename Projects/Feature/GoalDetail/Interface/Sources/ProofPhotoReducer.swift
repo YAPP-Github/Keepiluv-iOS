@@ -23,6 +23,7 @@ public struct ProofPhotoReducer {
         public var galleryThumbnail: Image
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
+        public var imageData: Data?
 
         /// 상태를 생성합니다.
         ///
@@ -41,11 +42,16 @@ public struct ProofPhotoReducer {
 
     /// ProofPhoto 화면에서 발생하는 액션입니다.
     public enum Action {
+        // MARK: - LfieCycle
         case onAppear
         
+        // MARK: - Action
         case closeButtonTapped
+        case captureButtonTapped
         
+        // MARK: - Update State
         case completedSetupCaptureSession(session: AVCaptureSession)
+        case completedCapture(imageData: Data)
     }
 
     /// 외부에서 주입된 Reduce로 리듀서를 구성합니다.
