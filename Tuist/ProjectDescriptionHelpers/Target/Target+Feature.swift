@@ -86,6 +86,14 @@ public extension Target {
         newConfig.resources = ["Resources/**"]
         newConfig.productName = exampleName
         
+        if let infoPlist = newConfig.infoPlist {
+            newConfig.infoPlist = infoPlist.mergingLaunchScreenDefaults()
+        } else {
+            newConfig.infoPlist = .extendingDefault(
+                with: Project.Environment.InfoPlist.launchScreen
+            )
+        }
+        
         return makeTarget(config: newConfig)
     }
 }
