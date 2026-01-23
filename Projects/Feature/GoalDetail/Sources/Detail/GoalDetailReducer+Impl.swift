@@ -46,13 +46,6 @@ extension GoalDetailReducer {
                 
                 return .none
                 
-            case let .setProofPhotoPresented(isPresented):
-                state.isPresentedProofPhoto = isPresented
-                if !isPresented {
-                    state.proofPhoto = nil
-                }
-                return .none
-                
             // MARK: - Reducer
             case .proofPhoto(.delegate(.closeProofPhoto)):
                 state.isPresentedProofPhoto = false

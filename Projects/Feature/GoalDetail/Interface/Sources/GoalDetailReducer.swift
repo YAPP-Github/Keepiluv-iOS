@@ -68,7 +68,6 @@ public struct GoalDetailReducer {
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
-        case setProofPhotoPresented(isPresented: Bool)
         
         // MARK: - Reducer
         case proofPhoto(ProofPhotoReducer.Action)
