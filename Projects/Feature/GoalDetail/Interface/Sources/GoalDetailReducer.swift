@@ -63,6 +63,9 @@ public struct GoalDetailReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - LifeCycle
+        case proofPhotoDismissed
+        
         // MARK: - Action
         case bottomButtonTapped
         
