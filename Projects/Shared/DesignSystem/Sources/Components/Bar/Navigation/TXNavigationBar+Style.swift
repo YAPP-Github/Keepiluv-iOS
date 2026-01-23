@@ -1,5 +1,5 @@
 //
-//  TXTopAppBar+Style.swift
+//  TXNavigationBar+Style.swift
 //  SharedDesignSystem
 //
 //  Created by 정지용 on 1/21/26.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-extension TXTopAppBar {
-    /// TopAppBar의 스타일을 정의합니다.
+extension TXNavigationBar {
+    /// NavigationBar의 스타일을 정의합니다.
     public enum Style {
         case mainTitle(title: String)
         case home(
@@ -21,7 +21,7 @@ extension TXTopAppBar {
 }
 
 // MARK: - Style Properties
-extension TXTopAppBar.Style {
+extension TXNavigationBar.Style {
     var backgroundColor: Color {
         switch self {
         case .mainTitle, .home, .subTitle:

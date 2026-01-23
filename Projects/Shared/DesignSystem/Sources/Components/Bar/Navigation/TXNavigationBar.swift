@@ -1,5 +1,5 @@
 //
-//  TXTopAppBar.swift
+//  TXNavigationBar.swift
 //  SharedDesignSystem
 //
 //  Created by 정지용 on 1/21/26.
@@ -12,10 +12,10 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// // mainTitle 스타일
-/// TXTopAppBar(style: .mainTitle(title: "스탬프 통계"))
+/// TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
 ///
 /// // home 스타일
-/// TXTopAppBar(style: .home(subTitle: "1월 2026", mainTitle: "오늘 우리 목표")) { action in
+/// TXNavigationBar(style: .home(subTitle: "1월 2026", mainTitle: "오늘 우리 목표")) { action in
 ///     switch action {
 ///     case .subTitleTapped:
 ///         // 날짜 선택
@@ -31,7 +31,7 @@ import SwiftUI
 /// }
 ///
 /// // subTitle 스타일
-/// TXTopAppBar(style: .subTitle(title: "목표 직접 만들기")) { action in
+/// TXNavigationBar(style: .subTitle(title: "목표 직접 만들기")) { action in
 ///     switch action {
 ///     case .backTapped:
 ///         // 뒤로가기
@@ -43,13 +43,13 @@ import SwiftUI
 /// }
 ///
 /// // noTitle 스타일
-/// TXTopAppBar(style: .noTitle) { action in
+/// TXNavigationBar(style: .noTitle) { action in
 ///     if action == .closeTapped {
 ///         // 닫기
 ///     }
 /// }
 /// ```
-public struct TXTopAppBar: View {
+public struct TXNavigationBar: View {
     private let style: Style
     private let onAction: ((Action) -> Void)?
 
@@ -83,7 +83,7 @@ public struct TXTopAppBar: View {
 }
 
 // MARK: - MainTitle Style
-private extension TXTopAppBar {
+private extension TXNavigationBar {
     func mainTitleContent(title: String) -> some View {
         HStack {
             Text(title)
@@ -97,7 +97,7 @@ private extension TXTopAppBar {
 }
 
 // MARK: - Home Style
-private extension TXTopAppBar {
+private extension TXNavigationBar {
     func homeContent(subTitle: String, mainTitle: String) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
@@ -182,12 +182,9 @@ private extension TXTopAppBar {
 }
 
 // MARK: - SubTitle Style
-private extension TXTopAppBar {
+private extension TXNavigationBar {
     func subTitleContent(title: String) -> some View {
         VStack(spacing: 0) {
-            Spacer()
-                .frame(height: 20)
-
             HStack(spacing: 0) {
                 TXRectangleButton(
                     config: .blankRightBack(),
@@ -214,11 +211,12 @@ private extension TXTopAppBar {
                 color: style.borderColor
             )
         }
+        .padding(.vertical, 20)
     }
 }
 
 // MARK: - NoTitle Style
-private extension TXTopAppBar {
+private extension TXNavigationBar {
     func noTitleContent() -> some View {
         HStack {
             Spacer()
@@ -240,11 +238,11 @@ private extension TXTopAppBar {
 }
 
 #Preview("MainTitle") {
-    TXTopAppBar(style: .mainTitle(title: "스탬프 통계"))
+    TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
 }
 
 #Preview("Home") {
-    TXTopAppBar(
+    TXNavigationBar(
         style: .home(subTitle: "1월 2026", mainTitle: "오늘 우리 목표")
     ) { action in
         print(action)
@@ -252,13 +250,13 @@ private extension TXTopAppBar {
 }
 
 #Preview("SubTitle") {
-    TXTopAppBar(style: .subTitle(title: "목표 직접 만들기")) { action in
+    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기")) { action in
         print(action)
     }
 }
 
 #Preview("NoTitle") {
-    TXTopAppBar(style: .noTitle) { action in
+    TXNavigationBar(style: .noTitle) { action in
         print(action)
     }
     .background(Color.Gray.gray500)
