@@ -16,6 +16,7 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
     private let sessionQueue = DispatchQueue(label: "org.twix.capturesession")
     private let photoOutput = AVCapturePhotoOutput()
     private var continuation: CheckedContinuation<Data, Error>?
+    private var flashMode: AVCaptureDevice.FlashMode = .off
     
     func requestAuthorization() async -> Bool {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -85,8 +86,18 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
                 }
 
                 self.continuation = continuation
-                self.photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+                let settings = AVCapturePhotoSettings()
+                if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
+                    settings.flashMode = self.flashMode
+                }
+                self.photoOutput.capturePhoto(with: settings, delegate: self)
             }
+        }
+    }
+
+    func switchFlash(_ isEnabled: Bool) {
+        sessionQueue.async { [weak self] in
+            self?.flashMode = isEnabled ? .on : .off
         }
     }
     

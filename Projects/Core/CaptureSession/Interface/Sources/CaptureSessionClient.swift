@@ -24,6 +24,7 @@ public struct CaptureSessionClient {
     public var stopRunning: () -> Void
     public var capturePhoto: () async throws -> Data
     public var switchCamera: (Bool) async -> Void
+    public var setFlashEnabled: (Bool) -> Void
 
     /// CaptureSessionClient를 생성합니다.
     ///
@@ -35,7 +36,8 @@ public struct CaptureSessionClient {
     ///     setUpCaptureSession: { _ in },
     ///     stopRunning: {},
     ///     capturePhoto: { Data() },
-    ///     switchCamera: { _ in }
+    ///     switchCamera: { _ in },
+    ///     setFlashEnabled: { _ in },
     /// )
     /// ```
     public init(
@@ -43,13 +45,15 @@ public struct CaptureSessionClient {
         setUpCaptureSession: @escaping (AVCaptureDevice.Position) async -> AVCaptureSession,
         stopRunning: @escaping () -> Void,
         capturePhoto: @escaping () async throws -> Data,
-        switchCamera: @escaping (Bool) async -> Void
+        switchCamera: @escaping (Bool) async -> Void,
+        switchFalsh: @escaping (Bool) -> Void
     ) {
         self.fetchIsAuthorized = fetchIsAuthorized
         self.setUpCaptureSession = setUpCaptureSession
         self.stopRunning = stopRunning
         self.capturePhoto = capturePhoto
         self.switchCamera = switchCamera
+        self.setFlashEnabled = switchFalsh
     }
 }
 
@@ -77,6 +81,9 @@ extension CaptureSessionClient: TestDependencyKey {
         },
         switchCamera: { _ in
             assertionFailure("switchCamera is unimplemented. Use withDependencies to override.")
+        },
+        switchFalsh: { _ in
+            assertionFailure("setFlashEnabled is unimplemented. Use withDependencies to override.")
         }
     )
 }
