@@ -89,11 +89,14 @@ private extension ProofPhotoView {
     var previewTopControls: some View {
         HStack {
             Button {
-                
+                store.send(.flashButtonTapped)
             } label: {
                 Image.Icon.Symbol.flash
                     .renderingMode(.template)
-                    .foregroundStyle(Color.Common.white.opacity(0.6))
+                    .foregroundStyle(
+                        // FIXME: - 플래시 버튼 selected 디자인 나오면 수정
+                        store.isFlashOn ? .red : Color.Common.white.opacity(0.6)
+                    )
                     .frame(width: 44, height: 44)
                     .background(Color.Common.white.opacity(0.1), in: .circle)
             }
@@ -103,11 +106,12 @@ private extension ProofPhotoView {
             Button {
                 
             } label: {
-                Text(store.scopeText)
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Common.white.opacity(0.6))
-                    .frame(width: 44, height: 44)
-                    .background(Color.Common.white.opacity(0.1), in: .circle)
+                /// 줌인/아웃 나중에 한다해서 주석 처리
+//                Text(store.scopeText)
+//                    .typography(.t2_16b)
+//                    .foregroundStyle(Color.Common.white.opacity(0.6))
+//                    .frame(width: 44, height: 44)
+//                    .background(Color.Common.white.opacity(0.1), in: .circle)
             }
         }
         .padding([.top, .horizontal], 31)

@@ -16,7 +16,7 @@ extension ProofPhotoReducer {
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
             switch action {
                 
-            // MARK: - Life Cycle
+                // MARK: - Life Cycle
             case .onAppear:
                 return .run { send in
                     let isAuthorized = await captureSessionClient.fetchIsAuthorized()
@@ -27,7 +27,7 @@ extension ProofPhotoReducer {
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
-            // MARK: - Action
+                // MARK: - Action
             case .captureButtonTapped:
                 return .run { send in
                     let imageData = try await captureSessionClient.capturePhoto()
@@ -43,6 +43,12 @@ extension ProofPhotoReducer {
                     
                     await send(.cameraSwitched)
                 }
+                
+                
+            case .flashButtonTapped:
+                state.isFlashOn.toggle()
+                captureSessionClient.setFlashEnabled(state.isFlashOn)
+                return .none
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
