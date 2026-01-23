@@ -89,6 +89,11 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
             }
         }
     }
+    
+    func switchCamera(isFront: Bool) async {
+        let position: AVCaptureDevice.Position = isFront ? .front : .back
+        await setUpSession(position: position)
+    }
 }
 
 // MARK: - AVCapturePhotoCaptureDelegate

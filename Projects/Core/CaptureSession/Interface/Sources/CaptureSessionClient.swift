@@ -23,6 +23,7 @@ public struct CaptureSessionClient {
     public var setUpCaptureSession: (AVCaptureDevice.Position) async -> AVCaptureSession
     public var stopRunning: () -> Void
     public var capturePhoto: () async throws -> Data
+    public var switchCamera: (Bool) async -> Void
 
     /// CaptureSessionClient를 생성합니다.
     ///
@@ -34,18 +35,21 @@ public struct CaptureSessionClient {
     ///     setUpCaptureSession: { _ in },
     ///     stopRunning: {},
     ///     capturePhoto: { Data() },
+    ///     switchCamera: { _ in }
     /// )
     /// ```
     public init(
         fetchIsAuthorized: @escaping () async -> Bool,
         setUpCaptureSession: @escaping (AVCaptureDevice.Position) async -> AVCaptureSession,
         stopRunning: @escaping () -> Void,
-        capturePhoto: @escaping () async throws -> Data
+        capturePhoto: @escaping () async throws -> Data,
+        switchCamera: @escaping (Bool) async -> Void
     ) {
         self.fetchIsAuthorized = fetchIsAuthorized
         self.setUpCaptureSession = setUpCaptureSession
         self.stopRunning = stopRunning
         self.capturePhoto = capturePhoto
+        self.switchCamera = switchCamera
     }
 }
 
@@ -70,6 +74,9 @@ extension CaptureSessionClient: TestDependencyKey {
         capturePhoto: {
             assertionFailure("capturePhoto is unimplemented. Use withDependencies to override.")
             throw CaptureSessionClientError.unimplemented
+        },
+        switchCamera: { _ in
+            assertionFailure("switchCamera is unimplemented. Use withDependencies to override.")
         }
     )
 }

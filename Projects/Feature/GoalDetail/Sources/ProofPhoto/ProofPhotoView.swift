@@ -124,7 +124,7 @@ private extension ProofPhotoView {
             Spacer()
 
             TXCircleButton(config: .cameraChange()) {
-                
+                store.send(.switchButtonTapped)
             }
         }
         .padding(.horizontal, 41)

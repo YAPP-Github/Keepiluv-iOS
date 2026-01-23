@@ -24,6 +24,7 @@ public struct ProofPhotoReducer {
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
         public var imageData: Data?
+        public var isFront: Bool = true
 
         /// 상태를 생성합니다.
         ///
@@ -48,10 +49,12 @@ public struct ProofPhotoReducer {
         // MARK: - Action
         case closeButtonTapped
         case captureButtonTapped
+        case switchButtonTapped
         
         // MARK: - Update State
-        case completedSetupCaptureSession(session: AVCaptureSession)
-        case completedCapture(imageData: Data)
+        case setupCaptureSessionCompleted(session: AVCaptureSession)
+        case captureCompleted(imageData: Data)
+        case cameraSwitched
     }
 
     /// 외부에서 주입된 Reduce로 리듀서를 구성합니다.
