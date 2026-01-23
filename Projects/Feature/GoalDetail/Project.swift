@@ -17,6 +17,8 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .feature(interface: .goalDetail),
+                    .core(interface: .captureSession),
+                    .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
@@ -36,13 +38,24 @@ let project = Project.makeModule(
                     .feature(testing: .goalDetail)
                 ]
             )
-        ),    
-        .feature(
-            example: .goalDetail,
-            config: .init(
-                dependencies: [
-                    .feature(interface: .goalDetail),
-                    .external(dependency: .ComposableArchitecture)
+        ),
+        
+            .feature(
+                example: .goalDetail,
+                config: .init(
+                    infoPlist: .extendingDefault(
+                        with: Project.Environment.InfoPlist.launchScreen.merging(
+                            [
+                                "NSCameraUsageDescription": "UseCamera"
+                            ],
+                            uniquingKeysWith: { current, _ in current }
+                        )
+                    ),
+                    dependencies: [
+                        .shared(implements: .designSystem),
+                        .feature(implements: .goalDetail),
+                        .core(implements: .captureSession),
+                        .external(dependency: .ComposableArchitecture)
                 ]
             )
         )
