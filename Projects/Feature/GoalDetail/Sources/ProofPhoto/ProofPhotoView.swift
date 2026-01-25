@@ -13,7 +13,7 @@ import SharedDesignSystem
 
 public struct ProofPhotoView: View {
 
-    public let store: StoreOf<ProofPhotoReducer>
+    @Bindable public var store: StoreOf<ProofPhotoReducer>
 
     public init(store: StoreOf<ProofPhotoReducer>) {
         self.store = store
@@ -26,6 +26,7 @@ public struct ProofPhotoView: View {
             photoPreview
             bottomControls
         }
+        .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(.black)
         .onAppear {
@@ -70,7 +71,10 @@ private extension ProofPhotoView {
                         previewTopControls
                     }
                     .overlay(alignment: .bottom) {
-                        CommentCircle(commentText: store.commentText)
+                        CommentCircle(
+                            commentText: $store.commentText,
+                            isEditable: true
+                        )
                             .padding(.bottom, 26)
                     }
                     .insideBorder(
