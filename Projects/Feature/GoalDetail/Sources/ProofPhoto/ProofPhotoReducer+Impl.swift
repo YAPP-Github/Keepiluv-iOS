@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import FeatureGoalDetailInterface
+import PhotosUI
 
 extension ProofPhotoReducer {
     public init() {
@@ -64,6 +65,22 @@ extension ProofPhotoReducer {
                 state.isFront.toggle()
                 return .none
             
+            case .binding(\.selectedPhotoItem):
+                guard let selectedPhotoItem = state.selectedPhotoItem else {
+                    state.imageData = nil
+                    return .none
+                }
+
+                return .run { send in
+                    if let imageData = try? await selectedPhotoItem.loadTransferable(type: Data.self) {
+                        await send(.galleryPhotoLoaded(imageData: imageData))
+                    }
+                }
+
+            case let .galleryPhotoLoaded(imageData):
+                state.imageData = imageData
+                return .none
+
             case .binding:
                 return .none
                 
