@@ -13,10 +13,12 @@ import SwiftUI
 /// ```swift
 /// TXShadowButton(
 ///     config: .detailGoal(text: "목표 미완료"),
+///     colorStyle: .black,
 ///     action: { }
 /// )
 /// ```
 public struct TXShadowButton: View {
+    /// 버튼의 스타일 구성을 정의합니다.
     public struct Configuration {
         let text: String
         let font: TypographyToken = .t2_16b
@@ -27,6 +29,15 @@ public struct TXShadowButton: View {
         let shadowTopPadding: CGFloat = 4
         let frameHeight: CGFloat = 74
 
+        /// 버튼 구성 값을 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let config = TXShadowButton.Configuration(
+        ///     text: "업로드하기",
+        ///     borderColor: .black
+        /// )
+        /// ```
         public init(
             text: String,
             borderColor: Color
@@ -40,6 +51,16 @@ public struct TXShadowButton: View {
     private let colorStyle: ColorStyle
     private let action: () -> Void
 
+    /// ShadowButton을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXShadowButton(
+    ///     config: .detailGoal(text: "목표 미완료"),
+    ///     colorStyle: .black,
+    ///     action: { }
+    /// )
+    /// ```
     public init(
         config: Configuration,
         colorStyle: ColorStyle,

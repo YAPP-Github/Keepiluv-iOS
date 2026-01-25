@@ -77,6 +77,15 @@ public struct GoalDetailReducer {
         case proofPhoto(ProofPhotoReducer.Action)
     }
     
+    /// 외부에서 주입된 Reduce와 ProofPhotoReducer로 리듀서를 구성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = GoalDetailReducer(
+    ///     reducer: Reduce { _, _ in .none },
+    ///     proofPhotoReducer: ProofPhotoReducer()
+    /// )
+    /// ```
     public init(
         reducer: Reduce<State, Action>,
         proofPhotoReducer: ProofPhotoReducer
