@@ -5,6 +5,7 @@
 //  Created by 정지훈 on 1/22/26.
 //
 
+import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -44,7 +45,7 @@ private extension ProofPhotoView {
     var topBar: some View {
         HStack(spacing: 0) {
             Spacer()
-
+            
             Button {
                 store.send(.closeButtonTapped)
             } label: {
@@ -56,34 +57,28 @@ private extension ProofPhotoView {
         }
         .frame(height: 72)
     }
-
+    
     var titleText: some View {
         Text(store.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
     }
-
+    
     @ViewBuilder
     var photoPreview: some View {
-        if let session = store.captureSession {
-            CameraPreview(session: session)
-                .aspectRatio(1, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 76))
-                .overlay(alignment: .top) {
-                    previewTopControls
-                }
-                .overlay(alignment: .bottom) {
-                    CommentCircle(
-                        commentText: $store.commentText,
-                        isEditable: true
-                    )
-                    .padding(.bottom, 26)
-                }
-                .insideBorder(
-                    .white.opacity(0.2),
-                    shape: RoundedRectangle(cornerRadius: 76),
-                    lineWidth: 2
-                )
+        if store.hasImage,
+           let imageData = store.imageData,
+           let image = UIImage(data: imageData) {
+            previewContainer {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fit)
+            }
+        } else if let session = store.captureSession {
+            previewContainer {
+                CameraPreview(session: session)
+                    .aspectRatio(1, contentMode: .fit)
+            }
         } else {
             Rectangle()
                 .aspectRatio(1, contentMode: .fit)
@@ -138,9 +133,11 @@ private extension ProofPhotoView {
     }
     
     var galleryButton: some View {
-        Button {
-            
-        } label: {
+        PhotosPicker(
+            selection: $store.selectedPhotoItem,
+            matching: .images,
+            photoLibrary: .shared()
+        ) {
             store.galleryThumbnail
                 .resizable()
                 .insideBorder(
@@ -172,6 +169,33 @@ private extension ProofPhotoView {
                         .frame(width: 84, height: 84)
                 )
         }
+    }
+}
+
+// MARK: - Preiview Methods
+private extension ProofPhotoView {
+    
+    @ViewBuilder
+    func previewContainer<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        content()
+            .clipShape(RoundedRectangle(cornerRadius: 76))
+            .overlay(alignment: .top) {
+                previewTopControls
+            }
+            .overlay(alignment: .bottom) {
+                CommentCircle(
+                    commentText: $store.commentText,
+                    isEditable: true
+                )
+                .padding(.bottom, 26)
+            }
+            .insideBorder(
+                .white.opacity(0.2),
+                shape: RoundedRectangle(cornerRadius: 76),
+                lineWidth: 2
+            )
     }
 }
 
