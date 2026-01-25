@@ -116,20 +116,59 @@ private extension ProofPhotoView {
         .padding([.top, .horizontal], 31)
     }
 
+    @ViewBuilder
     var bottomControls: some View {
+        Group {
+            if store.hasImage {
+                uploadControls
+            } else {
+                captureControls
+            }
+        }
+        .frame(height: 74)
+    }
+    
+    var captureControls: some View {
         HStack(spacing: 0) {
             galleryButton
-
+            
             Spacer()
-
+            
             captureButton
-
+            
             Spacer()
-
+            
             TXCircleButton(config: .cameraChange()) {
                 store.send(.switchButtonTapped)
             }
         }
+    }
+    
+    var uploadControls: some View {
+        HStack(spacing: Spacing.spacing6) {
+            Button {
+                
+            } label: {
+                Image.Icon.Symbol.icReturn
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.Common.white)
+                    .frame(width: 36, height: 36)
+                    .frame(width: 50, height: 50)
+            }
+            
+            
+            TXShadowButton(
+                config: .proofPhoto(),
+                colorStyle: .black
+            ) {
+                
+            }
+            
+            Color.clear
+                .frame(width: 50)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     var galleryButton: some View {
