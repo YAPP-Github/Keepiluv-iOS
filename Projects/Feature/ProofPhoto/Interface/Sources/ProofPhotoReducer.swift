@@ -1,6 +1,6 @@
 //
 //  ProofPhotoReducer.swift
-//  FeatureGoalDetailInterface
+//  FeatureProofPhotoInterface
 //
 //  Created by 정지훈 on 1/22/26.
 //

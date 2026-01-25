@@ -1,13 +1,14 @@
 //
 //  ProofPhotoReducer+Impl.swift
-//  FeatureGoalDetail
+//  FeatureProofPhoto
 //
 //  Created by 정지훈 on 1/22/26.
 //
 
+import AVFoundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
-import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import PhotosUI
 
 extension ProofPhotoReducer {

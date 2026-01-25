@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureProofPhotoInterface
 
 /// GoalDetail 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer

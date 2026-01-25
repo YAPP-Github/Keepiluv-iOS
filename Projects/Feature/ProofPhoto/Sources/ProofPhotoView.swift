@@ -1,6 +1,6 @@
 //
 //  ProofPhotoView.swift
-//  FeatureGoalDetail
+//  FeatureProofPhoto
 //
 //  Created by 정지훈 on 1/22/26.
 //
@@ -9,7 +9,7 @@ import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
-import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 public struct ProofPhotoView: View {

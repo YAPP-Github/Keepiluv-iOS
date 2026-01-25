@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 public struct GoalDetailView: View {
