@@ -19,7 +19,7 @@ extension ProofPhotoReducer {
             // MARK: - Life Cycle
             case .onAppear:
                 return .run { send in
-                    let session = await captureSessionClient.setUpCaptureSession(.front)
+                    let session = await captureSessionClient.setUpCaptureSession(.back)
                     
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
@@ -50,6 +50,10 @@ extension ProofPhotoReducer {
                 state.isFlashOn.toggle()
                 captureSessionClient.setFlashEnabled(state.isFlashOn)
                 return .none
+                
+            case let .commentTextChanged(text):
+                state.commentText = String(text.prefix(5))
+                return .none
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
@@ -58,6 +62,9 @@ extension ProofPhotoReducer {
                 
             case .cameraSwitched:
                 state.isFront.toggle()
+                return .none
+            
+            case .binding:
                 return .none
                 
             default: return .none
