@@ -14,7 +14,9 @@ import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 extension GoalDetailReducer {
-    public init() {
+    public init(
+        proofPhotoReducer: ProofPhotoReducer
+    ) {
         @Dependency(\.captureSessionClient) var captureSessionClient
 
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
@@ -67,7 +69,7 @@ extension GoalDetailReducer {
 
         self.init(
             reducer: reducer,
-            proofPhotoReducer: ProofPhotoReducer()
+            proofPhotoReducer: proofPhotoReducer
         )
     }
 }

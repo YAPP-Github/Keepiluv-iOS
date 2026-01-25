@@ -56,6 +56,7 @@ let project = Project.makeModule(
                     dependencies: [
                         .shared(implements: .designSystem),
                         .feature(implements: .goalDetail),
+                        .feature(implements: .proofPhoto),
                         .core(implements: .captureSession),
                         .external(dependency: .ComposableArchitecture)
                 ]

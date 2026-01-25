@@ -10,6 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
+import FeatureProofPhoto
+import FeatureProofPhotoInterface
 import CoreCaptureSession
 import SharedDesignSystem
 
@@ -29,9 +31,12 @@ struct GoalDetailExampleView: View {
                     status: .pending
                 ),
                 reducer: {
-                    GoalDetailReducer()
+                    GoalDetailReducer(
+                        proofPhotoReducer: ProofPhotoReducer()
+                    )
                 }, withDependencies: {
                     $0.captureSessionClient = .liveValue
+                    $0.proofPhotoFactory = .liveValue
                 })
         )
     }

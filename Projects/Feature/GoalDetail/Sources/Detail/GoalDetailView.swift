@@ -15,6 +15,7 @@ import SharedDesignSystem
 public struct GoalDetailView: View {
     
     @Bindable public var store: StoreOf<GoalDetailReducer>
+    @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
     
     public init(store: StoreOf<GoalDetailReducer>) {
         self.store = store
@@ -54,7 +55,7 @@ public struct GoalDetailView: View {
             onDismiss: { store.send(.proofPhotoDismissed) }
         ) {
             IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
-                ProofPhotoView(store: store)
+                proofPhotoFactory.makeView(store)
             }
         }
     }
@@ -203,7 +204,7 @@ private extension GoalDetailView {
                 status: .pending
             ),
             reducer: {
-                GoalDetailReducer()
+                
             })
     )
 }
