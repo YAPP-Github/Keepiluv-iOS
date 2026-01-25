@@ -161,25 +161,14 @@ private extension GoalDetailView {
     }
     
     var bottomButton: some View {
-        Button {
-            store.send(.bottomButtonTapped)
-        } label: {
-            Text(store.nonCompleteButtonText)
-                .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray500)
-                .frame(width: 150, height: 68)
-                .background(.white)
-                .clipShape(.capsule)
-        }
-        .buttonStyle(.plain)
-        .insideBorder(Color.Gray.gray500, shape: .capsule, lineWidth: 1.6)
-        .background(
-            Capsule()
-                .fill(Color.Gray.gray500)
-                .frame(width: 150, height: 70)
-                .padding(.top, 4)
-        )
-        .padding(.top, -28)
+        TXShadowButton(
+            config: .detailGoal(
+                text: store.nonCompleteButtonText
+            ),
+            colorStyle: .white) {
+                store.send(.bottomButtonTapped)
+            }
+            .padding(.top, -28)
     }
 }
 
