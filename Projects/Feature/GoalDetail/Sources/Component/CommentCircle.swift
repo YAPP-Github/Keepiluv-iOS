@@ -68,6 +68,12 @@ struct CommentCircle: View {
                     .opacity(0)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if isFocused {
+                Color.clear
+                    .frame(height: Constants.keyboardPadding)
+            }
+        }
     }
 }
 
@@ -76,4 +82,5 @@ private enum Constants {
     static let circleSize: CGFloat = 62
     static let circleSpacing: CGFloat = -14
     static let placeholder = Array("코멘트추가")
+    static let keyboardPadding: CGFloat = 80
 }
