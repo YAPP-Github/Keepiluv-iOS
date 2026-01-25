@@ -55,6 +55,14 @@ extension ProofPhotoReducer {
             case let .commentTextChanged(text):
                 state.commentText = String(text.prefix(5))
                 return .none
+                
+            case .returnButtonTapped:
+                state.imageData = nil
+                guard let session = state.captureSession else { return .none }
+                return .run { send in
+                    await send(.setupCaptureSessionCompleted(session: session))
+                }
+                
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):

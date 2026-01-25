@@ -147,7 +147,7 @@ private extension ProofPhotoView {
     var uploadControls: some View {
         HStack(spacing: Spacing.spacing6) {
             Button {
-                
+                store.send(.returnButtonTapped)
             } label: {
                 Image.Icon.Symbol.icReturn
                     .resizable()
