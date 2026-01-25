@@ -10,6 +10,7 @@ import Foundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 extension GoalDetailReducer {
