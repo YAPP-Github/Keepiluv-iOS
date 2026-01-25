@@ -224,7 +224,7 @@ private extension ProofPhotoView {
                 previewTopControls
             }
             .overlay(alignment: .bottom) {
-                CommentCircle(
+                TXCommentCircle(
                     commentText: $store.commentText,
                     isEditable: true
                 )
