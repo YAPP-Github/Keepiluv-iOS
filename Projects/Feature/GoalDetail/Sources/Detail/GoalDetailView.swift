@@ -85,7 +85,7 @@ private extension GoalDetailView {
             .frame(width: 336, height: 336)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(alignment: .bottom) {
-                CommentCircle(
+                TXCommentCircle(
                     commentText: .constant(store.item.commentText),
                     isEditable: false
                 )
