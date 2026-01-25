@@ -23,8 +23,12 @@ public struct ProofPhotoView: View {
         VStack(spacing: 0) {
             topBar
             titleText
+                .padding(.top, 25)
             photoPreview
+                .padding(.top, 38)
             bottomControls
+                .padding(.horizontal, 41)
+                .padding(.top, 52)
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -57,37 +61,33 @@ private extension ProofPhotoView {
         Text(store.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
-            .padding(.top, 25)
     }
 
     @ViewBuilder
     var photoPreview: some View {
-        Group {
-            if let session = store.captureSession {
-                CameraPreview(session: session)
-                    .aspectRatio(1, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 76))
-                    .overlay(alignment: .top) {
-                        previewTopControls
-                    }
-                    .overlay(alignment: .bottom) {
-                        CommentCircle(
-                            commentText: $store.commentText,
-                            isEditable: true
-                        )
-                            .padding(.bottom, 26)
-                    }
-                    .insideBorder(
-                        .white.opacity(0.2),
-                        shape: RoundedRectangle(cornerRadius: 76),
-                        lineWidth: 2
+        if let session = store.captureSession {
+            CameraPreview(session: session)
+                .aspectRatio(1, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 76))
+                .overlay(alignment: .top) {
+                    previewTopControls
+                }
+                .overlay(alignment: .bottom) {
+                    CommentCircle(
+                        commentText: $store.commentText,
+                        isEditable: true
                     )
-            } else {
-                Rectangle()
-                    .aspectRatio(1, contentMode: .fit)
-            }
+                    .padding(.bottom, 26)
+                }
+                .insideBorder(
+                    .white.opacity(0.2),
+                    shape: RoundedRectangle(cornerRadius: 76),
+                    lineWidth: 2
+                )
+        } else {
+            Rectangle()
+                .aspectRatio(1, contentMode: .fit)
         }
-        .padding(.top, 38)
     }
 
     var previewTopControls: some View {
@@ -135,8 +135,6 @@ private extension ProofPhotoView {
                 store.send(.switchButtonTapped)
             }
         }
-        .padding(.horizontal, 41)
-        .padding(.top, 52)
     }
     
     var galleryButton: some View {
