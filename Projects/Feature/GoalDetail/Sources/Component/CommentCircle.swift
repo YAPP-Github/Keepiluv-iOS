@@ -10,48 +10,70 @@ import SwiftUI
 import SharedDesignSystem
 
 struct CommentCircle: View {
+    @Binding var commentText: String
+    @FocusState private var isFocused: Bool
+    private var isEditable: Bool
     
-    let commentText: String
+    init(
+        commentText: Binding<String>,
+        isEditable: Bool
+    ) {
+        self._commentText = commentText
+        self.isEditable = isEditable
+    }
+    
     
     var body: some View {
-        let maxCount = 5
-        let placeholder = Array("코멘트추가")
-        let characters = Array(commentText)
-        
         ZStack {
             // border circles
-            HStack(spacing: -14) {
-                ForEach(0..<maxCount, id: \.self) { _ in
+            HStack(spacing: Constants.circleSpacing) {
+                ForEach(0..<Constants.maxCount, id: \.self) { _ in
                     Circle()
                         .outsideBorder(.black, shape: .circle, lineWidth: 2)
-                        .frame(width: 62, height: 62)
+                        .frame(width: Constants.circleSize, height: Constants.circleSize)
                 }
             }
             
             // fill circles
-            HStack(spacing: -14) {
-                ForEach(0..<maxCount, id: \.self) { _ in
+            HStack(spacing: Constants.circleSpacing) {
+                ForEach(0..<Constants.maxCount, id: \.self) { _ in
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 62, height: 62)
+                        .frame(width: Constants.circleSize, height: Constants.circleSize)
                 }
             }
             
             // text / placeholder
-            HStack(spacing: -14) {
-                ForEach(0..<maxCount, id: \.self) { index in
+            HStack(spacing: Constants.circleSpacing) {
+                ForEach(0..<Constants.maxCount, id: \.self) { index in
                     Text(
-                        characters.isEmpty
-                        ? String(placeholder[index])
-                        : (index < characters.count ? String(characters[index]) : "")
+                        Array(commentText).isEmpty
+                        ? String(Constants.placeholder[index])
+                        : (index < Array(commentText).count ? String(Array(commentText)[index]) : "")
                     )
                     .typography(.h1_28b)
                     .foregroundColor(
-                        characters.isEmpty ? Color.Gray.gray200 : Color.Gray.gray500
+                        Array(commentText).isEmpty ? Color.Gray.gray200 : Color.Gray.gray500
                     )
-                    .frame(width: 62, height: 62)
+                    .frame(width: Constants.circleSize, height: Constants.circleSize)
                 }
+            }
+            .onTapGesture {
+                isFocused = isEditable
+            }
+            .background {
+                TextField("", text: $commentText)
+                    .focused($isFocused)
+                    .submitLabel(.done)
+                    .opacity(0)
             }
         }
     }
+}
+
+private enum Constants {
+    static let maxCount = 5
+    static let circleSize: CGFloat = 62
+    static let circleSpacing: CGFloat = -14
+    static let placeholder = Array("코멘트추가")
 }

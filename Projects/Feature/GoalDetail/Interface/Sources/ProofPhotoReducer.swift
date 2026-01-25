@@ -43,7 +43,9 @@ public struct ProofPhotoReducer {
     }
 
     /// ProofPhoto 화면에서 발생하는 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         
@@ -54,6 +56,7 @@ public struct ProofPhotoReducer {
         case flashButtonTapped
         
         // MARK: - Update State
+        case commentTextChanged(String)
         case setupCaptureSessionCompleted(session: AVCaptureSession)
         case captureCompleted(imageData: Data)
         case cameraSwitched
@@ -79,6 +82,7 @@ public struct ProofPhotoReducer {
     }
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }

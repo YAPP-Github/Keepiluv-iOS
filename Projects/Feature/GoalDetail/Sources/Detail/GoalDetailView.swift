@@ -85,7 +85,10 @@ private extension GoalDetailView {
             .frame(width: 336, height: 336)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(alignment: .bottom) {
-                CommentCircle(commentText: store.item.commentText)
+                CommentCircle(
+                    commentText: .constant(store.item.commentText),
+                    isEditable: false
+                )
                     .padding(.bottom, 26)
             }
             .rotationEffect(.degrees(degree(isBackground: false)))
