@@ -86,6 +86,7 @@ extension ProofPhotoReducer {
                 return .run { send in
                     if let imageData = try? await selectedPhotoItem.loadTransferable(type: Data.self) {
                         await send(.galleryPhotoLoaded(imageData: imageData))
+                        captureSessionClient.stopRunning()
                     }
                 }
 
