@@ -58,8 +58,11 @@ extension ProofPhotoReducer {
                 
             case .returnButtonTapped:
                 state.imageData = nil
-                guard let session = state.captureSession else { return .none }
+                state.selectedPhotoItem = nil
+                let position: AVCaptureDevice.Position = state.isFront ? .front : .back
+                
                 return .run { send in
+                    let session = await captureSessionClient.setUpCaptureSession(position)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
@@ -86,6 +89,10 @@ extension ProofPhotoReducer {
                 }
 
             case let .galleryPhotoLoaded(imageData):
+                state.imageData = imageData
+                return .none
+                
+            case let .captureCompleted(imageData: imageData):
                 state.imageData = imageData
                 return .none
 
