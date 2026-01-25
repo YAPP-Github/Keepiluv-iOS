@@ -90,12 +90,9 @@ private extension ProofPhotoView {
             Button {
                 store.send(.flashButtonTapped)
             } label: {
-                Image.Icon.Symbol.flash
+                flashIcon
                     .renderingMode(.template)
-                    .foregroundStyle(
-                        // FIXME: - 플래시 버튼 selected 디자인 나오면 수정
-                        store.isFlashOn ? .red : Color.Common.white.opacity(0.6)
-                    )
+                    .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.Common.white.opacity(0.1), in: .circle)
             }
@@ -114,6 +111,10 @@ private extension ProofPhotoView {
             }
         }
         .padding([.top, .horizontal], 31)
+    }
+
+    var flashIcon: Image {
+        store.isFlashOn ? Image.Icon.Symbol.flash : Image.Icon.Symbol.flashDefault
     }
 
     @ViewBuilder
