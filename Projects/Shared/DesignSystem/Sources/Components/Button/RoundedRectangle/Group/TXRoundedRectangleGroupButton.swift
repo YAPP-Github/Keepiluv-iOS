@@ -22,6 +22,8 @@ import SwiftUI
 /// )
 /// ```
 public struct TXRoundedRectangleGroupButton: View {
+    @Environment(\.txButtonGroupLayout) private var layout
+
     public struct Configuration {
         let leftText: String
         let rightText: String
@@ -71,23 +73,38 @@ public struct TXRoundedRectangleGroupButton: View {
 // MARK: - SubViews
 private extension TXRoundedRectangleGroupButton {
     var leftButton: some View {
-        TXRoundedRectangleButton(
-            config: .medium(
-                text: config.leftText,
-                colorStyle: config.leftColorStyle
-            ),
-            action: actionLeft
-        )
+        Group {
+            TXRoundedRectangleButton(
+                config: buttonConfig(
+                    text: config.leftText,
+                    colorStyle: config.leftColorStyle
+                ),
+                action: actionLeft
+            )
+            .frame(maxWidth: layout == .calendarSheet ? .infinity : nil)
+        }
     }
     
     var rightButton: some View {
-        TXRoundedRectangleButton(
-            config: .medium(
-                text: config.rightText,
-                colorStyle: config.rightColorStyle
-            ),
-            action: actionRight
-        )
+        Group {
+            TXRoundedRectangleButton(
+                config: buttonConfig(
+                    text: config.rightText,
+                    colorStyle: config.rightColorStyle
+                ),
+                action: actionRight
+            )
+            .frame(maxWidth: layout == .calendarSheet ? .infinity : nil)
+        }
+    }
+
+    func buttonConfig(text: String, colorStyle: ColorStyle) -> TXRoundedRectangleButton.Configuration {
+        switch layout {
+        case .calendarSheet:
+            return .long(text: text, colorStyle: colorStyle)
+        case .modal:
+            return .medium(text: text, colorStyle: colorStyle)
+        }
     }
 }
 
@@ -97,4 +114,22 @@ private extension TXRoundedRectangleGroupButton {
         actionLeft: { },
         actionRight: { }
     )
+}
+
+// MARK: - Environment
+
+enum TXButtonGroupLayout {
+    case modal
+    case calendarSheet
+}
+
+private struct TXButtonGroupLayoutKey: EnvironmentKey {
+    static let defaultValue: TXButtonGroupLayout = .modal
+}
+
+extension EnvironmentValues {
+    var txButtonGroupLayout: TXButtonGroupLayout {
+        get { self[TXButtonGroupLayoutKey.self] }
+        set { self[TXButtonGroupLayoutKey.self] = newValue }
+    }
 }
