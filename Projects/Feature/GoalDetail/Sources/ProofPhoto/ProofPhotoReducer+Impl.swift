@@ -29,6 +29,7 @@ extension ProofPhotoReducer {
                 return .send(.delegate(.closeProofPhoto))
 
             case .captureButtonTapped:
+                // TODO: - Error 처리
                 return .run { send in
                     let imageData = try await captureSessionClient.capturePhoto()
                     
