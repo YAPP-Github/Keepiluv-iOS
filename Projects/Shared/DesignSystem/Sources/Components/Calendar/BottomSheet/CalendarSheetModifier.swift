@@ -11,7 +11,7 @@ import SwiftUI
 
 enum CalendarSheetButtonConfiguration<ButtonContent: View> {
     case `default`(text: String, onComplete: () -> Void)
-    case custom(content: () -> ButtonContent)
+    case custom(content: (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent)
 }
 
 // MARK: - Constants

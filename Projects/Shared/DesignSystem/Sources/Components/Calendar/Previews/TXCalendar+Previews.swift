@@ -76,29 +76,18 @@ private struct CalendarSheetCustomButtonPreview: View {
         .calendarSheet(
             isPresented: $showCalendar,
             selectedDate: $selectedDate
-        ) {
-            CalendarSheetCustomButtonContent(showCalendar: $showCalendar)
-        }
-    }
-}
-
-/// 커스텀 버튼에서 picker 모드 종료를 처리하는 예시 컴포넌트입니다.
-private struct CalendarSheetCustomButtonContent: View {
-    @Binding var showCalendar: Bool
-    @Environment(\.txCalendarExitPickerModeIfNeeded)
-    private var exitPickerModeIfNeeded
-
-    var body: some View {
-        TXRoundedRectangleGroupButton(
-            config: .modal(leftText: "버튼 이름", rightText: "완료"),
-            actionLeft: { showCalendar = false },
-            actionRight: {
-                // picker 모드였으면 먼저 종료하고, 아니면 시트를 닫음
-                if !exitPickerModeIfNeeded() {
-                    showCalendar = false
+        ) { exitPickerModeIfNeeded in
+            TXRoundedRectangleGroupButton(
+                config: .modal(leftText: "버튼 이름", rightText: "완료"),
+                layout: .calendarSheet,
+                actionLeft: { showCalendar = false },
+                actionRight: {
+                    if !exitPickerModeIfNeeded() {
+                        showCalendar = false
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
