@@ -25,7 +25,7 @@ extension CaptureSessionClient: @retroactive DependencyKey {
             switchCamera: { isFront in
                 await manager.switchCamera(isFront: isFront)
             },
-            switchFalsh: { isEnabled in
+            switchFlash: { isEnabled in
                 manager.switchFlash(isEnabled)
             }
         )

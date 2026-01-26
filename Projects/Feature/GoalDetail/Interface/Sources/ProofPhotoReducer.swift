@@ -44,7 +44,7 @@ public struct ProofPhotoReducer {
 
     /// ProofPhoto 화면에서 발생하는 액션입니다.
     public enum Action {
-        // MARK: - LfieCycle
+        // MARK: - LifeCycle
         case onAppear
         
         // MARK: - Action

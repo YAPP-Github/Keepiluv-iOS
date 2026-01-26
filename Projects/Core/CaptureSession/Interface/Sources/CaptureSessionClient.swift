@@ -46,14 +46,14 @@ public struct CaptureSessionClient {
         stopRunning: @escaping () -> Void,
         capturePhoto: @escaping () async throws -> Data,
         switchCamera: @escaping (Bool) async -> Void,
-        switchFalsh: @escaping (Bool) -> Void
+        switchFlash: @escaping (Bool) -> Void
     ) {
         self.fetchIsAuthorized = fetchIsAuthorized
         self.setUpCaptureSession = setUpCaptureSession
         self.stopRunning = stopRunning
         self.capturePhoto = capturePhoto
         self.switchCamera = switchCamera
-        self.setFlashEnabled = switchFalsh
+        self.setFlashEnabled = switchFlash
     }
 }
 
@@ -82,7 +82,7 @@ extension CaptureSessionClient: TestDependencyKey {
         switchCamera: { _ in
             assertionFailure("switchCamera is unimplemented. Use withDependencies to override.")
         },
-        switchFalsh: { _ in
+        switchFlash: { _ in
             assertionFailure("setFlashEnabled is unimplemented. Use withDependencies to override.")
         }
     )
