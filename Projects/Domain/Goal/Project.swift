@@ -1,0 +1,36 @@
+import ProjectDescription
+import ProjectDescriptionHelpers
+
+let project = Project.makeModule(
+    name: Module.Domain.name + Module.Domain.goal.rawValue,
+    targets: [
+        .domain(
+            interface: .goal,
+            config: .init()
+        ),
+        .domain(
+            implements: .goal,
+            config: .init(
+                dependencies: [
+                    .domain(interface: .goal)
+                ]
+            )
+        ),
+        .domain(
+            testing: .goal,
+            config: .init(
+                dependencies: [
+                    .domain(interface: .goal)
+                ]
+            )
+        ),
+        .domain(
+            tests: .goal,
+            config: .init(
+                dependencies: [
+                    .domain(testing: .goal)
+                ]
+            )
+        )
+    ]
+)
