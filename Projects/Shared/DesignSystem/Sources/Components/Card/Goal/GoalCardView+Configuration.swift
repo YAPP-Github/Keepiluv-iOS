@@ -29,18 +29,32 @@ extension GoalCardView.Configuration {
         isCoupleChecked: Bool = false,
         action: @escaping () -> Void
     ) -> Self {
-        let headerConfig = CardHeaderView.Configuration.goalCheckOpened(
-            goalName: item.goalName,
-            iconImage: item.goalEmoji,
-            isMyChecked: isMyChecked,
-            isCoupleChecked: isCoupleChecked,
-            action: action
-        )
+        let showsContent = item.myCard.isSelected || item.yourCard.isSelected
+        let headerConfig: CardHeaderView.Configuration
+        
+        if showsContent {
+            headerConfig = CardHeaderView.Configuration.goalCheckOpened(
+                goalName: item.goalName,
+                iconImage: item.goalEmoji,
+                isMyChecked: isMyChecked,
+                isCoupleChecked: isCoupleChecked,
+                action: action
+            )
+        } else {
+            headerConfig = CardHeaderView.Configuration.goalCheckClosed(
+                goalName: item.goalName,
+                iconImage: item.goalEmoji,
+                isMyChecked: isMyChecked,
+                isCoupleChecked: isCoupleChecked,
+                action: action
+            )
+        }
 
         return Self(
             headerConfig: headerConfig,
             myItem: item.myCard,
             yourItem: item.yourCard,
+            showsContent: showsContent,
             contentBackgroundColor: Color.Gray.gray50,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
