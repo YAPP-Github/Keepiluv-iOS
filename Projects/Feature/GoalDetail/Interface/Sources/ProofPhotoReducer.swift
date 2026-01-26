@@ -5,6 +5,7 @@
 //  Created by 정지훈 on 1/22/26.
 //
 
+import AVFoundation
 import SwiftUI
 
 import ComposableArchitecture
@@ -14,43 +15,55 @@ import ComposableArchitecture
 public struct ProofPhotoReducer {
     let reducer: Reduce<State, Action>
 
-    @ObservableState
     /// ProofPhoto 화면 렌더링에 필요한 상태입니다.
+    @ObservableState
     public struct State {
-        public var titleText: String
-        public var commentText: String
+        public var titleText: String = "인증샷을 올려보세요~"
+        public var commentText: String = ""
         public var galleryThumbnail: Image
         public var scopeText: String = "1x"
+        public var captureSession: AVCaptureSession?
+        public var imageData: Data?
+        public var isFront: Bool = false
+        public var isFlashOn: Bool = false
 
         /// 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
         /// let state = ProofPhotoReducer.State(
-        ///     titleText: "인증샷을 올려보세요~",
-        ///     commentText: "안녕하세요",
         ///     galleryThumbnail: image
         /// )
         /// ```
         public init(
-            titleText: String,
-            commentText: String,
             galleryThumbnail: Image
         ) {
-            self.titleText = titleText
-            self.commentText = commentText
             self.galleryThumbnail = galleryThumbnail
         }
     }
 
     /// ProofPhoto 화면에서 발생하는 액션입니다.
     public enum Action {
+        // MARK: - LifeCycle
+        case onAppear
+        
+        // MARK: - Action
         case closeButtonTapped
-        case flashButtonTapped
-        case zoomButtonTapped
-        case galleryButtonTapped
         case captureButtonTapped
-        case switchCameraButtonTapped
+        case switchButtonTapped
+        case flashButtonTapped
+        
+        // MARK: - Update State
+        case setupCaptureSessionCompleted(session: AVCaptureSession)
+        case captureCompleted(imageData: Data)
+        case cameraSwitched
+
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        public enum Delegate {
+            case closeProofPhoto
+        }
     }
 
     /// 외부에서 주입된 Reduce로 리듀서를 구성합니다.

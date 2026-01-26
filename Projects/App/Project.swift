@@ -7,10 +7,7 @@ let project = Project(
         .app(
             implements: .iOS,
             config: .init(
-                infoPlist: .extendingDefault(with: [
-                    "UILaunchScreen": [
-                        "UIColorName": "LaunchScreenBackground"
-                    ],
+                infoPlist: .extendingDefault(with: Project.Environment.InfoPlist.launchScreen.merging([
                     "LSApplicationQueriesSchemes": [
                         "kakaokompassauth",
                         "kakaolink",
@@ -29,7 +26,7 @@ let project = Project(
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
                     "GOOGLE_CLIENT_ID": "$(GOOGLE_CLIENT_ID)",
                     "GOOGLE_REVERSED_CLIENT_ID": "$(GOOGLE_REVERSED_CLIENT_ID)"
-                ]),
+                ], uniquingKeysWith: { current, _ in current })),
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],
                 dependencies: [
