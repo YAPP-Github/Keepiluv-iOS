@@ -7,6 +7,111 @@
 
 import SwiftUI
 
+// MARK: - CalendarSheet Modifier Preview (Default Button)
+
+#Preview("calendarSheet - Default") {
+    CalendarSheetDefaultPreview()
+}
+
+private struct CalendarSheetDefaultPreview: View {
+    @State private var showCalendar = false
+    @State private var selectedYear = 2026
+    @State private var selectedMonth = 12
+    @State private var selectedDay: Int? = 12
+
+    var body: some View {
+        VStack(spacing: Spacing.spacing8) {
+            Text("선택된 날짜")
+                .typography(.t1_18eb)
+
+            if let day = selectedDay {
+                Text(verbatim: "\(selectedYear)년 \(selectedMonth)월 \(day)일")
+                    .typography(.b1_14b)
+            } else {
+                Text("날짜를 선택해주세요")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray300)
+            }
+
+            Button("캘린더 열기") {
+                showCalendar = true
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .calendarSheet(
+            isPresented: $showCalendar,
+            selectedYear: $selectedYear,
+            selectedMonth: $selectedMonth,
+            selectedDay: $selectedDay,
+            onComplete: { showCalendar = false }
+        )
+    }
+}
+
+// MARK: - CalendarSheet Modifier Preview (Custom Button)
+
+#Preview("calendarSheet - Custom Button") {
+    CalendarSheetCustomButtonPreview()
+}
+
+private struct CalendarSheetCustomButtonPreview: View {
+    @State private var showCalendar = false
+    @State private var selectedYear = 2026
+    @State private var selectedMonth = 12
+    @State private var selectedDay: Int? = 12
+
+    var body: some View {
+        VStack(spacing: Spacing.spacing8) {
+            Text("선택된 날짜")
+                .typography(.t1_18eb)
+
+            if let day = selectedDay {
+                Text(verbatim: "\(selectedYear)년 \(selectedMonth)월 \(day)일")
+                    .typography(.b1_14b)
+            } else {
+                Text("날짜를 선택해주세요")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray300)
+            }
+
+            Button("캘린더 열기 (커스텀 버튼)") {
+                showCalendar = true
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .calendarSheet(
+            isPresented: $showCalendar,
+            selectedYear: $selectedYear,
+            selectedMonth: $selectedMonth,
+            selectedDay: $selectedDay
+        ) {
+            CalendarSheetCustomButtonContent(showCalendar: $showCalendar)
+        }
+    }
+}
+
+/// 커스텀 버튼에서 picker 모드 종료를 처리하는 예시 컴포넌트입니다.
+private struct CalendarSheetCustomButtonContent: View {
+    @Binding var showCalendar: Bool
+    @Environment(\.txCalendarExitPickerModeIfNeeded)
+    private var exitPickerModeIfNeeded
+
+    var body: some View {
+        TXRoundedRectangleGroupButton(
+            config: .modal(leftText: "버튼 이름", rightText: "완료"),
+            actionLeft: { showCalendar = false },
+            actionRight: {
+                // picker 모드였으면 먼저 종료하고, 아니면 시트를 닫음
+                if !exitPickerModeIfNeeded() {
+                    showCalendar = false
+                }
+            }
+        )
+    }
+}
+
+// MARK: - Width Comparison Preview
+
 #Preview("TXCalendar Widths") {
     ScrollView {
         VStack(spacing: Spacing.spacing8) {
@@ -15,10 +120,7 @@ import SwiftUI
             previewSection(title: "Large", width: 430)
         }
         .padding(Spacing.spacing7)
-        .frame(
-            maxWidth: .infinity,
-            alignment: .top
-        )
+        .frame(maxWidth: .infinity, alignment: .top)
         .background(Color.Gray.gray50)
     }
 }
