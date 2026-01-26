@@ -13,7 +13,11 @@ import SharedDesignSystem
 
 public struct GoalDetailView: View {
     
-    public let store: StoreOf<GoalDetailReducer>
+    @Bindable public var store: StoreOf<GoalDetailReducer>
+    
+    public init(store: StoreOf<GoalDetailReducer>) {
+        self.store = store
+    }
     
     public var body: some View {
         VStack(spacing: 0) {
@@ -42,6 +46,14 @@ public struct GoalDetailView: View {
             } else {
                 pokeImage
                 bottomButton
+            }
+        }
+        .fullScreenCover(
+            isPresented: $store.isPresentedProofPhoto,
+            onDismiss: { store.send(.proofPhotoDismissed) }
+        ) {
+            IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
+                ProofPhotoView(store: store)
             }
         }
     }
@@ -147,7 +159,7 @@ private extension GoalDetailView {
     
     var bottomButton: some View {
         Button {
-            
+            store.send(.bottomButtonTapped)
         } label: {
             Text(store.nonCompleteButtonText)
                 .typography(.t2_16b)

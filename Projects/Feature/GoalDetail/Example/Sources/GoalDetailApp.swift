@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import CoreCaptureSession
+import CoreCaptureSessionInterface
+import ComposableArchitecture
 
 @main
 struct GoalDetailApp: App {
     var body: some Scene {
         WindowGroup {
-            Text("Hello Twix")
+            GoalDetailExampleView()
         }
     }
 }

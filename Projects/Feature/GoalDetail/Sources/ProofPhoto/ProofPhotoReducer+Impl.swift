@@ -6,12 +6,62 @@
 //
 
 import ComposableArchitecture
+import CoreCaptureSessionInterface
 import FeatureGoalDetailInterface
 
 extension ProofPhotoReducer {
     public init() {
-        let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { _, _ in
-            return .none
+        @Dependency(\.captureSessionClient) var captureSessionClient
+        
+        let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
+            switch action {
+                
+            // MARK: - Life Cycle
+            case .onAppear:
+                return .run { send in
+                    let session = await captureSessionClient.setUpCaptureSession(.front)
+                    
+                    await send(.setupCaptureSessionCompleted(session: session))
+                }
+                
+            // MARK: - Action
+            case .closeButtonTapped:
+                return .send(.delegate(.closeProofPhoto))
+
+            case .captureButtonTapped:
+                // TODO: - Error 처리
+                return .run { send in
+                    let imageData = try await captureSessionClient.capturePhoto()
+                    
+                    await send(.captureCompleted(imageData: imageData))
+                    captureSessionClient.stopRunning()
+                }
+                
+            case .switchButtonTapped:
+                return .run { [isFront = state.isFront] send in
+                    let isFront = !isFront
+                    await captureSessionClient.switchCamera(isFront)
+                    
+                    await send(.cameraSwitched)
+                }
+                
+                
+            case .flashButtonTapped:
+                state.isFlashOn.toggle()
+                captureSessionClient.setFlashEnabled(state.isFlashOn)
+                return .none
+            
+            // MARK: - Update State
+            case let .setupCaptureSessionCompleted(session):
+                state.captureSession = session
+                return .none
+                
+            case .cameraSwitched:
+                state.isFront.toggle()
+                return .none
+                
+            default: return .none
+            }
         }
 
         self.init(reducer: reducer)
