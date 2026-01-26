@@ -22,7 +22,7 @@ public struct GoalDetailReducer {
         
         /// 목표 카드의 사용자 타입을 나타냅니다.
         public enum UserType {
-            case me
+            case mySelf
             case you
         }
         
@@ -117,14 +117,14 @@ extension GoalDetailReducer.State {
         case .you:
             return "\(item.name)\n님은 아직인가봐요!"
             
-        case .me:
+        case .mySelf:
             return "인증샷을\n올려보세요!"
         }
     }
     
     public var nonCompleteButtonText: String {
         switch currentUser {
-        case .me:
+        case .mySelf:
             return "업로드하기"
             
         case .you:

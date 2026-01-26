@@ -99,10 +99,8 @@ private extension ProofPhotoView {
 
             Spacer()
 
-            Button {
-                
-            } label: {
-                /// 줌인/아웃 나중에 한다해서 주석 처리
+            Button { } label: {
+                // 줌인/아웃 나중에 한다해서 주석 처리
 //                Text(store.scopeText)
 //                    .typography(.t2_16b)
 //                    .foregroundStyle(Color.Common.white.opacity(0.6))
@@ -158,13 +156,10 @@ private extension ProofPhotoView {
                     .frame(width: 50, height: 50)
             }
             
-            
             TXShadowButton(
                 config: .proofPhoto(),
                 colorStyle: .black
-            ) {
-                
-            }
+            ) { }
             
             Color.clear
                 .frame(width: 50)

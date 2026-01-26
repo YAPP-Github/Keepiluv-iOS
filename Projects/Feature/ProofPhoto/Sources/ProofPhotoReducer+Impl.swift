@@ -12,9 +12,11 @@ import FeatureProofPhotoInterface
 import PhotosUI
 
 extension ProofPhotoReducer {
+    // swiftlint: disable function_body_length
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         
+        // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
             switch action {
                 
@@ -47,7 +49,6 @@ extension ProofPhotoReducer {
                     await send(.cameraSwitched)
                 }
                 
-                
             case .flashButtonTapped:
                 state.isFlashOn.toggle()
                 captureSessionClient.setFlashEnabled(state.isFlashOn)
@@ -66,7 +67,6 @@ extension ProofPhotoReducer {
                     let session = await captureSessionClient.setUpCaptureSession(position)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
-                
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
@@ -104,7 +104,9 @@ extension ProofPhotoReducer {
             default: return .none
             }
         }
+        // swiftlint: enable closure_body_length
 
         self.init(reducer: reducer)
     }
+    // swiftlint: enable function_body_length
 }

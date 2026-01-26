@@ -15,7 +15,8 @@ import SharedDesignSystem
 public struct GoalDetailView: View {
     
     @Bindable public var store: StoreOf<GoalDetailReducer>
-    @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
+    @Dependency(\.proofPhotoFactory)
+    private var proofPhotoFactory
     
     public init(store: StoreOf<GoalDetailReducer>) {
         self.store = store
@@ -52,12 +53,14 @@ public struct GoalDetailView: View {
         }
         .fullScreenCover(
             isPresented: $store.isPresentedProofPhoto,
-            onDismiss: { store.send(.proofPhotoDismissed) }
-        ) {
-            IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
-                proofPhotoFactory.makeView(store)
+            onDismiss: { store.send(.proofPhotoDismissed)
+            },
+            content: {
+                IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
+                    proofPhotoFactory.makeView(store)
+                }
             }
-        }
+        )
     }
 }
 
@@ -96,8 +99,6 @@ private extension GoalDetailView {
             .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
-    
-    
     var createdAtText: some View {
         Text(store.item.createdAt)
             .typography(.b4_12b)
@@ -105,8 +106,7 @@ private extension GoalDetailView {
             .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
-    @ViewBuilder
-    var reactionBar: some View {
+    @ViewBuilder var reactionBar: some View {
         let emojis = [
             Image.Icon.Illustration.emoji1,
             Image.Icon.Illustration.emoji2,
@@ -164,13 +164,12 @@ private extension GoalDetailView {
     
     var bottomButton: some View {
         TXShadowButton(
-            config: .detailGoal(
-                text: store.nonCompleteButtonText
-            ),
-            colorStyle: .white) {
-                store.send(.bottomButtonTapped)
-            }
-            .padding(.top, -28)
+            config: .detailGoal(text: store.nonCompleteButtonText),
+            colorStyle: .white
+        ) {
+            store.send(.bottomButtonTapped)
+        }
+        .padding(.top, -28)
     }
 }
 
@@ -178,15 +177,13 @@ private extension GoalDetailView {
 private extension GoalDetailView {
     func degree(isBackground: Bool) -> Double {
         switch store.currentUser {
-        case .me:
+        case .mySelf:
             return isBackground ? -8 : 0
             
         case .you:
             return isBackground ? 0 : -8
         }
     }
-    
-    
 }
 
 #Preview {
@@ -203,8 +200,7 @@ private extension GoalDetailView {
                 currentUser: .you,
                 status: .pending
             ),
-            reducer: {
-                
-            })
+            reducer: { }
+        )
     )
 }
