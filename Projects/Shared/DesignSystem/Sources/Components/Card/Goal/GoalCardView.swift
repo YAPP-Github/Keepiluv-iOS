@@ -13,10 +13,14 @@ import SwiftUI
 /// ```swift
 /// GoalCardView(
 ///     config: .goalCheck(
-///         goalName: "목표 이름",
-///         myItem: .empty,
-///         yourItem: .empty,
-///         isMyChecked: .constant(false)
+///         item: .init(
+///             goalName: "목표 이름",
+///             goalEmoji: .Icon.Illustration.exercise,
+///             myCard: .init(image: nil, emoji: nil),
+///             yourCard: .init(image: nil, emoji: nil)
+///         ),
+///         isMyChecked: false,
+///         action: { }
 ///     ),
 ///     actionLeft: { },
 ///     actionRight: { }
@@ -32,8 +36,8 @@ public struct GoalCardView: View {
         }
         
         let headerConfig: CardHeaderView.Configuration
-        let myItem: GoalCardItem
-        let yourItem: GoalCardItem
+        let myItem: GoalCardItem.Card
+        let yourItem: GoalCardItem.Card
         let contentBackgroundColor: Color
         let borderColor: Color
         let borderWidth: CGFloat
@@ -46,8 +50,8 @@ public struct GoalCardView: View {
         
         init(
             headerConfig: CardHeaderView.Configuration,
-            myItem: GoalCardItem,
-            yourItem: GoalCardItem,
+            myItem: GoalCardItem.Card,
+            yourItem: GoalCardItem.Card,
             contentBackgroundColor: Color,
             borderColor: Color,
             borderWidth: CGFloat,
@@ -137,7 +141,7 @@ private extension GoalCardView {
     
     @ViewBuilder
     func contentCell(
-        item: GoalCardItem,
+        item: GoalCardItem.Card,
         placeholder: Configuration.Placeholder,
         bottomLeadingRadius: CGFloat = 0,
         bottomTrailingRadius: CGFloat = 0
@@ -191,37 +195,47 @@ private extension GoalCardView {
 
 // swiftlint: disable closure_body_length
 #Preview {
-    @Previewable @State var isMyChecked = false
-    
-    let items: [(myItem: GoalCardItem, yourItem: GoalCardItem)] = [
-        (
-            myItem: GoalCardItem(
+    let items: [GoalCardItem] = [
+        GoalCardItem(
+            goalName: "목표 이름",
+            goalEmoji: .Icon.Illustration.exercise,
+            myCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                emoji: nil
+                emoji: nil,
+                isSelected: true
             ),
-            yourItem: GoalCardItem(
+            yourCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                emoji: nil
+                emoji: nil,
+                isSelected: true
             )
         ),
-        (
-            myItem: GoalCardItem(
+        GoalCardItem(
+            goalName: "목표 이름",
+            goalEmoji: .Icon.Illustration.exercise,
+            myCard: .init(
                 image: nil,
-                emoji: nil
+                emoji: nil,
+                isSelected: false
             ),
-            yourItem: GoalCardItem(
+            yourCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                emoji: .Icon.Illustration.emoji5
+                emoji: .Icon.Illustration.emoji5,
+                isSelected: true
             )
         ),
-        (
-            myItem: GoalCardItem(
+        GoalCardItem(
+            goalName: "목표 이름",
+            goalEmoji: .Icon.Illustration.exercise,
+            myCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                emoji: .Icon.Illustration.emoji1
+                emoji: .Icon.Illustration.emoji1,
+                isSelected: true
             ),
-            yourItem: GoalCardItem(
+            yourCard: .init(
                 image: nil,
-                emoji: nil
+                emoji: nil,
+                isSelected: false
             )
         )
     ]
@@ -230,10 +244,10 @@ private extension GoalCardView {
         ForEach(items.indices, id: \.self) { index in
             GoalCardView(
                 config: .goalCheck(
-                    goalName: "목표 이름",
-                    myItem: items[index].myItem,
-                    yourItem: items[index].yourItem,
-                    isMyChecked: $isMyChecked
+                    item: items[index],
+                    isMyChecked: items[index].myCard.isSelected,
+                    isCoupleChecked: items[index].yourCard.isSelected,
+                    action: { }
                 ),
                 actionLeft: { },
                 actionRight: { }
