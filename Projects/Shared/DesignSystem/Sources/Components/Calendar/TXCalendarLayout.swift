@@ -20,7 +20,7 @@ enum TXCalendarLayout {
             return 0
         }
         
-        let paddedWidth = availableWidth - horizontalPadding - horizontalPadding
+        let paddedWidth = availableWidth - (horizontalPadding * 2)
         let totalCellWidth = cellSize * CGFloat(columns)
         let remainingWidth = paddedWidth - totalCellWidth
         let gapCount = CGFloat(columns - 1)
@@ -40,6 +40,6 @@ enum TXCalendarLayout {
     }
     
     static func weekdayLabelHeight(_ token: TypographyToken) -> CGFloat {
-        token.size + token.lineSpacing + token.lineSpacing
+        token.size + (token.lineSpacing * 2)
     }
 }

@@ -68,38 +68,29 @@ public struct TXCalendarWeekSelector: View {
                 cellSize: config.dateStyle.size,
                 columns: max(items.count, 1)
             )
-            
+
             HStack(spacing: spacing) {
                 ForEach(items.indices, id: \.self) { index in
+                    let item = items[index]
                     Button {
-                        onSelect(items[index].date)
+                        onSelect(item.date)
                     } label: {
                         WeekSelectorItem(
-                            weekday: items[index].weekday,
-                            date: items[index].date,
+                            weekday: item.weekday,
+                            date: item.date,
                             config: config
                         )
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(
-                .horizontal,
-                config.horizontalPadding
-            )
-            .padding(
-                .top,
-                config.topPadding
-            )
-            .padding(
-                .bottom,
-                config.bottomPadding
-            )
-            .frame(
-                width: proxy.size.width,
-                height: contentHeight,
-                alignment: .top
-            )
+            .padding(EdgeInsets(
+                top: config.topPadding,
+                leading: config.horizontalPadding,
+                bottom: config.bottomPadding,
+                trailing: config.horizontalPadding
+            ))
+            .frame(width: proxy.size.width, height: contentHeight, alignment: .top)
         }
         .frame(height: contentHeight)
     }

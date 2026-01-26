@@ -90,25 +90,13 @@ public struct TXCalendar: View {
                 cellSize: config.dateStyle.size,
                 columns: TXCalendarLayout.daysInWeek
             )
-            
+
             VStack(spacing: headerSpacing) {
                 weekdayRow(spacing: spacing)
-                
-                if mode == .weekly {
-                    weekRow(spacing: spacing)
-                } else {
-                    monthGrid(spacing: spacing)
-                }
+                dateContent(spacing: spacing)
             }
-            .padding(
-                .horizontal,
-                horizontalPadding
-            )
-            .frame(
-                width: proxy.size.width,
-                height: contentHeight,
-                alignment: .top
-            )
+            .padding(.horizontal, horizontalPadding)
+            .frame(width: proxy.size.width, height: contentHeight, alignment: .top)
             .background(config.backgroundColor)
         }
         .frame(height: contentHeight)
@@ -117,6 +105,16 @@ public struct TXCalendar: View {
 
 // MARK: - SubViews
 private extension TXCalendar {
+    @ViewBuilder
+    func dateContent(spacing: CGFloat) -> some View {
+        switch mode {
+        case .weekly:
+            weekRow(spacing: spacing)
+        case .monthly:
+            monthGrid(spacing: spacing)
+        }
+    }
+
     func weekdayRow(spacing: CGFloat) -> some View {
         HStack(spacing: spacing) {
             ForEach(weekdays, id: \.self) { weekday in
@@ -127,7 +125,7 @@ private extension TXCalendar {
             }
         }
     }
-    
+
     func weekRow(spacing: CGFloat) -> some View {
         HStack(spacing: spacing) {
             ForEach(weekDateItems) { item in
@@ -135,16 +133,14 @@ private extension TXCalendar {
             }
         }
     }
-    
+
     func monthGrid(spacing: CGFloat) -> some View {
-        let columns = TXCalendarLayout.gridColumns(
-            cellSize: config.dateStyle.size,
-            spacing: spacing,
-            columns: TXCalendarLayout.daysInWeek
-        )
-        
-        return LazyVGrid(
-            columns: columns,
+        LazyVGrid(
+            columns: TXCalendarLayout.gridColumns(
+                cellSize: config.dateStyle.size,
+                spacing: spacing,
+                columns: TXCalendarLayout.daysInWeek
+            ),
             spacing: config.monthlyRowSpacing
         ) {
             ForEach(monthDateItems) { item in
@@ -152,7 +148,7 @@ private extension TXCalendar {
             }
         }
     }
-    
+
     func dateButton(for item: TXCalendarDateItem) -> some View {
         Button {
             onSelect(item)
@@ -167,51 +163,40 @@ private extension TXCalendar {
 private extension TXCalendar {
     var headerSpacing: CGFloat {
         switch mode {
-        case .weekly:
-            return config.weeklyHeaderSpacing
-            
-        case .monthly:
-            return config.monthlyHeaderSpacing
+        case .weekly: config.weeklyHeaderSpacing
+        case .monthly: config.monthlyHeaderSpacing
         }
     }
-    
+
     var horizontalPadding: CGFloat {
         switch mode {
-        case .weekly:
-            return config.weeklyHorizontalPadding
-            
-        case .monthly:
-            return config.monthlyHorizontalPadding
+        case .weekly: config.weeklyHorizontalPadding
+        case .monthly: config.monthlyHorizontalPadding
         }
     }
-    
+
     var contentHeight: CGFloat {
         let headerHeight = TXCalendarLayout.weekdayLabelHeight(config.weekdayTypography)
         let headerSectionHeight = headerHeight + headerSpacing
-        
+
         switch mode {
-        case .weekly:
-            return headerSectionHeight + config.dateStyle.size
-            
-        case .monthly:
-            return headerSectionHeight + monthGridHeight
+        case .weekly: return headerSectionHeight + config.dateStyle.size
+        case .monthly: return headerSectionHeight + monthGridHeight
         }
     }
-    
+
     var monthGridHeight: CGFloat {
-        guard !weeks.isEmpty else {
-            return 0
-        }
-        
+        guard !weeks.isEmpty else { return 0 }
+
         let rowCount = CGFloat(weeks.count)
         let rowSpacing = config.monthlyRowSpacing * CGFloat(weeks.count - 1)
         return (config.dateStyle.size * rowCount) + rowSpacing
     }
-    
+
     var weekDateItems: [TXCalendarDateItem] {
         weeks.first ?? []
     }
-    
+
     var monthDateItems: [TXCalendarDateItem] {
         weeks.flatMap { $0 }
     }

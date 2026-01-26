@@ -11,7 +11,12 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXCalendarMonthNavigation(title: "2026.12")
+/// TXCalendarMonthNavigation(
+///     title: "2026.12",
+///     onTitleTap: { showDatePicker = true },
+///     onPrevious: { viewModel.previousMonth() },
+///     onNext: { viewModel.nextMonth() }
+/// )
 /// ```
 public struct TXCalendarMonthNavigation: View {
     /// 월 이동 내비게이션 레이아웃 설정입니다.
@@ -48,60 +53,68 @@ public struct TXCalendarMonthNavigation: View {
     
     private let title: String
     private let config: Configuration
+    private let onTitleTap: (() -> Void)?
     private let onPrevious: () -> Void
     private let onNext: () -> Void
-    
+
     public init(
         title: String,
         config: Configuration = .init(),
+        onTitleTap: (() -> Void)? = nil,
         onPrevious: @escaping () -> Void = { },
         onNext: @escaping () -> Void = { }
     ) {
         self.title = title
         self.config = config
+        self.onTitleTap = onTitleTap
         self.onPrevious = onPrevious
         self.onNext = onNext
     }
     
     public var body: some View {
         HStack(spacing: config.itemSpacing) {
-            Button(action: onPrevious) {
-                icon(Image.Icon.Symbol.arrow1MLeft)
-            }
-            .buttonStyle(.plain)
-            
-            Text(title)
-                .typography(config.titleTypography)
-                .foregroundStyle(config.titleColor)
-            
-            Button(action: onNext) {
-                icon(Image.Icon.Symbol.arrow1MRight)
-            }
-            .buttonStyle(.plain)
+            navigationButton(icon: .Icon.Symbol.arrow1MLeft, action: onPrevious)
+            titleView
+            navigationButton(icon: .Icon.Symbol.arrow1MRight, action: onNext)
         }
-        .padding(
-            .horizontal,
-            config.horizontalPadding
-        )
+        .padding(.horizontal, config.horizontalPadding)
         .frame(maxWidth: .infinity)
         .frame(height: config.height)
     }
 }
 
+// MARK: - Title
+private extension TXCalendarMonthNavigation {
+    @ViewBuilder
+    var titleView: some View {
+        if let onTitleTap {
+            Button(action: onTitleTap) {
+                titleLabel
+            }
+            .buttonStyle(.plain)
+        } else {
+            titleLabel
+        }
+    }
+
+    var titleLabel: some View {
+        Text(title)
+            .typography(config.titleTypography)
+            .foregroundStyle(config.titleColor)
+    }
+}
+
 // MARK: - SubViews
 private extension TXCalendarMonthNavigation {
-    func icon(_ image: Image) -> some View {
-        image
-            .resizable()
-            .renderingMode(.template)
-            .foregroundStyle(config.iconColor)
-            .frame(
-                width: config.iconSize,
-                height: config.iconSize
-            )
-            .frame(
-                width: config.buttonSize,
-                height: config.buttonSize
-            )
+    func navigationButton(icon: Image, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            icon
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(config.iconColor)
+                .frame(width: config.iconSize, height: config.iconSize)
+        }
+        .buttonStyle(.plain)
+        .frame(width: config.buttonSize, height: config.buttonSize)
     }
 }
