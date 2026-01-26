@@ -15,17 +15,15 @@ import SwiftUI
 
 private struct CalendarSheetDefaultPreview: View {
     @State private var showCalendar = false
-    @State private var selectedYear = 2026
-    @State private var selectedMonth = 12
-    @State private var selectedDay: Int? = 12
+    @State private var selectedDate = TXCalendarDate(year: 2026, month: 12, day: 12)
 
     var body: some View {
         VStack(spacing: Spacing.spacing8) {
             Text("선택된 날짜")
                 .typography(.t1_18eb)
 
-            if let day = selectedDay {
-                Text(verbatim: "\(selectedYear)년 \(selectedMonth)월 \(day)일")
+            if let day = selectedDate.day {
+                Text(verbatim: "\(selectedDate.year)년 \(selectedDate.month)월 \(day)일")
                     .typography(.b1_14b)
             } else {
                 Text("날짜를 선택해주세요")
@@ -40,9 +38,7 @@ private struct CalendarSheetDefaultPreview: View {
         }
         .calendarSheet(
             isPresented: $showCalendar,
-            selectedYear: $selectedYear,
-            selectedMonth: $selectedMonth,
-            selectedDay: $selectedDay,
+            selectedDate: $selectedDate,
             onComplete: { showCalendar = false }
         )
     }
@@ -56,17 +52,15 @@ private struct CalendarSheetDefaultPreview: View {
 
 private struct CalendarSheetCustomButtonPreview: View {
     @State private var showCalendar = false
-    @State private var selectedYear = 2026
-    @State private var selectedMonth = 12
-    @State private var selectedDay: Int? = 12
+    @State private var selectedDate = TXCalendarDate(year: 2026, month: 12, day: 12)
 
     var body: some View {
         VStack(spacing: Spacing.spacing8) {
             Text("선택된 날짜")
                 .typography(.t1_18eb)
 
-            if let day = selectedDay {
-                Text(verbatim: "\(selectedYear)년 \(selectedMonth)월 \(day)일")
+            if let day = selectedDate.day {
+                Text(verbatim: "\(selectedDate.year)년 \(selectedDate.month)월 \(day)일")
                     .typography(.b1_14b)
             } else {
                 Text("날짜를 선택해주세요")
@@ -81,9 +75,7 @@ private struct CalendarSheetCustomButtonPreview: View {
         }
         .calendarSheet(
             isPresented: $showCalendar,
-            selectedYear: $selectedYear,
-            selectedMonth: $selectedMonth,
-            selectedDay: $selectedDay
+            selectedDate: $selectedDate
         ) {
             CalendarSheetCustomButtonContent(showCalendar: $showCalendar)
         }
@@ -133,7 +125,7 @@ private func previewSection(
         Text(title)
             .typography(.b1_14b)
             .foregroundStyle(Color.Gray.gray500)
-        
+
         TXCalendarWeekSelector(items: PreviewData.weekSelectorItems)
         TXCalendarMonthNavigation(title: "2026.12")
         TXCalendar(mode: .weekly, weeks: PreviewData.weeklyDates)
@@ -152,7 +144,7 @@ private enum PreviewData {
         (weekday: "금", date: .init(text: "16")),
         (weekday: "토", date: .init(text: "17"))
     ]
-    
+
     static let weeklyDates: [[TXCalendarDateItem]] = [[
         .init(text: "11"),
         .init(text: "12"),
@@ -162,7 +154,7 @@ private enum PreviewData {
         .init(text: "16"),
         .init(text: "17")
     ]]
-    
+
     static let monthlyDates: [[TXCalendarDateItem]] = [
         [
             .init(text: "26", status: .lastMonth),

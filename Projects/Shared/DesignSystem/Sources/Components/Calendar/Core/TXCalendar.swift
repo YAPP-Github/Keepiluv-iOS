@@ -71,7 +71,7 @@ public struct TXCalendar: View {
     public init(
         mode: DisplayMode,
         weeks: [[TXCalendarDateItem]],
-        weekdays: [String] = TXCalendar.defaultWeekdays,
+        weekdays: [String] = Self.defaultWeekdays,
         config: Configuration = .init(),
         onSelect: @escaping (TXCalendarDateItem) -> Void = { _ in }
     ) {
@@ -110,6 +110,7 @@ private extension TXCalendar {
         switch mode {
         case .weekly:
             weekRow(spacing: spacing)
+            
         case .monthly:
             monthGrid(spacing: spacing)
         }
