@@ -109,17 +109,17 @@ private extension TXRectangleButton {
 #Preview {
     HStack(spacing: 20) {
         TXRectangleButton(
-            config: .blankLeftClose(),
+            config: .blankRightClose(),
             action: { }
         )
 
         TXRectangleButton(
-            config: .blankLeftSave(text: "저장", colorStyle: .white),
+            config: .blankRightSave(text: "저장", colorStyle: .white),
             action: { }
         )
 
         TXRectangleButton(
-            config: .blankRightBack(
+            config: .blankLeftBack(
                 image: Image.Icon.Symbol.arrow3Left,
                 imageSize: CGSize(width: 24, height: 24),
                 colorStyle: .white
