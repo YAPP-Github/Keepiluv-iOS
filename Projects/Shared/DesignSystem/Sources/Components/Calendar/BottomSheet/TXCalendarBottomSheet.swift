@@ -12,9 +12,7 @@ import SwiftUI
 /// ## 기본 사용 예시 (완료 버튼)
 /// ```swift
 /// TXCalendarBottomSheet(
-///     selectedYear: $year,
-///     selectedMonth: $month,
-///     selectedDay: $day,
+///     selectedDate: $date,
 ///     onComplete: { dismiss() }
 /// )
 /// ```
@@ -22,9 +20,7 @@ import SwiftUI
 /// ## 커스텀 버튼 사용 예시
 /// ```swift
 /// TXCalendarBottomSheet(
-///     selectedYear: $year,
-///     selectedMonth: $month,
-///     selectedDay: $day
+///     selectedDate: $date
 /// ) {
 ///     TXRoundedRectangleGroupButton(
 ///         config: .modal(),
@@ -34,9 +30,7 @@ import SwiftUI
 /// }
 /// ```
 public struct TXCalendarBottomSheet<ButtonContent: View>: View {
-    @Binding private var selectedYear: Int
-    @Binding private var selectedMonth: Int
-    @Binding private var selectedDay: Int?
+    @Binding private var selectedDate: TXCalendarDate
     @State private var isDatePickerMode = false
     @State private var frozenCalendarHeight: CGFloat?
 
@@ -49,9 +43,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     /// ## 사용 예시
     /// ```swift
     /// TXCalendarBottomSheet(
-    ///     selectedYear: $year,
-    ///     selectedMonth: $month,
-    ///     selectedDay: $day
+    ///     selectedDate: $date
     /// ) {
     ///     TXRoundedRectangleGroupButton(
     ///         config: .modal(),
@@ -61,40 +53,32 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     /// }
     /// ```
     public init(
-        selectedYear: Binding<Int>,
-        selectedMonth: Binding<Int>,
-        selectedDay: Binding<Int?>,
+        selectedDate: Binding<TXCalendarDate>,
         @ViewBuilder buttonContent: @escaping () -> ButtonContent
     ) {
-        self._selectedYear = selectedYear
-        self._selectedMonth = selectedMonth
-        self._selectedDay = selectedDay
+        self._selectedDate = selectedDate
         self.buttonContent = buttonContent
         self.completeButtonText = nil
         self.onComplete = nil
     }
 
     public var body: some View {
-        let currentWeeks = TXCalendarDataGenerator.generateMonthData(
-            year: selectedYear,
-            month: selectedMonth,
-            selectedDay: selectedDay
-        )
+        let currentWeeks = TXCalendarDataGenerator.generateMonthData(for: selectedDate)
         let currentCalendarHeight = calendarContentHeight(for: currentWeeks)
 
         VStack(spacing: 0) {
             // MonthNavigation + Calendar
             VStack(spacing: Spacing.spacing9) {
                 TXCalendarMonthNavigation(
-                    title: String(format: "%d.%02d", selectedYear, selectedMonth),
+                    title: selectedDate.formattedYearMonth,
                     onTitleTap: {
                         if !isDatePickerMode {
                             frozenCalendarHeight = currentCalendarHeight
                         }
                         isDatePickerMode.toggle()
                     },
-                    onPrevious: { goToPreviousMonth() },
-                    onNext: { goToNextMonth() }
+                    onPrevious: { selectedDate.goToPreviousMonth() },
+                    onNext: { selectedDate.goToNextMonth() }
                 )
 
                 if isDatePickerMode {
@@ -106,7 +90,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                         config: calendarConfig
                     ) { item in
                         if let day = Int(item.text), item.status != .lastMonth {
-                            selectedDay = day
+                            selectedDate.selectDay(day)
                         }
                     }
                 }
@@ -134,23 +118,17 @@ public extension TXCalendarBottomSheet where ButtonContent == DefaultCalendarBut
     /// ## 사용 예시
     /// ```swift
     /// TXCalendarBottomSheet(
-    ///     selectedYear: $year,
-    ///     selectedMonth: $month,
-    ///     selectedDay: $day,
+    ///     selectedDate: $date,
     ///     completeButtonText: "완료",
     ///     onComplete: { dismiss() }
     /// )
     /// ```
     init(
-        selectedYear: Binding<Int>,
-        selectedMonth: Binding<Int>,
-        selectedDay: Binding<Int?>,
+        selectedDate: Binding<TXCalendarDate>,
         completeButtonText: String = "완료",
         onComplete: @escaping () -> Void
     ) {
-        self._selectedYear = selectedYear
-        self._selectedMonth = selectedMonth
-        self._selectedDay = selectedDay
+        self._selectedDate = selectedDate
         self.buttonContent = {
             DefaultCalendarButton(text: completeButtonText, action: onComplete)
         }
@@ -223,14 +201,14 @@ private extension TXCalendarBottomSheet {
 
     func datePickerView(height: CGFloat) -> some View {
         HStack(spacing: 0) {
-            Picker("Year", selection: $selectedYear) {
+            Picker("Year", selection: $selectedDate.year) {
                 ForEach(2026...2099, id: \.self) { year in
                     Text(verbatim: "\(year)년").tag(year)
                 }
             }
             .pickerStyle(.wheel)
 
-            Picker("Month", selection: $selectedMonth) {
+            Picker("Month", selection: $selectedDate.month) {
                 ForEach(1...12, id: \.self) { month in
                     Text(verbatim: "\(month)월").tag(month)
                 }
@@ -239,29 +217,5 @@ private extension TXCalendarBottomSheet {
         }
         .frame(height: height)
         .padding(.horizontal, Spacing.spacing7)
-    }
-}
-
-// MARK: - Month Navigation
-
-private extension TXCalendarBottomSheet {
-    func goToPreviousMonth() {
-        if selectedMonth == 1 {
-            selectedMonth = 12
-            selectedYear -= 1
-        } else {
-            selectedMonth -= 1
-        }
-        selectedDay = nil
-    }
-
-    func goToNextMonth() {
-        if selectedMonth == 12 {
-            selectedMonth = 1
-            selectedYear += 1
-        } else {
-            selectedMonth += 1
-        }
-        selectedDay = nil
     }
 }
