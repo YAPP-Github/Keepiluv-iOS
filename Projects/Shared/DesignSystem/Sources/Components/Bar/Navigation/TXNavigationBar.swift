@@ -187,7 +187,7 @@ private extension TXNavigationBar {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 TXRectangleButton(
-                    config: .blankRightBack(),
+                    config: .blankLeftBack(),
                     action: { onAction?(.backTapped) }
                 )
 
@@ -200,7 +200,7 @@ private extension TXNavigationBar {
                 Spacer()
 
                 TXRectangleButton(
-                    config: .blankLeftClose(),
+                    config: .blankRightClose(),
                     action: { onAction?(.closeTapped) }
                 )
             }

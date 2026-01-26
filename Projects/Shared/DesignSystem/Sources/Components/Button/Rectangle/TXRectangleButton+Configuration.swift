@@ -8,7 +8,7 @@
 import SwiftUI
 
 public extension TXRectangleButton.Configuration {
-    static func blankLeftClose(
+    static func blankRightClose(
         text: String? = nil,
         image: Image? = Image.Icon.Symbol.closeM,
         imageSize: CGSize? = CGSize(width: 24, height: 24),
@@ -17,7 +17,7 @@ public extension TXRectangleButton.Configuration {
         .init(
             frameSize: CGSize(width: 60, height: 60),
             colorStyle: colorStyle,
-            edges: [.top, .bottom, .trailing],
+            edges: [.top, .bottom, .leading],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
@@ -25,7 +25,7 @@ public extension TXRectangleButton.Configuration {
         )
     }
     
-    static func blankLeftSave(
+    static func blankRightSave(
         text: String? = "저장",
         image: Image? = nil,
         imageSize: CGSize? = nil,
@@ -34,7 +34,7 @@ public extension TXRectangleButton.Configuration {
         .init(
             frameSize: CGSize(width: 60, height: 60),
             colorStyle: colorStyle,
-            edges: [.top, .bottom, .trailing],
+            edges: [.top, .bottom, .leading],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
@@ -42,7 +42,7 @@ public extension TXRectangleButton.Configuration {
         )
     }
 
-    static func blankRightBack(
+    static func blankLeftBack(
         text: String? = nil,
         image: Image? = Image.Icon.Symbol.arrow3Left,
         imageSize: CGSize = CGSize(width: 24, height: 24),
@@ -51,7 +51,7 @@ public extension TXRectangleButton.Configuration {
         .init(
             frameSize: CGSize(width: 60, height: 60),
             colorStyle: colorStyle,
-            edges: [.top, .bottom, .leading],
+            edges: [.top, .bottom, .trailing],
             text: text,
             font: text != nil ? .t2_16b : nil,
             image: image,
