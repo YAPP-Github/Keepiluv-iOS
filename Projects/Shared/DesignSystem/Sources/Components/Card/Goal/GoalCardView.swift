@@ -38,6 +38,7 @@ public struct GoalCardView: View {
         let headerConfig: CardHeaderView.Configuration
         let myItem: GoalCardItem.Card
         let yourItem: GoalCardItem.Card
+        let showsContent: Bool
         let contentBackgroundColor: Color
         let borderColor: Color
         let borderWidth: CGFloat
@@ -52,6 +53,7 @@ public struct GoalCardView: View {
             headerConfig: CardHeaderView.Configuration,
             myItem: GoalCardItem.Card,
             yourItem: GoalCardItem.Card,
+            showsContent: Bool,
             contentBackgroundColor: Color,
             borderColor: Color,
             borderWidth: CGFloat,
@@ -71,6 +73,7 @@ public struct GoalCardView: View {
             self.headerConfig = headerConfig
             self.myItem = myItem
             self.yourItem = yourItem
+            self.showsContent = showsContent
             self.contentBackgroundColor = contentBackgroundColor
             self.borderColor = borderColor
             self.borderWidth = borderWidth
@@ -104,11 +107,13 @@ public struct GoalCardView: View {
                 config: config.headerConfig
             )
             
-            HStack(spacing: 0) {
-                myContent
-                yourContent
+            if config.showsContent {
+                HStack(spacing: 0) {
+                    myContent
+                    yourContent
+                }
+                .background(config.contentBackgroundColor)
             }
-            .background(config.contentBackgroundColor)
         }
         .clipShape(RoundedRectangle(cornerRadius: config.cornerRadius))
         .outsideBorder(
