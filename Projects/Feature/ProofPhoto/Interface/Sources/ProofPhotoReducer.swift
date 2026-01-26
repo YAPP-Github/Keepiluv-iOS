@@ -28,6 +28,7 @@ public struct ProofPhotoReducer {
         public var selectedPhotoItem: PhotosPickerItem?
         public var isFront: Bool = false
         public var isFlashOn: Bool = false
+        public var isCapturing: Bool = false
         public var hasImage: Bool { imageData != nil }
 
         /// 상태를 생성합니다.
@@ -63,6 +64,7 @@ public struct ProofPhotoReducer {
         case commentTextChanged(String)
         case setupCaptureSessionCompleted(session: AVCaptureSession)
         case captureCompleted(imageData: Data)
+        case captureFailed
         case galleryPhotoLoaded(imageData: Data)
         case cameraSwitched
 

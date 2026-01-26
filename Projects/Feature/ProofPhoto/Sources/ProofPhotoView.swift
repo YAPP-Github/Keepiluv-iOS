@@ -72,15 +72,15 @@ private extension ProofPhotoView {
             previewContainer {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(1, contentMode: .fit)
+                    .scaledToFill()
             }
         } else if let session = store.captureSession {
             previewContainer {
                 CameraPreview(session: session)
-                    .aspectRatio(1, contentMode: .fit)
             }
         } else {
             Rectangle()
+                .frame(maxWidth: .infinity)
                 .aspectRatio(1, contentMode: .fit)
         }
     }
@@ -204,18 +204,27 @@ private extension ProofPhotoView {
                         .frame(width: 84, height: 84)
                 )
         }
+        .disabled(store.isCapturing)
     }
 }
 
 // MARK: - Preiview Methods
 private extension ProofPhotoView {
     
-    @ViewBuilder
-    func previewContainer<Content: View>(
-        @ViewBuilder content: () -> Content
+    func previewContainer(
+        @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        content()
-            .clipShape(RoundedRectangle(cornerRadius: 76))
+        let shape = RoundedRectangle(cornerRadius: 76)
+
+        return Color.clear
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            }
+            .clipShape(shape)
             .overlay(alignment: .top) {
                 previewTopControls
             }
@@ -228,7 +237,7 @@ private extension ProofPhotoView {
             }
             .insideBorder(
                 .white.opacity(0.2),
-                shape: RoundedRectangle(cornerRadius: 76),
+                shape: shape,
                 lineWidth: 2
             )
     }

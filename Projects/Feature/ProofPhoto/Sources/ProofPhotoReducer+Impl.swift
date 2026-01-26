@@ -34,11 +34,17 @@ extension ProofPhotoReducer {
 
             case .captureButtonTapped:
                 // TODO: - Error 처리
+                guard !state.isCapturing else { return .none }
+                state.isCapturing = true
                 return .run { send in
-                    let imageData = try await captureSessionClient.capturePhoto()
-                    
-                    await send(.captureCompleted(imageData: imageData))
-                    captureSessionClient.stopRunning()
+                    do {
+                        let imageData = try await captureSessionClient.capturePhoto()
+                        
+                        await send(.captureCompleted(imageData: imageData))
+                        captureSessionClient.stopRunning()
+                    } catch {
+                        await send(.captureFailed)
+                    }
                 }
                 
             case .switchButtonTapped:
@@ -61,6 +67,7 @@ extension ProofPhotoReducer {
             case .returnButtonTapped:
                 state.imageData = nil
                 state.selectedPhotoItem = nil
+                state.isCapturing = false
                 let position: AVCaptureDevice.Position = state.isFront ? .front : .back
                 
                 return .run { send in
@@ -96,6 +103,11 @@ extension ProofPhotoReducer {
                 
             case let .captureCompleted(imageData: imageData):
                 state.imageData = imageData
+                state.isCapturing = false
+                return .none
+                
+            case .captureFailed:
+                state.isCapturing = false
                 return .none
 
             case .binding:
