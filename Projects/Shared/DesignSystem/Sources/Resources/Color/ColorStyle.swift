@@ -10,23 +10,19 @@ import SwiftUI
 public enum ColorStyle {
     case black
     case white
-    case gray
-    case toast
     case gray200
+    case gray300
     case gray400
 }
 
 extension ColorStyle {
     var foregroundColor: Color {
         switch self {
-        case .black:
+        case .black, .gray200, .gray300, .gray400:
             return Color.Common.white
 
         case .white:
             return Color.Gray.gray500
-
-        case .gray, .toast:
-            return Color.Common.white
         }
     }
 
@@ -38,15 +34,12 @@ extension ColorStyle {
         case .white:
             return Color.Common.white
 
-        case .gray:
-            return Color.Gray.gray200
-
-        case .toast:
-            return Color.Gray.gray300
-            
         case .gray200:
             return Color.Gray.gray200
-            
+
+        case .gray300:
+            return Color.Gray.gray300
+
         case .gray400:
             return Color.Gray.gray400
         }

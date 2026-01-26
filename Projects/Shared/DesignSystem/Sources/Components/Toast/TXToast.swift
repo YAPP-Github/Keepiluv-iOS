@@ -51,7 +51,7 @@ struct TXToast: View {
 
             if showButton {
                 TXRoundedRectangleButton(
-                    config: .small(text: "자세히", colorStyle: .toast),
+                    config: .small(text: "자세히", colorStyle: .gray300),
                     action: { onButtonTap?() }
                 )
             }
