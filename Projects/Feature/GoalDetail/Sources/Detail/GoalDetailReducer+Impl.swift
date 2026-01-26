@@ -14,11 +14,14 @@ import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 extension GoalDetailReducer {
+    // swiftlint: disable function_body_length
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {
-        @Dependency(\.captureSessionClient) var captureSessionClient
-
+        @Dependency(\.captureSessionClient)
+        var captureSessionClient
+        
+        // swiftlint: disable closure_body_length
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
             switch action {
             // MARK: - LifeCycle
@@ -30,7 +33,7 @@ extension GoalDetailReducer {
             case .bottomButtonTapped:
                 if case .pending = state.status {
                     switch state.currentUser {
-                    case .me:
+                    case .mySelf:
                         return .run { send in
                             let isAuthorized = await captureSessionClient.fetchIsAuthorized()
                             await send(.authorizationCompleted(isAuthorized: isAuthorized))
@@ -62,14 +65,15 @@ extension GoalDetailReducer {
             case .proofPhoto:
                 return .none
                 
-            case .binding(_):
+            case .binding:
                 return .none
             }
         }
-
+        // swiftlint: enable closure_body_length
         self.init(
             reducer: reducer,
             proofPhotoReducer: proofPhotoReducer
         )
     }
+    // swiftlint: enable function_body_length
 }
