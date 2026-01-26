@@ -21,11 +21,14 @@ import SwiftUI
 /// ```swift
 /// TXCalendarBottomSheet(
 ///     selectedDate: $date
-/// ) {
+/// ) { exitPickerModeIfNeeded in
 ///     TXRoundedRectangleGroupButton(
 ///         config: .modal(),
+///         layout: .calendarSheet,
 ///         actionLeft: { /* 취소 */ },
-///         actionRight: { /* 완료 */ }
+///         actionRight: {
+///             if !exitPickerModeIfNeeded() { /* 완료 */ }
+///         }
 ///     )
 /// }
 /// ```
@@ -34,7 +37,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     @State private var isDatePickerMode = false
     @State private var frozenCalendarHeight: CGFloat?
 
-    private let buttonContent: () -> ButtonContent
+    private let buttonContent: (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent
     private let completeButtonText: String?
     private let onComplete: (() -> Void)?
 
@@ -44,17 +47,20 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     /// ```swift
     /// TXCalendarBottomSheet(
     ///     selectedDate: $date
-    /// ) {
+    /// ) { exitPickerModeIfNeeded in
     ///     TXRoundedRectangleGroupButton(
     ///         config: .modal(),
+    ///         layout: .calendarSheet,
     ///         actionLeft: { /* 취소 */ },
-    ///         actionRight: { /* 완료 */ }
+    ///         actionRight: {
+    ///             if !exitPickerModeIfNeeded() { /* 완료 */ }
+    ///         }
     ///     )
     /// }
     /// ```
     public init(
         selectedDate: Binding<TXCalendarDate>,
-        @ViewBuilder buttonContent: @escaping () -> ButtonContent
+        @ViewBuilder buttonContent: @escaping (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent
     ) {
         self._selectedDate = selectedDate
         self.buttonContent = buttonContent
@@ -97,9 +103,8 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
             }
             .padding(.bottom, 40)
 
-            // 버튼 영역 - 커스텀 버튼은 자체 padding 사용
+            // 버튼 영역
             buttonArea
-                .environment(\.txButtonGroupLayout, .calendarSheet)
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)
@@ -129,7 +134,7 @@ public extension TXCalendarBottomSheet where ButtonContent == DefaultCalendarBut
         onComplete: @escaping () -> Void
     ) {
         self._selectedDate = selectedDate
-        self.buttonContent = {
+        self.buttonContent = { _ in
             DefaultCalendarButton(text: completeButtonText, action: onComplete)
         }
         self.completeButtonText = completeButtonText
@@ -185,18 +190,16 @@ private extension TXCalendarBottomSheet {
                 }
             }
         } else {
-            buttonContent()
-                .environment(
-                    \.txCalendarExitPickerModeIfNeeded,
-                    TXCalendarExitPickerModeAction {
-                        if isDatePickerMode {
-                            isDatePickerMode = false
-                            return true
-                        }
-                        return false
-                    }
-                )
+            buttonContent(exitPickerModeIfNeeded)
         }
+    }
+
+    func exitPickerModeIfNeeded() -> Bool {
+        if isDatePickerMode {
+            isDatePickerMode = false
+            return true
+        }
+        return false
     }
 
     func datePickerView(height: CGFloat) -> some View {

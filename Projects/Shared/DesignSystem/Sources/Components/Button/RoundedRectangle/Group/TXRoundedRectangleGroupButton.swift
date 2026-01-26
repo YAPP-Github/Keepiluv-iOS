@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+/// 버튼 그룹 레이아웃 타입입니다.
+public enum TXButtonGroupLayout {
+    case modal
+    case calendarSheet
+}
+
 /// 모달에서 사용하는 액션 버튼 그룹 컴포넌트입니다.
 ///
 /// ## 사용 예시
@@ -22,8 +28,6 @@ import SwiftUI
 /// )
 /// ```
 public struct TXRoundedRectangleGroupButton: View {
-    @Environment(\.txButtonGroupLayout) private var layout
-
     public struct Configuration {
         let leftText: String
         let rightText: String
@@ -47,15 +51,18 @@ public struct TXRoundedRectangleGroupButton: View {
     }
 
     private let config: Configuration
+    private let layout: TXButtonGroupLayout
     private let actionLeft: () -> Void
     private let actionRight: () -> Void
-    
+
     public init(
         config: Configuration = .modal(),
+        layout: TXButtonGroupLayout = .modal,
         actionLeft: @escaping () -> Void,
         actionRight: @escaping () -> Void
     ) {
         self.config = config
+        self.layout = layout
         self.actionLeft = actionLeft
         self.actionRight = actionRight
     }
@@ -84,7 +91,7 @@ private extension TXRoundedRectangleGroupButton {
             .frame(maxWidth: layout == .calendarSheet ? .infinity : nil)
         }
     }
-    
+
     var rightButton: some View {
         Group {
             TXRoundedRectangleButton(
@@ -114,22 +121,4 @@ private extension TXRoundedRectangleGroupButton {
         actionLeft: { },
         actionRight: { }
     )
-}
-
-// MARK: - Environment
-
-enum TXButtonGroupLayout {
-    case modal
-    case calendarSheet
-}
-
-private struct TXButtonGroupLayoutKey: EnvironmentKey {
-    static let defaultValue: TXButtonGroupLayout = .modal
-}
-
-extension EnvironmentValues {
-    var txButtonGroupLayout: TXButtonGroupLayout {
-        get { self[TXButtonGroupLayoutKey.self] }
-        set { self[TXButtonGroupLayoutKey.self] = newValue }
-    }
 }

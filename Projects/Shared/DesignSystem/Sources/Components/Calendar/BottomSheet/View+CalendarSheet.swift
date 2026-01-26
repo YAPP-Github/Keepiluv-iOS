@@ -50,18 +50,21 @@ public extension View {
     ///     .calendarSheet(
     ///         isPresented: $showCalendar,
     ///         selectedDate: $selectedDate
-    ///     ) {
+    ///     ) { exitPickerModeIfNeeded in
     ///         TXRoundedRectangleGroupButton(
     ///             config: .modal(),
+    ///             layout: .calendarSheet,
     ///             actionLeft: { showCalendar = false },
-    ///             actionRight: { showCalendar = false }
+    ///             actionRight: {
+    ///                 if !exitPickerModeIfNeeded() { showCalendar = false }
+    ///             }
     ///         )
     ///     }
     /// ```
     func calendarSheet<ButtonContent: View>(
         isPresented: Binding<Bool>,
         selectedDate: Binding<TXCalendarDate>,
-        @ViewBuilder buttonContent: @escaping () -> ButtonContent
+        @ViewBuilder buttonContent: @escaping (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent
     ) -> some View {
         modifier(
             CalendarSheetModifier(
