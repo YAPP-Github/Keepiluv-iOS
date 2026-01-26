@@ -38,6 +38,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     @Binding private var selectedMonth: Int
     @Binding private var selectedDay: Int?
     @State private var isDatePickerMode = false
+    @State private var frozenCalendarHeight: CGFloat?
 
     private let buttonContent: () -> ButtonContent
     private let completeButtonText: String?
@@ -74,30 +75,35 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     }
 
     public var body: some View {
+        let currentWeeks = TXCalendarDataGenerator.generateMonthData(
+            year: selectedYear,
+            month: selectedMonth,
+            selectedDay: selectedDay
+        )
+        let currentCalendarHeight = calendarContentHeight(for: currentWeeks)
+
         VStack(spacing: 0) {
             // MonthNavigation + Calendar
             VStack(spacing: Spacing.spacing9) {
                 TXCalendarMonthNavigation(
                     title: String(format: "%d.%02d", selectedYear, selectedMonth),
-                    onTitleTap: { isDatePickerMode.toggle() },
+                    onTitleTap: {
+                        if !isDatePickerMode {
+                            frozenCalendarHeight = currentCalendarHeight
+                        }
+                        isDatePickerMode.toggle()
+                    },
                     onPrevious: { goToPreviousMonth() },
                     onNext: { goToNextMonth() }
                 )
 
                 if isDatePickerMode {
-                    datePickerView
+                    datePickerView(height: frozenCalendarHeight ?? currentCalendarHeight)
                 } else {
                     TXCalendar(
                         mode: .monthly,
-                        weeks: TXCalendarDataGenerator.generateMonthData(
-                            year: selectedYear,
-                            month: selectedMonth,
-                            selectedDay: selectedDay
-                        ),
-                        config: .init(
-                            monthlyHeaderSpacing: Spacing.spacing7,
-                            monthlyRowSpacing: Spacing.spacing6
-                        )
+                        weeks: currentWeeks,
+                        config: calendarConfig
                     ) { item in
                         if let day = Int(item.text), item.status != .lastMonth {
                             selectedDay = day
@@ -113,6 +119,11 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)
+        .onChange(of: isDatePickerMode) { _, newValue in
+            if !newValue {
+                frozenCalendarHeight = nil
+            }
+        }
     }
 }
 
@@ -165,6 +176,26 @@ public struct DefaultCalendarButton: View {
 
 // MARK: - Private Views
 private extension TXCalendarBottomSheet {
+    var calendarConfig: TXCalendar.Configuration {
+        .init(
+            monthlyHeaderSpacing: Spacing.spacing7,
+            monthlyRowSpacing: Spacing.spacing6
+        )
+    }
+
+    func calendarContentHeight(for weeks: [[TXCalendarDateItem]]) -> CGFloat {
+        let headerHeight = TXCalendarLayout.weekdayLabelHeight(calendarConfig.weekdayTypography)
+        let headerSectionHeight = headerHeight + calendarConfig.monthlyHeaderSpacing
+
+        guard !weeks.isEmpty else { return headerSectionHeight }
+
+        let rowCount = CGFloat(weeks.count)
+        let rowSpacing = calendarConfig.monthlyRowSpacing * CGFloat(weeks.count - 1)
+        let monthGridHeight = (calendarConfig.dateStyle.size * rowCount) + rowSpacing
+
+        return headerSectionHeight + monthGridHeight
+    }
+
     @ViewBuilder
     var buttonArea: some View {
         if let completeButtonText, let onComplete {
@@ -190,7 +221,7 @@ private extension TXCalendarBottomSheet {
         }
     }
 
-    var datePickerView: some View {
+    func datePickerView(height: CGFloat) -> some View {
         HStack(spacing: 0) {
             Picker("Year", selection: $selectedYear) {
                 ForEach(2026...2099, id: \.self) { year in
@@ -206,7 +237,7 @@ private extension TXCalendarBottomSheet {
             }
             .pickerStyle(.wheel)
         }
-        .frame(height: 250)
+        .frame(height: height)
         .padding(.horizontal, Spacing.spacing7)
     }
 }
