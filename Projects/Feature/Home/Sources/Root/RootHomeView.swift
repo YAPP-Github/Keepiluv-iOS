@@ -38,13 +38,14 @@ public struct RootHomeView: View {
     public var body: some View {
         NavigationStack(path: $store.routes) {
             HomeView(store: store.scope(state: \.home, action: \.home))
-        }.navigationDestination(for: HomeRoute.self) { route in
-            switch route {
-            case .detail:
-                Text("Detail")
-            case .edit:
-                Text("Edit")
-            }
+                .navigationDestination(for: HomeRoute.self) { route in
+                    switch route {
+                    case .detail:
+                        Text("Detail")
+                    case .edit:
+                        Text("Edit")
+                    }
+                }
         }
 
     }
