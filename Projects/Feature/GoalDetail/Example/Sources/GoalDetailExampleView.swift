@@ -8,9 +8,11 @@
 import SwiftUI
 
 import ComposableArchitecture
+import CoreCaptureSession
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
-import CoreCaptureSession
+import FeatureProofPhoto
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 struct GoalDetailExampleView: View {
@@ -25,14 +27,18 @@ struct GoalDetailExampleView: View {
                         selectedEmojiIndex: nil,
                         name: "민정"
                     ),
-                    currentUser: .me,
+                    currentUser: .mySelf,
                     status: .pending
                 ),
                 reducer: {
-                    GoalDetailReducer()
+                    GoalDetailReducer(
+                        proofPhotoReducer: ProofPhotoReducer()
+                    )
                 }, withDependencies: {
                     $0.captureSessionClient = .liveValue
-                })
+                    $0.proofPhotoFactory = .liveValue
+                }
+            )
         )
     }
 }

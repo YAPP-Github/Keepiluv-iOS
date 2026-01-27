@@ -1,19 +1,20 @@
 //
 //  ProofPhotoView.swift
-//  FeatureGoalDetail
+//  FeatureProofPhoto
 //
 //  Created by 정지훈 on 1/22/26.
 //
 
+import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
-import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 public struct ProofPhotoView: View {
 
-    public let store: StoreOf<ProofPhotoReducer>
+    @Bindable public var store: StoreOf<ProofPhotoReducer>
 
     public init(store: StoreOf<ProofPhotoReducer>) {
         self.store = store
@@ -23,9 +24,14 @@ public struct ProofPhotoView: View {
         VStack(spacing: 0) {
             topBar
             titleText
+                .padding(.top, 25)
             photoPreview
+                .padding(.top, 38)
             bottomControls
+                .padding(.horizontal, 41)
+                .padding(.top, 52)
         }
+        .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(.black)
         .onAppear {
@@ -39,7 +45,7 @@ private extension ProofPhotoView {
     var topBar: some View {
         HStack(spacing: 0) {
             Spacer()
-
+            
             Button {
                 store.send(.closeButtonTapped)
             } label: {
@@ -51,39 +57,32 @@ private extension ProofPhotoView {
         }
         .frame(height: 72)
     }
-
+    
     var titleText: some View {
         Text(store.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
-            .padding(.top, 25)
     }
-
+    
     @ViewBuilder
     var photoPreview: some View {
-        Group {
-            if let session = store.captureSession {
-                CameraPreview(session: session)
-                    .aspectRatio(1, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 76))
-                    .overlay(alignment: .top) {
-                        previewTopControls
-                    }
-                    .overlay(alignment: .bottom) {
-                        CommentCircle(commentText: store.commentText)
-                            .padding(.bottom, 26)
-                    }
-                    .insideBorder(
-                        .white.opacity(0.2),
-                        shape: RoundedRectangle(cornerRadius: 76),
-                        lineWidth: 2
-                    )
-            } else {
-                Rectangle()
-                    .aspectRatio(1, contentMode: .fit)
+        if store.hasImage,
+           let imageData = store.imageData,
+           let image = UIImage(data: imageData) {
+            previewContainer {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
             }
+        } else if let session = store.captureSession {
+            previewContainer {
+                CameraPreview(session: session)
+            }
+        } else {
+            Rectangle()
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
         }
-        .padding(.top, 38)
     }
 
     var previewTopControls: some View {
@@ -91,22 +90,17 @@ private extension ProofPhotoView {
             Button {
                 store.send(.flashButtonTapped)
             } label: {
-                Image.Icon.Symbol.flash
+                flashIcon
                     .renderingMode(.template)
-                    .foregroundStyle(
-                        // FIXME: - 플래시 버튼 selected 디자인 나오면 수정
-                        store.isFlashOn ? .red : Color.Common.white.opacity(0.6)
-                    )
+                    .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
                     .background(Color.Common.white.opacity(0.1), in: .circle)
             }
 
             Spacer()
 
-            Button {
-                
-            } label: {
-                /// 줌인/아웃 나중에 한다해서 주석 처리
+            Button { } label: {
+                // 줌인/아웃 나중에 한다해서 주석 처리
 //                Text(store.scopeText)
 //                    .typography(.t2_16b)
 //                    .foregroundStyle(Color.Common.white.opacity(0.6))
@@ -117,28 +111,68 @@ private extension ProofPhotoView {
         .padding([.top, .horizontal], 31)
     }
 
+    var flashIcon: Image {
+        store.isFlashOn ? Image.Icon.Symbol.flash : Image.Icon.Symbol.flashDefault
+    }
+
+    @ViewBuilder
     var bottomControls: some View {
+        Group {
+            if store.hasImage {
+                uploadControls
+            } else {
+                captureControls
+            }
+        }
+        .frame(height: 74)
+    }
+    
+    var captureControls: some View {
         HStack(spacing: 0) {
             galleryButton
-
+            
             Spacer()
-
+            
             captureButton
-
+            
             Spacer()
-
+            
             TXCircleButton(config: .cameraChange()) {
                 store.send(.switchButtonTapped)
             }
         }
-        .padding(.horizontal, 41)
-        .padding(.top, 52)
+    }
+    
+    var uploadControls: some View {
+        HStack(spacing: Spacing.spacing6) {
+            Button {
+                store.send(.returnButtonTapped)
+            } label: {
+                Image.Icon.Symbol.icReturn
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.Common.white)
+                    .frame(width: 36, height: 36)
+                    .frame(width: 50, height: 50)
+            }
+            
+            TXShadowButton(
+                config: .proofPhoto(),
+                colorStyle: .black
+            ) { }
+            
+            Color.clear
+                .frame(width: 50)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     var galleryButton: some View {
-        Button {
-            
-        } label: {
+        PhotosPicker(
+            selection: $store.selectedPhotoItem,
+            matching: .images,
+            photoLibrary: .shared()
+        ) {
             store.galleryThumbnail
                 .resizable()
                 .insideBorder(
@@ -170,6 +204,42 @@ private extension ProofPhotoView {
                         .frame(width: 84, height: 84)
                 )
         }
+        .disabled(store.isCapturing)
+    }
+}
+
+// MARK: - Preiview Methods
+private extension ProofPhotoView {
+    
+    func previewContainer(
+        @ViewBuilder content: @escaping () -> some View
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 76)
+
+        return Color.clear
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            }
+            .clipShape(shape)
+            .overlay(alignment: .top) {
+                previewTopControls
+            }
+            .overlay(alignment: .bottom) {
+                TXCommentCircle(
+                    commentText: $store.commentText,
+                    isEditable: true
+                )
+                .padding(.bottom, 26)
+            }
+            .insideBorder(
+                .white.opacity(0.2),
+                shape: shape,
+                lineWidth: 2
+            )
     }
 }
 

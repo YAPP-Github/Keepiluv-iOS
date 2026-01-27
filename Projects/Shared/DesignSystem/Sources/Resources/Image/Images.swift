@@ -56,6 +56,7 @@ public extension Image.Icon.Symbol {
     static let closeS = SymbolAsset.icCloseS.swiftUIImage
     static let edit = SymbolAsset.icEdit.swiftUIImage
     static let flash = SymbolAsset.icFlash.swiftUIImage
+    static let flashDefault = SymbolAsset.icFlashDefault.swiftUIImage
     static let meatball = SymbolAsset.icMeatball.swiftUIImage
     static let minus = SymbolAsset.icMinus.swiftUIImage
     static let plus = SymbolAsset.icPlus.swiftUIImage
