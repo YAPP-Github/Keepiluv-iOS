@@ -12,9 +12,18 @@ let project = Project.makeModule(
             implements: .mainTab,
             config: .init(
                 dependencies: [
+                    .domain(interface: .goal),
                     .feature(interface: .mainTab),
                     .core(implements: .logging),
                     .external(dependency: .ComposableArchitecture)
+                ] + Module.Feature.allCases.filter { $0 != .mainTab }.map {  .feature(implements: $0) }
+            )
+        ),
+        .feature(
+            example: .mainTab,
+            config: .init(
+                dependencies: [
+                    .feature,
                 ]
             )
         )
