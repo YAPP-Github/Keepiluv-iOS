@@ -1,11 +1,12 @@
 //
 //  ProofPhotoReducer.swift
-//  FeatureGoalDetailInterface
+//  FeatureProofPhotoInterface
 //
 //  Created by 정지훈 on 1/22/26.
 //
 
 import AVFoundation
+import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
@@ -24,8 +25,11 @@ public struct ProofPhotoReducer {
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
         public var imageData: Data?
+        public var selectedPhotoItem: PhotosPickerItem?
         public var isFront: Bool = false
         public var isFlashOn: Bool = false
+        public var isCapturing: Bool = false
+        public var hasImage: Bool { imageData != nil }
 
         /// 상태를 생성합니다.
         ///
@@ -43,7 +47,9 @@ public struct ProofPhotoReducer {
     }
 
     /// ProofPhoto 화면에서 발생하는 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         
@@ -52,15 +58,20 @@ public struct ProofPhotoReducer {
         case captureButtonTapped
         case switchButtonTapped
         case flashButtonTapped
+        case returnButtonTapped
         
         // MARK: - Update State
+        case commentTextChanged(String)
         case setupCaptureSessionCompleted(session: AVCaptureSession)
         case captureCompleted(imageData: Data)
+        case captureFailed
+        case galleryPhotoLoaded(imageData: Data)
         case cameraSwitched
 
         // MARK: - Delegate
         case delegate(Delegate)
         
+        /// ProofPhoto 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case closeProofPhoto
         }
@@ -79,6 +90,7 @@ public struct ProofPhotoReducer {
     }
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }

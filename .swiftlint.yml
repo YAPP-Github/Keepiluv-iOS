@@ -1,5 +1,8 @@
+disabled_rules:
+  - cyclomatic_complexity # reducer에 action case가 10개 이상일 경우가 많으므로 제외
+
 opt_in_rules:
-  - attributes                          # 속성(Attributes) 정렬 및 스타일 통일
+  # - attributes                        # 속성(Attributes) 정렬 및 스타일 통일 -> SwiftUI, TCA에서는 Attributes 정렬 스타일이 기존과 다르므로 제외
   - array_init                          # Array(repeating:count:) 오용 방지
   - closure_body_length                 # 클로저 본문 길이 제한
   - closure_end_indentation             # 클로저 끝 들여쓰기 정렬
@@ -84,6 +87,10 @@ type_body_length:
 implicit_return:
   included:
     - closure
+    
+nesting:
+  type_level:
+    warning: 2
 
 included:
   - Projects/

@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+
+import ComposableArchitecture
 import CoreCaptureSession
 import CoreCaptureSessionInterface
-import ComposableArchitecture
 
 @main
 struct GoalDetailApp: App {

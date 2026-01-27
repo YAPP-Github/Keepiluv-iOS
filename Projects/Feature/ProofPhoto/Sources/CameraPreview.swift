@@ -1,6 +1,6 @@
 //
 //  CameraPreview.swift
-//  FeatureGoalDetail
+//  FeatureProofPhoto
 //
 //  Created by 정지훈 on 1/22/26.
 //
