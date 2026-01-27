@@ -21,7 +21,7 @@ public extension TXShadowButton.Configuration {
     ) -> Self {
         .init(
             text: text,
-            borderColor: Color.Gray.gray500,
+            borderColor: Color.Gray.gray500
         )
     }
     
@@ -34,7 +34,7 @@ public extension TXShadowButton.Configuration {
     static func proofPhoto() -> Self {
         .init(
             text: "업로드하기",
-            borderColor: Color.Common.white,
+            borderColor: Color.Common.white
         )
     }
 }
