@@ -65,10 +65,10 @@ private extension HomeView {
         TXNavigationBar(
             style: .home(
                 .init(
-                    subTitle: "1월2026",
-                    mainTitle: "KEEPILUV",
-                    isHiddenRefresh: false,
-                    isRemainedAlarm: true,
+                    subTitle: store.calendarMonthTitle,
+                    mainTitle: store.mainTitle
+                    isHiddenRefresh: store.isRefreshHidden,
+                    isRemainedAlarm: false,
                 )
             )
         )
@@ -78,15 +78,10 @@ private extension HomeView {
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
-            weeks: [[
-                .init(text: "11"),
-                .init(text: "12"),
-                .init(text: "13"),
-                .init(text: "14", status: .selectedLine),
-                .init(text: "15"),
-                .init(text: "16"),
-                .init(text: "17")
-            ]]
+            weeks: store.calendarWeeks,
+            onSelect: { item in
+                store.send(.calendarDateSelected(item))
+            }
         )
             .frame(maxWidth: .infinity, maxHeight: 76)
     }
