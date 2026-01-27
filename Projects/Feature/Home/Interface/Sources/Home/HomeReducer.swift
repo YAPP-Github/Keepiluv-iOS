@@ -34,6 +34,11 @@ public struct HomeReducer {
     public struct State {
         public var cards: [GoalCardItem] = []
         public var isLoading: Bool = true
+        public var mainTitle: String = "KEEPILUV"
+        public var calendarMonthTitle: String = ""
+        public var calendarWeeks: [[TXCalendarDateItem]] = []
+        public var calendarDate: TXCalendarDate = .init()
+        public var isRefreshHidden: Bool = true
         public var hasCards: Bool { !cards.isEmpty }
 
         /// 기본 상태를 생성합니다.
@@ -56,8 +61,12 @@ public struct HomeReducer {
         // MARK: - LifeCycle
         case onAppear
         
+        // MARK: - Action
+        case calendarDateSelected(TXCalendarDateItem)
+        
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
+        case setCalendarDate(TXCalendarDate)
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.

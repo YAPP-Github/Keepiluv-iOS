@@ -11,6 +11,7 @@ import ComposableArchitecture
 import DomainGoalInterface
 import FeatureHomeInterface
 import SharedDesignSystem
+import SharedUtil
 
 extension HomeReducer {
     /// 실제 로직을 포함한 HomeReducer를 생성합니다.
@@ -25,9 +26,16 @@ extension HomeReducer {
         let reducer = Reduce<State, Action> { state, action in
             
             switch action {
-            // MARK: - Life Cycle
+                // MARK: - Life Cycle
             case .onAppear:
+                let now = CalendarNow()
+                let date = TXCalendarDate(
+                    year: now.year,
+                    month: now.month,
+                    day: now.day
+                )
                 return .run { send in
+                    await send(.setCalendarDate(date))
                     let myGoals = try await goalClient.fetchGoals()
                     let yourGoals = try await goalClient.fetchGoals().shuffled()
                     
@@ -51,11 +59,30 @@ extension HomeReducer {
                     
                     await send(.fetchGoalsCompleted(items))
                 }
+                
+                
+            // MARK: - Action
+            case let .calendarDateSelected(item):
+                guard let components = item.dateComponents,
+                      let year = components.year,
+                      let month = components.month,
+                      let day = components.day else {
+                    return .none
+                }
+                return .send(.setCalendarDate(TXCalendarDate(year: year, month: month, day: day)))
             
             // MARK: - Update State
             case let .fetchGoalsCompleted(items):
                 state.isLoading = false
                 state.cards = items
+                return .none
+
+            case let .setCalendarDate(date):
+                let now = CalendarNow()
+                state.calendarDate = date
+                state.calendarMonthTitle = "\(date.month)월\(date.year)"
+                state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
+                state.isRefreshHidden = (date.year == now.year && date.month == now.month && date.day == now.day)
                 return .none
             }
         }
