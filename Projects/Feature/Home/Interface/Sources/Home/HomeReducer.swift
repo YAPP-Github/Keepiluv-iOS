@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import SharedDesignSystem
+import SharedUtil
 
 /// 홈 화면의 상태와 액션을 관리하는 Reducer입니다.
 ///
@@ -40,6 +41,7 @@ public struct HomeReducer {
         public var calendarDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
         public var hasCards: Bool { !cards.isEmpty }
+        public let nowDate = CalendarNow()
 
         /// 기본 상태를 생성합니다.
         ///
@@ -63,6 +65,7 @@ public struct HomeReducer {
         
         // MARK: - Action
         case calendarDateSelected(TXCalendarDateItem)
+        case navigationBarAction(TXNavigationBar.Action)
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])

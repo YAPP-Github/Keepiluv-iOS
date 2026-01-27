@@ -28,7 +28,7 @@ extension HomeReducer {
             switch action {
                 // MARK: - Life Cycle
             case .onAppear:
-                let now = CalendarNow()
+                let now = state.nowDate
                 let date = TXCalendarDate(
                     year: now.year,
                     month: now.month,
@@ -70,6 +70,35 @@ extension HomeReducer {
                     return .none
                 }
                 return .send(.setCalendarDate(TXCalendarDate(year: year, month: month, day: day)))
+                
+            case let .navigationBarAction(action):
+                
+                switch action {
+                case .refreshTapped:
+                    let now = state.nowDate
+                    let date = TXCalendarDate(
+                        year: now.year,
+                        month: now.month,
+                        day: now.day
+                    )
+                    return .send(.setCalendarDate(date))
+                    
+                case .subTitleTapped:
+                    return .none
+                    
+                case .alertTapped:
+                    return .none
+                    
+                case .settingTapped:
+                    return .none
+                    
+                case .backTapped:
+                    return .none
+                    
+                case .closeTapped:
+                    return .none
+                }
+                
             
             // MARK: - Update State
             case let .fetchGoalsCompleted(items):

@@ -66,12 +66,13 @@ private extension HomeView {
             style: .home(
                 .init(
                     subTitle: store.calendarMonthTitle,
-                    mainTitle: store.mainTitle
+                    mainTitle: store.mainTitle,
                     isHiddenRefresh: store.isRefreshHidden,
                     isRemainedAlarm: false,
                 )
-            )
-        )
+            )) { action in
+                store.send(.navigationBarAction(action))
+            }
     }
     
     // FIXME: - Calendar
