@@ -12,6 +12,7 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// let item = GoalCardItem(
+///     id: "1",
 ///     goalName: "목표 이름",
 ///     goalEmoji: .Icon.Illustration.exercise,
 ///     myCard: .init(
@@ -59,7 +60,7 @@ public struct GoalCardItem: Identifiable {
         }
     }
     
-    public let id: UUID
+    public let id: String
     public let goalName: String
     public let goalEmoji: Image
     public var myCard: Card
@@ -70,6 +71,7 @@ public struct GoalCardItem: Identifiable {
     /// ## 사용 예시
     /// ```swift
     /// let item = GoalCardItem(
+    ///     id: "1",
     ///     goalName: "목표 이름",
     ///     goalEmoji: .Icon.Illustration.exercise,
     ///     myCard: .init(image: nil, emoji: nil),
@@ -77,12 +79,13 @@ public struct GoalCardItem: Identifiable {
     /// )
     /// ```
     public init(
+        id: String,
         goalName: String,
         goalEmoji: Image,
         myCard: Card,
         yourCard: Card
     ) {
-        self.id = UUID()
+        self.id = id
         self.goalName = goalName
         self.goalEmoji = goalEmoji
         self.myCard = myCard

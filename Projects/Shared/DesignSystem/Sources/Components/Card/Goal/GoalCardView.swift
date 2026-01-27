@@ -202,6 +202,7 @@ private extension GoalCardView {
 #Preview {
     let items: [GoalCardItem] = [
         GoalCardItem(
+            id: "1",
             goalName: "목표 이름",
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
@@ -216,6 +217,7 @@ private extension GoalCardView {
             )
         ),
         GoalCardItem(
+            id: "2",
             goalName: "목표 이름",
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
@@ -230,6 +232,7 @@ private extension GoalCardView {
             )
         ),
         GoalCardItem(
+            id: "3",
             goalName: "목표 이름",
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
