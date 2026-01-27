@@ -6,13 +6,19 @@ let project = Project.makeModule(
     targets: [
         .domain(
             interface: .goal,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .external(dependency: .ComposableArchitecture),
+                    .shared(implements: .designSystem)
+                ]
+            )
         ),
         .domain(
             implements: .goal,
             config: .init(
                 dependencies: [
-                    .domain(interface: .goal)
+                    .domain(interface: .goal),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
