@@ -11,12 +11,30 @@ extension TXNavigationBar {
     /// NavigationBar의 스타일을 정의합니다.
     public enum Style {
         case mainTitle(title: String)
-        case home(
-            subTitle: String,
-            mainTitle: String
-        )
+        case home(Home)
         case subTitle(title: String)
         case noTitle
+        
+        
+        
+        public struct Home {
+            public var subTitle: String
+            let mainTitle: String
+            public var isHiddenRefresh: Bool
+            public var isRemainedAlarm: Bool
+            
+            public init(
+                subTitle: String,
+                mainTitle: String,
+                isHiddenRefresh: Bool,
+                isRemainedAlarm: Bool
+            ) {
+                self.subTitle = subTitle
+                self.mainTitle = mainTitle
+                self.isHiddenRefresh = isHiddenRefresh
+                self.isRemainedAlarm = isRemainedAlarm
+            }
+        }
     }
 }
 
