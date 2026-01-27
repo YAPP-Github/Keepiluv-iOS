@@ -76,7 +76,18 @@ private extension HomeView {
     
     // FIXME: - Calendar
     var calendar: some View {
-        Color.cyan
+        TXCalendar(
+            mode: .weekly,
+            weeks: [[
+                .init(text: "11"),
+                .init(text: "12"),
+                .init(text: "13"),
+                .init(text: "14", status: .selectedLine),
+                .init(text: "15"),
+                .init(text: "16"),
+                .init(text: "17")
+            ]]
+        )
             .frame(maxWidth: .infinity, maxHeight: 76)
     }
     
