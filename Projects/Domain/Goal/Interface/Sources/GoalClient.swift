@@ -7,12 +7,30 @@
 
 import Foundation
 
+// TODO: - API 연동 후 Image -> Data로 바꿔 DesignSystem 의존성 떼기
 import ComposableArchitecture
 import SharedDesignSystem
 
+/// 목표 목록을 조회하기 위한 Client입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// @Dependency(\.goalClient) var goalClient
+/// let goals = try await goalClient.fetchGoals()
+/// ```
 public struct GoalClient {
     public var fetchGoals: () async throws -> [Goal]
     
+    /// 목표 목록을 조회하는 클로저를 주입하여 GoalClient를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let client = GoalClient(
+    ///     fetchGoals: {
+    ///         return []
+    ///     }
+    /// )
+    /// ```
     public init(
         fetchGoals: @escaping () async throws -> [Goal]
     ) {
@@ -55,7 +73,7 @@ extension GoalClient: TestDependencyKey {
                 ),
                 Goal(
                     id: "4",
-                    goalIcon: .Icon.Illustration.emojiAdd,
+                    goalIcon: .Icon.Illustration.drug,
                     title: "목표 4444444",
                     isCompleted: false
                 )
