@@ -25,7 +25,7 @@ import SharedDesignSystem
 /// ```
 public struct HomeView: View {
     
-    public let store: StoreOf<HomeReducer>
+    @Bindable public var store: StoreOf<HomeReducer>
     
     /// HomeView를 생성합니다.
     ///
@@ -56,6 +56,11 @@ public struct HomeView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .calendarSheet(
+            isPresented: $store.isCalendarSheetPresented,
+            selectedDate: $store.calendarSheetDate) {
+                store.send(.monthCalendarConfirmTapped)
+            }
     }
 }
 

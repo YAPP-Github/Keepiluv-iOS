@@ -60,8 +60,7 @@ extension HomeReducer {
                     await send(.fetchGoalsCompleted(items))
                 }
                 
-                
-            // MARK: - Action
+                // MARK: - Action
             case let .calendarDateSelected(item):
                 guard let components = item.dateComponents,
                       let year = components.year,
@@ -71,8 +70,14 @@ extension HomeReducer {
                 }
                 return .send(.setCalendarDate(TXCalendarDate(year: year, month: month, day: day)))
                 
-            case let .navigationBarAction(action):
+            case let .setCalendarSheetPresented(isPresented):
+                state.isCalendarSheetPresented = isPresented
+                if isPresented {
+                    state.calendarSheetDate = state.calendarDate
+                }
+                return .none
                 
+            case let .navigationBarAction(action):
                 switch action {
                 case .refreshTapped:
                     let now = state.nowDate
@@ -84,7 +89,7 @@ extension HomeReducer {
                     return .send(.setCalendarDate(date))
                     
                 case .subTitleTapped:
-                    return .none
+                    return .send(.setCalendarSheetPresented(true))
                     
                 case .alertTapped:
                     return .none
@@ -92,26 +97,34 @@ extension HomeReducer {
                 case .settingTapped:
                     return .none
                     
-                case .backTapped:
-                    return .none
-                    
-                case .closeTapped:
+                case .backTapped, .closeTapped:
                     return .none
                 }
                 
-            
-            // MARK: - Update State
+            case .monthCalendarConfirmTapped:
+                state.isCalendarSheetPresented = false
+                return .send(.setCalendarDate(state.calendarSheetDate))
+                
+                
+                // MARK: - Update State
             case let .fetchGoalsCompleted(items):
                 state.isLoading = false
                 state.cards = items
                 return .none
-
+                
             case let .setCalendarDate(date):
-                let now = CalendarNow()
+                let now = state.nowDate
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월\(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
-                state.isRefreshHidden = (date.year == now.year && date.month == now.month && date.day == now.day)
+                state.isRefreshHidden = (
+                    date.year == now.year &&
+                    date.month == now.month &&
+                    date.day == now.day
+                )
+                return .none
+
+            case .binding:
                 return .none
             }
         }

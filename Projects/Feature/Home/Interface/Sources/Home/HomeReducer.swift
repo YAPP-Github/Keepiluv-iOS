@@ -39,7 +39,9 @@ public struct HomeReducer {
         public var calendarMonthTitle: String = ""
         public var calendarWeeks: [[TXCalendarDateItem]] = []
         public var calendarDate: TXCalendarDate = .init()
+        public var calendarSheetDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
+        public var isCalendarSheetPresented: Bool = false
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
 
@@ -59,17 +61,21 @@ public struct HomeReducer {
     /// ```swift
     /// store.send(.onAppear)
     /// ```
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         
         // MARK: - Action
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBarAction(TXNavigationBar.Action)
+        case monthCalendarConfirmTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
         case setCalendarDate(TXCalendarDate)
+        case setCalendarSheetPresented(Bool)
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.
@@ -83,6 +89,7 @@ public struct HomeReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }
