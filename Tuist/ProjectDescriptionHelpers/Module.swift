@@ -96,6 +96,7 @@ public extension Module {
     ///
     /// 디자인 시스템, UI 컴포넌트, 범용 유틸리티 등을 포함합니다.
     enum Shared: String, CaseIterable {
+        case util = "Util"
         case thirdPartyLib = "ThirdPartyLib"
         case designSystem = "DesignSystem"
         
