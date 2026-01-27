@@ -59,7 +59,8 @@ public struct RootHomeReducer {
     /// ## 사용 예시
     /// ```swift
     /// let reducer = RootHomeReducer(
-    ///     reducer: Reduce { _, _ in .none }
+    ///     reducer: Reduce { _, _ in .none },
+    ///     homeReducer: HomeReducer(reducer: Reduce { _, _ in .none })
     /// )
     /// ```
     public init(
