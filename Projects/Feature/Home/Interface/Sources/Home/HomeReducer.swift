@@ -46,6 +46,7 @@ public struct HomeReducer {
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
+        public var modal: TXModalType?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -83,11 +84,6 @@ public struct HomeReducer {
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
         
-        // MARK: - Delegate
-        case delegate(Delegate)
-        public enum Delegate {
-            case showDeleteGoalModal
-        }
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.

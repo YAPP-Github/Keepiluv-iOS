@@ -12,9 +12,28 @@ import FeatureHome
 import FeatureHomeInterface
 import SharedDesignSystem
 
+/// 메인 탭 화면을 표시하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// MainTabView(
+///     store: Store(
+///         initialState: MainTabReducer.State(),
+///         reducer: { MainTabReducer() }
+///     )
+/// )
+/// ```
 public struct MainTabView: View {
     @Bindable public var store: StoreOf<MainTabReducer>
 
+    /// MainTabView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = MainTabView(
+    ///     store: Store(initialState: MainTabReducer.State()) { MainTabReducer() }
+    /// )
+    /// ```
     public init(store: StoreOf<MainTabReducer>) {
         self.store = store
     }
@@ -30,10 +49,6 @@ public struct MainTabView: View {
                 EmptyView()
             }
         }
-        .txModal(
-            item: $store.modal,
-            onConfirm: { store.send(.modalConfirmTapped) }
-        )
     }
 }
 
