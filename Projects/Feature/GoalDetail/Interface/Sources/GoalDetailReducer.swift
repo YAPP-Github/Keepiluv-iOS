@@ -40,7 +40,7 @@ public struct GoalDetailReducer {
         public var proofPhoto: ProofPhotoReducer.State?
         public var isPresentedProofPhoto: Bool = false
         
-        
+        public var selectedReactionIndex: Int?
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         
@@ -58,6 +58,7 @@ public struct GoalDetailReducer {
         // MARK: - Action
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
+        case reactionEmojiTapped(Int)
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
