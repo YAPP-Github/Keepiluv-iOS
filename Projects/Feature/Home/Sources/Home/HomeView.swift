@@ -43,17 +43,20 @@ public struct HomeView: View {
             calendar
             if store.isLoading {
                 ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if store.hasCards {
                 content
             } else {
                 goalEmptyView
             }
             
+            Spacer()
         }
         .overlay(alignment: .bottomTrailing) {
-            floatingButton
+            if store.hasCards {
+                floatingButton
+            }
         }
-        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
         }
@@ -169,8 +172,6 @@ private extension HomeView {
             
             Image.Vector.curveArrow
                 .padding(.leading, 74)
-            
-            Spacer()
         }
         .padding(.top, 136)
     }
