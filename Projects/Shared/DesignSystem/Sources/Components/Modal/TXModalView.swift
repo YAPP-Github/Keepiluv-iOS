@@ -89,14 +89,6 @@ private extension TXModalView {
 
     var modalImage: some View {
         config.image
-            .resizable()
-            .frame(width: config.imageSize.width, height: config.imageSize.height)
-            .frame(width: config.imageFrameSize.width, height: config.imageFrameSize.height)
-            .insideBorder(
-                Color.Gray.gray100,
-                shape: .circle,
-                lineWidth: LineWidth.m
-            )
             .padding(.top, Spacing.spacing8)
     }
 
