@@ -27,6 +27,10 @@ public struct OnboardingCoordinatorView: View {
             case let .codeInput(store):
                 OnboardingCodeInputView(store: store)
                     .navigationBarBackButtonHidden(true)
+                
+            case let .profile(store):
+                OnboardingProfileView(store: store)
+                    .navigationBarBackButtonHidden(true)
             }
         }
     }
