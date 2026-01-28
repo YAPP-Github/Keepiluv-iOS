@@ -24,6 +24,13 @@ public struct GoalDetailView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
+            TXNavigationBar(
+                style: .subTitle(
+                    title: store.item?.title ?? "",
+                    rightText: store.naviBarRightText
+                )
+            )
+            
             ZStack {
                 backgroundRect
                 
@@ -35,6 +42,7 @@ public struct GoalDetailView: View {
                 }
             }
             .padding(.horizontal, 27)
+            .padding(.top, 103)
             
             if store.isCompleted {
                 createdAtText
@@ -51,6 +59,7 @@ public struct GoalDetailView: View {
                 bottomButton
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
         }

@@ -25,6 +25,20 @@ public extension TXRectangleButton.Configuration {
         )
     }
     
+    static func blankRight(
+        text: String? = nil,
+        colorStyle: ColorStyle = .white
+    ) -> Self {
+        .init(
+            frameSize: CGSize(width: 60, height: 60),
+            colorStyle: colorStyle,
+            edges: [.top, .bottom, .leading],
+            text: text,
+            font: text != nil ? .t2_16b : nil,
+            image: nil
+        )
+    }
+    
     static func blankRightSave(
         text: String? = "저장",
         image: Image? = nil,

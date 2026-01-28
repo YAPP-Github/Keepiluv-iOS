@@ -29,6 +29,12 @@ public struct GoalDetailReducer {
         public var isCompleted: Bool { currentCard?.image == nil }
         public var comment: String { currentCard?.coment ?? "" }
         public var createdAt: String { currentCard?.createdAt ?? "" }
+        public var naviBarRightText: String {
+            if case .mySelf = currentUser,
+               isCompleted {
+                return "수정"
+            } else { return "" }
+        }
         
         public var proofPhoto: ProofPhotoReducer.State?
         public var isPresentedProofPhoto: Bool = false
