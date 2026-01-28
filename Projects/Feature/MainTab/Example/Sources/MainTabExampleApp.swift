@@ -7,21 +7,11 @@
 
 import SwiftUI
 
-import ComposableArchitecture
-import Feature
-
 @main
 struct MainTabExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            MainTabView(
-                store: Store(
-                    initialState: MainTabReducer.State(),
-                    reducer: {
-                        MainTabReducer()
-                    }
-                )
-            )
+            MainTabExampleView()
         }
     }
 }
