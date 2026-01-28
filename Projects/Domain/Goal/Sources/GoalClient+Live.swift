@@ -12,6 +12,8 @@ extension GoalClient: @retroactive DependencyKey {
     public static var liveValue: GoalClient = Self(
         fetchGoals: {
             return []
+        }, fetchGoalDetail: {
+            return GoalDetail(id: "", title: "", completedGoal: [])
         }
     )
     
