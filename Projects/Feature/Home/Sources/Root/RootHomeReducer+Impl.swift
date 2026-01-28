@@ -12,11 +12,16 @@ extension RootHomeReducer {
     public init() {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
-                
+            case .home(.delegate(.showDeleteGoalModal)):
+                return .send(.delegate(.showDeleteGoalModal))
+
             case .home:
                 return .none
                 
             case .binding:
+                return .none
+
+            case .delegate:
                 return .none
             }
         }

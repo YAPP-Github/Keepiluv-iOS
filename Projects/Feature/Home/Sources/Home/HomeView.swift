@@ -48,6 +48,7 @@ public struct HomeView: View {
             } else {
                 goalEmptyView
             }
+            
         }
         .overlay(alignment: .bottomTrailing) {
             floatingButton
@@ -89,7 +90,7 @@ private extension HomeView {
                 store.send(.calendarDateSelected(item))
             }
         )
-            .frame(maxWidth: .infinity, maxHeight: 76)
+        .frame(maxWidth: .infinity, maxHeight: 76)
     }
     
     var content: some View {
@@ -141,6 +142,7 @@ private extension HomeView {
                 isMyChecked: card.myCard.isSelected,
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
+                    store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
                 }
             ),
             actionLeft: {
