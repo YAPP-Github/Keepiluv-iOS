@@ -41,7 +41,8 @@ public struct MainTabReducer {
     public struct State {
         public var home = RootHomeReducer.State()
         public var selectedTab: TXTabItem = .home
-
+        public var isTabBarHidden: Bool = false
+        
         public init() { }
     }
 
@@ -83,11 +84,18 @@ public struct MainTabReducer {
         Reduce { state, action in
             switch action {
                 // MARK: - User Action
-            case let .selectedTabChanged(tab):
-                state.selectedTab = tab
-                
+            case .selectedTabChanged:
                 return .none
-
+                
+                // MARK: - Reducer
+            case .home(.home(.path(.goToGoalDetail))):
+                state.isTabBarHidden = true
+                return .none
+                
+            case .home(.goalDetail(.path(.pop))):
+                state.isTabBarHidden = false
+                return .none
+                
             case .home:
                 return .none
                 

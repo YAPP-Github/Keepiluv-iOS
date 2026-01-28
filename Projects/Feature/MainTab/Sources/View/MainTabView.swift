@@ -41,7 +41,10 @@ public struct MainTabView: View {
     }
 
     public var body: some View {
-        TXTabBarContainer(selectedItem: $store.selectedTab) {
+        TXTabBarContainer(
+            selectedItem: $store.selectedTab,
+            isTabBarHidden: store.isTabBarHidden
+        ) {
             switch store.selectedTab {
             case .home:
                 RootHomeView(store: store.scope(state: \.home, action: \.home))
