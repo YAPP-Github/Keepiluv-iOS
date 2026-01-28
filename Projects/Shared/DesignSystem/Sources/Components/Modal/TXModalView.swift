@@ -12,16 +12,29 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// TXModalView(
-///     isPresented: $isPresented,
 ///     config: .confirm(
 ///         image: .Icon.Symbol.drug
 ///         title: "제목",
 ///         subTitle: "설명",
 ///         onConfirm: { }
-///     )
+///     ),
+///     onDismiss: { }
 /// )
 /// ```
 public struct TXModalView: View {
+    /// 모달의 이미지/텍스트/액션 구성을 정의하는 설정 타입입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = TXModalView.Configuration(
+    ///     image: .Icon.Illustration.drug,
+    ///     title: "제목",
+    ///     subTitle: "설명",
+    ///     imageSize: .init(width: 120, height: 120),
+    ///     imageFrameSize: .init(width: 160, height: 160),
+    ///     onConfirm: { }
+    /// )
+    /// ```
     public struct Configuration {
         public let image: Image
         public let title: String
@@ -30,6 +43,19 @@ public struct TXModalView: View {
         public let imageFrameSize: CGSize
         public let onConfirm: () -> Void
 
+        /// 모달 구성 값을 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let config = TXModalView.Configuration(
+        ///     image: .Icon.Illustration.drug,
+        ///     title: "제목",
+        ///     subTitle: "설명",
+        ///     imageSize: .init(width: 120, height: 120),
+        ///     imageFrameSize: .init(width: 160, height: 160),
+        ///     onConfirm: { }
+        /// )
+        /// ```
         public init(
             image: Image,
             title: String,
@@ -47,15 +73,24 @@ public struct TXModalView: View {
         }
     }
     
-    @Binding public var isPresented: Bool
     private let config: Configuration
+    private let onDismiss: () -> Void
     
+    /// TXModalView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXModalView(
+    ///     config: config,
+    ///     onDismiss: { }
+    /// )
+    /// ```
     public init(
-        isPresented: Binding<Bool>,
-        config: Configuration
+        config: Configuration,
+        onDismiss: @escaping () -> Void
     ) {
-        self._isPresented = isPresented
         self.config = config
+        self.onDismiss = onDismiss
     }
     
     public var body: some View {
@@ -83,7 +118,7 @@ private extension TXModalView {
         Color.Dimmed.dimmed70
             .ignoresSafeArea()
             .onTapGesture {
-                isPresented = false
+                onDismiss()
             }
     }
 
@@ -109,7 +144,7 @@ private extension TXModalView {
         TXRoundedRectangleGroupButton(
             config: .modal(),
             actionLeft: {
-                isPresented = false
+                onDismiss()
             },
             actionRight: {
                 config.onConfirm()
@@ -123,12 +158,12 @@ private extension TXModalView {
 #Preview {
     VStack {
         TXModalView(
-            isPresented: .constant(true),
             config: .deleteGoal(
                 image: .Icon.Illustration.drug,
                 title: "매일 비타민 먹기\n목표를 이루셨나요?",
                 onConfirm: { }
-            )
+            ),
+            onDismiss: { }
         )
     }
 }
