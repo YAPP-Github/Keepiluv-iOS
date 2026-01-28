@@ -51,6 +51,10 @@ extension GoalDetailReducer {
                 }
                 return .none
                 
+            case let .reactionEmojiTapped(index):
+                state.selectedReactionIndex = index
+                return .none
+                
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item

@@ -137,9 +137,15 @@ private extension GoalDetailView {
         
         HStack(spacing: 0) {
             ForEach(emojis.indices, id: \.self) { index in
-                emojis[index]
-                    .padding(.horizontal, 8)
-                
+                let isSelected = store.selectedReactionIndex == index
+                Button {
+                    store.send(.reactionEmojiTapped(index))
+                } label: {
+                    emojis[index]
+                        .padding(.horizontal, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? Color.Gray.gray300 : Color.clear)
                 if index != emojis.count - 1 {
                     Rectangle()
                         .frame(width: 1)
