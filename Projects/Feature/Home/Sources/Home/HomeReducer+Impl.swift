@@ -97,7 +97,7 @@ extension HomeReducer {
                 case .settingTapped:
                     return .none
                     
-                case .backTapped, .closeTapped:
+                case .backTapped, .rightTapped:
                     return .none
                 }
                 

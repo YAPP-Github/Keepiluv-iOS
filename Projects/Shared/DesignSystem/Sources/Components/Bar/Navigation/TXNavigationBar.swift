@@ -207,7 +207,7 @@ private extension TXNavigationBar {
 
                 TXRectangleButton(
                     config: .blankRight(text: rightText),
-                    action: { onAction?(.closeTapped) }
+                    action: { onAction?(.rightTapped) }
                 )
             }
             .frame(height: 60)
@@ -228,7 +228,7 @@ private extension TXNavigationBar {
             Spacer()
 
             Button {
-                onAction?(.closeTapped)
+                onAction?(.rightTapped)
             } label: {
                 Image.Icon.Symbol.arrow3Right
                     .resizable()
