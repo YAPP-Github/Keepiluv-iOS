@@ -35,14 +35,13 @@ public struct OnboardingConnectView: View {
                     directConnectCard
                         .padding(.top, 40)
                         .padding(.horizontal, Spacing.spacing8)
+
+                    bottomButton
+                        .padding(.top, Spacing.spacing6)
+                        .padding(.horizontal, Spacing.spacing8)
+                        .padding(.vertical, Spacing.spacing5)
                 }
             }
-
-            Spacer()
-
-            bottomButton
-                .padding(.horizontal, Spacing.spacing8)
-                .padding(.vertical, Spacing.spacing5)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)

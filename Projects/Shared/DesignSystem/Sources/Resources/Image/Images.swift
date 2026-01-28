@@ -56,6 +56,7 @@ public extension Image.Icon.Symbol {
     
     static let alert = SymbolAsset.icAlert.swiftUIImage
     static let alertRemained = SymbolAsset.icAlertRemained.swiftUIImage
+    static let arrow1LLeft = SymbolAsset.icArrow1LLeft.swiftUIImage
     static let arrow1MLeft = SymbolAsset.icArrow1MLeft.swiftUIImage
     static let arrow1MRight = SymbolAsset.icArrow1MRight.swiftUIImage
     static let arrow1SRight = SymbolAsset.icArrow1SRight.swiftUIImage

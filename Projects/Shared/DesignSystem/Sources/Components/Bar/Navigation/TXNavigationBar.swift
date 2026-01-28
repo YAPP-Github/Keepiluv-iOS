@@ -236,7 +236,7 @@ private extension TXNavigationBar {
                 Button {
                     onAction?(.backTapped)
                 } label: {
-                    Image.Icon.Symbol.arrow3Left
+                    Image.Icon.Symbol.arrow1LLeft
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: style.iconSize.width, height: style.iconSize.height)
@@ -253,7 +253,7 @@ private extension TXNavigationBar {
                 Button {
                     onAction?(.closeTapped)
                 } label: {
-                    Image.Icon.Symbol.arrow3Right
+                    Image.Icon.Symbol.closeM
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: style.iconSize.width, height: style.iconSize.height)
