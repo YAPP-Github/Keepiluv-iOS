@@ -84,6 +84,13 @@ public struct HomeReducer {
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
         
+        // MARK: - Navgation
+        case path(Navigation)
+        
+        public enum Navigation {
+            case goToGoalDetail
+        }
+        
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.

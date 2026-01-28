@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
 
 /// Home Feature의 NavigationStack을 관리하는 Root Reducer입니다.
 ///
@@ -21,6 +22,7 @@ import ComposableArchitecture
 public struct RootHomeReducer {
     let reducer: Reduce<State, Action>
     let homeReducer: HomeReducer
+    public let goalDetailReducer: GoalDetailReducer
     
     /// RootHome 화면에서 사용하는 상태입니다.
     ///
@@ -30,8 +32,10 @@ public struct RootHomeReducer {
     /// ```
     @ObservableState
     public struct State {
-        public var home = HomeReducer.State()
         public var routes: [HomeRoute] = []
+        
+        public var home = HomeReducer.State()
+        public var goalDetail: GoalDetailReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -53,7 +57,7 @@ public struct RootHomeReducer {
         
         // MARK: - Reducer
         case home(HomeReducer.Action)
-        
+        case goalDetail(GoalDetailReducer.Action)
     }
 
     /// 외부에서 주입된 Reduce로 RootHomeReducer를 구성합니다.
@@ -67,10 +71,12 @@ public struct RootHomeReducer {
     /// ```
     public init(
         reducer: Reduce<State, Action>,
-        homeReducer: HomeReducer
+        homeReducer: HomeReducer,
+        goalDetailReducer: GoalDetailReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
+        self.goalDetailReducer = goalDetailReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -81,5 +87,8 @@ public struct RootHomeReducer {
         }
         
         reducer
+            .ifLet(\.goalDetail, action: \.goalDetail) {
+                goalDetailReducer
+            }
     }
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureHomeInterface
+import FeatureGoalDetailInterface
 
 /// Home Feature의 NavigationStack을 제공하는 Root View입니다.
 ///
@@ -23,6 +24,7 @@ import FeatureHomeInterface
 /// )
 /// ```
 public struct RootHomeView: View {
+    @Dependency(\.goalDetailFactory) var goalDetailFactory
     @Bindable public var store: StoreOf<RootHomeReducer>
 
     /// RootHomeView를 생성합니다.
@@ -41,25 +43,13 @@ public struct RootHomeView: View {
                 .navigationDestination(for: HomeRoute.self) { route in
                     switch route {
                     case .detail:
-                        Text("Detail")
+                        IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
+                            goalDetailFactory.makeView(store)
+                        }
                     case .edit:
                         Text("Edit")
                     }
                 }
         }
     }
-}
-
-#Preview {
-    RootHomeView(
-        store: Store(
-            initialState: RootHomeReducer.State(),
-            reducer: {
-                RootHomeReducer()
-            },
-            withDependencies: {
-                $0.goalClient = .previewValue
-            }
-        )
-    )
 }
