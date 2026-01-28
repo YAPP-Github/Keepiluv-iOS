@@ -114,6 +114,9 @@ private extension GoalDetailView {
                     .padding(.bottom, 26)
                 }
                 .rotationEffect(.degrees(degree(isBackground: false)))
+                .onTapGesture {
+                    store.send(.cardTapped)
+                }
         } else {
             EmptyView()
         }

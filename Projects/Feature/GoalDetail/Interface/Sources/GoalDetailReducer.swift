@@ -59,6 +59,7 @@ public struct GoalDetailReducer {
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(Int)
+        case cardTapped
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
