@@ -9,19 +9,19 @@ import ComposableArchitecture
 import FeatureHomeInterface
 
 extension RootHomeReducer {
+    /// 기본 구성의 RootHomeReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = RootHomeReducer()
+    /// ```
     public init() {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
-            case .home(.delegate(.showDeleteGoalModal)):
-                return .send(.delegate(.showDeleteGoalModal))
-
             case .home:
                 return .none
                 
             case .binding:
-                return .none
-
-            case .delegate:
                 return .none
             }
         }
