@@ -49,6 +49,10 @@ public struct OnboardingCodeInputView: View {
         .onTapGesture {
             isTextFieldFocused = false
         }
+        .txToast(
+            isPresented: $store.showCopyToast,
+            message: "초대 코드가 복사되었어요"
+        )
     }
 }
 
@@ -213,10 +217,10 @@ private extension OnboardingCodeInputView {
 
 private extension OnboardingCodeInputView {
     enum Constants {
-        static let horizontalPadding: CGFloat = 48
+        static let horizontalPadding: CGFloat = 36
         static let titleBodySpacing: CGFloat = 92
         static let sectionSpacing: CGFloat = 52
-        static let cellWidth: CGFloat = 38
+        static let cellWidth: CGFloat = 36
         static let cellHeight: CGFloat = 58
     }
 }
