@@ -51,6 +51,9 @@ public struct GoalDetailView: View {
                 bottomButton
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .fullScreenCover(
             isPresented: $store.isPresentedProofPhoto,
             onDismiss: { store.send(.proofPhotoDismissed)
@@ -79,28 +82,33 @@ private extension GoalDetailView {
             .rotationEffect(.degrees(degree(isBackground: true)))
     }
     
+    @ViewBuilder
     var completedImageCard: some View {
-        store.item.image
-            .resizable()
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
-            .frame(width: 336, height: 336)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .overlay(alignment: .bottom) {
-                TXCommentCircle(
-                    commentText: .constant(store.item.commentText),
-                    isEditable: false
+        if let image = store.currentCard?.image {
+            image
+                .resizable()
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
                 )
+                .frame(width: 336, height: 336)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(alignment: .bottom) {
+                    TXCommentCircle(
+                        commentText: .constant(store.comment),
+                        isEditable: false
+                    )
                     .padding(.bottom, 26)
-            }
-            .rotationEffect(.degrees(degree(isBackground: false)))
+                }
+                .rotationEffect(.degrees(degree(isBackground: false)))
+        } else {
+            EmptyView()
+        }
     }
     
     var createdAtText: some View {
-        Text(store.item.createdAt)
+        Text(store.createdAt)
             .typography(.b4_12b)
             .foregroundStyle(Color.Gray.gray300)
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -189,17 +197,7 @@ private extension GoalDetailView {
 #Preview {
     GoalDetailView(
         store: Store(
-            initialState: GoalDetailReducer.State(
-                item: .init(
-                    image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                    commentText: "차타고슝슝",
-                    createdAt: "6시간전",
-                    selectedEmojiIndex: nil,
-                    name: "민정"
-                ),
-                currentUser: .you,
-                status: .pending
-            ),
+            initialState: GoalDetailReducer.State(),
             reducer: { }
         )
     )

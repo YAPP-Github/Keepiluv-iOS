@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreCaptureSessionInterface
+import DomainGoalInterface
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
@@ -18,34 +19,35 @@ extension GoalDetailReducer {
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {
-        @Dependency(\.captureSessionClient)
-        var captureSessionClient
+        @Dependency(\.captureSessionClient) var captureSessionClient
+        @Dependency(\.goalClient) var goalClient
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
             switch action {
-            // MARK: - LifeCycle
-            case .proofPhotoDismissed:
-                state.proofPhoto = nil
-                return .none
+                // MARK: - LifeCycle
+            case .onAppear:
+                return .run { send in
+                    let item = try await goalClient.fetchGoalDetail()
+                    await send(.fethedGoalDetailItem(item))
+                }
                 
-            // MARK: - Action
+                // MARK: - Action
             case .bottomButtonTapped:
-                if case .pending = state.status {
-                    switch state.currentUser {
-                    case .mySelf:
-                        return .run { send in
-                            let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                            await send(.authorizationCompleted(isAuthorized: isAuthorized))
-                        }
-                        
-                    case .you:
-                        return .none
+                if case .mySelf = state.currentUser,
+                   !state.isCompleted {
+                    return .run { send in
+                        let isAuthorized = await captureSessionClient.fetchIsAuthorized()
+                        await send(.authorizationCompleted(isAuthorized: isAuthorized))
                     }
                 }
                 return .none
-
-            // MARK: - State Update
+                
+                // MARK: - State Update
+            case let .fethedGoalDetailItem(item):
+                state.item = item
+                return .none
+                
             case let .authorizationCompleted(isAuthorized):
                 // TODO: - 권한 해제시 alert 띄워서 아이폰 설정으로 보내기
                 guard isAuthorized else { return .none }
@@ -57,9 +59,13 @@ extension GoalDetailReducer {
                 
                 return .none
                 
-            // MARK: - Reducer
+                // MARK: - Reducer
             case .proofPhoto(.delegate(.closeProofPhoto)):
                 state.isPresentedProofPhoto = false
+                return .none
+                
+            case .proofPhotoDismissed:
+                state.proofPhoto = nil
                 return .none
                 
             case .proofPhoto:
