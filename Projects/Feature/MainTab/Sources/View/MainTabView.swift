@@ -8,46 +8,32 @@
 import SwiftUI
 
 import ComposableArchitecture
-import DomainGoalInterface
 import FeatureHome
 import FeatureHomeInterface
 import SharedDesignSystem
 
-// FIXME: -  Reducer 연결
 public struct MainTabView: View {
-    let store: StoreOf<MainTabReducer>
-    @State var selectedItem: TXTabItem = .home
+    @Bindable public var store: StoreOf<MainTabReducer>
 
     public init(store: StoreOf<MainTabReducer>) {
         self.store = store
     }
 
     public var body: some View {
-        TXTabBarContainer(selectedItem: $selectedItem) {
-            switch selectedItem {
+        TXTabBarContainer(selectedItem: $store.selectedTab) {
+            switch store.selectedTab {
             case .home:
-                RootHomeView(
-                    store: Store(
-                        initialState: RootHomeReducer.State(),
-                        reducer: {
-                            RootHomeReducer()
-                        }, withDependencies: {
-                            $0.goalClient = .previewValue
-                        }
-                    )
-                )
-                
+                RootHomeView(store: store.scope(state: \.home, action: \.home))
             case .statistics:
-                Text("Stats")
-                
+                EmptyView()
             case .couple:
-                Text("Couple")
+                EmptyView()
             }
         }
-        .ignoresSafeArea()
-        .onAppear {
-            store.send(.onAppear)
-        }
+        .txModal(
+            item: $store.modal,
+            onConfirm: { store.send(.modalConfirmTapped) }
+        )
     }
 }
 
