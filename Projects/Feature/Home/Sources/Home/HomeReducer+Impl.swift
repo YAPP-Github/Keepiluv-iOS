@@ -116,6 +116,13 @@ extension HomeReducer {
                 if let pendingID = state.pendingDeleteGoalID {
                     state.pendingDeleteGoalID = nil
                     state.cards.removeAll { $0.id == pendingID }
+                    return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
+                }
+                return .none
+                
+            case let .yourCardTapped(card):
+                if !card.yourCard.isSelected {
+                    return .send(.showToast(.poke(message: "님을 찔렀어요!")))
                 }
                 return .none
                 
@@ -135,6 +142,10 @@ extension HomeReducer {
                     date.month == now.month &&
                     date.day == now.day
                 )
+                return .none
+                
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
 
             case .binding:
