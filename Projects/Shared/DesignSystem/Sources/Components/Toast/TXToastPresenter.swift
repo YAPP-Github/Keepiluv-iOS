@@ -18,6 +18,7 @@ public enum TXToastPosition {
 /// Toast 메시지를 표시하기 위한 ViewModifier입니다.
 struct TXToastModifier: ViewModifier {
     @Binding var isPresented: Bool
+    let style: TXToastStyle
     let icon: Image
     let message: String
     let showButton: Bool
@@ -46,17 +47,31 @@ struct TXToastModifier: ViewModifier {
 
 // MARK: - SubViews
 private extension TXToastModifier {
+    @ViewBuilder
     var toastView: some View {
-        TXToast(
-            icon: icon,
-            message: message,
-            showButton: showButton,
-            onButtonTap: onButtonTap
-        )
-        .safeAreaPadding(.horizontal, Constants.horizontalPadding)
-        .padding(position == .top ? .top : .bottom, Constants.edgePadding)
-        .offset(y: dragOffset)
-        .gesture(swipeToDismissGesture)
+        if style == .fit {
+            TXToast(
+                style: .fit,
+                message: message
+            )
+            .frame(maxWidth: .infinity)
+            .safeAreaPadding(.horizontal, Constants.fitHorizontalInset)
+            .padding(position == .top ? .top : .bottom, Constants.edgePadding)
+            .offset(y: dragOffset)
+            .gesture(swipeToDismissGesture)
+        } else {
+            TXToast(
+                style: .fixed,
+                icon: icon,
+                message: message,
+                showButton: showButton,
+                onButtonTap: onButtonTap
+            )
+            .safeAreaPadding(.horizontal, Constants.horizontalPadding)
+            .padding(position == .top ? .top : .bottom, Constants.edgePadding)
+            .offset(y: dragOffset)
+            .gesture(swipeToDismissGesture)
+        }
     }
 
     var swipeToDismissGesture: some Gesture {
@@ -107,6 +122,7 @@ private extension TXToastModifier {
 private extension TXToastModifier {
     enum Constants {
         static var horizontalPadding: CGFloat { 16 }
+        static var fitHorizontalInset: CGFloat { 18 }
         static var edgePadding: CGFloat { 16 }
         static var swipeThreshold: CGFloat { 50 }
     }
@@ -143,12 +159,12 @@ public extension View {
     ///         onButtonTap: { /* 액션 */ }
     ///     )
     ///
-    /// // 상단에 표시하는 토스트
+    /// // fit 스타일 토스트 (텍스트 크기에 맞춤)
     /// ContentView()
     ///     .txToast(
     ///         isPresented: $showToast,
-    ///         message: "알림이 도착했어요",
-    ///         position: .top
+    ///         style: .fit,
+    ///         message: "2자에서 8자 이내로 닉네임을 입력해주세요."
     ///     )
     ///
     /// // 수동 dismiss (자동 dismiss 비활성화)
@@ -162,14 +178,16 @@ public extension View {
     ///
     /// - Parameters:
     ///   - isPresented: 토스트 표시 여부를 제어하는 Binding입니다.
-    ///   - icon: 토스트에 표시될 아이콘입니다. 기본값은 성공 아이콘입니다.
+    ///   - style: 토스트 스타일입니다. 기본값은 .fixed입니다.
+    ///   - icon: 토스트에 표시될 아이콘입니다. 기본값은 성공 아이콘입니다. (fixed 스타일만)
     ///   - message: 토스트에 표시될 메시지입니다.
-    ///   - showButton: 버튼 표시 여부입니다. 기본값은 false입니다.
+    ///   - showButton: 버튼 표시 여부입니다. 기본값은 false입니다. (fixed 스타일만)
     ///   - onButtonTap: 버튼 탭 시 실행될 클로저입니다.
     ///   - position: 토스트가 표시될 위치입니다. 기본값은 .bottom입니다.
     ///   - duration: 자동 dismiss까지의 시간입니다. nil 설정 시 수동 dismiss만 가능합니다. 기본값은 3초입니다.
     func txToast(
         isPresented: Binding<Bool>,
+        style: TXToastStyle = .fixed,
         icon: Image = Image.Icon.Illustration.success,
         message: String,
         showButton: Bool = false,
@@ -180,6 +198,7 @@ public extension View {
         self.modifier(
             TXToastModifier(
                 isPresented: isPresented,
+                style: style,
                 icon: icon,
                 message: message,
                 showButton: showButton,
@@ -254,6 +273,28 @@ public extension View {
                 showButton: true,
                 onButtonTap: { },
                 duration: nil
+            )
+        }
+    }
+
+    return PreviewWrapper()
+}
+
+#Preview("Fit Style") {
+    struct PreviewWrapper: View {
+        @State private var showToast = true
+
+        var body: some View {
+            ZStack {
+                Color.gray.opacity(0.3)
+                Button("Toggle Toast") {
+                    showToast.toggle()
+                }
+            }
+            .txToast(
+                isPresented: $showToast,
+                style: .fit,
+                message: "2자에서 8자 이내로 닉네임을 입력해주세요."
             )
         }
     }
