@@ -7,10 +7,26 @@
 
 import SwiftUI
 
+/// TXModalType 기반 모달 표시를 위한 ViewModifier입니다.
 public struct TXModalModifier: ViewModifier {
+    @State private var isVisible = false
+    private let animationDuration: Double = 0.2
+    
     @Binding private var item: TXModalType?
     private let onConfirm: () -> Void
-
+    
+    /// TXModalModifier를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// Text("Hello")
+    ///     .modifier(
+    ///         TXModalModifier(
+    ///             item: $modal,
+    ///             onConfirm: { }
+    ///         )
+    ///     )
+    /// ```
     public init(
         item: Binding<TXModalType?>,
         onConfirm: @escaping () -> Void
@@ -19,33 +35,56 @@ public struct TXModalModifier: ViewModifier {
         self.onConfirm = onConfirm
     }
 
-    private var isPresented: Binding<Bool> {
-        Binding(
-            get: { item != nil },
-            set: { newValue in
-                if !newValue { item = nil }
+    public func body(content: Content) -> some View {
+        content
+            .fullScreenCover(item: $item) { item in
+                TXModalView(
+                    config: item.configuration(onConfirm: confirmAndDismiss),
+                    onDismiss: startDismiss
+                )
+                .presentationBackground(.clear)
+                .opacity(isVisible ? 1 : 0)
+                .onAppear {
+                    withAnimation(.easeInOut(duration: animationDuration)) {
+                        isVisible = true
+                    }
+                }
             }
-        )
+            .transaction { transaction in
+                transaction.disablesAnimations = true
+            }
+    }
+}
+
+// MARK: - Private Methods
+private extension TXModalModifier {
+    private func confirmAndDismiss() {
+        onConfirm()
+        startDismiss()
     }
 
-    public func body(content: Content) -> some View {
-        ZStack {
-            content
-            if let item {
-                TXModalView(
-                    isPresented: isPresented,
-                    config: item.configuration(onConfirm: onConfirm)
-                )
-                .transition(.opacity)
-                .zIndex(1)
-            }
+    private func startDismiss() {
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            isVisible = false
         }
-        .animation(.easeInOut, value: isPresented.wrappedValue)
+        
+        Task { @MainActor in
+            try await Task.sleep(for: .seconds(animationDuration))
+            item = nil
+        }
     }
 }
 
 public extension View {
     /// TXModalType 기반으로 TXModalView를 표시하는 modifier입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// VStack { }
+    ///     .txModal(item: $modal) {
+    ///         // confirm action
+    ///     }
+    /// ```
     func txModal(
         item: Binding<TXModalType?>,
         onConfirm: @escaping () -> Void
