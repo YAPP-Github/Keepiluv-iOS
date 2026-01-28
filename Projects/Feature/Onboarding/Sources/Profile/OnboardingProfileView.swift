@@ -12,8 +12,7 @@ import SwiftUI
 /// 프로필 설정(닉네임 입력) 화면입니다.
 public struct OnboardingProfileView: View {
     @Bindable var store: StoreOf<OnboardingProfileReducer>
-    @FocusState private var isTextFieldFocused: Bool
-
+    
     public init(store: StoreOf<OnboardingProfileReducer>) {
         self.store = store
     }
@@ -30,7 +29,7 @@ public struct OnboardingProfileView: View {
                 VStack(spacing: 0) {
                     titleSection
                         .padding(.horizontal, Spacing.spacing9)
-                        .padding(.bottom, Constants.titleBodySpacing)
+                        .padding(.bottom, 32)
 
                     textFieldSection
                         .padding(.horizontal, Spacing.spacing8)
@@ -46,17 +45,13 @@ public struct OnboardingProfileView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            isTextFieldFocused = false
-        }
         .txToast(
             isPresented: Binding(
                 get: { store.showToast },
                 set: { _ in store.send(.toastDismissed) }
             ),
             style: .fit,
-            message: Constants.toastMessage,
+            message: store.toastMessage,
             position: .bottom
         )
     }
@@ -83,8 +78,7 @@ private extension OnboardingProfileView {
         VStack(alignment: .leading, spacing: Spacing.spacing5) {
             TXTextField(
                 text: $store.nickname,
-                placeholderText: "닉네임을 입력해 주세요.",
-                isFocused: $isTextFieldFocused
+                placeholderText: "닉네임을 입력해 주세요."
             )
 
             validationSubText
@@ -123,15 +117,5 @@ private extension OnboardingProfileView {
             ),
             action: { store.send(.completeButtonTapped) }
         )
-    }
-}
-
-// MARK: - Constants
-
-private extension OnboardingProfileView {
-    enum Constants {
-        static let titleBodySpacing: CGFloat = 32
-        static let textFieldHeight: CGFloat = 44
-        static let toastMessage = "2자에서 8자 이내로 닉네임을 입력해주세요."
     }
 }
