@@ -108,7 +108,8 @@ extension HomeReducer {
             case let .goalCheckButtonTapped(id, isChecked):
                 if isChecked {
                     state.pendingDeleteGoalID = id
-                    return .send(.delegate(.showDeleteGoalModal))
+                    state.modal = .deleteGoal
+                    return .none
                 }
                 return .none
                 
@@ -149,9 +150,6 @@ extension HomeReducer {
                 return .none
 
             case .binding:
-                return .none
-                
-            case .delegate:
                 return .none
             }
         }

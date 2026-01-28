@@ -67,8 +67,12 @@ public struct HomeView: View {
                 store.send(.monthCalendarConfirmTapped)
             }
         )
+        .txModal(
+            item: $store.modal,
+            onConfirm: { store.send(.modalConfirmTapped) }
+        )
         .txToast(item: $store.toast) {
-            print("2")
+            
         }
     }
 }
