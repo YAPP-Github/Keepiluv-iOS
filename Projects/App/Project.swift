@@ -8,6 +8,7 @@ let project = Project(
             implements: .iOS,
             config: .init(
                 infoPlist: .extendingDefault(with: Project.Environment.InfoPlist.launchScreen.merging([
+                    "UIUserInterfaceStyle": "Light",
                     "LSApplicationQueriesSchemes": [
                         "kakaokompassauth",
                         "kakaolink",

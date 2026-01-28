@@ -37,6 +37,9 @@ let project = Project.makeModule(
         .feature(
             example: .onboarding,
             config: .init(
+                infoPlist: .extendingDefault(with: [
+                    "UIUserInterfaceStyle": "Light"
+                ]),
                 dependencies: [
                     .feature(implements: .onboarding),
                     .external(dependency: .ComposableArchitecture)
