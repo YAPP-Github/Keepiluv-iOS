@@ -12,7 +12,7 @@ extension TXNavigationBar {
     public enum Style {
         case mainTitle(title: String)
         case home(Home)
-        case subTitle(title: String)
+        case subTitle(title: String, rightText: String?)
         case noTitle
         
         

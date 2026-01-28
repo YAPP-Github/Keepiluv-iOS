@@ -73,6 +73,7 @@ public struct TXRectangleButton: View {
                 EmptyView()
             }
         }
+        .disabled(config.text == "")
     }
 }
 

@@ -70,8 +70,8 @@ public struct TXNavigationBar: View {
             case let .home(homeStyle):
                 homeContent(homeStyle)
 
-            case let .subTitle(title):
-                subTitleContent(title: title)
+            case let .subTitle(title, rightText):
+                subTitleContent(title: title, rightText: rightText)
 
             case .noTitle:
                 noTitleContent()
@@ -189,7 +189,7 @@ private extension TXNavigationBar {
 
 // MARK: - SubTitle Style
 private extension TXNavigationBar {
-    func subTitleContent(title: String) -> some View {
+    func subTitleContent(title: String, rightText: String?) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 TXRectangleButton(
@@ -206,7 +206,7 @@ private extension TXNavigationBar {
                 Spacer()
 
                 TXRectangleButton(
-                    config: .blankRightClose(),
+                    config: .blankRight(text: rightText),
                     action: { onAction?(.closeTapped) }
                 )
             }
@@ -256,7 +256,7 @@ private extension TXNavigationBar {
 }
 
 #Preview("SubTitle") {
-    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기")) { action in
+    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기", rightText: "수정")) { action in
         print(action)
     }
 }
