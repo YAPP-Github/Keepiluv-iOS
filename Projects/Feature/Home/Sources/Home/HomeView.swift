@@ -62,9 +62,14 @@ public struct HomeView: View {
         }
         .calendarSheet(
             isPresented: $store.isCalendarSheetPresented,
-            selectedDate: $store.calendarSheetDate) {
+            selectedDate: $store.calendarSheetDate,
+            onComplete: {
                 store.send(.monthCalendarConfirmTapped)
             }
+        )
+        .txToast(item: $store.toast) {
+            print("2")
+        }
     }
 }
 
@@ -150,7 +155,9 @@ private extension HomeView {
             ),
             actionLeft: {
             },
-            actionRight: { }
+            actionRight: {
+                store.send(.yourCardTapped(card))
+            }
         )
     }
     
