@@ -189,6 +189,31 @@ public extension View {
             )
         )
     }
+    
+    /// TXToastType item 기반으로 토스트를 표시합니다.
+    func txToast(
+        item: Binding<TXToastType?>,
+        onButtonTap: (() -> Void)? = nil
+    ) -> some View {
+        let isPresented = Binding<Bool>(
+            get: { item.wrappedValue != nil },
+            set: { newValue in
+                if !newValue { item.wrappedValue = nil }
+            }
+        )
+
+        return self.modifier(
+            TXToastModifier(
+                isPresented: isPresented,
+                icon: item.wrappedValue?.icon ?? Image.Icon.Illustration.success,
+                message: item.wrappedValue?.message ?? "",
+                showButton: item.wrappedValue?.showButton ?? false,
+                onButtonTap: onButtonTap,
+                position: item.wrappedValue?.position ?? .bottom,
+                duration: item.wrappedValue?.duration ?? 3.0
+            )
+        )
+    }
 }
 
 // MARK: - Preview
