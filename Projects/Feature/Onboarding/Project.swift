@@ -12,7 +12,9 @@ let project = Project.makeModule(
             implements: .onboarding,
             config: .init(
                 dependencies: [
-                    .feature(interface: .onboarding)
+                    .feature(interface: .onboarding),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
@@ -36,7 +38,8 @@ let project = Project.makeModule(
             example: .onboarding,
             config: .init(
                 dependencies: [
-                    .feature(interface: .onboarding)
+                    .feature(implements: .onboarding),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         )
