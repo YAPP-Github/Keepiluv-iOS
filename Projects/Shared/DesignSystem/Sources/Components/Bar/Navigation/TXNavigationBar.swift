@@ -15,7 +15,7 @@ import SwiftUI
 /// TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
 ///
 /// // home 스타일
-/// TXNavigationBar(style: .home(subTitle: "1월 2026", mainTitle: "오늘 우리 목표")) { action in
+/// TXNavigationBar(style: .home(.init(subTitle: "1월 2026", mainTitle: "오늘 우리 목표", isHiddenRefresh: false, isRemainedAlarm: true))) { action in
 ///     switch action {
 ///     case .subTitleTapped:
 ///         // 날짜 선택
@@ -31,21 +31,21 @@ import SwiftUI
 /// }
 ///
 /// // subTitle 스타일
-/// TXNavigationBar(style: .subTitle(title: "목표 직접 만들기")) { action in
+/// TXNavigationBar(style: .subTitle(title: "목표 직접 만들기", rightText: "수정")) { action in
 ///     switch action {
 ///     case .backTapped:
 ///         // 뒤로가기
-///     case .closeTapped:
-///         // 닫기
+///     case .rightTapped:
+///         // 오른쪽 버튼
 ///     default:
 ///         break
 ///     }
 /// }
 ///
-/// // noTitle 스타일
-/// TXNavigationBar(style: .noTitle) { action in
-///     if action == .closeTapped {
-///         // 닫기
+/// // iconOnly 스타일
+/// TXNavigationBar(style: .iconOnly(.back)) { action in
+///     if action == .backTapped {
+///         // 뒤로가기
 ///     }
 /// }
 /// ```
@@ -79,8 +79,8 @@ public struct TXNavigationBar: View {
             case let .subTitle(title, rightText):
                 subTitleContent(title: title, rightText: rightText)
 
-            case .noTitle:
-                noTitleContent()
+            case .iconOnly(let iconStyle):
+                iconOnlyContent(iconStyle: iconStyle)
             }
         }
         .frame(height: style.height)
@@ -187,7 +187,7 @@ private extension TXNavigationBar {
             .buttonStyle(.plain)
         }
     }
-    
+
     func alertImage(isRemained: Bool) -> Image {
         return isRemained ? Image.Icon.Symbol.alertRemained : Image.Icon.Symbol.alert
     }
@@ -227,23 +227,41 @@ private extension TXNavigationBar {
     }
 }
 
-// MARK: - NoTitle Style
+// MARK: - IconOnly Style
 private extension TXNavigationBar {
-    func noTitleContent() -> some View {
+    func iconOnlyContent(iconStyle: IconStyle) -> some View {
         HStack {
-            Spacer()
+            switch iconStyle {
+            case .back:
+                Button {
+                    onAction?(.backTapped)
+                } label: {
+                    Image.Icon.Symbol.arrow3Left
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: style.iconSize.width, height: style.iconSize.height)
+                        .foregroundStyle(style.foregroundColor)
+                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                }
+                .buttonStyle(.plain)
 
-            Button {
-                onAction?(.rightTapped)
-            } label: {
-                Image.Icon.Symbol.arrow3Right
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: style.iconSize.width, height: style.iconSize.height)
-                    .foregroundStyle(style.foregroundColor)
-                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                Spacer()
+
+            case .close:
+                Spacer()
+
+                Button {
+                    onAction?(.closeTapped)
+                } label: {
+                    Image.Icon.Symbol.arrow3Right
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: style.iconSize.width, height: style.iconSize.height)
+                        .foregroundStyle(style.foregroundColor)
+                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(style.horizontalPadding)
     }
@@ -267,9 +285,14 @@ private extension TXNavigationBar {
     }
 }
 
-#Preview("NoTitle") {
-    TXNavigationBar(style: .noTitle) { action in
+#Preview("IconOnly - Back") {
+    TXNavigationBar(style: .iconOnly(.back)) { action in
         print(action)
     }
-    .background(Color.Gray.gray500)
+}
+
+#Preview("IconOnly - Close") {
+    TXNavigationBar(style: .iconOnly(.close)) { action in
+        print(action)
+    }
 }
