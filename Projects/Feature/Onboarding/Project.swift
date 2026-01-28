@@ -11,6 +11,7 @@ let project = Project.makeModule(
         .feature(
             implements: .onboarding,
             config: .init(
+                resources: ["Resources/**"],
                 dependencies: [
                     .feature(interface: .onboarding),
                     .shared(implements: .designSystem),

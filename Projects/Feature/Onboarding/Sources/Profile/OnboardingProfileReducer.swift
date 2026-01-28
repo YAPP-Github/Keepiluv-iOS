@@ -30,6 +30,9 @@ public struct OnboardingProfileReducer {
         /// 토스트 표시 여부
         var showToast: Bool = false
 
+        /// 토스트 메시지
+        var toastMessage: String = ""
+
         /// 닉네임 최소 길이
         static let minLength = 2
 
@@ -66,10 +69,20 @@ public struct OnboardingProfileReducer {
                 return .send(.delegate(.navigateBack))
 
             case .completeButtonTapped:
-                guard state.isNicknameValid else {
+                // 비속어 체크
+                if state.containsProfanity {
+                    state.toastMessage = "닉네임에 비속어가 포함되어 있습니다."
                     state.showToast = true
                     return .none
                 }
+
+                // 길이 체크
+                guard state.isNicknameLengthValid else {
+                    state.toastMessage = "2자에서 8자 이내로 닉네임을 입력해주세요."
+                    state.showToast = true
+                    return .none
+                }
+
                 return .send(.delegate(.profileCompleted(nickname: state.nickname)))
 
             case .toastDismissed:
@@ -86,8 +99,18 @@ public struct OnboardingProfileReducer {
 // MARK: - Computed Properties
 
 extension OnboardingProfileReducer.State {
-    /// 닉네임이 유효한지 여부 (2-8자)
-    var isNicknameValid: Bool {
+    /// 닉네임 길이가 유효한지 여부 (2-8자)
+    var isNicknameLengthValid: Bool {
         nickname.count >= Self.minLength && nickname.count <= Self.maxLength
+    }
+
+    /// 닉네임에 비속어가 포함되어 있는지 여부
+    var containsProfanity: Bool {
+        ProfanityFilter.containsProfanity(nickname)
+    }
+
+    /// 닉네임이 유효한지 여부 (길이 + 비속어 체크)
+    var isNicknameValid: Bool {
+        isNicknameLengthValid && !containsProfanity
     }
 }
