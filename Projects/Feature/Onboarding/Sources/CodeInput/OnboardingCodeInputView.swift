@@ -28,15 +28,12 @@ public struct OnboardingCodeInputView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
-                    if !store.hasStartedInput {
-                        titleSection
-                            .padding(.horizontal, Spacing.spacing9)
-                            .padding(.bottom, Constants.titleBodySpacing)
-                    }
+                    titleSection
+                        .padding(.horizontal, Spacing.spacing9)
+                        .padding(.bottom, Constants.titleBodySpacing)
 
                     bodySection
                         .padding(.horizontal, Constants.horizontalPadding)
-                        .padding(.top, store.hasStartedInput ? Spacing.spacing5 : 0)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -114,7 +111,7 @@ private extension OnboardingCodeInputView {
             Image.Icon.Symbol.copy
                 .resizable()
                 .renderingMode(.template)
-                .frame(width: 12, height: 13)
+                .frame(width: 24, height: 24)
                 .foregroundStyle(Color.Gray.gray300)
                 .padding(Spacing.spacing1)
                 .background(Color.Gray.gray50)
@@ -200,30 +197,15 @@ private extension OnboardingCodeInputView {
             .clipShape(Capsule())
     }
 
-    @ViewBuilder
     var bottomButton: some View {
-        if store.isCodeComplete {
-            TXRoundedRectangleButton(
-                config: .long(text: "완료", colorStyle: .black),
-                action: { store.send(.completeButtonTapped) }
-            )
-        } else {
-            disabledButton
-        }
-    }
-
-    var disabledButton: some View {
-        Text("완료")
-            .typography(.t2_16b)
-            .foregroundStyle(Color.Gray.gray300)
-            .frame(height: 52)
-            .frame(maxWidth: .infinity)
-            .background(Color.Gray.gray100, in: RoundedRectangle(cornerRadius: Radius.s))
-            .insideBorder(
-                Color.Gray.gray100,
-                shape: RoundedRectangle(cornerRadius: Radius.s),
-                lineWidth: LineWidth.m
-            )
+        TXRoundedRectangleButton(
+            config: .long(
+                text: "완료",
+                colorStyle: store.isCodeComplete ? .black : .disabled
+            ),
+            action: { store.send(.completeButtonTapped) }
+        )
+        .disabled(!store.isCodeComplete)
     }
 }
 
