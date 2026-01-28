@@ -13,6 +13,7 @@ public enum ColorStyle {
     case gray200
     case gray300
     case gray400
+    case disabled
 }
 
 extension ColorStyle {
@@ -23,6 +24,9 @@ extension ColorStyle {
 
         case .white:
             return Color.Gray.gray500
+
+        case .disabled:
+            return Color.Gray.gray300
         }
     }
 
@@ -42,10 +46,19 @@ extension ColorStyle {
 
         case .gray400:
             return Color.Gray.gray400
+
+        case .disabled:
+            return Color.Gray.gray100
         }
     }
 
     var borderColor: Color {
-        return Color.Gray.gray500
+        switch self {
+        case .disabled:
+            return Color.Gray.gray100
+
+        default:
+            return Color.Gray.gray500
+        }
     }
 }

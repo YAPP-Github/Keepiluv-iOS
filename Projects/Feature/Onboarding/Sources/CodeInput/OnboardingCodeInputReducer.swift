@@ -7,10 +7,11 @@
 
 import ComposableArchitecture
 import Foundation
+import UIKit
 
 /// 커플 연결 초대 코드 입력 화면을 관리하는 Reducer입니다.
 ///
-/// 7자리 초대 코드를 입력받아 커플 연결을 완료합니다.
+/// 8자리 초대 코드를 입력받아 커플 연결을 완료합니다.
 ///
 /// ## 사용 예시
 /// ```swift
@@ -27,14 +28,14 @@ public struct OnboardingCodeInputReducer {
         /// 내 초대 코드 (표시용)
         var myInviteCode: String
 
-        /// 상대방 초대 코드 입력값 (7자리)
+        /// 상대방 초대 코드 입력값 (8자리)
         var receivedCode: String = ""
 
         /// 현재 포커스된 입력 필드 인덱스
         var focusedIndex: Int? = nil
 
         /// 초대 코드 총 자릿수
-        static let codeLength = 7
+        static let codeLength = 8
 
         public init(myInviteCode: String = "") {
             self.myInviteCode = myInviteCode
@@ -82,7 +83,7 @@ public struct OnboardingCodeInputReducer {
                 return .none
 
             case .copyMyCodeButtonTapped:
-                // TODO: 클립보드 복사 기능 구현
+                UIPasteboard.general.string = state.myInviteCode
                 return .none
 
             case .completeButtonTapped:
@@ -104,21 +105,14 @@ public struct OnboardingCodeInputReducer {
 // MARK: - Computed Properties
 
 extension OnboardingCodeInputReducer.State {
-    /// 코드 입력이 완료되었는지 여부
     var isCodeComplete: Bool {
         receivedCode.count == Self.codeLength
     }
 
-    /// 각 자릿수별 문자 배열
     var codeCharacters: [Character?] {
         let chars = Array(receivedCode)
         return (0..<Self.codeLength).map { index in
             index < chars.count ? chars[index] : nil
         }
-    }
-
-    /// 코드 입력이 시작되었는지 여부 (타이틀 표시 조건)
-    var hasStartedInput: Bool {
-        !receivedCode.isEmpty || focusedIndex != nil
     }
 }
