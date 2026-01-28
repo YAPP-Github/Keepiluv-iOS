@@ -13,25 +13,15 @@ import SwiftUI
 struct OnboardingApp: App {
     var body: some Scene {
         WindowGroup {
-            OnboardingConnectView(
+            OnboardingCoordinatorView(
                 store: Store(
-                    initialState: OnboardingConnectReducer.State(
-                        shareContent: "초대 코드"
+                    initialState: OnboardingCoordinator.State(
+                        myInviteCode: "KDJ34923",
+                        shareContent: "초대 코드: KDJ34923"
                     ),
-                    reducer: { OnboardingConnectReducer() }
+                    reducer: { OnboardingCoordinator() }
                 )
             )
         }
     }
-}
-
-#Preview {
-    OnboardingConnectView(
-        store: Store(
-            initialState: OnboardingConnectReducer.State(
-                shareContent: "초대 코드"
-            ),
-            reducer: { OnboardingConnectReducer() }
-        )
-    )
 }
