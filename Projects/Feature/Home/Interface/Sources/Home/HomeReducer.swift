@@ -45,6 +45,7 @@ public struct HomeReducer {
         public var pendingDeleteGoalID: String?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
+        public var toast: TXToastType?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -74,11 +75,13 @@ public struct HomeReducer {
         case monthCalendarConfirmTapped
         case goalCheckButtonTapped(id: String, isChecked: Bool)
         case modalConfirmTapped
+        case yourCardTapped(GoalCardItem)
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
+        case showToast(TXToastType)
         
         // MARK: - Delegate
         case delegate(Delegate)
