@@ -55,6 +55,10 @@ extension GoalDetailReducer {
                 state.selectedReactionIndex = index
                 return .none
                 
+            case .cardTapped:
+                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
+                return .none
+                
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
