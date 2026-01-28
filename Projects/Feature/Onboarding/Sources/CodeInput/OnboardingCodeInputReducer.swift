@@ -34,6 +34,9 @@ public struct OnboardingCodeInputReducer {
         /// 현재 포커스된 입력 필드 인덱스
         var focusedIndex: Int? = nil
 
+        /// 복사 완료 토스트 표시 여부
+        var showCopyToast: Bool = false
+
         /// 초대 코드 총 자릿수
         static let codeLength = 8
 
@@ -84,6 +87,7 @@ public struct OnboardingCodeInputReducer {
 
             case .copyMyCodeButtonTapped:
                 UIPasteboard.general.string = state.myInviteCode
+                state.showCopyToast = true
                 return .none
 
             case .completeButtonTapped:
