@@ -16,7 +16,13 @@ extension TXNavigationBar {
             mainTitle: String
         )
         case subTitle(title: String)
-        case noTitle
+        case iconOnly(IconStyle)
+    }
+
+    /// iconOnly 스타일에서 사용할 아이콘 타입입니다.
+    public enum IconStyle {
+        case back
+        case close
     }
 }
 
@@ -24,21 +30,15 @@ extension TXNavigationBar {
 extension TXNavigationBar.Style {
     var backgroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle:
+        case .mainTitle, .home, .subTitle, .iconOnly:
             return Color.Common.white
-
-        case .noTitle:
-            return Color.Gray.gray500
         }
     }
 
     var foregroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle:
+        case .mainTitle, .home, .subTitle, .iconOnly:
             return Color.Gray.gray500
-
-        case .noTitle:
-            return Color.Common.white
         }
     }
 
@@ -48,11 +48,8 @@ extension TXNavigationBar.Style {
 
     var iconForegroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle:
+        case .mainTitle, .home, .subTitle, .iconOnly:
             return Color.Gray.gray400
-
-        case .noTitle:
-            return Color.Common.white
         }
     }
 
@@ -67,7 +64,7 @@ extension TXNavigationBar.Style {
         case .subTitle:
             return 80
 
-        case .noTitle:
+        case .iconOnly:
             return 72
         }
     }
@@ -77,10 +74,7 @@ extension TXNavigationBar.Style {
         case .mainTitle, .home:
             return .h3_22b
 
-        case .subTitle:
-            return .h4_20b
-
-        case .noTitle:
+        case .subTitle, .iconOnly:
             return .h4_20b
         }
     }
@@ -97,7 +91,7 @@ extension TXNavigationBar.Style {
         case .subTitle:
             return EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
-        case .noTitle:
+        case .iconOnly:
             return EdgeInsets(top: 14, leading: 10, bottom: 14, trailing: 10)
         }
     }
@@ -112,7 +106,7 @@ extension TXNavigationBar.Style {
 
     var actionButtonSize: CGSize {
         switch self {
-        case .mainTitle, .home, .noTitle:
+        case .mainTitle, .home, .iconOnly:
             return CGSize(width: 44, height: 44)
 
         case .subTitle:
