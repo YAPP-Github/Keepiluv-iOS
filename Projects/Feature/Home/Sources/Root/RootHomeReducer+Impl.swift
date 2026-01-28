@@ -26,6 +26,11 @@ extension RootHomeReducer {
                 state.goalDetail = .init()
                 return .none
                 
+            case .goalDetail(.path(.pop)):
+                state.routes.removeLast()
+                state.goalDetail = nil
+                return .none
+                
             case .home:
                 return .none
                 
@@ -36,7 +41,7 @@ extension RootHomeReducer {
                 return .none
             }
         }
-
+        
         self.init(
             reducer: reducer,
             homeReducer: HomeReducer(),

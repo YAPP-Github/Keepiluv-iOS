@@ -43,6 +43,14 @@ extension GoalDetailReducer {
                 }
                 return .none
                 
+            case let .navigationBarTapped(action):
+                if case .backTapped = action {
+                    return .send(.path(.pop))
+                } else if case .rightTapped = action {
+                    
+                }
+                return .none
+                
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
@@ -72,6 +80,9 @@ extension GoalDetailReducer {
                 return .none
                 
             case .binding:
+                return .none
+                
+            case .path:
                 return .none
             }
         }
