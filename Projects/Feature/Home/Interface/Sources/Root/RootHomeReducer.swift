@@ -51,7 +51,14 @@ public struct RootHomeReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - Reducer
         case home(HomeReducer.Action)
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        public enum Delegate {
+            case showDeleteGoalModal
+        }
     }
 
     /// 외부에서 주입된 Reduce로 RootHomeReducer를 구성합니다.

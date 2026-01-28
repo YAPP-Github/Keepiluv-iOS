@@ -47,7 +47,6 @@ public struct RootHomeView: View {
                     }
                 }
         }
-
     }
 }
 
