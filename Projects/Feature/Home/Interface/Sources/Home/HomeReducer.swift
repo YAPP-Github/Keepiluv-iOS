@@ -77,6 +77,7 @@ public struct HomeReducer {
         case goalCheckButtonTapped(id: String, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
+        case myCardTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])

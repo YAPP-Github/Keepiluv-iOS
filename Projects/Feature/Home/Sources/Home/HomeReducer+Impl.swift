@@ -128,6 +128,9 @@ extension HomeReducer {
                     return .send(.path(.goToGoalDetail))
                 }
                 
+            case .myCardTapped:
+                return .send(.path(.goToGoalDetail))
+                
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
                 state.isLoading = false
