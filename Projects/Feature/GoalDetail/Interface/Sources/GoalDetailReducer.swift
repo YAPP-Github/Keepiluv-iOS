@@ -22,12 +22,12 @@ public struct GoalDetailReducer {
     @ObservableState
     public struct State {
         public var item: GoalDetail?
-        public var currentUser: GoalDetail.Owner = .mySelf
+        public var currentUser: GoalDetail.Owner = .you
         public var currentCard: GoalDetail.CompletedGoal? {
             let index = currentUser == .mySelf ? 0 : 1
             return item?.completedGoal[index]
         }
-        public var isCompleted: Bool { currentCard?.image == nil }
+        public var isCompleted: Bool { currentCard?.image != nil }
         public var comment: String { currentCard?.coment ?? "" }
         public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {

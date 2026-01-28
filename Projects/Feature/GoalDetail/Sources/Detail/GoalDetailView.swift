@@ -59,6 +59,8 @@ public struct GoalDetailView: View {
                 pokeImage
                 bottomButton
             }
+            
+            Spacer()
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
