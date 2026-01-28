@@ -60,7 +60,7 @@ extension HomeReducer {
                     await send(.fetchGoalsCompleted(items))
                 }
                 
-                // MARK: - Action
+                // MARK: - User Action
             case let .calendarDateSelected(item):
                 guard let components = item.dateComponents,
                       let year = components.year,
@@ -105,6 +105,19 @@ extension HomeReducer {
                 state.isCalendarSheetPresented = false
                 return .send(.setCalendarDate(state.calendarSheetDate))
                 
+            case let .goalCheckButtonTapped(id, isChecked):
+                if isChecked {
+                    state.pendingDeleteGoalID = id
+                    return .send(.delegate(.showDeleteGoalModal))
+                }
+                return .none
+                
+            case .modalConfirmTapped:
+                if let pendingID = state.pendingDeleteGoalID {
+                    state.pendingDeleteGoalID = nil
+                    state.cards.removeAll { $0.id == pendingID }
+                }
+                return .none
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
@@ -125,6 +138,9 @@ extension HomeReducer {
                 return .none
 
             case .binding:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

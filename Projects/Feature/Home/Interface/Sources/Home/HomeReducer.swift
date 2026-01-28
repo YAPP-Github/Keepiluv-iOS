@@ -42,6 +42,7 @@ public struct HomeReducer {
         public var calendarSheetDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
+        public var pendingDeleteGoalID: String?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
 
@@ -67,15 +68,23 @@ public struct HomeReducer {
         // MARK: - LifeCycle
         case onAppear
         
-        // MARK: - Action
+        // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
+        case goalCheckButtonTapped(id: String, isChecked: Bool)
+        case modalConfirmTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        public enum Delegate {
+            case showDeleteGoalModal
+        }
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.
