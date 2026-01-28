@@ -10,6 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureHome
 import FeatureHomeInterface
+import FeatureProofPhoto
+import FeatureGoalDetail
 import SharedDesignSystem
 
 /// 메인 탭 화면을 표시하는 View입니다.

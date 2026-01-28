@@ -11,6 +11,10 @@ import ComposableArchitecture
 import CoreLogging
 import FeatureHome
 import FeatureHomeInterface
+import FeatureGoalDetail
+import FeatureGoalDetailInterface
+import FeatureProofPhoto
+import FeatureProofPhotoInterface
 
 import SharedDesignSystem
 
@@ -69,7 +73,11 @@ public struct MainTabReducer {
         BindingReducer()
         
         Scope(state: \.home, action: \.home) {
-            RootHomeReducer()
+            RootHomeReducer(
+                goalDetailReducer: GoalDetailReducer(
+                    proofPhotoReducer: ProofPhotoReducer()
+                )
+            )
         }
 
         Reduce { state, action in
