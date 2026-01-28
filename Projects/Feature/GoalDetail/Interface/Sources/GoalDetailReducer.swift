@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import DomainGoalInterface
 import FeatureProofPhotoInterface
+import SharedDesignSystem
 
 /// GoalDetail 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
@@ -56,6 +57,7 @@ public struct GoalDetailReducer {
         
         // MARK: - Action
         case bottomButtonTapped
+        case navigationBarTapped(TXNavigationBar.Action)
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
@@ -64,6 +66,13 @@ public struct GoalDetailReducer {
         
         // MARK: - Reducer
         case proofPhoto(ProofPhotoReducer.Action)
+        
+        // MARK: - Navigation
+        case path(Navigation)
+        
+        public enum Navigation {
+            case pop
+        }
     }
     
     /// 외부에서 주입된 Reduce와 ProofPhotoReducer로 리듀서를 구성합니다.

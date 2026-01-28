@@ -28,8 +28,9 @@ public struct GoalDetailView: View {
                 style: .subTitle(
                     title: store.item?.title ?? "",
                     rightText: store.naviBarRightText
-                )
-            )
+                )) { action in
+                    store.send(.navigationBarTapped(action))
+                }
             
             ZStack {
                 backgroundRect
