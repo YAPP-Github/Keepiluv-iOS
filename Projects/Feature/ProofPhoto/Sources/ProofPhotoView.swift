@@ -217,6 +217,9 @@ private extension ProofPhotoView {
         Color.Dimmed.dimmed70
             .opacity(store.isCommentFocused ? 1 : 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                store.send(.dimmedBackgroundTapped)
+            }
     }
 }
 
@@ -245,6 +248,7 @@ private extension ProofPhotoView {
                 TXCommentCircle(
                     commentText: $store.commentText,
                     isEditable: true,
+                    isFocused: $store.isCommentFocused,
                     onFocused: { isFocused in
                         store.send(.focusChanged(isFocused))
                     }
