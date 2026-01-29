@@ -24,7 +24,7 @@ public struct ProofPhotoReducer {
         public var titleText: String = "인증샷을 올려보세요~"
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
-        public var galleryThumbnail: Image
+        public var galleryThumbnail: Image = SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
         public var imageData: Data?
@@ -43,10 +43,8 @@ public struct ProofPhotoReducer {
         ///     galleryThumbnail: image
         /// )
         /// ```
-        public init(
-            galleryThumbnail: Image
-        ) {
-            self.galleryThumbnail = galleryThumbnail
+        public init(comment: String = "") {
+            self.commentText = comment
         }
     }
 

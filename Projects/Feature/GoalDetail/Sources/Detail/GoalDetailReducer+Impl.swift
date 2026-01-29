@@ -34,8 +34,8 @@ extension GoalDetailReducer {
                 
                 // MARK: - Action
             case .bottomButtonTapped:
-                if case .mySelf = state.currentUser,
-                   !state.isCompleted {
+                let shouldGoToProofPhoto = (state.currentUser == .mySelf && !state.isCompleted) || state.isEditing
+                if shouldGoToProofPhoto { 
                     return .run { send in
                         let isAuthorized = await captureSessionClient.fetchIsAuthorized()
                         await send(.authorizationCompleted(isAuthorized: isAuthorized))
@@ -92,7 +92,7 @@ extension GoalDetailReducer {
                 // TODO: - 권한 해제시 alert 띄워서 아이폰 설정으로 보내기
                 guard isAuthorized else { return .none }
                 state.isPresentedProofPhoto = true
-                state.proofPhoto = ProofPhotoReducer.State()
+                state.proofPhoto = ProofPhotoReducer.State(comment: state.comment)
                 
                 return .none
                 
