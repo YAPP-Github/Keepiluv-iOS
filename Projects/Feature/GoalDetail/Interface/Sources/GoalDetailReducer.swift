@@ -33,7 +33,7 @@ public struct GoalDetailReducer {
         public var naviBarRightText: String {
             if case .mySelf = currentUser,
                isCompleted {
-                return "수정"
+                return isEditing ? "저장" : "수정"
             } else { return "" }
         }
         
@@ -43,6 +43,7 @@ public struct GoalDetailReducer {
         public var selectedReactionIndex: Int?
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
+        public var isEditing: Bool = false
         
         public init() {
         }
@@ -114,10 +115,10 @@ extension GoalDetailReducer.State {
         }
     }
     
-    public var nonCompleteButtonText: String {
+    public var bottomButtonText: String {
         switch currentUser {
         case .mySelf:
-            return "업로드하기"
+            return isEditing ? "다시 찍기" : "업로드하기"
             
         case .you:
             return "찔러보세요"

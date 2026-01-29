@@ -46,15 +46,7 @@ public struct GoalDetailView: View {
             .padding(.top, 103)
             
             if store.isCompleted {
-                createdAtText
-                    .padding(.top, 14)
-                    .padding(.trailing, 36)
-                
-                if store.isShowReactionBar {
-                    reactionBar
-                        .padding(.top, 73)
-                        .padding(.horizontal, 21)
-                }
+                completedBottomContent
             } else {
                 pokeImage
                 bottomButton
@@ -119,6 +111,25 @@ private extension GoalDetailView {
                 }
         } else {
             EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    var completedBottomContent: some View {
+        if store.isEditing {
+            bottomButton
+                .padding(.top, 101)
+                .padding(.horizontal, 30)
+        } else {
+            createdAtText
+                .padding(.top, 14)
+                .padding(.trailing, 36)
+        }
+        
+        if store.isShowReactionBar {
+            reactionBar
+                .padding(.top, 73)
+                .padding(.horizontal, 21)
         }
     }
     
@@ -196,7 +207,7 @@ private extension GoalDetailView {
     
     var bottomButton: some View {
         TXShadowButton(
-            config: .detailGoal(text: store.nonCompleteButtonText),
+            config: store.isEditing ? .long(text: store.bottomButtonText) : .medium(text: store.bottomButtonText),
             colorStyle: .white
         ) {
             store.send(.bottomButtonTapped)
