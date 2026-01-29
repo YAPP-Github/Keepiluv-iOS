@@ -19,15 +19,54 @@ import SwiftUI
 /// ```
 public struct TXShadowButton: View {
     /// 버튼의 스타일 구성을 정의합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = TXShadowButton.Configuration(
+    ///     text: "업로드하기",
+    ///     borderColor: .black,
+    ///     style: .long
+    /// )
+    /// ```
     public struct Configuration {
+        /// 버튼 사이즈 스타일입니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let style: TXShadowButton.Configuration.Style = .long
+        /// ```
+        public enum Style {
+            case medium
+            case long
+        }
+
         let text: String
         let font: TypographyToken = .t2_16b
-        let buttonSize: CGSize = CGSize(width: 150, height: 68)
-        let borderColor: Color
+        let style: Style
+        let buttonHeight: CGFloat = 68
+        var borderColor: Color = .clear
         let borderWidth: CGFloat = 1.6
-        let shadowFrameSize: CGSize = CGSize(width: 150, height: 70)
+        let shadowHeight: CGFloat = 70
         let shadowTopPadding: CGFloat = 4
         let frameHeight: CGFloat = 74
+
+        var buttonWidth: CGFloat? {
+            switch style {
+            case .medium:
+                return 150
+            case .long:
+                return nil
+            }
+        }
+
+        var maxWidth: CGFloat? {
+            switch style {
+            case .medium:
+                return nil
+            case .long:
+                return .infinity
+            }
+        }
 
         /// 버튼 구성 값을 생성합니다.
         ///
@@ -35,19 +74,20 @@ public struct TXShadowButton: View {
         /// ```swift
         /// let config = TXShadowButton.Configuration(
         ///     text: "업로드하기",
-        ///     borderColor: .black
+        ///     borderColor: .black,
+        ///     style: .medium
         /// )
         /// ```
         public init(
             text: String,
-            borderColor: Color
+            style: Style
         ) {
             self.text = text
-            self.borderColor = borderColor
+            self.style = style
         }
     }
 
-    private let config: Configuration
+    private var config: Configuration
     private let colorStyle: ColorStyle
     private let action: () -> Void
 
@@ -68,6 +108,7 @@ public struct TXShadowButton: View {
     ) {
         self.config = config
         self.colorStyle = colorStyle
+        self.config.borderColor = colorStyle == .black ? .Common.white : .Gray.gray500
         self.action = action
     }
 
@@ -76,7 +117,8 @@ public struct TXShadowButton: View {
             Text(config.text)
                 .typography(config.font)
                 .foregroundStyle(colorStyle.foregroundColor)
-                .frame(width: config.buttonSize.width, height: config.buttonSize.height)
+                .frame(width: config.buttonWidth, height: config.buttonHeight)
+                .frame(maxWidth: config.maxWidth)
                 .background(colorStyle.backgroundColor, in: .capsule)
         }
         .buttonStyle(.plain)
@@ -84,7 +126,8 @@ public struct TXShadowButton: View {
         .background(
             Capsule()
                 .fill(colorStyle.foregroundColor)
-                .frame(width: config.shadowFrameSize.width, height: config.shadowFrameSize.height)
+                .frame(width: config.buttonWidth, height: config.shadowHeight)
+                .frame(maxWidth: config.maxWidth)
                 .padding(.top, config.shadowTopPadding)
         )
         .frame(height: config.frameHeight)
@@ -93,7 +136,7 @@ public struct TXShadowButton: View {
 
 #Preview(traits: .sizeThatFitsLayout) {
     TXShadowButton(
-        config: .detailGoal(text: "목표 미완료"),
+        config: .medium(text: "목표 미완료"),
         colorStyle: .black,
         action: { }
     )
