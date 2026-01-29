@@ -78,6 +78,14 @@ extension ProofPhotoReducer {
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
                 return .none
+                
+            case .uploadButtonTapped:
+                // TODO: - post
+                if state.commentText.count < 5 {
+                    return .send(.showToast(.onlyText(message: "코멘트는 5글자로 입력해주세요!")))
+                } else {
+                    return .none
+                }
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
@@ -112,6 +120,10 @@ extension ProofPhotoReducer {
                 
             case .captureFailed:
                 state.isCapturing = false
+                return .none
+                
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
 
             case .binding:

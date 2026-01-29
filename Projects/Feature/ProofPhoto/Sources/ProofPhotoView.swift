@@ -37,6 +37,7 @@ public struct ProofPhotoView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .txToast(item: $store.toast, customPadding: 75)
     }
 }
 
@@ -162,7 +163,9 @@ private extension ProofPhotoView {
             TXShadowButton(
                 config: .proofPhoto(),
                 colorStyle: .black
-            ) { }
+            ) {
+                store.send(.uploadButtonTapped)
+            }
             
             Color.clear
                 .frame(width: 50)

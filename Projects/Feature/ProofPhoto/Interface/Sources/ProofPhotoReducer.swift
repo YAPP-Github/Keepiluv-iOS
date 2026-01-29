@@ -10,6 +10,7 @@ import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
+import SharedDesignSystem
 
 /// ProofPhoto 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
@@ -31,6 +32,7 @@ public struct ProofPhotoReducer {
         public var isFlashOn: Bool = false
         public var isCapturing: Bool = false
         public var hasImage: Bool { imageData != nil }
+        public var toast: TXToastType?
 
         /// 상태를 생성합니다.
         ///
@@ -61,6 +63,7 @@ public struct ProofPhotoReducer {
         case flashButtonTapped
         case returnButtonTapped
         case focusChanged(Bool)
+        case uploadButtonTapped
         
         // MARK: - Update State
         case commentTextChanged(String)
@@ -69,6 +72,7 @@ public struct ProofPhotoReducer {
         case captureFailed
         case galleryPhotoLoaded(imageData: Data)
         case cameraSwitched
+        case showToast(TXToastType)
 
         // MARK: - Delegate
         case delegate(Delegate)
