@@ -64,6 +64,7 @@ public struct ProofPhotoReducer {
         case returnButtonTapped
         case focusChanged(Bool)
         case uploadButtonTapped
+        case dimmedBackgroundTapped
         
         // MARK: - Update State
         case commentTextChanged(String)

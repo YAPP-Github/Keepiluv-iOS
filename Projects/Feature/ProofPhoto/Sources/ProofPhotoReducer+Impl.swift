@@ -86,6 +86,9 @@ extension ProofPhotoReducer {
                 } else {
                     return .none
                 }
+                
+            case .dimmedBackgroundTapped:
+                return .send(.focusChanged(false))
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
