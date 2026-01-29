@@ -25,7 +25,7 @@ import SwiftUI
 ///     )
 /// )
 /// ```
-public struct GoalCardItem: Identifiable {
+public struct GoalCardItem: Identifiable, Equatable {
     /// 카드의 개별 셀에 표시할 이미지/이모지 모델입니다.
     ///
     /// ## 사용 예시
@@ -35,7 +35,7 @@ public struct GoalCardItem: Identifiable {
     ///     emoji: .Icon.Illustration.emoji1
     /// )
     /// ```
-    public struct Card {
+    public struct Card: Equatable {
         let image: Image?
         let emoji: Image?
         public var isSelected: Bool
