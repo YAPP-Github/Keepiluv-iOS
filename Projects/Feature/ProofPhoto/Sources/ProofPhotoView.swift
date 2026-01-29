@@ -28,7 +28,6 @@ public struct ProofPhotoView: View {
             photoPreview
                 .padding(.top, 38)
             bottomControls
-                .padding(.horizontal, 41)
                 .padding(.top, 52)
         }
         .ignoresSafeArea(.keyboard)
@@ -132,15 +131,9 @@ private extension ProofPhotoView {
     }
     
     var captureControls: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 52) {
             galleryButton
-            
-            Spacer()
-            
             captureButton
-            
-            Spacer()
-            
             TXCircleButton(config: .cameraChange()) {
                 store.send(.switchButtonTapped)
             }
@@ -179,15 +172,11 @@ private extension ProofPhotoView {
             matching: .images,
             photoLibrary: .shared()
         ) {
-            store.galleryThumbnail
-                .resizable()
-                .insideBorder(
-                    Color.Gray.gray300,
-                    shape: RoundedRectangle(cornerRadius: 8),
-                    lineWidth: 2
-                )
-                .frame(width: 52, height: 52)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Image.Icon.Symbol.gallery
+                .renderingMode(.template)
+                .foregroundStyle(Color.Common.white)
+                .frame(width: 56, height: 56)
+                .background(Color.Gray.gray400, in: .circle)
         }
     }
     
