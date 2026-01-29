@@ -34,7 +34,7 @@ public struct MainTabReducer {
     /// ```swift
     /// let state = MainTabReducer.State()
     /// ```
-    public struct State {
+    public struct State: Equatable {
         public var home = RootHomeReducer.State()
         public var selectedTab: TXTabItem = .home
 

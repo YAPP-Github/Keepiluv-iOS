@@ -29,7 +29,7 @@ public struct RootHomeReducer {
     /// let state = RootHomeReducer.State()
     /// ```
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var home = HomeReducer.State()
         public var routes: [HomeRoute] = []
         
