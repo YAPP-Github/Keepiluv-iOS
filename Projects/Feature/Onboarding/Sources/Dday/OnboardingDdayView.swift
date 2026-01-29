@@ -59,7 +59,7 @@ private extension OnboardingDdayView {
     var titleSection: some View {
         HStack {
             Text("우리 커플의 기념일은?")
-                .typography(.h3_22b)
+                .typography(.h3_22eb)
                 .foregroundStyle(Color.Gray.gray500)
             Spacer()
         }
