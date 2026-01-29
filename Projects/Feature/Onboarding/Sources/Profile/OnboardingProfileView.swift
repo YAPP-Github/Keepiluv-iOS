@@ -67,7 +67,7 @@ private extension OnboardingProfileView {
                     짝꿍에게 보일
                     내 이름을 등록하세요!
                     """)
-                    .typography(.h3_22b)
+                    .typography(.h3_22eb)
                     .foregroundStyle(Color.Gray.gray500)
             }
             Spacer()
