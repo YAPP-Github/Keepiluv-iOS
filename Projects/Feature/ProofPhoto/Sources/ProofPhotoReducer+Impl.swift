@@ -74,6 +74,10 @@ extension ProofPhotoReducer {
                     let session = await captureSessionClient.setUpCaptureSession(position)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
+                
+            case let .focusChanged(isFocused):
+                state.isCommentFocused = isFocused
+                return .none
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):

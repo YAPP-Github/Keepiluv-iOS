@@ -55,6 +55,7 @@ private extension ProofPhotoView {
                     .frame(width: 44, height: 44)
             }
         }
+        .overlay(dimmedView)
         .frame(height: 72)
     }
     
@@ -62,6 +63,8 @@ private extension ProofPhotoView {
         Text(store.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
+            .frame(maxWidth: .infinity)
+            .overlay(dimmedView)
     }
     
     @ViewBuilder
@@ -206,6 +209,12 @@ private extension ProofPhotoView {
         }
         .disabled(store.isCapturing)
     }
+    
+    var dimmedView: some View {
+        Color.Dimmed.dimmed70
+            .opacity(store.isCommentFocused ? 1 : 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 }
 
 // MARK: - Preiview Methods
@@ -228,10 +237,14 @@ private extension ProofPhotoView {
             .overlay(alignment: .top) {
                 previewTopControls
             }
+            .overlay(dimmedView)
             .overlay(alignment: .bottom) {
                 TXCommentCircle(
                     commentText: $store.commentText,
-                    isEditable: true
+                    isEditable: true,
+                    onFocused: { isFocused in
+                        store.send(.focusChanged(isFocused))
+                    }
                 )
                 .padding(.bottom, 26)
             }

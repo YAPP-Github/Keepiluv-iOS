@@ -21,6 +21,7 @@ public struct ProofPhotoReducer {
     public struct State {
         public var titleText: String = "인증샷을 올려보세요~"
         public var commentText: String = ""
+        public var isCommentFocused: Bool = false
         public var galleryThumbnail: Image
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
@@ -59,6 +60,7 @@ public struct ProofPhotoReducer {
         case switchButtonTapped
         case flashButtonTapped
         case returnButtonTapped
+        case focusChanged(Bool)
         
         // MARK: - Update State
         case commentTextChanged(String)
