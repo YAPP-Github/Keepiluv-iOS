@@ -23,37 +23,40 @@ public struct GoalDetailView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
-            TXNavigationBar(
-                style: .subTitle(
-                    title: store.item?.title ?? "",
-                    rightText: store.naviBarRightText
-                )) { action in
-                    store.send(.navigationBarTapped(action))
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                TXNavigationBar(
+                    style: .subTitle(
+                        title: store.item?.title ?? "",
+                        rightText: store.naviBarRightText
+                    )) { action in
+                        store.send(.navigationBarTapped(action))
+                    }
+                
+                ZStack {
+                    backgroundRect
+                    
+                    if store.isCompleted {
+                        completedImageCard
+                    } else {
+                        nonCompletedCard
+                            .overlay(nonCompletedText)
+                    }
                 }
-            
-            ZStack {
-                backgroundRect
+                .padding(.horizontal, 27)
+                .padding(.top, 103)
                 
                 if store.isCompleted {
-                    completedImageCard
+                    completedBottomContent
                 } else {
-                    nonCompletedCard
-                        .overlay(nonCompletedText)
+                    pokeImage
+                    bottomButton
                 }
+                
+                Spacer()
             }
-            .padding(.horizontal, 27)
-            .padding(.top, 103)
-            
-            if store.isCompleted {
-                completedBottomContent
-            } else {
-                pokeImage
-                bottomButton
-            }
-            
-            Spacer()
         }
+        .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
@@ -99,14 +102,12 @@ private extension GoalDetailView {
                 .frame(width: 336, height: 336)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .overlay(alignment: .bottom) {
-                    TXCommentCircle(
-                        commentText: .constant(store.comment),
-                        isEditable: false
-                    )
-                    .padding(.bottom, 26)
+                    commentCircle
+                        .padding(.bottom, 26)
                 }
                 .rotationEffect(.degrees(degree(isBackground: false)))
                 .onTapGesture {
+                    guard !store.isEditing else { return }
                     store.send(.cardTapped)
                 }
         } else {
@@ -186,7 +187,9 @@ private extension GoalDetailView {
             .frame(width: 336, height: 336)
             .rotationEffect(.degrees(degree(isBackground: false)))
             .onTapGesture {
-                store.send(.cardTapped)
+                if !store.isEditing {
+                    store.send(.cardTapped)
+                }
             }
     }
     
@@ -213,6 +216,28 @@ private extension GoalDetailView {
             store.send(.bottomButtonTapped)
         }
         .padding(.top, -28)
+    }
+    
+    @ViewBuilder
+    var commentCircle: some View {
+        TXCommentCircle(
+            commentText: store.isEditing ? $store.commentText : .constant(store.comment),
+            isEditable: store.isEditing,
+            usesKeyboardInset: false,
+            isFocused: $store.isCommentFocused,
+            onFocused: { isFocused in
+                store.send(.focusChanged(isFocused))
+            }
+        )
+    }
+    
+    var dimmedView: some View {
+        Color.Dimmed.dimmed70
+            .opacity(store.isEditing && store.isCommentFocused ? 1 : 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                store.send(.dimmedBackgroundTapped)
+            }
     }
 }
 

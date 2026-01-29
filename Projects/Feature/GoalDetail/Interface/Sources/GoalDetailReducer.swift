@@ -44,6 +44,8 @@ public struct GoalDetailReducer {
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
+        public var commentText: String = ""
+        public var isCommentFocused: Bool = false
         
         public init() {
         }
@@ -61,6 +63,8 @@ public struct GoalDetailReducer {
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(Int)
         case cardTapped
+        case focusChanged(Bool)
+        case dimmedBackgroundTapped
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
