@@ -1,0 +1,83 @@
+//
+//  RootHomeReducer.swift
+//  FeatureHomeInterface
+//
+//  Created by 정지훈 on 1/27/26.
+//
+
+import ComposableArchitecture
+
+/// Home Feature의 NavigationStack을 관리하는 Root Reducer입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// let store = Store(
+///     initialState: RootHomeReducer.State()
+/// ) {
+///     RootHomeReducer()
+/// }
+/// ```
+@Reducer
+public struct RootHomeReducer {
+    let reducer: Reduce<State, Action>
+    let homeReducer: HomeReducer
+    
+    /// RootHome 화면에서 사용하는 상태입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let state = RootHomeReducer.State()
+    /// ```
+    @ObservableState
+    public struct State {
+        public var home = HomeReducer.State()
+        public var routes: [HomeRoute] = []
+        
+        /// 기본 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = RootHomeReducer.State()
+        /// ```
+        public init() { }
+    }
+    
+    /// RootHome 화면에서 발생 가능한 액션입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// store.send(.home(.onAppear))
+    /// ```
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
+        case home(HomeReducer.Action)
+    }
+
+    /// 외부에서 주입된 Reduce로 RootHomeReducer를 구성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = RootHomeReducer(
+    ///     reducer: Reduce { _, _ in .none },
+    ///     homeReducer: HomeReducer(reducer: Reduce { _, _ in .none })
+    /// )
+    /// ```
+    public init(
+        reducer: Reduce<State, Action>,
+        homeReducer: HomeReducer
+    ) {
+        self.reducer = reducer
+        self.homeReducer = homeReducer
+    }
+    
+    public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
+        Scope(state: \.home, action: \.home) {
+            homeReducer
+        }
+        
+        reducer
+    }
+}
