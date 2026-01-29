@@ -88,6 +88,7 @@ public extension Image.Icon.Symbol {
     static let gallery = SymbolAsset.icGallery.swiftUIImage
     static let arrow2Down = SymbolAsset.icArrow2Down.swiftUIImage
     static let copy = SymbolAsset.icCopy.swiftUIImage
+    static let calendar = SymbolAsset.icCalendar.swiftUIImage
 }
 
 public extension Image.Illustration {
