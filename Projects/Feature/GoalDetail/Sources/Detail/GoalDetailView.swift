@@ -174,6 +174,9 @@ private extension GoalDetailView {
             )
             .frame(width: 336, height: 336)
             .rotationEffect(.degrees(degree(isBackground: false)))
+            .onTapGesture {
+                store.send(.cardTapped)
+            }
     }
     
     var nonCompletedText: some View {
