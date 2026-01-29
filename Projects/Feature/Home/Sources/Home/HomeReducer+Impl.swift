@@ -15,14 +15,17 @@ import SharedUtil
 
 extension HomeReducer {
     /// 실제 로직을 포함한 HomeReducer를 생성합니다.
-    ///
+    /// 
     /// ## 사용 예시
     /// ```swift
     /// let reducer = HomeReducer()
     /// ```
+    
+    // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.goalClient) var goalClient
         
+        // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             
             switch action {
