@@ -32,6 +32,7 @@ public struct GoalDetailView: View {
                     )) { action in
                         store.send(.navigationBarTapped(action))
                     }
+                    .overlay(dimmedView)
                 
                 ZStack {
                     backgroundRect
@@ -57,6 +58,7 @@ public struct GoalDetailView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
+        .background(dimmedView)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
@@ -86,6 +88,7 @@ private extension GoalDetailView {
                 lineWidth: 1.6
             )
             .frame(width: 336, height: 336)
+            .overlay(dimmedView)
             .rotationEffect(.degrees(degree(isBackground: true)))
     }
     
@@ -101,6 +104,7 @@ private extension GoalDetailView {
                 )
                 .frame(width: 336, height: 336)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(dimmedView)
                 .overlay(alignment: .bottom) {
                     commentCircle
                         .padding(.bottom, 26)
@@ -234,7 +238,10 @@ private extension GoalDetailView {
     var dimmedView: some View {
         Color.Dimmed.dimmed70
             .opacity(store.isEditing && store.isCommentFocused ? 1 : 0)
+            .transition(.opacity)
+            .animation(.easeInOut, value: store.isCommentFocused)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
             .onTapGesture {
                 store.send(.dimmedBackgroundTapped)
             }

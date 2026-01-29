@@ -161,7 +161,7 @@ private extension ProofPhotoView {
             }
             
             TXShadowButton(
-                config: .proofPhoto(),
+                config: .long(text: "업로드하기"),
                 colorStyle: .black
             ) {
                 store.send(.uploadButtonTapped)
@@ -216,6 +216,8 @@ private extension ProofPhotoView {
     var dimmedView: some View {
         Color.Dimmed.dimmed70
             .opacity(store.isCommentFocused ? 1 : 0)
+            .transition(.opacity)
+            .animation(.easeInOut, value: store.isCommentFocused)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onTapGesture {
                 store.send(.dimmedBackgroundTapped)
@@ -281,9 +283,7 @@ private extension ProofPhotoView {
 #Preview {
     ProofPhotoView(
         store: Store(
-            initialState: ProofPhotoReducer.State(
-                galleryThumbnail: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
-            ),
+            initialState: ProofPhotoReducer.State(),
             reducer: {
                 ProofPhotoReducer()
             }
