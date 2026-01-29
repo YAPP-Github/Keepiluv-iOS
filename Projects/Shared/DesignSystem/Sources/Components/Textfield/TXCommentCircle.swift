@@ -12,6 +12,7 @@ public struct TXCommentCircle: View {
     @Binding private var commentText: String
     @FocusState private var isFocused: Bool
     private let isEditable: Bool
+    public var onFocused: ((Bool) -> Void)?
     
     /// 코멘트 텍스트 바인딩과 편집 가능 여부를 전달해 컴포넌트를 생성합니다.
     ///
@@ -24,10 +25,12 @@ public struct TXCommentCircle: View {
     /// ```
     public init(
         commentText: Binding<String>,
-        isEditable: Bool
+        isEditable: Bool,
+        onFocused: ((Bool) -> Void)? = nil
     ) {
         self._commentText = commentText
         self.isEditable = isEditable
+        self.onFocused = onFocused
     }
     
     public var body: some View {
@@ -41,6 +44,9 @@ public struct TXCommentCircle: View {
                 Color.clear
                     .frame(height: Constants.keyboardPadding)
             }
+        }
+        .onChange(of: isFocused) {
+            onFocused?(isFocused)
         }
     }
 }
