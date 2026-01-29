@@ -31,8 +31,15 @@ public struct GoalDetail {
     public struct CompletedGoal {
         public let owner: Owner
         public var image: Image?
-        public let coment: String
+        public var comment: String
         public let createdAt: String?
+        
+        public init(owner: Owner, image: Image? = nil, comment: String, createdAt: String?) {
+            self.owner = owner
+            self.image = image
+            self.comment = comment
+            self.createdAt = createdAt
+        }
     }
     
     public enum Owner: String {
