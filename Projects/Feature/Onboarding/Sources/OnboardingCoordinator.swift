@@ -10,7 +10,7 @@ import Foundation
 
 /// 온보딩 플로우 전체를 관리하는 Coordinator Reducer입니다.
 ///
-/// Connect → CodeInput → Profile 화면 전환을 NavigationStack으로 관리합니다.
+/// Connect → CodeInput → Profile → Dday 화면 전환을 NavigationStack으로 관리합니다.
 ///
 /// ## 사용 예시
 /// ```swift
@@ -52,6 +52,7 @@ public struct OnboardingCoordinator {
     public enum Path {
         case codeInput(OnboardingCodeInputReducer)
         case profile(OnboardingProfileReducer)
+        case dday(OnboardingDdayReducer)
     }
 
     public init() {}
@@ -88,6 +89,14 @@ public struct OnboardingCoordinator {
                 return .none
 
             case .path(.element(id: _, action: .profile(.delegate(.profileCompleted(_))))):
+                state.path.append(.dday(OnboardingDdayReducer.State()))
+                return .none
+
+            case .path(.element(id: _, action: .dday(.delegate(.navigateBack)))):
+                state.path.removeLast()
+                return .none
+
+            case .path(.element(id: _, action: .dday(.delegate(.ddayCompleted(_))))):
                 return .send(.delegate(.onboardingCompleted))
 
             case .path:
