@@ -28,14 +28,14 @@ import SwiftUI
 /// )
 /// ```
 struct TXToast: View {
-    private let icon: Image
+    private let icon: Image?
     private let message: String
     private let showButton: Bool
     private let onButtonTap: (() -> Void)?
 
     init(
-        icon: Image = Image.Icon.Illustration.success,
         message: String,
+        icon: Image? = nil,
         showButton: Bool = false,
         onButtonTap: (() -> Void)? = nil
     ) {
@@ -59,7 +59,7 @@ struct TXToast: View {
         .frame(minHeight: Constants.minContentHeight)
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.verticalPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: Constants.maxWidth(icon: icon), alignment: Constants.alignment(icon: icon))
         .background(Constants.backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius))
         .overlay(
@@ -79,16 +79,18 @@ struct TXToast: View {
 private extension TXToast {
     var contentView: some View {
         HStack(spacing: Constants.iconMessageSpacing) {
-            icon
-                .resizable()
-                .frame(width: Constants.iconSize, height: Constants.iconSize)
+            if let icon {
+                icon
+                    .resizable()
+                    .frame(width: Constants.iconSize, height: Constants.iconSize)
+            }
 
             Text(message)
                 .typography(Constants.messageFont)
                 .foregroundStyle(Constants.textColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: Constants.maxWidth(icon: icon), alignment: Constants.alignment(icon: icon))
                 .padding(.vertical, 5)
-                .padding(.horizontal, 2)
+                .padding(.horizontal, icon != nil ? 2 : 18)
         }
     }
 }
@@ -108,6 +110,8 @@ private extension TXToast {
         static let backgroundColor: Color = Color.Gray.gray400
         static let borderColor: Color = Color.Gray.gray500
         static let textColor: Color = Color.Common.white
+        static func maxWidth(icon: Image?) -> CGFloat? { icon != nil ? .infinity : nil }
+        static func alignment(icon: Image?) -> Alignment { icon != nil ? .leading : .center }
 
         static let shadowColor: Color = Color.black.opacity(0.5)
         static let shadowRadius: CGFloat = 10
@@ -136,7 +140,7 @@ private extension TXToast {
 
 #Preview("Custom Icon") {
     TXToast(
-        icon: Image.Icon.Illustration.heart,
-        message: "좋아요를 눌렀어요"
+        message: "좋아요를 눌렀어요",
+        icon: Image.Icon.Illustration.heart
     )
 }
