@@ -47,7 +47,12 @@ extension GoalDetailReducer {
                 if case .backTapped = action {
                     return .send(.path(.pop))
                 } else if case .rightTapped = action {
-                    
+                    if state.isEditing {
+                        // TODO: - post api
+                        state.isEditing = false
+                    } else {
+                        state.isEditing = true
+                    }
                 }
                 return .none
                 
@@ -68,10 +73,7 @@ extension GoalDetailReducer {
                 // TODO: - 권한 해제시 alert 띄워서 아이폰 설정으로 보내기
                 guard isAuthorized else { return .none }
                 state.isPresentedProofPhoto = true
-                state.proofPhoto = ProofPhotoReducer.State(
-                    galleryThumbnail:
-                        SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
-                )
+                state.proofPhoto = ProofPhotoReducer.State()
                 
                 return .none
                 
