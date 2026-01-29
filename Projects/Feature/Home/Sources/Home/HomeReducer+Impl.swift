@@ -134,7 +134,7 @@ extension HomeReducer {
                 return .none
                 
             case let .setCalendarDate(date):
-                let now = state.nowDate
+                 let now = state.nowDate
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월\(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
