@@ -13,28 +13,48 @@ extension GoalCardView.Configuration {
     /// ## 사용 예시
     /// ```swift
     /// let config = GoalCardView.Configuration.goalCheck(
-    ///     goalName: "목표 이름",
-    ///     myItem: .empty,
-    ///     yourItem: .empty,
-    ///     isMyChecked: .constant(false)
+    ///     item: .init(
+    ///         goalName: "목표 이름",
+    ///         goalEmoji: .Icon.Illustration.exercise,
+    ///         myCard: .init(image: nil, emoji: nil),
+    ///         yourCard: .init(image: nil, emoji: nil)
+    ///     ),
+    ///     isMyChecked: false,
+    ///     action: { }
     /// )
     /// ```
     public static func goalCheck(
-        goalName: String,
-        myItem: GoalCardItem,
-        yourItem: GoalCardItem,
-        isMyChecked: Binding<Bool>
+        item: GoalCardItem,
+        isMyChecked: Bool,
+        isCoupleChecked: Bool = false,
+        action: @escaping () -> Void
     ) -> Self {
-        let headerConfig = CardHeaderView.Configuration.goalCheckOpened(
-            goalName: goalName,
-            iconImage: .Icon.Illustration.exercise,
-            isMyChecked: isMyChecked
-        )
+        let showsContent = item.myCard.isSelected || item.yourCard.isSelected
+        let headerConfig: CardHeaderView.Configuration
+        
+        if showsContent {
+            headerConfig = CardHeaderView.Configuration.goalCheckOpened(
+                goalName: item.goalName,
+                iconImage: item.goalEmoji,
+                isMyChecked: isMyChecked,
+                isCoupleChecked: isCoupleChecked,
+                action: action
+            )
+        } else {
+            headerConfig = CardHeaderView.Configuration.goalCheckClosed(
+                goalName: item.goalName,
+                iconImage: item.goalEmoji,
+                isMyChecked: isMyChecked,
+                isCoupleChecked: isCoupleChecked,
+                action: action
+            )
+        }
 
         return Self(
             headerConfig: headerConfig,
-            myItem: myItem,
-            yourItem: yourItem,
+            myItem: item.myCard,
+            yourItem: item.yourCard,
+            showsContent: showsContent,
             contentBackgroundColor: Color.Gray.gray50,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,

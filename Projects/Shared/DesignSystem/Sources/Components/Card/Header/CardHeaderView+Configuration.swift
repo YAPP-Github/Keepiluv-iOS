@@ -9,7 +9,11 @@ import SwiftUI
 
 extension CardHeaderView {
     enum Content {
-        case goalCheck(isMyChecked: Binding<Bool>, isCoupleChecked: Bool)
+        case goalCheck(
+            isMyChecked: Bool,
+            isCoupleChecked: Bool,
+            action: () -> Void
+        )
         case goalAdd(action: () -> Void)
         case goalEdit(action: () -> Void)
         case goalStats(goalCount: Int)
@@ -71,20 +75,23 @@ extension CardHeaderView.Configuration {
     /// let config = CardHeaderView.Configuration.goalCheckOpened(
     ///     goalName: "목표 이름",
     ///     iconImage: .Icon.Illustration.exercise,
-    ///     isMyChecked: .constant(false)
+    ///     isMyChecked: false,
+    ///     action: { }
     /// )
     /// ```
     public static func goalCheckOpened(
         goalName: String,
         iconImage: Image,
-        isMyChecked: Binding<Bool>,
-        isCoupleChecked: Bool = false
+        isMyChecked: Bool,
+        isCoupleChecked: Bool = false,
+        action: @escaping () -> Void
     ) -> Self {
         makeGoalCheck(
             goalName: goalName,
             iconImage: iconImage,
             isMyChecked: isMyChecked,
             isCoupleChecked: isCoupleChecked,
+            action: action,
             isBordered: false
         )
     }
@@ -96,20 +103,23 @@ extension CardHeaderView.Configuration {
     /// let config = CardHeaderView.Configuration.goalCheckClosed(
     ///     goalName: "목표 이름",
     ///     iconImage: .Icon.Illustration.exercise,
-    ///     isMyChecked: .constant(false)
+    ///     isMyChecked: false,
+    ///     action: { }
     /// )
     /// ```
     public static func goalCheckClosed(
         goalName: String,
         iconImage: Image,
-        isMyChecked: Binding<Bool>,
-        isCoupleChecked: Bool = false
+        isMyChecked: Bool,
+        isCoupleChecked: Bool = false,
+        action: @escaping () -> Void
     ) -> Self {
         makeGoalCheck(
             goalName: goalName,
             iconImage: iconImage,
             isMyChecked: isMyChecked,
             isCoupleChecked: isCoupleChecked,
+            action: action,
             isBordered: true
         )
     }
@@ -204,8 +214,9 @@ extension CardHeaderView.Configuration {
     private static func makeGoalCheck(
         goalName: String,
         iconImage: Image,
-        isMyChecked: Binding<Bool>,
+        isMyChecked: Bool,
         isCoupleChecked: Bool,
+        action: @escaping () -> Void,
         isBordered: Bool
     ) -> Self {
         Self(
@@ -213,7 +224,8 @@ extension CardHeaderView.Configuration {
             iconImage: iconImage,
             content: .goalCheck(
                 isMyChecked: isMyChecked,
-                isCoupleChecked: isCoupleChecked
+                isCoupleChecked: isCoupleChecked,
+                action: action
             ),
             isBordered: isBordered,
             padding: Spacing.spacing7,
