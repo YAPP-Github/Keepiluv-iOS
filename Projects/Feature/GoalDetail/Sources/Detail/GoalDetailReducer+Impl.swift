@@ -50,8 +50,16 @@ extension GoalDetailReducer {
                     if state.isEditing {
                         // TODO: - post api
                         state.isEditing = false
+                        state.isCommentFocused = false
+                        var newItem = state.item?.completedGoal[0]
+                        newItem?.comment = state.commentText
+                        
+                        guard let newItem else { return .none }
+                        state.item?.completedGoal[0] = newItem
+                        
                     } else {
                         state.isEditing = true
+                        state.commentText = state.comment
                     }
                 }
                 return .none
@@ -62,11 +70,22 @@ extension GoalDetailReducer {
                 
             case .cardTapped:
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
+                state.commentText = state.comment
+                state.isCommentFocused = false
+                return .none
+                
+            case let .focusChanged(isFocused):
+                state.isCommentFocused = isFocused
+                return .none
+                
+            case .dimmedBackgroundTapped:
+                state.isCommentFocused = false
                 return .none
                 
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
+                state.commentText = item.completedGoal.first?.comment ?? ""
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -84,6 +103,7 @@ extension GoalDetailReducer {
                 
             case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
                 state.item?.completedGoal[0] = completedGoal
+                state.commentText = completedGoal.comment
                 state.isPresentedProofPhoto = false
                 return .none
                 

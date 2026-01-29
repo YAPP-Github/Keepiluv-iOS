@@ -12,6 +12,7 @@ public struct TXCommentCircle: View {
     @Binding private var commentText: String
     @FocusState private var isFocused: Bool
     private let isEditable: Bool
+    private let usesKeyboardInset: Bool
     private let externalFocus: Binding<Bool>?
     public var onFocused: ((Bool) -> Void)?
     
@@ -27,11 +28,13 @@ public struct TXCommentCircle: View {
     public init(
         commentText: Binding<String>,
         isEditable: Bool,
+        usesKeyboardInset: Bool = true,
         isFocused: Binding<Bool>? = nil,
         onFocused: ((Bool) -> Void)? = nil
     ) {
         self._commentText = commentText
         self.isEditable = isEditable
+        self.usesKeyboardInset = usesKeyboardInset
         self.externalFocus = isFocused
         self.onFocused = onFocused
     }
@@ -43,7 +46,7 @@ public struct TXCommentCircle: View {
             textCircles
         }
         .safeAreaInset(edge: .bottom) {
-            if isFocused {
+            if usesKeyboardInset && isFocused {
                 Color.clear
                     .frame(height: Constants.keyboardPadding)
             }
@@ -93,7 +96,9 @@ private extension TXCommentCircle {
             }
         }
         .onTapGesture {
-            isFocused = isEditable
+            if isEditable {
+                isFocused = isEditable
+            }
         }
         .background {
             TextField("", text: $commentText)
