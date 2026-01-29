@@ -41,6 +41,7 @@ let project = Project.makeModule(
                 infoPlist: .extendingDefault(with: [
                     "UIUserInterfaceStyle": "Light"
                 ]),
+                entitlements: .file(path: "FeatureOnboardingExample.entitlements"),
                 dependencies: [
                     .feature(implements: .onboarding),
                     .external(dependency: .ComposableArchitecture)
