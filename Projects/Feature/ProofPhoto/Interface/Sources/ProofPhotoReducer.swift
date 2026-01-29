@@ -11,6 +11,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import SharedDesignSystem
+import DomainGoalInterface
 
 /// ProofPhoto 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
@@ -81,6 +82,7 @@ public struct ProofPhotoReducer {
         /// ProofPhoto 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case closeProofPhoto
+            case completedUploadPhoto(completedGoal: GoalDetail.CompletedGoal)
         }
     }
 

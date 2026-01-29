@@ -80,6 +80,11 @@ extension GoalDetailReducer {
                 state.isPresentedProofPhoto = false
                 return .none
                 
+            case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
+                state.item?.completedGoal[0] = completedGoal
+                state.isPresentedProofPhoto = false
+                return .none
+                
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
                 return .none
