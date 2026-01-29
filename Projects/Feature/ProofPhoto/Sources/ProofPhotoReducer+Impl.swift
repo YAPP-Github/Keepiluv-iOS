@@ -8,8 +8,12 @@
 import AVFoundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
+import DomainGoalInterface
 import FeatureProofPhotoInterface
 import PhotosUI
+
+// FIXME: - Remove
+import SwiftUI
 
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
@@ -84,7 +88,18 @@ extension ProofPhotoReducer {
                 if state.commentText.count < 5 {
                     return .send(.showToast(.onlyText(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
-                    return .none
+                    guard let imageData = state.imageData,
+                          let uiImage = UIImage(data: imageData) else {
+                        return .none
+                    }
+                    
+                    let completedGoal = GoalDetail.CompletedGoal(
+                        owner: .mySelf,
+                        image: Image(uiImage: uiImage),
+                        comment: state.commentText,
+                        createdAt: "방금"
+                    )
+                    return .send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
                 }
                 
             case .dimmedBackgroundTapped:
