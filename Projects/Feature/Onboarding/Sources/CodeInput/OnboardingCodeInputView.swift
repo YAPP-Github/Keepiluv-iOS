@@ -62,11 +62,11 @@ private extension OnboardingCodeInputView {
     var titleSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 0) {
-                Text("짝꿍에게 받은")
-                    .typography(.h3_22b)
-                    .foregroundStyle(Color.Gray.gray500)
-                Text("초대 코드를 써주세요")
-                    .typography(.h3_22b)
+                Text("""
+                    짝꿍에게 받은
+                    초대 코드를 써주세요
+                    """)
+                    .typography(.h3_22eb)
                     .foregroundStyle(Color.Gray.gray500)
             }
             Spacer()
@@ -183,7 +183,7 @@ private extension OnboardingCodeInputView {
 
             if let char = character {
                 Text(String(char))
-                    .typography(.h3_22b)
+                    .typography(.h3_22eb)
                     .foregroundStyle(Color.Gray.gray500)
             }
 
