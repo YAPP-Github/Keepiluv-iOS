@@ -245,14 +245,12 @@ private extension ProofPhotoView {
             }
             .overlay(dimmedView)
             .overlay(alignment: .bottom) {
-                TXCommentCircle(
-                    commentText: $store.commentText,
-                    isEditable: true,
-                    isFocused: $store.isCommentFocused,
-                    onFocused: { isFocused in
-                        store.send(.focusChanged(isFocused))
+                VStack(spacing: 8) {
+                    if store.isCommentFocused {
+                        commentExpalinText
                     }
-                )
+                    commentCircle
+                }
                 .padding(.bottom, 26)
             }
             .insideBorder(
@@ -260,6 +258,23 @@ private extension ProofPhotoView {
                 shape: shape,
                 lineWidth: 2
             )
+    }
+    
+    var commentExpalinText: some View {
+        Text("5글자로 코멘트를 남길 수 있어요")
+            .typography(.b2_14r)
+            .foregroundStyle(Color.Gray.gray100)
+    }
+    
+    var commentCircle: some View {
+        TXCommentCircle(
+            commentText: $store.commentText,
+            isEditable: true,
+            isFocused: $store.isCommentFocused,
+            onFocused: { isFocused in
+                store.send(.focusChanged(isFocused))
+            }
+        )
     }
 }
 
