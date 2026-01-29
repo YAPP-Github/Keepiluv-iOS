@@ -28,7 +28,7 @@ public struct GoalDetailReducer {
             return item?.completedGoal[index]
         }
         public var isCompleted: Bool { currentCard?.image != nil }
-        public var comment: String { currentCard?.coment ?? "" }
+        public var comment: String { currentCard?.comment ?? "" }
         public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {
             if case .mySelf = currentUser,
