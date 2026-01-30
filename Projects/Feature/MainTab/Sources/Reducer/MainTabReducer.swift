@@ -5,9 +5,14 @@
 //  Created by 정지훈 on 1/4/26.
 //
 
+import Foundation
+
 import ComposableArchitecture
 import CoreLogging
-import Foundation
+import FeatureHome
+import FeatureHomeInterface
+
+import SharedDesignSystem
 
 /// 앱의 메인 탭 화면을 관리하는 Reducer입니다.
 ///
@@ -23,20 +28,62 @@ import Foundation
 @Reducer
 public struct MainTabReducer {
     @ObservableState
+    /// 메인 탭의 화면 상태를 정의합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let state = MainTabReducer.State()
+    /// ```
     public struct State: Equatable {
+        public var home = RootHomeReducer.State()
+        public var selectedTab: TXTabItem = .home
+
         public init() { }
     }
 
-    public enum Action {
-        case onAppear
+    /// 메인 탭에서 발생 가능한 액션을 정의합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// store.send(.selectedTabChanged(.home))
+    /// ```
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
+        // MARK: - Reducer
+        case home(RootHomeReducer.Action)
+        
+        // MARK: - User Action
+        case selectedTabChanged(TXTabItem)
     }
 
+    /// 기본 구성의 MainTabReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = MainTabReducer()
+    /// ```
     public init() { }
 
     public var body: some ReducerOf<Self> {
-        Reduce { _, action in
+        BindingReducer()
+        
+        Scope(state: \.home, action: \.home) {
+            RootHomeReducer()
+        }
+
+        Reduce { state, action in
             switch action {
-            case .onAppear:
+                // MARK: - User Action
+            case let .selectedTabChanged(tab):
+                state.selectedTab = tab
+                
+                return .none
+
+            case .home:
+                return .none
+                
+            case .binding:
                 return .none
             }
         }
