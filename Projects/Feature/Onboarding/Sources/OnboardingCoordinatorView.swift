@@ -53,5 +53,8 @@ public struct OnboardingCoordinatorView: View {
                 }
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
