@@ -23,8 +23,11 @@ import Foundation
 public struct OnboardingCoordinator {
     @ObservableState
     public struct State: Equatable {
-        var path = StackState<Path.State>()
+        var routes: [OnboardingRoute] = []
         var connect: OnboardingConnectReducer.State
+        var codeInput: OnboardingCodeInputReducer.State?
+        var profile: OnboardingProfileReducer.State?
+        var dday: OnboardingDdayReducer.State?
         var myInviteCode: String
 
         public init(
@@ -36,76 +39,103 @@ public struct OnboardingCoordinator {
         }
     }
 
-    public enum Action {
-        case path(StackActionOf<Path>)
+    public enum Action: BindableAction {
+        // MARK: - Binding
+        case binding(BindingAction<State>)
+
+        // MARK: - Child Action
         case connect(OnboardingConnectReducer.Action)
+        case codeInput(OnboardingCodeInputReducer.Action)
+        case profile(OnboardingProfileReducer.Action)
+        case dday(OnboardingDdayReducer.Action)
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case onboardingCompleted
         }
     }
 
-    @Reducer(state: .equatable)
-    public enum Path {
-        case codeInput(OnboardingCodeInputReducer)
-        case profile(OnboardingProfileReducer)
-        case dday(OnboardingDdayReducer)
-    }
-
     public init() {}
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+
         Scope(state: \.connect, action: \.connect) {
             OnboardingConnectReducer()
         }
 
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+
+            // MARK: - Connect Delegate
             case .connect(.delegate(.navigateBack)):
                 return .send(.delegate(.navigateBack))
 
             case .connect(.delegate(.navigateToCodeInput)):
-                state.path.append(
-                    .codeInput(OnboardingCodeInputReducer.State(myInviteCode: state.myInviteCode))
-                )
+                state.codeInput = OnboardingCodeInputReducer.State(myInviteCode: state.myInviteCode)
+                state.routes.append(.codeInput)
                 return .none
 
             case .connect:
                 return .none
 
-            case .path(.element(id: _, action: .codeInput(.delegate(.navigateBack)))):
-                state.path.removeLast()
+            // MARK: - CodeInput Delegate
+            case .codeInput(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                state.codeInput = nil
                 return .none
 
-            case .path(.element(id: _, action: .codeInput(.delegate(.coupleConnected)))):
-                state.path.append(.profile(OnboardingProfileReducer.State()))
+            case .codeInput(.delegate(.coupleConnected)):
+                state.profile = OnboardingProfileReducer.State()
+                state.routes.append(.profile)
                 return .none
 
-            case .path(.element(id: _, action: .profile(.delegate(.navigateBack)))):
-                state.path.removeLast()
+            case .codeInput:
                 return .none
 
-            case .path(.element(id: _, action: .profile(.delegate(.profileCompleted(_))))):
-                state.path.append(.dday(OnboardingDdayReducer.State()))
+            // MARK: - Profile Delegate
+            case .profile(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                state.profile = nil
                 return .none
 
-            case .path(.element(id: _, action: .dday(.delegate(.navigateBack)))):
-                state.path.removeLast()
+            case .profile(.delegate(.profileCompleted)):
+                state.dday = OnboardingDdayReducer.State()
+                state.routes.append(.dday)
                 return .none
 
-            case .path(.element(id: _, action: .dday(.delegate(.ddayCompleted(_))))):
+            case .profile:
+                return .none
+
+            // MARK: - Dday Delegate
+            case .dday(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                state.dday = nil
+                return .none
+
+            case .dday(.delegate(.ddayCompleted)):
                 return .send(.delegate(.onboardingCompleted))
 
-            case .path:
+            case .dday:
                 return .none
 
             case .delegate:
                 return .none
             }
         }
-        .forEach(\.path, action: \.path)
+        .ifLet(\.codeInput, action: \.codeInput) {
+            OnboardingCodeInputReducer()
+        }
+        .ifLet(\.profile, action: \.profile) {
+            OnboardingProfileReducer()
+        }
+        .ifLet(\.dday, action: \.dday) {
+            OnboardingDdayReducer()
+        }
     }
 }
