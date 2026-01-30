@@ -26,7 +26,7 @@ extension HomeCoordinatorReducer {
                 state.goalDetail = .init()
                 return .none
                 
-            case .goalDetail(.path(.pop)):
+            case .goalDetail(.delegate(.navigateBack)):
                 state.routes.removeLast()
                 state.goalDetail = nil
                 return .none

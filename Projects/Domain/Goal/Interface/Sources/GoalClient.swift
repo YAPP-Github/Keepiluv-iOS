@@ -95,13 +95,13 @@ extension GoalClient: TestDependencyKey {
                         .init(
                             owner: .mySelf,
                             image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                            coment: "코멘트내용",
+                            comment: "코멘트내용",
                             createdAt: "6시간 전"
                         ),
                         .init(
                             owner: .mySelf,
                             image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                            coment: "코멘트내용",
+                            comment: "코멘트내용",
                             createdAt: "6시간 전"
                         )
                     ]

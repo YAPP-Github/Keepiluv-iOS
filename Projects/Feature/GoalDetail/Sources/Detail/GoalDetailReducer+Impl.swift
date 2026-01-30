@@ -45,7 +45,7 @@ extension GoalDetailReducer {
                 
             case let .navigationBarTapped(action):
                 if case .backTapped = action {
-                    return .send(.path(.pop))
+                    return .send(.delegate(.navigateBack))
                 } else if case .rightTapped = action {
                     if state.isEditing {
                         // TODO: - post api
@@ -96,7 +96,7 @@ extension GoalDetailReducer {
                 
                 return .none
                 
-                // MARK: - Reducer
+                // MARK: - Child Action
             case .proofPhoto(.delegate(.closeProofPhoto)):
                 state.isPresentedProofPhoto = false
                 return .none
@@ -117,7 +117,7 @@ extension GoalDetailReducer {
             case .binding:
                 return .none
                 
-            case .path:
+            case .delegate:
                 return .none
             }
         }
