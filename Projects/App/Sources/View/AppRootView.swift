@@ -36,6 +36,12 @@ struct AppRootView: View {
                             .transition(.opacity)
                     }
 
+                case .onboarding:
+                    if let onboardingStore = pathStore.scope(state: \.onboarding, action: \.onboarding) {
+                        OnboardingCoordinatorView(store: onboardingStore)
+                            .transition(.opacity)
+                    }
+
                 case .mainTab:
                     if let mainTabStore = pathStore.scope(state: \.mainTab, action: \.mainTab) {
                         MainTabView(store: mainTabStore)
@@ -60,6 +66,9 @@ private extension AppRootView {
         switch store.path {
         case .auth:
             return "Auth"
+
+        case .onboarding:
+            return "Onboarding"
 
         case .mainTab:
             return "MainTab"
