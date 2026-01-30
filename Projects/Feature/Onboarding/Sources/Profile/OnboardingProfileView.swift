@@ -46,14 +46,7 @@ public struct OnboardingProfileView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
         .txToast(
-            isPresented: Binding(
-                get: { store.showToast },
-                set: { newValue in
-                    if !newValue {
-                        store.send(.toastDismissed)
-                    }
-                }
-            ),
+            isPresented: $store.showToast,
             style: .fit,
             message: store.toastMessage,
             position: .bottom
