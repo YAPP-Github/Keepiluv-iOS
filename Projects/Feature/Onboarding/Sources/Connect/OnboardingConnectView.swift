@@ -56,7 +56,10 @@ public struct OnboardingConnectView: View {
 private extension OnboardingConnectView {
     var titleSection: some View {
         HStack {
-            Text("짝꿍을 초대해\n함께 시작해보세요")
+            Text("""
+                짝꿍과
+                연결해 볼까요?
+                """)
                 .typography(.h3_22eb)
                 .foregroundStyle(Color.Gray.gray500)
             Spacer()
