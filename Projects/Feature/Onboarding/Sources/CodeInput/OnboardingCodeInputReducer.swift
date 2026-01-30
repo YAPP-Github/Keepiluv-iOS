@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedDesignSystem
 import UIKit
 
 /// 커플 연결 초대 코드 입력 화면을 관리하는 Reducer입니다.
@@ -34,8 +35,8 @@ public struct OnboardingCodeInputReducer {
         /// 현재 포커스된 입력 필드 인덱스
         var focusedIndex: Int? = nil
 
-        /// 복사 완료 토스트 표시 여부
-        var showCopyToast: Bool = false
+        /// 토스트 상태
+        var toast: TXToastType?
 
         /// 초대 코드 총 자릿수
         static let codeLength = 8
@@ -96,7 +97,7 @@ public struct OnboardingCodeInputReducer {
 
             case .copyMyCodeButtonTapped:
                 UIPasteboard.general.string = state.myInviteCode
-                state.showCopyToast = true
+                state.toast = .success(message: "초대 코드가 복사되었어요")
                 return .none
 
             case .completeButtonTapped:
