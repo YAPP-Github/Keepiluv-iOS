@@ -12,7 +12,7 @@ public struct TXCommentCircle: View {
     @Binding private var commentText: String
     @FocusState private var isFocused: Bool
     private let isEditable: Bool
-    private let usesKeyboardInset: Bool
+    private let keyboardInset: CGFloat
     private let externalFocus: Binding<Bool>?
     public var onFocused: ((Bool) -> Void)?
     
@@ -28,13 +28,13 @@ public struct TXCommentCircle: View {
     public init(
         commentText: Binding<String>,
         isEditable: Bool,
-        usesKeyboardInset: Bool = true,
+        keyboardInset: CGFloat,
         isFocused: Binding<Bool>? = nil,
         onFocused: ((Bool) -> Void)? = nil
     ) {
         self._commentText = commentText
         self.isEditable = isEditable
-        self.usesKeyboardInset = usesKeyboardInset
+        self.keyboardInset = keyboardInset
         self.externalFocus = isFocused
         self.onFocused = onFocused
     }
@@ -46,9 +46,9 @@ public struct TXCommentCircle: View {
             textCircles
         }
         .safeAreaInset(edge: .bottom) {
-            if usesKeyboardInset && isFocused {
+            if isFocused {
                 Color.clear
-                    .frame(height: Constants.keyboardPadding)
+                    .frame(height: keyboardInset)
             }
         }
         .onChange(of: isFocused) {
@@ -123,13 +123,13 @@ private enum Constants {
     static let circleSize: CGFloat = 62
     static let circleSpacing: CGFloat = -14
     static let placeholder = Array("코멘트추가")
-    static let keyboardPadding: CGFloat = 80
 }
 
 #Preview {
     @Previewable @State var text: String = ""
     TXCommentCircle(
         commentText: $text,
-        isEditable: true
+        isEditable: true,
+        keyboardInset: .zero
     )
 }

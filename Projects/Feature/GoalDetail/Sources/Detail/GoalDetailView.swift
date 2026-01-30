@@ -15,8 +15,9 @@ import SharedDesignSystem
 public struct GoalDetailView: View {
     
     @Bindable public var store: StoreOf<GoalDetailReducer>
-    @Dependency(\.proofPhotoFactory)
-    private var proofPhotoFactory
+    @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
+    @State private var rectFrame: CGRect = .zero
+    @State private var keyboardFrame: CGRect = .zero
     
     public init(store: StoreOf<GoalDetailReducer>) {
         self.store = store
@@ -60,6 +61,7 @@ public struct GoalDetailView: View {
         .ignoresSafeArea(.keyboard)
         .background(dimmedView)
         .toolbar(.hidden, for: .navigationBar)
+        .observeKeyboardFrame($keyboardFrame)
         .onAppear {
             store.send(.onAppear)
         }
@@ -89,6 +91,7 @@ private extension GoalDetailView {
             )
             .frame(width: 336, height: 336)
             .overlay(dimmedView)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .rotationEffect(.degrees(degree(isBackground: true)))
     }
     
@@ -103,8 +106,9 @@ private extension GoalDetailView {
                     lineWidth: 1.6
                 )
                 .frame(width: 336, height: 336)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .readSize { rectFrame = $0 }
                 .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .overlay(alignment: .bottom) {
                     commentCircle
                         .padding(.bottom, 26)
@@ -195,6 +199,7 @@ private extension GoalDetailView {
                     store.send(.cardTapped)
                 }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
     }
     
     var nonCompletedText: some View {
@@ -224,15 +229,17 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var commentCircle: some View {
+        let keyboardInset = max(0, rectFrame.maxY - keyboardFrame.minY)
         TXCommentCircle(
             commentText: store.isEditing ? $store.commentText : .constant(store.comment),
             isEditable: store.isEditing,
-            usesKeyboardInset: false,
+            keyboardInset: keyboardInset,
             isFocused: $store.isCommentFocused,
             onFocused: { isFocused in
                 store.send(.focusChanged(isFocused))
             }
         )
+        .animation(.easeOut(duration: 0.25), value: keyboardInset)
     }
     
     var dimmedView: some View {
