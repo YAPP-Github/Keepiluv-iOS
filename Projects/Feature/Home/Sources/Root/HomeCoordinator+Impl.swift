@@ -9,7 +9,7 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
 
-extension HomeCoordinatorReducer {
+extension HomeCoordinator {
     /// 기본 구성의 HomeCoordinatorReducer를 생성합니다.
     ///
     /// ## 사용 예시
@@ -21,7 +21,7 @@ extension HomeCoordinatorReducer {
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
-            case .home(.path(.goToGoalDetail)):
+            case .home(.delegate(.goToGoalDetail)):
                 state.routes.append(.detail)
                 state.goalDetail = .init()
                 return .none

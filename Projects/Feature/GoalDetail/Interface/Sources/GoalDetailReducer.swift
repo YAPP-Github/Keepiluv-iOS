@@ -20,7 +20,7 @@ public struct GoalDetailReducer {
     
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var item: GoalDetail?
         public var currentUser: GoalDetail.Owner = .you
         public var currentCard: GoalDetail.CompletedGoal? {

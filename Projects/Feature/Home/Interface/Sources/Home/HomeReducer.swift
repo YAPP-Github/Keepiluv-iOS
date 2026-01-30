@@ -32,7 +32,7 @@ public struct HomeReducer {
     /// ```swift
     /// let state = HomeReducer.State()
     /// ```
-    public struct State {
+    public struct State: Equatable {
         public var cards: [GoalCardItem] = []
         public var isLoading: Bool = true
         public var mainTitle: String = "KEEPILUV"
