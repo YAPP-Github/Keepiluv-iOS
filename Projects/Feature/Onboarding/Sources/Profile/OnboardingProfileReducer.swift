@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import Foundation
+import SharedDesignSystem
 
 /// 프로필 설정(닉네임 입력) 화면을 관리하는 Reducer입니다.
 ///
@@ -27,11 +28,8 @@ public struct OnboardingProfileReducer {
         /// 닉네임 입력값
         var nickname: String = ""
 
-        /// 토스트 표시 여부
-        var showToast: Bool = false
-
-        /// 토스트 메시지
-        var toastMessage: String = ""
+        /// 토스트 상태
+        var toast: TXToastType?
 
         /// 닉네임 최소 길이
         static let minLength = 2
@@ -74,15 +72,13 @@ public struct OnboardingProfileReducer {
             case .completeButtonTapped:
                 // 비속어 체크
                 if state.containsProfanity {
-                    state.toastMessage = "닉네임에 비속어가 포함되어 있습니다."
-                    state.showToast = true
+                    state.toast = .fit(message: "닉네임에 비속어가 포함되어 있습니다.")
                     return .none
                 }
 
                 // 길이 체크
                 guard state.isNicknameLengthValid else {
-                    state.toastMessage = "2자에서 8자 이내로 닉네임을 입력해주세요."
-                    state.showToast = true
+                    state.toast = .fit(message: "2자에서 8자 이내로 닉네임을 입력해주세요.")
                     return .none
                 }
 
