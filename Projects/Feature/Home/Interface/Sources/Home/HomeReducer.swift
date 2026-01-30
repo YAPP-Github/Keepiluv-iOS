@@ -85,10 +85,10 @@ public struct HomeReducer {
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
         
-        // MARK: - Navgation
-        case path(Navigation)
+        // MARK: - Delegate
+        case delegate(Delegate)
         
-        public enum Navigation {
+        public enum Delegate {
             case goToGoalDetail
         }
         

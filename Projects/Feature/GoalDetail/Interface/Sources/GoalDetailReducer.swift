@@ -71,14 +71,14 @@ public struct GoalDetailReducer {
         case fethedGoalDetailItem(GoalDetail)
         case proofPhotoDismissed
         
-        // MARK: - Reducer
+        // MARK: - Child Action
         case proofPhoto(ProofPhotoReducer.Action)
         
-        // MARK: - Navigation
-        case path(Navigation)
+        // MARK: - Delegate
+        case delegate(Delegate)
         
-        public enum Navigation {
-            case pop
+        public enum Delegate {
+            case navigateBack
         }
     }
     

@@ -55,7 +55,7 @@ public struct HomeCoordinatorReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
-        // MARK: - Reducer
+        // MARK: - Child Action
         case home(HomeReducer.Action)
         case goalDetail(GoalDetailReducer.Action)
     }

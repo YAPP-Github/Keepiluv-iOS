@@ -55,7 +55,7 @@ public struct MainTabReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
-        // MARK: - Reducer
+        // MARK: - Child Action
         case home(HomeCoordinatorReducer.Action)
         
         // MARK: - User Action
@@ -87,12 +87,12 @@ public struct MainTabReducer {
             case .selectedTabChanged:
                 return .none
                 
-                // MARK: - Reducer
-            case .home(.home(.path(.goToGoalDetail))):
+                // MARK: - Child Action
+            case .home(.home(.delegate(.goToGoalDetail))):
                 state.isTabBarHidden = true
                 return .none
                 
-            case .home(.goalDetail(.path(.pop))):
+            case .home(.goalDetail(.delegate(.navigateBack))):
                 state.isTabBarHidden = false
                 return .none
                 
