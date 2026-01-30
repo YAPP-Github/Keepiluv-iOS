@@ -33,6 +33,16 @@ public struct TXTabBarContainer<Content: View>: View {
     private let isTabBarHidden: Bool
     private let content: () -> Content
 
+    /// 탭바 컨테이너를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// @State var selectedTab: TXTabItem = .home
+    ///
+    /// TXTabBarContainer(selectedItem: $selectedTab) {
+    ///     Text("Home")
+    /// }
+    /// ```
     public init(
         selectedItem: Binding<TXTabItem>,
         isTabBarHidden: Bool = false,

@@ -12,6 +12,20 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 
+/// 목표 상세 화면을 렌더링하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// GoalDetailView(
+///     store: Store(
+///         initialState: GoalDetailReducer.State()
+///     ) {
+///         GoalDetailReducer(
+///             proofPhotoReducer: ProofPhotoReducer()
+///         )
+///     }
+/// )
+/// ```
 public struct GoalDetailView: View {
     
     @Bindable public var store: StoreOf<GoalDetailReducer>
@@ -19,6 +33,16 @@ public struct GoalDetailView: View {
     @State private var rectFrame: CGRect = .zero
     @State private var keyboardFrame: CGRect = .zero
     
+    /// GoalDetailView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = GoalDetailView(
+    ///     store: Store(initialState: GoalDetailReducer.State()) {
+    ///         GoalDetailReducer(proofPhotoReducer: ProofPhotoReducer())
+    ///     }
+    /// )
+    /// ```
     public init(store: StoreOf<GoalDetailReducer>) {
         self.store = store
     }

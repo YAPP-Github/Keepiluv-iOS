@@ -16,6 +16,14 @@ import SharedDesignSystem
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
+    /// 실제 로직을 포함한 GoalDetailReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = GoalDetailReducer(
+    ///     proofPhotoReducer: ProofPhotoReducer()
+    /// )
+    /// ```
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {

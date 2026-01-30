@@ -21,6 +21,18 @@ import SwiftUI
 /// )
 /// ```
 public struct TXRectangleButton: View {
+    /// RectangleButton 구성을 정의합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = TXRectangleButton.Configuration(
+    ///     frameSize: CGSize(width: 60, height: 60),
+    ///     colorStyle: .white,
+    ///     edges: [.top, .bottom, .leading],
+    ///     text: "닫기",
+    ///     font: .t2_16b
+    /// )
+    /// ```
     public struct Configuration {
         let text: String?
         let font: TypographyToken?
@@ -31,6 +43,18 @@ public struct TXRectangleButton: View {
         let borderWidth: CGFloat = LineWidth.m
         let edges: [Edge]
 
+        /// 버튼 구성을 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let config = TXRectangleButton.Configuration(
+        ///     frameSize: CGSize(width: 60, height: 60),
+        ///     colorStyle: .white,
+        ///     edges: [.top, .bottom, .leading],
+        ///     image: Image.Icon.Symbol.closeM,
+        ///     imageSize: CGSize(width: 24, height: 24)
+        /// )
+        /// ```
         public init(
             frameSize: CGSize,
             colorStyle: ColorStyle,
@@ -53,6 +77,15 @@ public struct TXRectangleButton: View {
     private let config: Configuration
     private let action: () -> Void
 
+    /// RectangleButton을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXRectangleButton(
+    ///     config: .blankLeftBack(),
+    ///     action: { }
+    /// )
+    /// ```
     public init(
         config: Configuration,
         action: @escaping () -> Void

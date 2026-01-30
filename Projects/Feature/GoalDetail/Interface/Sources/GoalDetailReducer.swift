@@ -47,8 +47,13 @@ public struct GoalDetailReducer {
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
         
-        public init() {
-        }
+        /// 기본 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = GoalDetailReducer.State()
+        /// ```
+        public init() { }
     }
     
     /// GoalDetail 화면에서 발생하는 액션입니다.
@@ -77,6 +82,7 @@ public struct GoalDetailReducer {
         // MARK: - Delegate
         case delegate(Delegate)
         
+        /// GoalDetail 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case navigateBack
         }

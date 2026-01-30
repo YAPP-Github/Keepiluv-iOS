@@ -17,12 +17,34 @@ extension TXNavigationBar {
         
         
         
+        /// 홈 스타일에서 사용하는 설정 값입니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let homeStyle = TXNavigationBar.Style.Home(
+        ///     subTitle: "1월 2026",
+        ///     mainTitle: "오늘 우리 목표",
+        ///     isHiddenRefresh: false,
+        ///     isRemainedAlarm: true
+        /// )
+        /// ```
         public struct Home {
             public var subTitle: String
             let mainTitle: String
             public var isHiddenRefresh: Bool
             public var isRemainedAlarm: Bool
             
+            /// 홈 스타일 설정 값을 생성합니다.
+            ///
+            /// ## 사용 예시
+            /// ```swift
+            /// let homeStyle = TXNavigationBar.Style.Home(
+            ///     subTitle: "1월 2026",
+            ///     mainTitle: "오늘 우리 목표",
+            ///     isHiddenRefresh: false,
+            ///     isRemainedAlarm: true
+            /// )
+            /// ```
             public init(
                 subTitle: String,
                 mainTitle: String,
