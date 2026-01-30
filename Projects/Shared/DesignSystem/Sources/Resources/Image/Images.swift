@@ -8,14 +8,19 @@
 import SwiftUI
 
 public extension Image {
+    /// 모듈 공통 아이콘 네임스페이스입니다.
     enum Icon { }
+    /// 모듈 공통 일러스트 네임스페이스입니다.
     enum Illustration { }
+    /// 모듈 공통 벡터 리소스 네임스페이스입니다.
     enum Vector { }
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Icon형식의 Image 입니다.
 public extension Image.Icon {
+    /// 아이콘 일러스트 네임스페이스입니다.
     enum Illustration { }
+    /// 아이콘 심볼 네임스페이스입니다.
     enum Symbol { }
 }
 

@@ -43,6 +43,12 @@ public struct MainTabReducer {
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
         
+        /// 기본 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = MainTabReducer.State()
+        /// ```
         public init() { }
     }
 

@@ -12,6 +12,18 @@ import ComposableArchitecture
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 
+/// 인증샷 화면을 렌더링하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// ProofPhotoView(
+///     store: Store(
+///         initialState: ProofPhotoReducer.State()
+///     ) {
+///         ProofPhotoReducer()
+///     }
+/// )
+/// ```
 public struct ProofPhotoView: View {
 
     @Bindable public var store: StoreOf<ProofPhotoReducer>
@@ -19,6 +31,14 @@ public struct ProofPhotoView: View {
     @State private var rectFrame: CGRect = .zero
     @State private var keyboardFrame: CGRect = .zero
 
+    /// ProofPhotoView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = ProofPhotoView(
+    ///     store: Store(initialState: ProofPhotoReducer.State()) { ProofPhotoReducer() }
+    /// )
+    /// ```
     public init(store: StoreOf<ProofPhotoReducer>) {
         self.store = store
     }

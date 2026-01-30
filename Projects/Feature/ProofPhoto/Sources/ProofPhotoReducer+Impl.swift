@@ -17,6 +17,12 @@ import SwiftUI
 
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
+    /// 실제 로직을 포함한 ProofPhotoReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = ProofPhotoReducer()
+    /// ```
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         

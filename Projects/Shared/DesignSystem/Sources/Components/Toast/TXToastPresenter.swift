@@ -196,6 +196,17 @@ public extension View {
     }
     
     /// TXToastType item 기반으로 토스트를 표시합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// @State private var toast: TXToastType?
+    ///
+    /// VStack { }
+    ///     .txToast(item: $toast)
+    ///
+    /// // 표시
+    /// toast = .success(message: "목표를 달성했어요")
+    /// ```
     func txToast(
         item: Binding<TXToastType?>,
         onButtonTap: (() -> Void)? = nil,

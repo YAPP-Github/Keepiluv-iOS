@@ -53,6 +53,12 @@ public struct TXNavigationBar: View {
     private let style: Style
     private let onAction: ((Action) -> Void)?
 
+    /// NavigationBar를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
+    /// ```
     public init(
         style: Style,
         onAction: ((Action) -> Void)? = nil

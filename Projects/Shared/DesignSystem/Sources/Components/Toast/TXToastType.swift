@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+/// 토스트 종류와 메시지를 정의하는 타입입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// let toast: TXToastType = .success(message: "목표를 달성했어요")
+/// ```
 public enum TXToastType: Equatable {
     case success(message: String)
     case delete(message: String)
