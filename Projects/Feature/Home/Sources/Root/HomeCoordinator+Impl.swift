@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 import FeatureHomeInterface
 
 extension HomeCoordinator {
@@ -17,7 +18,8 @@ extension HomeCoordinator {
     /// let reducer = HomeCoordinatorReducer()
     /// ```
     public init(
-        goalDetailReducer: GoalDetailReducer
+        goalDetailReducer: GoalDetailReducer,
+        proofPhotoReducer: ProofPhotoReducer
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
@@ -44,7 +46,7 @@ extension HomeCoordinator {
         
         self.init(
             reducer: reducer,
-            homeReducer: HomeReducer(),
+            homeReducer: HomeReducer(proofPhotoReducer: proofPhotoReducer),
             goalDetailReducer: goalDetailReducer
         )
     }

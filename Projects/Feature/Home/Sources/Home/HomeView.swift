@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureHomeInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 
 /// 홈 화면을 렌더링하는 View입니다.
@@ -26,6 +27,7 @@ import SharedDesignSystem
 public struct HomeView: View {
     
     @Bindable public var store: StoreOf<HomeReducer>
+    @Dependency(\.proofPhotoFactory) var proofPhotoFactory
     
     /// HomeView를 생성합니다.
     ///
@@ -73,6 +75,14 @@ public struct HomeView: View {
         )
         .txToast(item: $store.toast) {
             
+        }
+        .fullScreenCover(
+            isPresented: $store.isProofPhotoPresented,
+            onDismiss: { store.send(.proofPhotoDismissed) },
+        ) {
+            IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
+                proofPhotoFactory.makeView(store)
+            }
         }
     }
 }
@@ -187,18 +197,4 @@ private extension HomeView {
         }
         .padding(.top, 136)
     }
-}
-
-#Preview {
-    HomeView(
-        store: Store(
-            initialState: HomeReducer.State(),
-            reducer: {
-                HomeReducer()
-            },
-            withDependencies: {
-                $0.goalClient = .previewValue
-            }
-        )
-    )
 }
