@@ -48,7 +48,11 @@ public struct OnboardingProfileView: View {
         .txToast(
             isPresented: Binding(
                 get: { store.showToast },
-                set: { _ in store.send(.toastDismissed) }
+                set: { newValue in
+                    if !newValue {
+                        store.send(.toastDismissed)
+                    }
+                }
             ),
             style: .fit,
             message: store.toastMessage,
