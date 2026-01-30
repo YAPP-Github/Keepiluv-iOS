@@ -15,6 +15,9 @@ import SharedDesignSystem
 public struct ProofPhotoView: View {
 
     @Bindable public var store: StoreOf<ProofPhotoReducer>
+    
+    @State private var rectFrame: CGRect = .zero
+    @State private var keyboardFrame: CGRect = .zero
 
     public init(store: StoreOf<ProofPhotoReducer>) {
         self.store = store
@@ -32,6 +35,7 @@ public struct ProofPhotoView: View {
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .observeKeyboardFrame($keyboardFrame)
         .background(.black)
         .onAppear {
             store.send(.onAppear)
@@ -225,6 +229,7 @@ private extension ProofPhotoView {
         return Color.clear
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
+            .readSize { rectFrame = $0 }
             .overlay {
                 content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -243,6 +248,7 @@ private extension ProofPhotoView {
                     commentCircle
                 }
                 .padding(.bottom, 26)
+                .animation(.easeOut(duration: 0.25), value: keyboardInset)
             }
             .insideBorder(
                 .white.opacity(0.2),
@@ -261,12 +267,18 @@ private extension ProofPhotoView {
         TXCommentCircle(
             commentText: $store.commentText,
             isEditable: true,
+            keyboardInset: keyboardInset,
             isFocused: $store.isCommentFocused,
             onFocused: { isFocused in
                 store.send(.focusChanged(isFocused))
             }
         )
     }
+}
+
+// MARK: - Private Methods
+private extension ProofPhotoView {
+    var keyboardInset: CGFloat { max(0, rectFrame.maxY - keyboardFrame.minY) }
 }
 
 #Preview {
