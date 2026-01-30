@@ -39,7 +39,8 @@ let project = Project.makeModule(
             example: .onboarding,
             config: .init(
                 infoPlist: .extendingDefault(with: [
-                    "UIUserInterfaceStyle": "Light"
+                    "UIUserInterfaceStyle": "Light",
+                    "DEEPLINK_HOST": "keepiluv.jiyong.xyz"
                 ]),
                 entitlements: .file(path: "FeatureOnboardingExample.entitlements"),
                 dependencies: [
