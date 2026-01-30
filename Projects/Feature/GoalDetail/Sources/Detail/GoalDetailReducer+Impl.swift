@@ -40,6 +40,9 @@ extension GoalDetailReducer {
                     await send(.fethedGoalDetailItem(item))
                 }
                 
+            case .onDissapear:
+                return .none
+                
                 // MARK: - Action
             case .bottomButtonTapped:
                 let shouldGoToProofPhoto = (state.currentUser == .mySelf && !state.isCompleted) || state.isEditing

@@ -89,6 +89,9 @@ public struct GoalDetailView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .onDisappear {
+            store.send(.onDissapear)
+        }
         .fullScreenCover(
             isPresented: $store.isPresentedProofPhoto,
             onDismiss: { store.send(.proofPhotoDismissed) },
