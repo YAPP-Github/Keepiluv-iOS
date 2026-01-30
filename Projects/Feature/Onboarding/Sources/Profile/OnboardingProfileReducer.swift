@@ -43,13 +43,19 @@ public struct OnboardingProfileReducer {
     }
 
     public enum Action: BindableAction {
+        // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - User Action
         case backButtonTapped
         case completeButtonTapped
+
+        // MARK: - Update State
         case toastDismissed
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case profileCompleted(nickname: String)
