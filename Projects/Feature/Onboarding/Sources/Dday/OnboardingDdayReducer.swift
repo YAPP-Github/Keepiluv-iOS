@@ -37,14 +37,20 @@ public struct OnboardingDdayReducer {
     }
 
     public enum Action: BindableAction {
+        // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - User Action
         case backButtonTapped
         case dateSelectorTapped
-        case calendarCompleted
         case completeButtonTapped
+
+        // MARK: - Update State
+        case calendarCompleted
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case ddayCompleted(date: Date)
