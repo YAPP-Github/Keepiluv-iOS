@@ -5,35 +5,55 @@
 //  Created by 정지훈 on 1/4/26.
 //
 
-import ComposableArchitecture
 import SwiftUI
 
-public struct MainTabView: View {
-    let store: StoreOf<MainTabReducer>
+import ComposableArchitecture
+import FeatureHome
+import FeatureHomeInterface
+import SharedDesignSystem
 
+/// 메인 탭 화면을 표시하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// MainTabView(
+///     store: Store(
+///         initialState: MainTabReducer.State(),
+///         reducer: { MainTabReducer() }
+///     )
+/// )
+/// ```
+public struct MainTabView: View {
+    @Bindable public var store: StoreOf<MainTabReducer>
+
+    /// MainTabView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = MainTabView(
+    ///     store: Store(initialState: MainTabReducer.State()) { MainTabReducer() }
+    /// )
+    /// ```
     public init(store: StoreOf<MainTabReducer>) {
         self.store = store
     }
 
     public var body: some View {
-        VStack {
-            TabView {
-                Text("홈")
-                    .tabItem { Label("홈", systemImage: "house") }
-
-                Text("통계")
-                    .tabItem { Label("통계", systemImage: "chart.bar") }
-
-                Text("커플")
-                    .tabItem { Label("커플", systemImage: "heart") }
-
-                Text("마이페이지")
-                    .tabItem { Label("마이페이지", systemImage: "person") }
+        TXTabBarContainer(selectedItem: $store.selectedTab) {
+            switch store.selectedTab {
+            case .home:
+                RootHomeView(store: store.scope(state: \.home, action: \.home))
+            case .statistics:
+                EmptyView()
+            case .couple:
+                EmptyView()
             }
         }
-        .ignoresSafeArea()
-        .onAppear {
-            store.send(.onAppear)
-        }
     }
+}
+
+#Preview {
+    MainTabView(store: Store(initialState: MainTabReducer.State(), reducer: {
+        MainTabReducer()
+    }))
 }

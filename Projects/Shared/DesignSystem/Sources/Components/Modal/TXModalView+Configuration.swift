@@ -9,9 +9,9 @@ import SwiftUI
 
 public extension TXModalView.Configuration {
     static func deleteGoal(
-        image: Image,
-        title: String,
-        subTitle: String = "목표를 완료해도 저장된 사진은 사라지지 않아요",
+        image: Image = .Icon.Illustration.emoji2,
+        title: String = "정말 인증을 취소하시겠어요?",
+        subTitle: String = "사진도 지워져요",
         imageSize: CGSize = CGSize(width: 42, height: 42),
         imageFrameSize: CGSize = CGSize(width: 64, height: 64),
         onConfirm: @escaping () -> Void

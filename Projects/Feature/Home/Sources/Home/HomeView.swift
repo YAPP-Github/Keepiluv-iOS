@@ -25,7 +25,7 @@ import SharedDesignSystem
 /// ```
 public struct HomeView: View {
     
-    public let store: StoreOf<HomeReducer>
+    @Bindable public var store: StoreOf<HomeReducer>
     
     /// HomeView를 생성합니다.
     ///
@@ -43,18 +43,36 @@ public struct HomeView: View {
             calendar
             if store.isLoading {
                 ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if store.hasCards {
                 content
             } else {
                 goalEmptyView
             }
+            
+            Spacer()
         }
         .overlay(alignment: .bottomTrailing) {
-            floatingButton
+            if store.hasCards {
+                floatingButton
+            }
         }
-        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
+        }
+        .calendarSheet(
+            isPresented: $store.isCalendarSheetPresented,
+            selectedDate: $store.calendarSheetDate,
+            onComplete: {
+                store.send(.monthCalendarConfirmTapped)
+            }
+        )
+        .txModal(
+            item: $store.modal,
+            onConfirm: { store.send(.modalConfirmTapped) }
+        )
+        .txToast(item: $store.toast) {
+            
         }
     }
 }
@@ -65,30 +83,26 @@ private extension HomeView {
         TXNavigationBar(
             style: .home(
                 .init(
-                    subTitle: "1월2026",
-                    mainTitle: "KEEPILUV",
-                    isHiddenRefresh: false,
-                    isRemainedAlarm: true,
+                    subTitle: store.calendarMonthTitle,
+                    mainTitle: store.mainTitle,
+                    isHiddenRefresh: store.isRefreshHidden,
+                    isRemainedAlarm: false,
                 )
-            )
-        )
+            )) { action in
+                store.send(.navigationBarAction(action))
+            }
     }
     
     // FIXME: - Calendar
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
-            weeks: [[
-                .init(text: "11"),
-                .init(text: "12"),
-                .init(text: "13"),
-                .init(text: "14", status: .selectedLine),
-                .init(text: "15"),
-                .init(text: "16"),
-                .init(text: "17")
-            ]]
+            weeks: store.calendarWeeks,
+            onSelect: { item in
+                store.send(.calendarDateSelected(item))
+            }
         )
-            .frame(maxWidth: .infinity, maxHeight: 76)
+        .frame(maxWidth: .infinity, maxHeight: 76)
     }
     
     var content: some View {
@@ -140,11 +154,14 @@ private extension HomeView {
                 isMyChecked: card.myCard.isSelected,
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
+                    store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
                 }
             ),
             actionLeft: {
             },
-            actionRight: { }
+            actionRight: {
+                store.send(.yourCardTapped(card))
+            }
         )
     }
     
@@ -166,8 +183,6 @@ private extension HomeView {
             
             Image.Vector.curveArrow
                 .padding(.leading, 74)
-            
-            Spacer()
         }
         .padding(.top, 136)
     }

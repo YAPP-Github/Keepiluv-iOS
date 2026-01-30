@@ -21,6 +21,7 @@ let project = Project.makeModule(
                     .domain(interface: .goal),
                     .feature(interface: .home),
                     .shared(implements: .designSystem),
+                    .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )

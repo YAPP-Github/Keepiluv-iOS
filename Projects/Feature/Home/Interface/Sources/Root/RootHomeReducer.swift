@@ -29,7 +29,7 @@ public struct RootHomeReducer {
     /// let state = RootHomeReducer.State()
     /// ```
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var home = HomeReducer.State()
         public var routes: [HomeRoute] = []
         
@@ -51,7 +51,9 @@ public struct RootHomeReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - Reducer
         case home(HomeReducer.Action)
+        
     }
 
     /// 외부에서 주입된 Reduce로 RootHomeReducer를 구성합니다.
