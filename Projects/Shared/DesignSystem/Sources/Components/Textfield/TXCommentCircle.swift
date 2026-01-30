@@ -45,6 +45,11 @@ public struct TXCommentCircle: View {
             fillCircles
             textCircles
         }
+        .onChange(of: commentText) {
+            if commentText.count > Constants.maxCount {
+                commentText = String(commentText.prefix(Constants.maxCount))
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             if isFocused {
                 Color.clear
