@@ -85,6 +85,7 @@ public extension Image.Illustration {
     static let keepiluv = IllustrationAsset.illustKeepiluv.swiftUIImage
     static let poke = IllustrationAsset.illustPoke.swiftUIImage
     static let connect = IllustrationAsset.illustConnect.swiftUIImage
+    static let invite = IllustrationAsset.illustInvite.swiftUIImage
 }
 
 public extension Image.Vector {
