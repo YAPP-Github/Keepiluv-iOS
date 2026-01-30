@@ -42,7 +42,7 @@ public extension Image.Icon.Illustration {
     static let heart = IllustrationAsset.iconHeart.swiftUIImage
     static let success = IllustrationAsset.iconSuccess.swiftUIImage
     static let goalEmpty = IllustrationAsset.iconGoalEmpty.swiftUIImage
-    static let waring = IllustrationAsset.iconWarning.swiftUIImage
+    static let warning = IllustrationAsset.iconWarning.swiftUIImage
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.

@@ -19,7 +19,7 @@ import FeatureGoalDetailInterface
 /// }
 /// ```
 @Reducer
-public struct HomeCoordinatorReducer {
+public struct HomeCoordinator {
     let reducer: Reduce<State, Action>
     let homeReducer: HomeReducer
     public let goalDetailReducer: GoalDetailReducer
@@ -31,7 +31,7 @@ public struct HomeCoordinatorReducer {
     /// let state = HomeCoordinatorReducer.State()
     /// ```
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var routes: [HomeRoute] = []
         
         public var home = HomeReducer.State()

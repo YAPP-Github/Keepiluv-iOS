@@ -15,14 +15,17 @@ import SharedUtil
 
 extension HomeReducer {
     /// 실제 로직을 포함한 HomeReducer를 생성합니다.
-    ///
+    /// 
     /// ## 사용 예시
     /// ```swift
     /// let reducer = HomeReducer()
     /// ```
+    
+    // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.goalClient) var goalClient
         
+        // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             
             switch action {
@@ -125,11 +128,11 @@ extension HomeReducer {
                 if !card.yourCard.isSelected {
                     return .send(.showToast(.poke(message: "님을 찔렀어요!")))
                 } else {
-                    return .send(.path(.goToGoalDetail))
+                    return .send(.delegate(.goToGoalDetail))
                 }
                 
             case .myCardTapped:
-                return .send(.path(.goToGoalDetail))
+                return .send(.delegate(.goToGoalDetail))
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
@@ -138,7 +141,7 @@ extension HomeReducer {
                 return .none
                 
             case let .setCalendarDate(date):
-                let now = state.nowDate
+                 let now = state.nowDate
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월\(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
@@ -156,7 +159,7 @@ extension HomeReducer {
             case .binding:
                 return .none
                 
-            case .path:
+            case .delegate:
                 return .none
             }
         }

@@ -20,7 +20,7 @@ public struct ProofPhotoReducer {
 
     /// ProofPhoto 화면 렌더링에 필요한 상태입니다.
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var titleText: String = "인증샷을 올려보세요~"
         public var commentText: String = ""
         public var isCommentFocused: Bool = false

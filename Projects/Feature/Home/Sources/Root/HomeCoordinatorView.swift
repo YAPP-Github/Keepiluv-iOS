@@ -25,7 +25,7 @@ import FeatureGoalDetailInterface
 /// ```
 public struct HomeCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
-    @Bindable public var store: StoreOf<HomeCoordinatorReducer>
+    @Bindable public var store: StoreOf<HomeCoordinator>
 
     /// HomeCoordinatorView를 생성합니다.
     ///
@@ -33,7 +33,7 @@ public struct HomeCoordinatorView: View {
     /// ```swift
     /// let view = HomeCoordinatorView(store: Store(initialState: HomeCoordinatorReducer.State()) { HomeCoordinatorReducer() })
     /// ```
-    public init(store: StoreOf<HomeCoordinatorReducer>) {
+    public init(store: StoreOf<HomeCoordinator>) {
         self.store = store
     }
 

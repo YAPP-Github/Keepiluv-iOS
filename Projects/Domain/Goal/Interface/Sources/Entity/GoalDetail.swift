@@ -20,7 +20,7 @@ import SharedDesignSystem
 ///     completedGoal: []
 /// )
 /// ```
-public struct GoalDetail {
+public struct GoalDetail: Equatable {
     public let id: String
     public let title: String
     public var selectedIndex: Int?
@@ -59,7 +59,7 @@ public struct GoalDetail {
     ///     createdAt: "방금 전"
     /// )
     /// ```
-    public struct CompletedGoal {
+    public struct CompletedGoal: Equatable {
         public let owner: Owner
         public var image: Image?
         public var comment: String
