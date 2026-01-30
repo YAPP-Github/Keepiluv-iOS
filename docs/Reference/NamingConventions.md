@@ -45,6 +45,46 @@ case onForeground
 case onBackground
 ```
 
+---
+
+## Action 주석 구분
+
+Action이 많아지면 가독성을 위해 MARK 주석으로 구분합니다.
+
+```swift
+public enum Action: BindableAction {
+    // MARK: - Binding
+    case binding(BindingAction<State>)
+
+    // MARK: - LifeCycle
+    case onAppear
+
+    // MARK: - User Action
+    case backButtonTapped
+    case submitButtonTapped
+    case itemSelected(Item)
+
+    // MARK: - Update State
+    case fetchCompleted([Item])
+    case toastDismissed
+
+    // MARK: - Delegate
+    case delegate(Delegate)
+
+    // MARK: - Navigation (Coordinator에서 사용)
+    case path(StackActionOf<Path>)
+}
+```
+
+### 주석 카테고리
+- **Binding**: `BindingAction` 관련
+- **LifeCycle**: `onAppear`, `onDisappear` 등
+- **User Action**: 사용자 인터랙션 (`~Tapped`, `~Changed`, `~Selected`)
+- **Update State**: 상태 업데이트 응답 (`~Completed`, `~Dismissed`)
+- **Delegate**: 부모에게 전달하는 이벤트
+- **Navigation**: Coordinator의 path 액션 (필요시)
+- **Child Action**: 자식 Reducer 액션 (필요시)
+
 ### Delegate: `delegate(<결과>)`
 
 ```swift
