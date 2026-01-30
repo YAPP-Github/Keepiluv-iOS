@@ -50,9 +50,6 @@ public struct OnboardingProfileReducer {
         case backButtonTapped
         case completeButtonTapped
 
-        // MARK: - Update State
-        case toastDismissed
-
         // MARK: - Delegate
         case delegate(Delegate)
 
@@ -90,10 +87,6 @@ public struct OnboardingProfileReducer {
                 }
 
                 return .send(.delegate(.profileCompleted(nickname: state.nickname)))
-
-            case .toastDismissed:
-                state.showToast = false
-                return .none
 
             case .delegate:
                 return .none
