@@ -45,12 +45,7 @@ public struct OnboardingProfileView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
-        .txToast(
-            isPresented: $store.showToast,
-            style: .fit,
-            message: store.toastMessage,
-            position: .bottom
-        )
+        .txToast(item: $store.toast)
     }
 }
 
