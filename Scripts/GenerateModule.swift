@@ -126,10 +126,13 @@ func registerModuleDependency() {
         targetString += ","
         if hasInterface {
             targetString += """
-            
+
                 .\(lowercasedLayer)(
                     example: .\(lowercasedModuleName),
                     config: .init(
+                        infoPlist: .extendingDefault(with: [
+                            "UIUserInterfaceStyle": "Light"
+                        ]),
                         dependencies: [
                             .\(lowercasedLayer)(interface: .\(lowercasedModuleName))
                         ]
@@ -138,10 +141,13 @@ func registerModuleDependency() {
         """
         } else {
             targetString += """
-            
+
                 .\(lowercasedLayer)(
                     example: .\(lowercasedModuleName),
                     config: .init(
+                        infoPlist: .extendingDefault(with: [
+                            "UIUserInterfaceStyle": "Light"
+                        ]),
                         dependencies: [
                             .\(lowercasedLayer)(implements: .\(lowercasedModuleName))
                         ]

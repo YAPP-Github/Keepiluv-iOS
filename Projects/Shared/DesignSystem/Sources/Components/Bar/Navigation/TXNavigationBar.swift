@@ -42,10 +42,10 @@ import SwiftUI
 ///     }
 /// }
 ///
-/// // noTitle 스타일
-/// TXNavigationBar(style: .noTitle) { action in
-///     if action == .closeTapped {
-///         // 닫기
+/// // iconOnly 스타일
+/// TXNavigationBar(style: .iconOnly(.back)) { action in
+///     if action == .backTapped {
+///         // 뒤로가기
 ///     }
 /// }
 /// ```
@@ -73,8 +73,8 @@ public struct TXNavigationBar: View {
             case let .subTitle(title):
                 subTitleContent(title: title)
 
-            case .noTitle:
-                noTitleContent()
+            case .iconOnly(let iconStyle):
+                iconOnlyContent(iconStyle: iconStyle)
             }
         }
         .frame(height: style.height)
@@ -215,23 +215,41 @@ private extension TXNavigationBar {
     }
 }
 
-// MARK: - NoTitle Style
+// MARK: - IconOnly Style
 private extension TXNavigationBar {
-    func noTitleContent() -> some View {
+    func iconOnlyContent(iconStyle: IconStyle) -> some View {
         HStack {
-            Spacer()
+            switch iconStyle {
+            case .back:
+                Button {
+                    onAction?(.backTapped)
+                } label: {
+                    Image.Icon.Symbol.arrow1LLeft
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: style.iconSize.width, height: style.iconSize.height)
+                        .foregroundStyle(style.foregroundColor)
+                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                }
+                .buttonStyle(.plain)
 
-            Button {
-                onAction?(.closeTapped)
-            } label: {
-                Image.Icon.Symbol.arrow3Right
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: style.iconSize.width, height: style.iconSize.height)
-                    .foregroundStyle(style.foregroundColor)
-                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                Spacer()
+
+            case .close:
+                Spacer()
+
+                Button {
+                    onAction?(.closeTapped)
+                } label: {
+                    Image.Icon.Symbol.closeM
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: style.iconSize.width, height: style.iconSize.height)
+                        .foregroundStyle(style.foregroundColor)
+                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
         .padding(style.horizontalPadding)
     }
@@ -255,9 +273,14 @@ private extension TXNavigationBar {
     }
 }
 
-#Preview("NoTitle") {
-    TXNavigationBar(style: .noTitle) { action in
+#Preview("IconOnly - Back") {
+    TXNavigationBar(style: .iconOnly(.back)) { action in
         print(action)
     }
-    .background(Color.Gray.gray500)
+}
+
+#Preview("IconOnly - Close") {
+    TXNavigationBar(style: .iconOnly(.close)) { action in
+        print(action)
+    }
 }
