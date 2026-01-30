@@ -1,5 +1,5 @@
 //
-//  RootHomeReducer+Impl.swift
+//  HomeCoordinatorReducer+Impl.swift
 //  FeatureHome
 //
 //  Created by 정지훈 on 1/27/26.
@@ -9,12 +9,12 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
 
-extension RootHomeReducer {
-    /// 기본 구성의 RootHomeReducer를 생성합니다.
+extension HomeCoordinatorReducer {
+    /// 기본 구성의 HomeCoordinatorReducer를 생성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let reducer = RootHomeReducer()
+    /// let reducer = HomeCoordinatorReducer()
     /// ```
     public init(
         goalDetailReducer: GoalDetailReducer
