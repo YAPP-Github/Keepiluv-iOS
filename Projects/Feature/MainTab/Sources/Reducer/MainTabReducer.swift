@@ -39,7 +39,7 @@ public struct MainTabReducer {
     /// let state = MainTabReducer.State()
     /// ```
     public struct State {
-        public var home = RootHomeReducer.State()
+        public var home = HomeCoordinatorReducer.State()
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
         
@@ -56,7 +56,7 @@ public struct MainTabReducer {
         case binding(BindingAction<State>)
         
         // MARK: - Reducer
-        case home(RootHomeReducer.Action)
+        case home(HomeCoordinatorReducer.Action)
         
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
@@ -74,7 +74,7 @@ public struct MainTabReducer {
         BindingReducer()
         
         Scope(state: \.home, action: \.home) {
-            RootHomeReducer(
+            HomeCoordinatorReducer(
                 goalDetailReducer: GoalDetailReducer(
                     proofPhotoReducer: ProofPhotoReducer()
                 )

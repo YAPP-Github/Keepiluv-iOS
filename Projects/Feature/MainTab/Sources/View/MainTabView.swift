@@ -47,7 +47,7 @@ public struct MainTabView: View {
         ) {
             switch store.selectedTab {
             case .home:
-                RootHomeView(store: store.scope(state: \.home, action: \.home))
+                HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
             case .statistics:
                 EmptyView()
             case .couple:

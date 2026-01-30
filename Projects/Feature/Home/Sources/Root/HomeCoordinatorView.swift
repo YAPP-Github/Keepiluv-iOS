@@ -1,5 +1,5 @@
 //
-//  RootHomeView.swift
+//  HomeCoordinatorView.swift
 //  FeatureHome
 //
 //  Created by 정지훈 on 1/27/26.
@@ -15,25 +15,25 @@ import FeatureGoalDetailInterface
 ///
 /// ## 사용 예시
 /// ```swift
-/// RootHomeView(
+/// HomeCoordinatorView(
 ///     store: Store(
-///         initialState: RootHomeReducer.State()
+///         initialState: HomeCoordinatorReducer.State()
 ///     ) {
-///         RootHomeReducer()
+///         HomeCoordinatorReducer()
 ///     }
 /// )
 /// ```
-public struct RootHomeView: View {
+public struct HomeCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
-    @Bindable public var store: StoreOf<RootHomeReducer>
+    @Bindable public var store: StoreOf<HomeCoordinatorReducer>
 
-    /// RootHomeView를 생성합니다.
+    /// HomeCoordinatorView를 생성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let view = RootHomeView(store: Store(initialState: RootHomeReducer.State()) { RootHomeReducer() })
+    /// let view = HomeCoordinatorView(store: Store(initialState: HomeCoordinatorReducer.State()) { HomeCoordinatorReducer() })
     /// ```
-    public init(store: StoreOf<RootHomeReducer>) {
+    public init(store: StoreOf<HomeCoordinatorReducer>) {
         self.store = store
     }
 
