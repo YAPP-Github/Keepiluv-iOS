@@ -18,6 +18,7 @@ public enum TypographyToken {
     case h4_20b
     case t1_18eb
     case t2_16b
+    case t2_16eb
     case t3_14eb
     case b1_14b
     case b2_14r
@@ -28,7 +29,7 @@ public enum TypographyToken {
 }
 // swiftlint:enable identifier_name
 
-extension TypographyToken {
+public extension TypographyToken {
     var font: SharedDesignSystemFontConvertible {
         switch self {
         case .h1_28b, .t2_16b, .b1_14b, .b4_12b, .c2_11b:
@@ -40,7 +41,7 @@ extension TypographyToken {
         case .h3_22b, .h4_20b:
             return SharedDesignSystemFontFamily.LaundryGothicOTF.bold
             
-        case .t1_18eb, .t3_14eb, .b3_12eb, .h3_22eb:
+        case .t1_18eb, .t3_14eb, .t2_16eb, .b3_12eb, .h3_22eb:
             return SharedDesignSystemFontFamily.NanumSquareNeoOTF.extraBold
         }
     }
@@ -62,7 +63,7 @@ extension TypographyToken {
         case .t1_18eb:
             return 18
             
-        case .t2_16b:
+        case .t2_16b, .t2_16eb:
             return 16
             
         case .t3_14eb, .b1_14b, .b2_14r:
@@ -81,7 +82,7 @@ extension TypographyToken {
         case .h1_28b, .h2_24r, .h3_22b, .h3_22eb, .h4_20b:
             return 1.40
             
-        case .t1_18eb, .t2_16b, .t3_14eb, .b1_14b, .b2_14r, .b3_12eb, .b4_12b, .c1_12r, .c2_11b:
+        case .t1_18eb, .t2_16b, .t2_16eb, .t3_14eb, .b1_14b, .b2_14r, .b3_12eb, .b4_12b, .c1_12r, .c2_11b:
             return 1.50
         }
     }
@@ -91,7 +92,7 @@ extension TypographyToken {
         case .h1_28b, .h2_24r, .h3_22b, .h3_22eb, .t3_14eb, .b3_12eb:
             return -0.01
             
-        case .h4_20b, .t1_18eb, .t2_16b:
+        case .h4_20b, .t1_18eb, .t2_16b, .t2_16eb:
             return -0.02
             
         case .b1_14b, .b2_14r, .b4_12b, .c1_12r, .c2_11b:
