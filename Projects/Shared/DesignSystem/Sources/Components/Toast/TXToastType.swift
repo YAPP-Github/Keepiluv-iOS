@@ -28,7 +28,7 @@ public extension TXToastType {
         }
     }
 
-    var icon: Image {
+    var icon: Image? {
         switch self {
         case .success:
             return Image.Icon.Illustration.success
@@ -39,7 +39,7 @@ public extension TXToastType {
         case .warning:
             return Image.Icon.Illustration.warning
         case .fit:
-            return Image.Icon.Illustration.success // fit 스타일에서는 사용되지 않음
+            return nil
         }
     }
 
