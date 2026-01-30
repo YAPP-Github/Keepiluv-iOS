@@ -12,6 +12,8 @@ public enum TXToastType: Equatable {
     case delete(message: String)
     case poke(message: String)
     case warning(message: String)
+    /// 아이콘 없이 텍스트만 표시하는 fit 스타일 토스트
+    case fit(message: String)
 }
 
 public extension TXToastType {
@@ -20,7 +22,8 @@ public extension TXToastType {
         case let .success(message),
              let .delete(message),
              let .poke(message),
-             let .warning(message):
+             let .warning(message),
+             let .fit(message):
             return message
         }
     }
@@ -34,7 +37,18 @@ public extension TXToastType {
         case .poke:
             return Image.Icon.Illustration.heart
         case .warning:
-            return Image.Icon.Illustration.delete
+            return Image.Icon.Illustration.warning
+        case .fit:
+            return Image.Icon.Illustration.success // fit 스타일에서는 사용되지 않음
+        }
+    }
+
+    var style: TXToastStyle {
+        switch self {
+        case .fit:
+            return .fit
+        default:
+            return .fixed
         }
     }
 
@@ -42,7 +56,7 @@ public extension TXToastType {
         switch self {
         case .success:
             return true
-        case .delete, .poke, .warning:
+        case .delete, .poke, .warning, .fit:
             return false
         }
     }
