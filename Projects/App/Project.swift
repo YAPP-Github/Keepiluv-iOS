@@ -26,7 +26,8 @@ let project = Project(
                     ],
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
                     "GOOGLE_CLIENT_ID": "$(GOOGLE_CLIENT_ID)",
-                    "GOOGLE_REVERSED_CLIENT_ID": "$(GOOGLE_REVERSED_CLIENT_ID)"
+                    "GOOGLE_REVERSED_CLIENT_ID": "$(GOOGLE_REVERSED_CLIENT_ID)",
+                    "DEEPLINK_HOST": "$(DEEPLINK_HOST)"
                 ], uniquingKeysWith: { current, _ in current })),
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],
@@ -48,7 +49,8 @@ let project = Project(
                         "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"],
                         "KAKAO_APP_KEY": "d62cbf5d1d7fbc9246c0d33998fce8cd",
                         "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
-                        "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3"
+                        "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3",
+                        "DEEPLINK_HOST": "keepiluv.jiyong.xyz"
                     ]
                 )
             )
