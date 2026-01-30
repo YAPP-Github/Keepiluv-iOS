@@ -62,6 +62,7 @@ public struct GoalDetailReducer {
         
         // MARK: - LifeCycle
         case onAppear
+        case onDissapear
         
         // MARK: - Action
         case bottomButtonTapped
