@@ -18,23 +18,39 @@ public struct OnboardingCoordinatorView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        NavigationStack(path: $store.routes) {
             OnboardingConnectView(
                 store: store.scope(state: \.connect, action: \.connect)
             )
-        } destination: { store in
-            switch store.case {
-            case let .codeInput(store):
-                OnboardingCodeInputView(store: store)
-                    .navigationBarBackButtonHidden(true)
-                
-            case let .profile(store):
-                OnboardingProfileView(store: store)
-                    .navigationBarBackButtonHidden(true)
+            .navigationDestination(for: OnboardingRoute.self) { route in
+                switch route {
+                case .codeInput:
+                    if let codeInputStore = store.scope(
+                        state: \.codeInput,
+                        action: \.codeInput
+                    ) {
+                        OnboardingCodeInputView(store: codeInputStore)
+                            .navigationBarBackButtonHidden(true)
+                    }
 
-            case let .dday(store):
-                OnboardingDdayView(store: store)
-                    .navigationBarBackButtonHidden(true)
+                case .profile:
+                    if let profileStore = store.scope(
+                        state: \.profile,
+                        action: \.profile
+                    ) {
+                        OnboardingProfileView(store: profileStore)
+                            .navigationBarBackButtonHidden(true)
+                    }
+
+                case .dday:
+                    if let ddayStore = store.scope(
+                        state: \.dday,
+                        action: \.dday
+                    ) {
+                        OnboardingDdayView(store: ddayStore)
+                            .navigationBarBackButtonHidden(true)
+                    }
+                }
             }
         }
     }
