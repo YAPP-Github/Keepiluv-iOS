@@ -133,50 +133,28 @@ private extension TXToastModifier {
 
 // MARK: - View Extension
 public extension View {
-    /// 토스트 메시지를 표시합니다.
+    /// TXToastType item 기반으로 토스트를 표시합니다.
     ///
     /// ## 사용 예시
     /// ```swift
     /// struct ContentView: View {
-    ///     @State private var showToast = false
+    ///     @State private var toast: TXToastType?
     ///
     ///     var body: some View {
     ///         VStack {
-    ///             Button("토스트 보기") {
-    ///                 showToast = true
+    ///             Button("성공 토스트") {
+    ///                 toast = .success(message: "목표를 달성했어요")
+    ///             }
+    ///             Button("경고 토스트") {
+    ///                 toast = .warning(message: "주의가 필요해요")
+    ///             }
+    ///             Button("Fit 토스트") {
+    ///                 toast = .fit(message: "2자에서 8자 이내로 입력해주세요")
     ///             }
     ///         }
-    ///         .txToast(
-    ///             isPresented: $showToast,
-    ///             message: "목표를 달성했어요"
-    ///         )
+    ///         .txToast(item: $toast)
     ///     }
     /// }
-    ///
-    /// // 버튼이 있는 토스트
-    /// ContentView()
-    ///     .txToast(
-    ///         isPresented: $showToast,
-    ///         message: "목표를 달성했어요",
-    ///         showButton: true,
-    ///         onButtonTap: { /* 액션 */ }
-    ///     )
-    ///
-    /// // fit 스타일 토스트 (텍스트 크기에 맞춤)
-    /// ContentView()
-    ///     .txToast(
-    ///         isPresented: $showToast,
-    ///         style: .fit,
-    ///         message: "2자에서 8자 이내로 닉네임을 입력해주세요."
-    ///     )
-    ///
-    /// // 수동 dismiss (자동 dismiss 비활성화)
-    /// ContentView()
-    ///     .txToast(
-    ///         isPresented: $showToast,
-    ///         message: "확인 버튼을 눌러주세요",
-    ///         duration: nil
-    ///     )
     /// ```
     ///
     /// - Parameters:
@@ -226,6 +204,10 @@ public extension View {
     /// // 표시
     /// toast = .success(message: "목표를 달성했어요")
     /// ```
+    ///
+    /// - Parameters:
+    ///   - item: 토스트 타입을 제어하는 Binding입니다. nil이 아닐 때 토스트가 표시됩니다.
+    ///   - onButtonTap: 버튼 탭 시 실행될 클로저입니다.
     func txToast(
         item: Binding<TXToastType?>,
         onButtonTap: (() -> Void)? = nil,
@@ -255,69 +237,24 @@ public extension View {
 }
 
 // MARK: - Preview
-#Preview("Bottom Position") {
+#Preview("Success Toast") {
     struct PreviewWrapper: View {
-        @State private var showToast = true
+        @State private var toast: TXToastType? = .success(message: "목표를 달성했어요")
 
         var body: some View {
             ZStack {
                 Color.gray.opacity(0.3)
                 Button("Toggle Toast") {
-                    showToast.toggle()
+                    if toast == nil {
+                        toast = .success(message: "목표를 달성했어요")
+                    } else {
+                        toast = nil
+                    }
                 }
             }
-            .txToast(
-                isPresented: $showToast,
-                message: "목표를 달성했어요",
-                showButton: true,
-                onButtonTap: { print("Button tapped") }
-            )
-        }
-    }
-
-    return PreviewWrapper()
-}
-
-#Preview("Top Position") {
-    struct PreviewWrapper: View {
-        @State private var showToast = true
-
-        var body: some View {
-            ZStack {
-                Color.gray.opacity(0.3)
-                Button("Toggle Toast") {
-                    showToast.toggle()
-                }
+            .txToast(item: $toast) {
+                print("Button tapped")
             }
-            .txToast(
-                isPresented: $showToast,
-                message: "알림이 도착했어요",
-                position: .top
-            )
-        }
-    }
-
-    return PreviewWrapper()
-}
-
-#Preview("No Auto Dismiss") {
-    struct PreviewWrapper: View {
-        @State private var showToast = true
-
-        var body: some View {
-            ZStack {
-                Color.gray.opacity(0.3)
-                Button("Toggle Toast") {
-                    showToast.toggle()
-                }
-            }
-            .txToast(
-                isPresented: $showToast,
-                message: "수동으로 닫아주세요",
-                showButton: true,
-                onButtonTap: { },
-                duration: nil
-            )
         }
     }
 
@@ -326,20 +263,42 @@ public extension View {
 
 #Preview("Fit Style") {
     struct PreviewWrapper: View {
-        @State private var showToast = true
+        @State private var toast: TXToastType? = .fit(message: "2자에서 8자 이내로 닉네임을 입력해주세요.")
 
         var body: some View {
             ZStack {
                 Color.gray.opacity(0.3)
                 Button("Toggle Toast") {
-                    showToast.toggle()
+                    if toast == nil {
+                        toast = .fit(message: "2자에서 8자 이내로 닉네임을 입력해주세요.")
+                    } else {
+                        toast = nil
+                    }
                 }
             }
-            .txToast(
-                isPresented: $showToast,
-                style: .fit,
-                message: "2자에서 8자 이내로 닉네임을 입력해주세요."
-            )
+            .txToast(item: $toast)
+        }
+    }
+
+    return PreviewWrapper()
+}
+
+#Preview("Warning Toast") {
+    struct PreviewWrapper: View {
+        @State private var toast: TXToastType? = .warning(message: "경고 메시지입니다")
+
+        var body: some View {
+            ZStack {
+                Color.gray.opacity(0.3)
+                Button("Toggle Toast") {
+                    if toast == nil {
+                        toast = .warning(message: "경고 메시지입니다")
+                    } else {
+                        toast = nil
+                    }
+                }
+            }
+            .txToast(item: $toast)
         }
     }
 
