@@ -20,37 +20,37 @@ struct AppRootView: View {
         static let transitionDuration: TimeInterval = 0.3
     }
 
-    let store: StoreOf<AppRootReducer>
+    let store: StoreOf<AppCoordinator>
 
     var body: some View {
-        let pathStore = store.scope(state: \.path, action: \.path)
+        let routeStore = store.scope(state: \.route, action: \.route)
 
         ZStack {
             if store.isCheckingAuth {
                 ProgressView()
             } else {
-                switch pathStore.state {
+                switch routeStore.state {
                 case .auth:
-                    if let authStore = pathStore.scope(state: \.auth, action: \.auth) {
+                    if let authStore = routeStore.scope(state: \.auth, action: \.auth) {
                         AuthView(store: authStore)
                             .transition(.opacity)
                     }
 
                 case .onboarding:
-                    if let onboardingStore = pathStore.scope(state: \.onboarding, action: \.onboarding) {
+                    if let onboardingStore = routeStore.scope(state: \.onboarding, action: \.onboarding) {
                         OnboardingCoordinatorView(store: onboardingStore)
                             .transition(.opacity)
                     }
 
                 case .mainTab:
-                    if let mainTabStore = pathStore.scope(state: \.mainTab, action: \.mainTab) {
+                    if let mainTabStore = routeStore.scope(state: \.mainTab, action: \.mainTab) {
                         MainTabView(store: mainTabStore)
                             .transition(.opacity)
                     }
                 }
             }
         }
-        .animation(.easeInOut(duration: Constants.transitionDuration), value: store.path)
+        .animation(.easeInOut(duration: Constants.transitionDuration), value: store.route)
         .onAppear {
             store.send(.onAppear)
         }
@@ -63,7 +63,7 @@ struct AppRootView: View {
 #if DEBUG
 private extension AppRootView {
     var pulseLabel: String {
-        switch store.path {
+        switch store.route {
         case .auth:
             return "Auth"
 
@@ -80,9 +80,9 @@ private extension AppRootView {
 #Preview {
     AppRootView(
         store: Store(
-            initialState: AppRootReducer.State(),
+            initialState: AppCoordinator.State(),
             reducer: {
-                AppRootReducer()
+                AppCoordinator()
             }
         )
     )

@@ -1,5 +1,5 @@
 //
-//  AppRootReducer.swift
+//  AppCoordinator.swift
 //  Twix
 //
 //  Created by 정지훈 on 1/4/26.
@@ -11,7 +11,7 @@ import Feature
 import Foundation
 
 @Reducer
-struct AppRootReducer {
+struct AppCoordinator {
     @Dependency(\.tokenManager)
     var tokenManager
 
@@ -21,7 +21,7 @@ struct AppRootReducer {
 
     @ObservableState
     struct State: Equatable {
-        var path: PathState = .auth(AuthReducer.State())
+        var route: Route = .auth(AuthReducer.State())
         var isCheckingAuth: Bool = true
         var pendingInviteCode: String?
 
@@ -30,24 +30,39 @@ struct AppRootReducer {
 
     @ObservableState
     @CasePathable
-    public enum PathState: Equatable {
+    enum Route: Equatable {
         case auth(AuthReducer.State)
         case onboarding(OnboardingCoordinator.State)
         case mainTab(MainTabReducer.State)
 
         var auth: AuthReducer.State? {
-            if case .auth(let state) = self { return state }
-            return nil
+            get {
+                if case .auth(let state) = self { return state }
+                return nil
+            }
+            set {
+                if let newValue { self = .auth(newValue) }
+            }
         }
 
         var onboarding: OnboardingCoordinator.State? {
-            if case .onboarding(let state) = self { return state }
-            return nil
+            get {
+                if case .onboarding(let state) = self { return state }
+                return nil
+            }
+            set {
+                if let newValue { self = .onboarding(newValue) }
+            }
         }
 
         var mainTab: MainTabReducer.State? {
-            if case .mainTab(let state) = self { return state }
-            return nil
+            get {
+                if case .mainTab(let state) = self { return state }
+                return nil
+            }
+            set {
+                if let newValue { self = .mainTab(newValue) }
+            }
         }
     }
 
@@ -56,11 +71,11 @@ struct AppRootReducer {
         case checkAuthResult(Result<Token?, Error>)
         case checkCoupleConnectionResult(isConnected: Bool)
         case deepLinkReceived(code: String)
-        case path(PathAction)
+        case route(RouteAction)
     }
 
     @CasePathable
-    public enum PathAction {
+    enum RouteAction {
         case auth(AuthReducer.Action)
         case onboarding(OnboardingCoordinator.Action)
         case mainTab(MainTabReducer.Action)
@@ -73,18 +88,6 @@ struct AppRootReducer {
     }
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.path, action: \.path) {
-            Scope(state: \.auth, action: \.auth) {
-                authReducer
-            }
-            Scope(state: \.onboarding, action: \.onboarding) {
-                onboardingCoordinator
-            }
-            Scope(state: \.mainTab, action: \.mainTab) {
-                mainTabReducer
-            }
-        }
-
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -106,23 +109,23 @@ struct AppRootReducer {
                     // TODO: 실제 API 연동 시 커플 연결 여부 체크
                     // 임시로 Onboarding으로 이동 (테스트용)
                     // return .send(.checkCoupleConnectionResult(isConnected: false))
-                    state.path = .mainTab(MainTabReducer.State())
+                    state.route = .mainTab(MainTabReducer.State())
                 } else {
-                    state.path = .auth(AuthReducer.State())
+                    state.route = .auth(AuthReducer.State())
                 }
                 return .none
 
             case .checkAuthResult(.failure):
                 state.isCheckingAuth = false
-                state.path = .auth(AuthReducer.State())
+                state.route = .auth(AuthReducer.State())
                 return .none
 
             case let .checkCoupleConnectionResult(isConnected):
                 if isConnected {
-                    state.path = .mainTab(MainTabReducer.State())
+                    state.route = .mainTab(MainTabReducer.State())
                 } else {
                     // 커플 미연결 → Onboarding으로 이동
-                    state.path = .onboarding(OnboardingCoordinator.State(
+                    state.route = .onboarding(OnboardingCoordinator.State(
                         myInviteCode: "", // TODO: API에서 받아온 내 초대 코드
                         pendingReceivedCode: state.pendingInviteCode
                     ))
@@ -133,32 +136,41 @@ struct AppRootReducer {
             case let .deepLinkReceived(code):
                 state.pendingInviteCode = code
 
-                if case .onboarding = state.path {
-                    return .send(.path(.onboarding(.deepLinkReceived(code: code))))
+                if case .onboarding = state.route {
+                    return .send(.route(.onboarding(.deepLinkReceived(code: code))))
                 }
                 // Auth 화면이면 로그인 후 Onboarding에서 처리됨 (pendingInviteCode 저장됨)
                 return .none
 
-            case .path(.auth(.delegate(.loginSucceeded))):
+            case .route(.auth(.delegate(.loginSucceeded))):
                 // 로그인 성공 → 커플 연결 여부 체크
                 // TODO: 실제 API 연동 시 아래 주석 해제
                 // return .send(.checkCoupleConnectionResult(isConnected: false))
-                state.path = .mainTab(MainTabReducer.State())
+                state.route = .mainTab(MainTabReducer.State())
                 return .none
 
-            case .path(.onboarding(.delegate(.onboardingCompleted))):
-                state.path = .mainTab(MainTabReducer.State())
+            case .route(.onboarding(.delegate(.onboardingCompleted))):
+                state.route = .mainTab(MainTabReducer.State())
                 return .none
 
-            case .path(.onboarding(.delegate(.navigateBack))):
+            case .route(.onboarding(.delegate(.navigateBack))):
                 // Onboarding에서 뒤로가기 → Auth로 이동
-                // TODO: 인증부 구현 후 삭제 또는 기능 변경 
-                state.path = .auth(AuthReducer.State())
+                // TODO: 인증부 구현 후 삭제 또는 기능 변경
+                state.route = .auth(AuthReducer.State())
                 return .none
 
-            case .path:
+            case .route:
                 return .none
             }
+        }
+        .ifLet(\.route.auth, action: \.route.auth) {
+            authReducer
+        }
+        .ifLet(\.route.onboarding, action: \.route.onboarding) {
+            onboardingCoordinator
+        }
+        .ifLet(\.route.mainTab, action: \.route.mainTab) {
+            mainTabReducer
         }
     }
 }

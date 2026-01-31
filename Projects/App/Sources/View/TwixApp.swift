@@ -15,9 +15,9 @@ import CoreLogging
 @main
 struct TwixApp: App {
     let store = Store(
-        initialState: AppRootReducer.State()
+        initialState: AppCoordinator.State()
     ) {
-        AppRootReducer()
+        AppCoordinator()
     } withDependencies: {
         $0.networkClient = .liveValue
         $0.tokenStorage = .liveValue
