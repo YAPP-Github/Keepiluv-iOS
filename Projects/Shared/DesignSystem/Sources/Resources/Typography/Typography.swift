@@ -29,7 +29,7 @@ public enum TypographyToken {
 }
 // swiftlint:enable identifier_name
 
-public extension TypographyToken {
+extension TypographyToken {
     var font: SharedDesignSystemFontConvertible {
         switch self {
         case .h1_28b, .t2_16b, .b1_14b, .b4_12b, .c2_11b:
