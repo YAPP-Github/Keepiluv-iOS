@@ -107,11 +107,10 @@ private extension OnboardingConnectView {
                         .typography(.c1_12r)
                         .foregroundStyle(Color.Gray.gray400)
 
-                    (Text("직접 ")
-                        .font(TypographyToken.t2_16eb.font.swiftUIFont(size: TypographyToken.t2_16eb.size))
-                    + Text("연결하기")
-                        .font(TypographyToken.t2_16b.font.swiftUIFont(size: TypographyToken.t2_16b.size)))
-                    .foregroundStyle(Color.Gray.gray500)
+                    HStack(spacing: 0) {
+                        Text("직접 ").typography(.t2_16eb)
+                        Text("연결하기").typography(.t2_16b)
+                    }.foregroundStyle(Color.Gray.gray500)
                 }
 
                 Spacer()
