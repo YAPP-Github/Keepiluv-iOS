@@ -43,13 +43,16 @@ public struct OnboardingProfileReducer {
     }
 
     public enum Action: BindableAction {
+        // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - User Action
         case backButtonTapped
         case completeButtonTapped
-        case toastDismissed
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case profileCompleted(nickname: String)
@@ -84,10 +87,6 @@ public struct OnboardingProfileReducer {
                 }
 
                 return .send(.delegate(.profileCompleted(nickname: state.nickname)))
-
-            case .toastDismissed:
-                state.showToast = false
-                return .none
 
             case .delegate:
                 return .none

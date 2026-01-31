@@ -46,15 +46,19 @@ public struct OnboardingCodeInputReducer {
     }
 
     public enum Action: BindableAction {
+        // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - User Action
         case backButtonTapped
         case codeInputChanged(String)
         case copyMyCodeButtonTapped
         case completeButtonTapped
         case codeFieldTapped
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case coupleConnected

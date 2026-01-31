@@ -32,14 +32,20 @@ public struct OnboardingConnectReducer {
     }
 
     public enum Action: BindableAction {
+        // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - User Action
         case backButtonTapped
         case directConnectCardTapped
         case sendInvitationButtonTapped
+
+        // MARK: - Update State
         case shareSheetDismissed
+
+        // MARK: - Delegate
         case delegate(Delegate)
 
-        @CasePathable
         public enum Delegate: Equatable {
             case navigateBack
             case navigateToCodeInput
