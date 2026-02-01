@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
 
@@ -24,6 +25,7 @@ import SharedUtil
 @Reducer
 public struct HomeReducer {
     let reducer: Reduce<State, Action>
+    private let proofPhotoReducer: ProofPhotoReducer
     
     @ObservableState
     /// 홈 화면에서 사용되는 상태 모델입니다.
@@ -47,6 +49,9 @@ public struct HomeReducer {
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
         public var modal: TXModalType?
+        public var isProofPhotoPresented: Bool = false
+        
+        public var proofPhoto: ProofPhotoReducer.State?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -67,6 +72,9 @@ public struct HomeReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - Child Action
+        case proofPhoto(ProofPhotoReducer.Action)
+        
         // MARK: - LifeCycle
         case onAppear
         
@@ -84,6 +92,8 @@ public struct HomeReducer {
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
+        case authorizationCompleted(isAuthorized: Bool)
+        case proofPhotoDismissed
         
         // MARK: - Delegate
         case delegate(Delegate)
@@ -101,12 +111,21 @@ public struct HomeReducer {
     /// ```swift
     /// let reducer = HomeReducer(reducer: Reduce { _, _ in .none })
     /// ```
-    public init(reducer: Reduce<State, Action>) {
+    public init(
+        reducer: Reduce<State, Action>,
+        proofPhotoReducer: ProofPhotoReducer = ProofPhotoReducer(
+            reducer: Reduce { _, _ in .none }
+        )
+    ) {
         self.reducer = reducer
+        self.proofPhotoReducer = proofPhotoReducer
     }
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
         reducer
+            .ifLet(\.proofPhoto, action: \.proofPhoto) {
+                proofPhotoReducer
+            }
     }
 }

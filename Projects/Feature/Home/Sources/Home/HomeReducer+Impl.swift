@@ -8,8 +8,10 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreCaptureSessionInterface
 import DomainGoalInterface
 import FeatureHomeInterface
+import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
 
@@ -22,8 +24,11 @@ extension HomeReducer {
     /// ```
     
     // swiftlint:disable:next function_body_length
-    public init() {
+    public init(
+        proofPhotoReducer: ProofPhotoReducer
+    ) {
         @Dependency(\.goalClient) var goalClient
+        @Dependency(\.captureSessionClient) var captureSessionClient
         
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
@@ -113,6 +118,11 @@ extension HomeReducer {
                     state.pendingDeleteGoalID = id
                     state.modal = .deleteGoal
                     return .none
+                } else {
+                    return .run { send in
+                        let isAuthorized = await captureSessionClient.fetchIsAuthorized()
+                        await send(.authorizationCompleted(isAuthorized: isAuthorized))
+                    }
                 }
                 return .none
                 
@@ -155,6 +165,28 @@ extension HomeReducer {
             case let .showToast(toast):
                 state.toast = toast
                 return .none
+                
+            case let .authorizationCompleted(isAuthorized):
+                // TODO: - 권한 해제시 alert 띄워서 아이폰 설정으로 보내기
+                guard isAuthorized else { return .none }
+                state.proofPhoto = .init()
+                state.isProofPhotoPresented = true
+                return .none
+                
+            case .proofPhoto(.delegate(.closeProofPhoto)):
+                state.isProofPhotoPresented = false
+                return .none
+                
+            case .proofPhoto(.delegate(.completedUploadPhoto)):
+                state.isProofPhotoPresented = false
+                return .none
+                
+            case .proofPhotoDismissed:
+                state.proofPhoto = nil
+                return .none
+                
+            case .proofPhoto:
+                return .none
 
             case .binding:
                 return .none
@@ -164,6 +196,9 @@ extension HomeReducer {
             }
         }
         
-        self.init(reducer: reducer)
+        self.init(
+            reducer: reducer,
+            proofPhotoReducer: proofPhotoReducer
+        )
     }
 }

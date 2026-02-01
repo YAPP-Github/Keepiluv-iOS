@@ -31,6 +31,7 @@ import SharedDesignSystem
 /// ```
 @Reducer
 public struct MainTabReducer {
+    
     @ObservableState
     /// 메인 탭의 화면 상태를 정의합니다.
     ///
@@ -80,10 +81,10 @@ public struct MainTabReducer {
         BindingReducer()
         
         Scope(state: \.home, action: \.home) {
+            let proofPhotoReducer = ProofPhotoReducer()
             HomeCoordinator(
-                goalDetailReducer: GoalDetailReducer(
-                    proofPhotoReducer: ProofPhotoReducer()
-                )
+                goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
+                proofPhotoReducer: proofPhotoReducer
             )
         }
 
