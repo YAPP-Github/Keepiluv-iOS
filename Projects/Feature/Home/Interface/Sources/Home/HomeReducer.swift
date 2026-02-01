@@ -50,6 +50,7 @@ public struct HomeReducer {
         public var toast: TXToastType?
         public var modal: TXModalType?
         public var isProofPhotoPresented: Bool = false
+        public var isAddGoalPresented: Bool = false
         
         public var proofPhoto: ProofPhotoReducer.State?
 
@@ -86,6 +87,7 @@ public struct HomeReducer {
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
         case myCardTapped
+        case floatingButtonTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
