@@ -9,12 +9,28 @@ import Foundation
 
 import ComposableArchitecture
 
+/// 목표 생성/수정 화면의 상태와 액션을 관리하는 Reducer입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// let store = Store(
+///     initialState: MakeGoalReducer.State(category: .book)
+/// ) {
+///     MakeGoalReducer()
+/// }
+/// ```
 @Reducer
 public struct MakeGoalReducer {
     
     let reducer: Reduce<State, Action>
     
     @ObservableState
+    /// 목표 생성/수정 화면에서 사용하는 상태입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let state = MakeGoalReducer.State(category: .book)
+    /// ```
     public struct State: Equatable {
         public var mode: Mode
         public var category: GoalCategory
@@ -27,11 +43,18 @@ public struct MakeGoalReducer {
         }
         public var periodCountText: String { "\(selectedPeriod ?? "") \(periodCount)번"}
         
+        /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
             case add
             case edit
         }
         
+        /// 목표 생성/수정 화면의 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = MakeGoalReducer.State(category: .book, mode: .add)
+        /// ```
         public init(
             category: GoalCategory,
             mode: Mode,
@@ -44,6 +67,12 @@ public struct MakeGoalReducer {
         }
     }
     
+    /// 목표 생성/수정 화면에서 발생 가능한 액션입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// store.send(.completeButtonTapped)
+    /// ```
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case emojiButtonTapped
@@ -53,6 +82,12 @@ public struct MakeGoalReducer {
         case completeButtonTapped
     }
     
+    /// 외부에서 주입한 Reduce로 MakeGoalReducer를 구성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = MakeGoalReducer(reducer: Reduce { _, _ in .none })
+    /// ```
     public init(reducer: Reduce<State, Action>) {
         self.reducer = reducer
     }
