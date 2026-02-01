@@ -19,13 +19,19 @@ extension HomeCoordinator {
     /// ```
     public init(
         goalDetailReducer: GoalDetailReducer,
-        proofPhotoReducer: ProofPhotoReducer
+        proofPhotoReducer: ProofPhotoReducer,
+        makeGoalReducer: MakeGoalReducer
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
             case .home(.delegate(.goToGoalDetail)):
                 state.routes.append(.detail)
                 state.goalDetail = .init()
+                return .none
+                
+            case .home(.delegate(.goToMakeGoal)):
+                state.routes.append(.makeGoal)
+                state.makeGoal = .init()
                 return .none
                 
             case .goalDetail(.delegate(.navigateBack)):
@@ -42,6 +48,9 @@ extension HomeCoordinator {
             case .goalDetail:
                 return .none
                 
+            case .makeGoal:
+                return .none
+                
             case .binding:
                 return .none
             }
@@ -50,7 +59,8 @@ extension HomeCoordinator {
         self.init(
             reducer: reducer,
             homeReducer: HomeReducer(proofPhotoReducer: proofPhotoReducer),
-            goalDetailReducer: goalDetailReducer
+            goalDetailReducer: goalDetailReducer,
+            makeGoalReducer: makeGoalReducer
         )
     }
 }
