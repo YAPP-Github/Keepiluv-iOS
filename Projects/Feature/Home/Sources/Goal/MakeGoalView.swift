@@ -94,13 +94,27 @@ private extension MakeGoalView {
         VStack(alignment: .leading, spacing: 12) {
             Text("반복 주기")
                 .typography(.b1_14b)
+                .foregroundStyle(Color.Gray.gray500)
             
             HStack(spacing: 8) {
-                TXTabGroup(config: .period()) { period in
-                    store.send(.periodSelected)
-                }
+                TXTabGroup(
+                    selectedItem: $store.selectedPeriod,
+                    config: .period()
+                )
                 
                 Spacer()
+                
+                if store.showPeriodCount {
+                    Text(store.periodCountText)
+                        .typography(.b2_14r)
+                        .foregroundStyle(Color.Gray.gray500)
+                    
+                    Button {
+                        store.send(.endDateTapped)
+                    } label: {
+                        Image.Icon.Symbol.arrow2Down
+                    }
+                }
             }
         }
         .padding(.vertical, 16)
@@ -110,11 +124,13 @@ private extension MakeGoalView {
         HStack(spacing: 8) {
             Text("시작일")
                 .typography(.b1_14b)
+                .foregroundStyle(Color.Gray.gray500)
             
             Spacer()
             
             Text("2월 1일")
                 .typography(.b2_14r)
+                .foregroundStyle(Color.Gray.gray500)
             
             Button {
                 store.send(.startDateTapped)
@@ -129,23 +145,26 @@ private extension MakeGoalView {
         HStack(spacing: 0) {
             Text("종료일 설정")
                 .typography(.b1_14b)
+                .foregroundStyle(Color.Gray.gray500)
             
             Spacer()
             
             TXToggleSwitch(isOn: $store.isEndDateOn)
         }
-        .padding(.vertical, 21.5)
+        .padding(.vertical, 17)
     }
     
     var endDateRow: some View {
         HStack(spacing: 8) {
             Text("종료일")
                 .typography(.b1_14b)
+                .foregroundStyle(Color.Gray.gray500)
             
             Spacer()
             
             Text("2월 1일")
                 .typography(.b2_14r)
+                .foregroundStyle(Color.Gray.gray500)
             
             Button {
                 store.send(.endDateTapped)
@@ -179,7 +198,7 @@ private extension MakeGoalView {
         store: Store(
             initialState: MakeGoalReducer
                 .State(
-                    category: .book,
+                    category: .walk,
                     mode: .add
                 ),
             reducer: {
