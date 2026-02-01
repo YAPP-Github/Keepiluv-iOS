@@ -11,9 +11,8 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXTabGroup(config: .period()) { item in
-///     print(item)
-/// }
+/// @State var selected: TXTabGroup.Item? = nil
+/// TXTabGroup(selectedItem: $selected, config: .period())
 /// ```
 public struct TXTabGroup: View {
     public struct Configuration {
@@ -35,16 +34,15 @@ public struct TXTabGroup: View {
 
     public typealias Item = String
     
-    @State private var selectedItem: Item?
+    @Binding private var selectedItem: Item?
     private let config: Configuration
-    private let onSelect: (Item) -> Void
     
     public init(
-        config: Configuration,
-        onSelect: @escaping (Item) -> Void = { _ in }
+        selectedItem: Binding<Item?>,
+        config: Configuration
     ) {
+        self._selectedItem = selectedItem
         self.config = config
-        self.onSelect = onSelect
     }
     
     public var body: some View {
@@ -68,11 +66,11 @@ private extension TXTabGroup {
             )
         ) {
             selectedItem = item
-            onSelect(item)
         }
     }
 }
 
 #Preview {
-    TXTabGroup(config: .period())
+    @Previewable @State var selected: TXTabGroup.Item? = nil
+    TXTabGroup(selectedItem: $selected, config: .period())
 }
