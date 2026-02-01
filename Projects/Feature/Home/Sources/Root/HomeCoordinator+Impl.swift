@@ -32,7 +32,7 @@ extension HomeCoordinator {
                 state.routes.removeLast()
                 return .none
                 
-            case .goalDetail(.onDissapear):
+            case .goalDetail(.onDisappear):
                 state.goalDetail = nil
                 return .none
                 
