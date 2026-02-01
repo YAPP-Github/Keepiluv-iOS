@@ -40,7 +40,7 @@ extension GoalDetailReducer {
                     await send(.fethedGoalDetailItem(item))
                 }
                 
-            case .onDissapear:
+            case .onDisappear:
                 return .none
                 
                 // MARK: - Action
