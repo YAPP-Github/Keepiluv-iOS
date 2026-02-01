@@ -92,9 +92,7 @@ private extension MakeGoalView {
     
     var periodSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("반복 주기")
-                .typography(.b1_14b)
-                .foregroundStyle(Color.Gray.gray500)
+            sectionTitleText("반복 주기")
             
             HStack(spacing: 8) {
                 TXTabGroup(
@@ -105,15 +103,8 @@ private extension MakeGoalView {
                 Spacer()
                 
                 if store.showPeriodCount {
-                    Text(store.periodCountText)
-                        .typography(.b2_14r)
-                        .foregroundStyle(Color.Gray.gray500)
-                    
-                    Button {
-                        store.send(.endDateTapped)
-                    } label: {
-                        Image.Icon.Symbol.arrow2Down
-                    }
+                    valueText(store.periodCountText)
+                    dropDownButton { store.send(.endDateTapped) }
                 }
             }
         }
@@ -122,30 +113,20 @@ private extension MakeGoalView {
     
     var startDateRow: some View {
         HStack(spacing: 8) {
-            Text("시작일")
-                .typography(.b1_14b)
-                .foregroundStyle(Color.Gray.gray500)
+            sectionTitleText("시작일")
             
             Spacer()
             
-            Text("2월 1일")
-                .typography(.b2_14r)
-                .foregroundStyle(Color.Gray.gray500)
+            valueText("2월 1일")
             
-            Button {
-                store.send(.startDateTapped)
-            } label: {
-                Image.Icon.Symbol.arrow2Down
-            }
+            dropDownButton { store.send(.startDateTapped) }
         }
         .padding(.vertical, 21.5)
     }
     
     var endDateToggleRow: some View {
         HStack(spacing: 0) {
-            Text("종료일 설정")
-                .typography(.b1_14b)
-                .foregroundStyle(Color.Gray.gray500)
+            sectionTitleText("종료일 설정")
             
             Spacer()
             
@@ -156,21 +137,13 @@ private extension MakeGoalView {
     
     var endDateRow: some View {
         HStack(spacing: 8) {
-            Text("종료일")
-                .typography(.b1_14b)
-                .foregroundStyle(Color.Gray.gray500)
+            sectionTitleText("종료일")
             
             Spacer()
             
-            Text("2월 1일")
-                .typography(.b2_14r)
-                .foregroundStyle(Color.Gray.gray500)
+            valueText("2월 1일")
             
-            Button {
-                store.send(.endDateTapped)
-            } label: {
-                Image.Icon.Symbol.arrow2Down
-            }
+            dropDownButton { store.send(.endDateTapped) }
         }
         .padding(.vertical, 21.5)
     }
@@ -190,6 +163,26 @@ private extension MakeGoalView {
         Color.Gray.gray500
             .frame(height: 1)
             .padding(.horizontal, -16)
+    }
+    
+    func dropDownButton(_ action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+        } label: {
+            Image.Icon.Symbol.arrow2Down
+        }
+    }
+    
+    func sectionTitleText(_ text: String) -> some View {
+        Text(text)
+            .typography(.b1_14b)
+            .foregroundStyle(Color.Gray.gray500)
+    }
+    
+    func valueText(_ text: String) -> some View {
+        Text(text)
+            .typography(.b2_14r)
+            .foregroundStyle(Color.Gray.gray500)
     }
 }
 
