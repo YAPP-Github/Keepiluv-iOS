@@ -25,7 +25,7 @@ struct AddGoalListView: View {
             VStack(alignment: .leading, spacing: 0) {
                 headerView
                     .padding(.horizontal, 20)
-                    .padding(.top, 13.5)
+                    .padding(.top, 28)
                 categoryListView
                     .padding(.top, 33.5)
                     .padding(.horizontal, 20)
@@ -42,7 +42,7 @@ struct AddGoalListView: View {
 private extension AddGoalListView {
     var headerView: some View {
         // FIXME: -h4-brand-20b
-        Group {
+        VStack(alignment: .leading, spacing: 4) {
             Text("새로운 목표 추가")
                 .typography(.h4_20b)
                 .foregroundStyle(Color.Gray.gray500)
