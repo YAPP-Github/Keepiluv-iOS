@@ -20,6 +20,7 @@ let project = Project.makeModule(
             implements: .home,
             config: .init(
                 dependencies: [
+                    .core(interface: .captureSession),
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),

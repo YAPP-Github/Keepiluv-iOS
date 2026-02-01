@@ -144,6 +144,10 @@ extension HomeReducer {
             case .myCardTapped:
                 return .send(.delegate(.goToGoalDetail))
                 
+            case .floatingButtonTapped:
+                state.isAddGoalPresented = true
+                return .none
+                
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
                 state.isLoading = false
