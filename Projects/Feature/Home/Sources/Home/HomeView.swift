@@ -63,8 +63,8 @@ public struct HomeView: View {
             store.send(.onAppear)
         }
         .sheet(isPresented: $store.isAddGoalPresented, content: {
-            AddGoalListView { category in
-                
+            AddGoalListView { _ in
+                store.send(.addGoalButtonTapped)
             }
         })
         .transaction { transaction in
