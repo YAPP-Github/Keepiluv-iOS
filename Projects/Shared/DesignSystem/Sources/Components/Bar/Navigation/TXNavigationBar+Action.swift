@@ -15,6 +15,6 @@ extension TXNavigationBar {
         case alertTapped
         case settingTapped
         case backTapped
-        case closeTapped
+        case rightTapped
     }
 }

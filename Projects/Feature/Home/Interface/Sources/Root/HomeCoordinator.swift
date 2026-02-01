@@ -1,48 +1,52 @@
 //
-//  RootHomeReducer.swift
+//  HomeCoordinatorReducer.swift
 //  FeatureHomeInterface
 //
 //  Created by 정지훈 on 1/27/26.
 //
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
 
 /// Home Feature의 NavigationStack을 관리하는 Root Reducer입니다.
 ///
 /// ## 사용 예시
 /// ```swift
 /// let store = Store(
-///     initialState: RootHomeReducer.State()
+///     initialState: HomeCoordinatorReducer.State()
 /// ) {
-///     RootHomeReducer()
+///     HomeCoordinatorReducer()
 /// }
 /// ```
 @Reducer
-public struct RootHomeReducer {
+public struct HomeCoordinator {
     let reducer: Reduce<State, Action>
     let homeReducer: HomeReducer
+    public let goalDetailReducer: GoalDetailReducer
     
-    /// RootHome 화면에서 사용하는 상태입니다.
+    /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let state = RootHomeReducer.State()
+    /// let state = HomeCoordinatorReducer.State()
     /// ```
     @ObservableState
     public struct State: Equatable {
-        public var home = HomeReducer.State()
         public var routes: [HomeRoute] = []
+        
+        public var home = HomeReducer.State()
+        public var goalDetail: GoalDetailReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = RootHomeReducer.State()
+        /// let state = HomeCoordinatorReducer.State()
         /// ```
         public init() { }
     }
     
-    /// RootHome 화면에서 발생 가능한 액션입니다.
+    /// HomeCoordinator 화면에서 발생 가능한 액션입니다.
     ///
     /// ## 사용 예시
     /// ```swift
@@ -51,26 +55,28 @@ public struct RootHomeReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
-        // MARK: - Reducer
+        // MARK: - Child Action
         case home(HomeReducer.Action)
-        
+        case goalDetail(GoalDetailReducer.Action)
     }
 
-    /// 외부에서 주입된 Reduce로 RootHomeReducer를 구성합니다.
+    /// 외부에서 주입된 Reduce로 HomeCoordinatorReducer를 구성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let reducer = RootHomeReducer(
+    /// let reducer = HomeCoordinatorReducer(
     ///     reducer: Reduce { _, _ in .none },
     ///     homeReducer: HomeReducer(reducer: Reduce { _, _ in .none })
     /// )
     /// ```
     public init(
         reducer: Reduce<State, Action>,
-        homeReducer: HomeReducer
+        homeReducer: HomeReducer,
+        goalDetailReducer: GoalDetailReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
+        self.goalDetailReducer = goalDetailReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -81,5 +87,8 @@ public struct RootHomeReducer {
         }
         
         reducer
+            .ifLet(\.goalDetail, action: \.goalDetail) {
+                goalDetailReducer
+            }
     }
 }

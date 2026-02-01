@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import Feature
+import CoreCaptureSession
 import DomainGoalInterface
 
 struct MainTabExampleView: View {
@@ -20,6 +21,9 @@ struct MainTabExampleView: View {
                     MainTabReducer()
                 }, withDependencies: {
                     $0.goalClient = .previewValue
+                    $0.captureSessionClient = .liveValue
+                    $0.proofPhotoFactory = .liveValue
+                    $0.goalDetailFactory = .liveValue
                 }
             )
         )

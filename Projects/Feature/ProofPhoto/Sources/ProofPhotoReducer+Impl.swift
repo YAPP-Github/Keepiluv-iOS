@@ -8,11 +8,21 @@
 import AVFoundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
+import DomainGoalInterface
 import FeatureProofPhotoInterface
 import PhotosUI
 
+// FIXME: - Remove
+import SwiftUI
+
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
+    /// 실제 로직을 포함한 ProofPhotoReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = ProofPhotoReducer()
+    /// ```
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         
@@ -74,6 +84,32 @@ extension ProofPhotoReducer {
                     let session = await captureSessionClient.setUpCaptureSession(position)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
+                
+            case let .focusChanged(isFocused):
+                state.isCommentFocused = isFocused
+                return .none
+                
+            case .uploadButtonTapped:
+                // TODO: - post
+                if state.commentText.count < 5 {
+                    return .send(.showToast(.onlyText(message: "코멘트는 5글자로 입력해주세요!")))
+                } else {
+                    guard let imageData = state.imageData,
+                          let uiImage = UIImage(data: imageData) else {
+                        return .none
+                    }
+                    
+                    let completedGoal = GoalDetail.CompletedGoal(
+                        owner: .mySelf,
+                        image: Image(uiImage: uiImage),
+                        comment: state.commentText,
+                        createdAt: "방금"
+                    )
+                    return .send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+                }
+                
+            case .dimmedBackgroundTapped:
+                return .send(.focusChanged(false))
             
             // MARK: - Update State
             case let .setupCaptureSessionCompleted(session):
@@ -108,6 +144,10 @@ extension ProofPhotoReducer {
                 
             case .captureFailed:
                 state.isCapturing = false
+                return .none
+                
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
 
             case .binding:

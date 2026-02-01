@@ -18,12 +18,13 @@ public enum TXToastPosition {
 /// Toast 메시지를 표시하기 위한 ViewModifier입니다.
 struct TXToastModifier: ViewModifier {
     @Binding var isPresented: Bool
-    let icon: Image
+    let icon: Image?
     let message: String
     let showButton: Bool
     let onButtonTap: (() -> Void)?
     let position: TXToastPosition
     let duration: TimeInterval?
+    let customPadding: CGFloat?
 
     @State private var dragOffset: CGFloat = 0
 
@@ -31,16 +32,18 @@ struct TXToastModifier: ViewModifier {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: position == .top ? .top : .bottom) {
-                if isPresented {
-                    toastView
-                        .transition(toastTransition)
-                        .onAppear {
-                            scheduleAutoDismiss()
-                        }
+                Group {
+                    if isPresented {
+                        toastView
+                            .transition(toastTransition)
+                            .onAppear {
+                                scheduleAutoDismiss()
+                            }
+                    }
                 }
+                .animation(.spring(duration: 0.3), value: isPresented)
+                .animation(.spring(duration: 0.2), value: dragOffset)
             }
-            .animation(.spring(duration: 0.3), value: isPresented)
-            .animation(.spring(duration: 0.2), value: dragOffset)
     }
 }
 
@@ -48,13 +51,13 @@ struct TXToastModifier: ViewModifier {
 private extension TXToastModifier {
     var toastView: some View {
         TXToast(
-            icon: icon,
             message: message,
+            icon: icon,
             showButton: showButton,
             onButtonTap: onButtonTap
         )
         .safeAreaPadding(.horizontal, Constants.horizontalPadding)
-        .padding(position == .top ? .top : .bottom, Constants.edgePadding)
+        .padding(position == .top ? .top : .bottom, customPadding == nil ? Constants.edgePadding : customPadding)
         .offset(y: dragOffset)
         .gesture(swipeToDismissGesture)
     }
@@ -175,7 +178,8 @@ public extension View {
         showButton: Bool = false,
         onButtonTap: (() -> Void)? = nil,
         position: TXToastPosition = .bottom,
-        duration: TimeInterval? = 3.0
+        duration: TimeInterval? = 3.0,
+        customPadding: CGFloat? = nil
     ) -> some View {
         self.modifier(
             TXToastModifier(
@@ -185,15 +189,28 @@ public extension View {
                 showButton: showButton,
                 onButtonTap: onButtonTap,
                 position: position,
-                duration: duration
+                duration: duration,
+                customPadding: customPadding
             )
         )
     }
     
     /// TXToastType item 기반으로 토스트를 표시합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// @State private var toast: TXToastType?
+    ///
+    /// VStack { }
+    ///     .txToast(item: $toast)
+    ///
+    /// // 표시
+    /// toast = .success(message: "목표를 달성했어요")
+    /// ```
     func txToast(
         item: Binding<TXToastType?>,
-        onButtonTap: (() -> Void)? = nil
+        onButtonTap: (() -> Void)? = nil,
+        customPadding: CGFloat? = nil
     ) -> some View {
         let isPresented = Binding<Bool>(
             get: { item.wrappedValue != nil },
@@ -205,12 +222,13 @@ public extension View {
         return self.modifier(
             TXToastModifier(
                 isPresented: isPresented,
-                icon: item.wrappedValue?.icon ?? Image.Icon.Illustration.success,
+                icon: item.wrappedValue?.icon,
                 message: item.wrappedValue?.message ?? "",
                 showButton: item.wrappedValue?.showButton ?? false,
                 onButtonTap: onButtonTap,
                 position: item.wrappedValue?.position ?? .bottom,
-                duration: item.wrappedValue?.duration ?? 3.0
+                duration: item.wrappedValue?.duration ?? 3.0,
+                customPadding: customPadding
             )
         )
     }

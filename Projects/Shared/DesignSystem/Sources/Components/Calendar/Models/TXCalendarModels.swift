@@ -25,7 +25,7 @@ public enum TXCalendarDateStatus {
 ///     dateComponents: DateComponents(year: 2026, month: 12, day: 14)
 /// )
 /// ```
-public struct TXCalendarDateItem: Identifiable, Hashable {
+public struct TXCalendarDateItem: Identifiable, Equatable, Hashable {
     public let id: UUID
     public let text: String
     public let status: TXCalendarDateStatus

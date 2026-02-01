@@ -53,6 +53,12 @@ public struct TXNavigationBar: View {
     private let style: Style
     private let onAction: ((Action) -> Void)?
 
+    /// NavigationBar를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
+    /// ```
     public init(
         style: Style,
         onAction: ((Action) -> Void)? = nil
@@ -70,8 +76,8 @@ public struct TXNavigationBar: View {
             case let .home(homeStyle):
                 homeContent(homeStyle)
 
-            case let .subTitle(title):
-                subTitleContent(title: title)
+            case let .subTitle(title, rightText):
+                subTitleContent(title: title, rightText: rightText)
 
             case .noTitle:
                 noTitleContent()
@@ -189,7 +195,7 @@ private extension TXNavigationBar {
 
 // MARK: - SubTitle Style
 private extension TXNavigationBar {
-    func subTitleContent(title: String) -> some View {
+    func subTitleContent(title: String, rightText: String?) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 TXRectangleButton(
@@ -206,8 +212,8 @@ private extension TXNavigationBar {
                 Spacer()
 
                 TXRectangleButton(
-                    config: .blankRightClose(),
-                    action: { onAction?(.closeTapped) }
+                    config: .blankRight(text: rightText),
+                    action: { onAction?(.rightTapped) }
                 )
             }
             .frame(height: 60)
@@ -228,7 +234,7 @@ private extension TXNavigationBar {
             Spacer()
 
             Button {
-                onAction?(.closeTapped)
+                onAction?(.rightTapped)
             } label: {
                 Image.Icon.Symbol.arrow3Right
                     .resizable()
@@ -256,7 +262,7 @@ private extension TXNavigationBar {
 }
 
 #Preview("SubTitle") {
-    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기")) { action in
+    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기", rightText: "수정")) { action in
         print(action)
     }
 }

@@ -12,44 +12,82 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 
+/// 목표 상세 화면을 렌더링하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// GoalDetailView(
+///     store: Store(
+///         initialState: GoalDetailReducer.State()
+///     ) {
+///         GoalDetailReducer(
+///             proofPhotoReducer: ProofPhotoReducer()
+///         )
+///     }
+/// )
+/// ```
 public struct GoalDetailView: View {
     
     @Bindable public var store: StoreOf<GoalDetailReducer>
-    @Dependency(\.proofPhotoFactory)
-    private var proofPhotoFactory
+    @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
+    @State private var rectFrame: CGRect = .zero
+    @State private var keyboardFrame: CGRect = .zero
     
+    /// GoalDetailView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = GoalDetailView(
+    ///     store: Store(initialState: GoalDetailReducer.State()) {
+    ///         GoalDetailReducer(proofPhotoReducer: ProofPhotoReducer())
+    ///     }
+    /// )
+    /// ```
     public init(store: StoreOf<GoalDetailReducer>) {
         self.store = store
     }
     
     public var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                backgroundRect
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                TXNavigationBar(
+                    style: .subTitle(
+                        title: store.item?.title ?? "",
+                        rightText: store.naviBarRightText
+                    )) { action in
+                        store.send(.navigationBarTapped(action))
+                    }
+                    .overlay(dimmedView)
+                
+                ZStack {
+                    backgroundRect
+                    
+                    if store.isCompleted {
+                        completedImageCard
+                    } else {
+                        nonCompletedCard
+                            .overlay(nonCompletedText)
+                    }
+                }
+                .padding(.horizontal, 27)
+                .padding(.top, 103)
                 
                 if store.isCompleted {
-                    completedImageCard
+                    completedBottomContent
                 } else {
-                    nonCompletedCard
-                        .overlay(nonCompletedText)
+                    pokeImage
+                    bottomButton
                 }
-            }
-            .padding(.horizontal, 27)
-            
-            if store.isCompleted {
-                createdAtText
-                    .padding(.top, 14)
-                    .padding(.trailing, 36)
                 
-                if store.isShowReactionBar {
-                    reactionBar
-                        .padding(.top, 73)
-                        .padding(.horizontal, 21)
-                }
-            } else {
-                pokeImage
-                bottomButton
+                Spacer()
             }
+        }
+        .ignoresSafeArea(.keyboard)
+        .background(dimmedView)
+        .toolbar(.hidden, for: .navigationBar)
+        .observeKeyboardFrame($keyboardFrame)
+        .onAppear {
+            store.send(.onAppear)
         }
         .fullScreenCover(
             isPresented: $store.isPresentedProofPhoto,
@@ -76,31 +114,60 @@ private extension GoalDetailView {
                 lineWidth: 1.6
             )
             .frame(width: 336, height: 336)
+            .overlay(dimmedView)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
             .rotationEffect(.degrees(degree(isBackground: true)))
     }
     
+    @ViewBuilder
     var completedImageCard: some View {
-        store.item.image
-            .resizable()
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
-            .frame(width: 336, height: 336)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .overlay(alignment: .bottom) {
-                TXCommentCircle(
-                    commentText: .constant(store.item.commentText),
-                    isEditable: false
+        if let image = store.currentCard?.image {
+            image
+                .resizable()
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
                 )
-                    .padding(.bottom, 26)
-            }
-            .rotationEffect(.degrees(degree(isBackground: false)))
+                .frame(width: 336, height: 336)
+                .readSize { rectFrame = $0 }
+                .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(alignment: .bottom) {
+                    commentCircle
+                        .padding(.bottom, 26)
+                }
+                .rotationEffect(.degrees(degree(isBackground: false)))
+                .onTapGesture {
+                    guard !store.isEditing else { return }
+                    store.send(.cardTapped)
+                }
+        } else {
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    var completedBottomContent: some View {
+        if store.isEditing {
+            bottomButton
+                .padding(.top, 101)
+                .padding(.horizontal, 30)
+        } else {
+            createdAtText
+                .padding(.top, 14)
+                .padding(.trailing, 36)
+        }
+        
+        if store.isShowReactionBar {
+            reactionBar
+                .padding(.top, 73)
+                .padding(.horizontal, 21)
+        }
     }
     
     var createdAtText: some View {
-        Text(store.item.createdAt)
+        Text(store.createdAt)
             .typography(.b4_12b)
             .foregroundStyle(Color.Gray.gray300)
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -117,9 +184,15 @@ private extension GoalDetailView {
         
         HStack(spacing: 0) {
             ForEach(emojis.indices, id: \.self) { index in
-                emojis[index]
-                    .padding(.horizontal, 8)
-                
+                let isSelected = store.selectedReactionIndex == index
+                Button {
+                    store.send(.reactionEmojiTapped(index))
+                } label: {
+                    emojis[index]
+                        .padding(.horizontal, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isSelected ? Color.Gray.gray300 : Color.clear)
                 if index != emojis.count - 1 {
                     Rectangle()
                         .frame(width: 1)
@@ -145,6 +218,12 @@ private extension GoalDetailView {
             )
             .frame(width: 336, height: 336)
             .rotationEffect(.degrees(degree(isBackground: false)))
+            .onTapGesture {
+                if !store.isEditing {
+                    store.send(.cardTapped)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
     }
     
     var nonCompletedText: some View {
@@ -164,12 +243,39 @@ private extension GoalDetailView {
     
     var bottomButton: some View {
         TXShadowButton(
-            config: .detailGoal(text: store.nonCompleteButtonText),
+            config: store.isEditing ? .long(text: store.bottomButtonText) : .medium(text: store.bottomButtonText),
             colorStyle: .white
         ) {
             store.send(.bottomButtonTapped)
         }
         .padding(.top, -28)
+    }
+    
+    @ViewBuilder
+    var commentCircle: some View {
+        let keyboardInset = max(0, rectFrame.maxY - keyboardFrame.minY)
+        TXCommentCircle(
+            commentText: store.isEditing ? $store.commentText : .constant(store.comment),
+            isEditable: store.isEditing,
+            keyboardInset: keyboardInset,
+            isFocused: $store.isCommentFocused,
+            onFocused: { isFocused in
+                store.send(.focusChanged(isFocused))
+            }
+        )
+        .animation(.easeOut(duration: 0.25), value: keyboardInset)
+    }
+    
+    var dimmedView: some View {
+        Color.Dimmed.dimmed70
+            .opacity(store.isEditing && store.isCommentFocused ? 1 : 0)
+            .transition(.opacity)
+            .animation(.easeInOut, value: store.isCommentFocused)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
+            .onTapGesture {
+                store.send(.dimmedBackgroundTapped)
+            }
     }
 }
 
@@ -189,17 +295,7 @@ private extension GoalDetailView {
 #Preview {
     GoalDetailView(
         store: Store(
-            initialState: GoalDetailReducer.State(
-                item: .init(
-                    image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                    commentText: "차타고슝슝",
-                    createdAt: "6시간전",
-                    selectedEmojiIndex: nil,
-                    name: "민정"
-                ),
-                currentUser: .you,
-                status: .pending
-            ),
+            initialState: GoalDetailReducer.State(),
             reducer: { }
         )
     )
