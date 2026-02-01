@@ -19,7 +19,13 @@ public struct MakeGoalReducer {
         public var mode: Mode
         public var category: GoalCategory
         public var goalTitle: String
+        public var selectedPeriod: String?
+        public var periodCount: Int
         public var isEndDateOn: Bool = false
+        public var showPeriodCount: Bool {
+            selectedPeriod != "매일"
+        }
+        public var periodCountText: String { "\(selectedPeriod ?? "") \(periodCount)번"}
         
         public enum Mode: Equatable {
             case add
@@ -28,11 +34,13 @@ public struct MakeGoalReducer {
         
         public init(
             category: GoalCategory,
-            mode: Mode = .add
+            mode: Mode,
         ) {
             self.mode = mode
             self.category = category
             self.goalTitle = category.title
+            self.selectedPeriod = category.repeatCycle.text
+            self.periodCount = category.repeatCycle.count
         }
     }
     
