@@ -25,6 +25,7 @@ struct AddGoalListView: View {
             VStack(alignment: .leading, spacing: 0) {
                 headerView
                     .padding(.horizontal, 20)
+                    .padding(.top, 13.5)
                 categoryListView
                     .padding(.top, 33.5)
                     .padding(.horizontal, 20)
