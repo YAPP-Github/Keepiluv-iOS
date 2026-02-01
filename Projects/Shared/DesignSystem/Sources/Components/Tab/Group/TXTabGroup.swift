@@ -37,6 +37,13 @@ public struct TXTabGroup: View {
     @Binding private var selectedItem: Item?
     private let config: Configuration
     
+    /// 선택된 항목 바인딩과 구성값으로 탭 그룹을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// @State var selected: TXTabGroup.Item? = nil
+    /// TXTabGroup(selectedItem: $selected, config: .period())
+    /// ```
     public init(
         selectedItem: Binding<Item?>,
         config: Configuration
