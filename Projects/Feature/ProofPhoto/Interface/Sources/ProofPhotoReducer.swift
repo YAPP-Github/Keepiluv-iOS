@@ -10,6 +10,8 @@ import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
+import SharedDesignSystem
+import DomainGoalInterface
 
 /// ProofPhoto 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
@@ -18,10 +20,10 @@ public struct ProofPhotoReducer {
 
     /// ProofPhoto 화면 렌더링에 필요한 상태입니다.
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var titleText: String = "인증샷을 올려보세요~"
         public var commentText: String = ""
-        public var galleryThumbnail: Image
+        public var isCommentFocused: Bool = false
         public var scopeText: String = "1x"
         public var captureSession: AVCaptureSession?
         public var imageData: Data?
@@ -30,6 +32,7 @@ public struct ProofPhotoReducer {
         public var isFlashOn: Bool = false
         public var isCapturing: Bool = false
         public var hasImage: Bool { imageData != nil }
+        public var toast: TXToastType?
 
         /// 상태를 생성합니다.
         ///
@@ -39,10 +42,8 @@ public struct ProofPhotoReducer {
         ///     galleryThumbnail: image
         /// )
         /// ```
-        public init(
-            galleryThumbnail: Image
-        ) {
-            self.galleryThumbnail = galleryThumbnail
+        public init(comment: String = "") {
+            self.commentText = comment
         }
     }
 
@@ -59,6 +60,9 @@ public struct ProofPhotoReducer {
         case switchButtonTapped
         case flashButtonTapped
         case returnButtonTapped
+        case focusChanged(Bool)
+        case uploadButtonTapped
+        case dimmedBackgroundTapped
         
         // MARK: - Update State
         case commentTextChanged(String)
@@ -67,6 +71,7 @@ public struct ProofPhotoReducer {
         case captureFailed
         case galleryPhotoLoaded(imageData: Data)
         case cameraSwitched
+        case showToast(TXToastType)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -74,6 +79,7 @@ public struct ProofPhotoReducer {
         /// ProofPhoto 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case closeProofPhoto
+            case completedUploadPhoto(completedGoal: GoalDetail.CompletedGoal)
         }
     }
 

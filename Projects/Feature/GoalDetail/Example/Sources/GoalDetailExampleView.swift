@@ -19,17 +19,7 @@ struct GoalDetailExampleView: View {
     var body: some View {
         GoalDetailView(
             store: Store(
-                initialState: GoalDetailReducer.State(
-                    item: .init(
-                        image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                        commentText: "차타고슝슝",
-                        createdAt: "6시간전",
-                        selectedEmojiIndex: nil,
-                        name: "민정"
-                    ),
-                    currentUser: .mySelf,
-                    status: .pending
-                ),
+                initialState: GoalDetailReducer.State(),
                 reducer: {
                     GoalDetailReducer(
                         proofPhotoReducer: ProofPhotoReducer()
@@ -37,6 +27,7 @@ struct GoalDetailExampleView: View {
                 }, withDependencies: {
                     $0.captureSessionClient = .liveValue
                     $0.proofPhotoFactory = .liveValue
+                    $0.goalClient = .previewValue
                 }
             )
         )

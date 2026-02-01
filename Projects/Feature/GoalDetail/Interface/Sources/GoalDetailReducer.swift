@@ -5,10 +5,12 @@
 //  Created by 정지훈 on 1/21/26.
 //
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureProofPhotoInterface
+import SharedDesignSystem
 
 /// GoalDetail 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer
@@ -18,46 +20,40 @@ public struct GoalDetailReducer {
     
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
-    public struct State {
-        
-        /// 목표 카드의 사용자 타입을 나타냅니다.
-        public enum UserType {
-            case mySelf
-            case you
+    public struct State: Equatable {
+        public var item: GoalDetail?
+        public var currentUser: GoalDetail.Owner = .you
+        public var currentCard: GoalDetail.CompletedGoal? {
+            let index = currentUser == .mySelf ? 0 : 1
+            return item?.completedGoal[index]
         }
-        
-        /// 목표 카드의 완료 상태를 나타냅니다.
-        public enum Status {
-            case completed
-            case pending
+        public var isCompleted: Bool { currentCard?.image != nil }
+        public var comment: String { currentCard?.comment ?? "" }
+        public var createdAt: String { currentCard?.createdAt ?? "" }
+        public var naviBarRightText: String {
+            if case .mySelf = currentUser,
+               isCompleted {
+                return isEditing ? "저장" : "수정"
+            } else { return "" }
         }
-        
-        public var item: DetailCompletedItem
-        public var currentUser: UserType
-        public var status: Status
         
         public var proofPhoto: ProofPhotoReducer.State?
         public var isPresentedProofPhoto: Bool = false
         
-        /// 상태를 생성합니다.
+        public var selectedReactionIndex: Int?
+        public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
+        public var isLoading: Bool { item == nil }
+        public var isEditing: Bool = false
+        public var commentText: String = ""
+        public var isCommentFocused: Bool = false
+        
+        /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = GoalDetailReducer.State(
-        ///     item: item,
-        ///     currentUser: .me,
-        ///     status: .completed
-        /// )
+        /// let state = GoalDetailReducer.State()
         /// ```
-        public init(
-            item: DetailCompletedItem,
-            currentUser: UserType,
-            status: Status,
-        ) {
-            self.item = item
-            self.currentUser = currentUser
-            self.status = status
-        }
+        public init() { }
     }
     
     /// GoalDetail 화면에서 발생하는 액션입니다.
@@ -65,16 +61,31 @@ public struct GoalDetailReducer {
         case binding(BindingAction<State>)
         
         // MARK: - LifeCycle
-        case proofPhotoDismissed
+        case onAppear
         
         // MARK: - Action
         case bottomButtonTapped
+        case navigationBarTapped(TXNavigationBar.Action)
+        case reactionEmojiTapped(Int)
+        case cardTapped
+        case focusChanged(Bool)
+        case dimmedBackgroundTapped
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
+        case fethedGoalDetailItem(GoalDetail)
+        case proofPhotoDismissed
         
-        // MARK: - Reducer
+        // MARK: - Child Action
         case proofPhoto(ProofPhotoReducer.Action)
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        /// GoalDetail 화면에서 외부로 전달하는 이벤트입니다.
+        public enum Delegate {
+            case navigateBack
+        }
     }
     
     /// 외부에서 주입된 Reduce와 ProofPhotoReducer로 리듀서를 구성합니다.
@@ -104,28 +115,20 @@ public struct GoalDetailReducer {
 }
 
 extension GoalDetailReducer.State {
-    public var isCompleted: Bool {
-        status == .completed
-    }
-    
-    public var isShowReactionBar: Bool {
-        currentUser == .you && isCompleted
-    }
-    
     public var explainText: String {
         switch currentUser {
         case .you:
-            return "\(item.name)\n님은 아직인가봐요!"
+            return "민정\n님은 아직인가봐요!"
             
         case .mySelf:
             return "인증샷을\n올려보세요!"
         }
     }
     
-    public var nonCompleteButtonText: String {
+    public var bottomButtonText: String {
         switch currentUser {
         case .mySelf:
-            return "업로드하기"
+            return isEditing ? "다시 찍기" : "업로드하기"
             
         case .you:
             return "찔러보세요"

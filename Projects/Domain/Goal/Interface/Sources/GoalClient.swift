@@ -20,6 +20,7 @@ import SharedDesignSystem
 /// ```
 public struct GoalClient {
     public var fetchGoals: () async throws -> [Goal]
+    public var fetchGoalDetail: () async throws -> GoalDetail
     
     /// 목표 목록을 조회하는 클로저를 주입하여 GoalClient를 생성합니다.
     ///
@@ -32,9 +33,11 @@ public struct GoalClient {
     /// )
     /// ```
     public init(
-        fetchGoals: @escaping () async throws -> [Goal]
+        fetchGoals: @escaping () async throws -> [Goal],
+        fetchGoalDetail: @escaping () async throws -> GoalDetail
     ) {
         self.fetchGoals = fetchGoals
+        self.fetchGoalDetail = fetchGoalDetail
     }
 }
 
@@ -43,6 +46,9 @@ extension GoalClient: TestDependencyKey {
         fetchGoals: {
             assertionFailure("GoalClient.fetchGoals이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return []
+        }, fetchGoalDetail: {
+            assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            return .init(id: "error", title: "error", completedGoal: [])
         }
     )
     
@@ -78,6 +84,28 @@ extension GoalClient: TestDependencyKey {
                     isCompleted: false
                 )
             ]
+        },
+        fetchGoalDetail: {
+            return
+                .init(
+                    id: "1",
+                    title: "아이스크림 먹기",
+                    selectedIndex: 3,
+                    completedGoal: [
+                        .init(
+                            owner: .mySelf,
+                            image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
+                            comment: "코멘트내용",
+                            createdAt: "6시간 전"
+                        ),
+                        .init(
+                            owner: .mySelf,
+                            image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
+                            comment: "코멘트내용",
+                            createdAt: "6시간 전"
+                        )
+                    ]
+                )
         }
     )
 }

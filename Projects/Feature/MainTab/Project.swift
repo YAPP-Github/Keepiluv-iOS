@@ -22,8 +22,17 @@ let project = Project.makeModule(
         .feature(
             example: .mainTab,
             config: .init(
+                infoPlist: .extendingDefault(
+                    with: Project.Environment.InfoPlist.launchScreen.merging(
+                        [
+                            "NSCameraUsageDescription": "UseCamera"
+                        ],
+                        uniquingKeysWith: { current, _ in current }
+                    )
+                ),
                 dependencies: [
                     .feature,
+                    .core(implements: .captureSession)
                 ]
             )
         )

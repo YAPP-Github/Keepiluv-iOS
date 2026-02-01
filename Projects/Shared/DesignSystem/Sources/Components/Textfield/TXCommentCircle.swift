@@ -12,6 +12,9 @@ public struct TXCommentCircle: View {
     @Binding private var commentText: String
     @FocusState private var isFocused: Bool
     private let isEditable: Bool
+    private let keyboardInset: CGFloat
+    private let externalFocus: Binding<Bool>?
+    public var onFocused: ((Bool) -> Void)?
     
     /// 코멘트 텍스트 바인딩과 편집 가능 여부를 전달해 컴포넌트를 생성합니다.
     ///
@@ -24,10 +27,16 @@ public struct TXCommentCircle: View {
     /// ```
     public init(
         commentText: Binding<String>,
-        isEditable: Bool
+        isEditable: Bool,
+        keyboardInset: CGFloat,
+        isFocused: Binding<Bool>? = nil,
+        onFocused: ((Bool) -> Void)? = nil
     ) {
         self._commentText = commentText
         self.isEditable = isEditable
+        self.keyboardInset = keyboardInset
+        self.externalFocus = isFocused
+        self.onFocused = onFocused
     }
     
     public var body: some View {
@@ -36,11 +45,24 @@ public struct TXCommentCircle: View {
             fillCircles
             textCircles
         }
+        .onChange(of: commentText) {
+            if commentText.count > Constants.maxCount {
+                commentText = String(commentText.prefix(Constants.maxCount))
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             if isFocused {
                 Color.clear
-                    .frame(height: Constants.keyboardPadding)
+                    .frame(height: keyboardInset)
             }
+        }
+        .onChange(of: isFocused) {
+            onFocused?(isFocused)
+            externalFocus?.wrappedValue = isFocused
+        }
+        .onChange(of: externalFocus?.wrappedValue) { newValue in
+            guard let newValue, newValue != isFocused else { return }
+            isFocused = newValue
         }
     }
 }
@@ -79,7 +101,9 @@ private extension TXCommentCircle {
             }
         }
         .onTapGesture {
-            isFocused = isEditable
+            if isEditable {
+                isFocused = isEditable
+            }
         }
         .background {
             TextField("", text: $commentText)
@@ -104,13 +128,13 @@ private enum Constants {
     static let circleSize: CGFloat = 62
     static let circleSpacing: CGFloat = -14
     static let placeholder = Array("코멘트추가")
-    static let keyboardPadding: CGFloat = 80
 }
 
 #Preview {
     @Previewable @State var text: String = ""
     TXCommentCircle(
         commentText: $text,
-        isEditable: true
+        isEditable: true,
+        keyboardInset: .zero
     )
 }

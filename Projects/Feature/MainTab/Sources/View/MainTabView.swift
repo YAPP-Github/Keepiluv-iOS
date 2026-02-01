@@ -10,6 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureHome
 import FeatureHomeInterface
+import FeatureProofPhoto
+import FeatureGoalDetail
 import SharedDesignSystem
 
 /// 메인 탭 화면을 표시하는 View입니다.
@@ -39,10 +41,13 @@ public struct MainTabView: View {
     }
 
     public var body: some View {
-        TXTabBarContainer(selectedItem: $store.selectedTab) {
+        TXTabBarContainer(
+            selectedItem: $store.selectedTab,
+            isTabBarHidden: store.isTabBarHidden
+        ) {
             switch store.selectedTab {
             case .home:
-                RootHomeView(store: store.scope(state: \.home, action: \.home))
+                HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
             case .statistics:
                 EmptyView()
             case .couple:

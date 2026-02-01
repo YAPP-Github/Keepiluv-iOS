@@ -11,6 +11,10 @@ import ComposableArchitecture
 import CoreLogging
 import FeatureHome
 import FeatureHomeInterface
+import FeatureGoalDetail
+import FeatureGoalDetailInterface
+import FeatureProofPhoto
+import FeatureProofPhotoInterface
 
 import SharedDesignSystem
 
@@ -35,9 +39,16 @@ public struct MainTabReducer {
     /// let state = MainTabReducer.State()
     /// ```
     public struct State: Equatable {
-        public var home = RootHomeReducer.State()
+        public var home = HomeCoordinator.State()
         public var selectedTab: TXTabItem = .home
-
+        public var isTabBarHidden: Bool = false
+        
+        /// 기본 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = MainTabReducer.State()
+        /// ```
         public init() { }
     }
 
@@ -50,8 +61,8 @@ public struct MainTabReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
-        // MARK: - Reducer
-        case home(RootHomeReducer.Action)
+        // MARK: - Child Action
+        case home(HomeCoordinator.Action)
         
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
@@ -69,17 +80,28 @@ public struct MainTabReducer {
         BindingReducer()
         
         Scope(state: \.home, action: \.home) {
-            RootHomeReducer()
+            HomeCoordinator(
+                goalDetailReducer: GoalDetailReducer(
+                    proofPhotoReducer: ProofPhotoReducer()
+                )
+            )
         }
 
         Reduce { state, action in
             switch action {
                 // MARK: - User Action
-            case let .selectedTabChanged(tab):
-                state.selectedTab = tab
-                
+            case .selectedTabChanged:
                 return .none
-
+                
+                // MARK: - Child Action
+            case .home(.home(.delegate(.goToGoalDetail))):
+                state.isTabBarHidden = true
+                return .none
+                
+            case .home(.goalDetail(.delegate(.navigateBack))):
+                state.isTabBarHidden = false
+                return .none
+                
             case .home:
                 return .none
                 

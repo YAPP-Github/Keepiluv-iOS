@@ -30,20 +30,35 @@ import SwiftUI
 /// ```
 public struct TXTabBarContainer<Content: View>: View {
     @Binding private var selectedItem: TXTabItem
+    private let isTabBarHidden: Bool
     private let content: () -> Content
 
+    /// 탭바 컨테이너를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// @State var selectedTab: TXTabItem = .home
+    ///
+    /// TXTabBarContainer(selectedItem: $selectedTab) {
+    ///     Text("Home")
+    /// }
+    /// ```
     public init(
         selectedItem: Binding<TXTabItem>,
+        isTabBarHidden: Bool = false,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self._selectedItem = selectedItem
+        self.isTabBarHidden = isTabBarHidden
         self.content = content
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             content()
-            TXTabBar(selectedItem: $selectedItem)
+            if !isTabBarHidden {
+                TXTabBar(selectedItem: $selectedItem)
+            }
         }
         .ignoresSafeArea(.keyboard)
     }

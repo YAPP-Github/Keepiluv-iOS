@@ -12,10 +12,33 @@ import ComposableArchitecture
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 
+/// 인증샷 화면을 렌더링하는 View입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// ProofPhotoView(
+///     store: Store(
+///         initialState: ProofPhotoReducer.State()
+///     ) {
+///         ProofPhotoReducer()
+///     }
+/// )
+/// ```
 public struct ProofPhotoView: View {
 
     @Bindable public var store: StoreOf<ProofPhotoReducer>
+    
+    @State private var rectFrame: CGRect = .zero
+    @State private var keyboardFrame: CGRect = .zero
 
+    /// ProofPhotoView를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = ProofPhotoView(
+    ///     store: Store(initialState: ProofPhotoReducer.State()) { ProofPhotoReducer() }
+    /// )
+    /// ```
     public init(store: StoreOf<ProofPhotoReducer>) {
         self.store = store
     }
@@ -28,15 +51,16 @@ public struct ProofPhotoView: View {
             photoPreview
                 .padding(.top, 38)
             bottomControls
-                .padding(.horizontal, 41)
                 .padding(.top, 52)
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .observeKeyboardFrame($keyboardFrame)
         .background(.black)
         .onAppear {
             store.send(.onAppear)
         }
+        .txToast(item: $store.toast, customPadding: 75)
     }
 }
 
@@ -55,6 +79,7 @@ private extension ProofPhotoView {
                     .frame(width: 44, height: 44)
             }
         }
+        .overlay(dimmedView)
         .frame(height: 72)
     }
     
@@ -62,6 +87,8 @@ private extension ProofPhotoView {
         Text(store.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
+            .frame(maxWidth: .infinity)
+            .overlay(dimmedView)
     }
     
     @ViewBuilder
@@ -128,15 +155,9 @@ private extension ProofPhotoView {
     }
     
     var captureControls: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 52) {
             galleryButton
-            
-            Spacer()
-            
             captureButton
-            
-            Spacer()
-            
             TXCircleButton(config: .cameraChange()) {
                 store.send(.switchButtonTapped)
             }
@@ -157,9 +178,11 @@ private extension ProofPhotoView {
             }
             
             TXShadowButton(
-                config: .proofPhoto(),
+                config: .long(text: "업로드하기"),
                 colorStyle: .black
-            ) { }
+            ) {
+                store.send(.uploadButtonTapped)
+            }
             
             Color.clear
                 .frame(width: 50)
@@ -173,15 +196,11 @@ private extension ProofPhotoView {
             matching: .images,
             photoLibrary: .shared()
         ) {
-            store.galleryThumbnail
-                .resizable()
-                .insideBorder(
-                    Color.Gray.gray300,
-                    shape: RoundedRectangle(cornerRadius: 8),
-                    lineWidth: 2
-                )
-                .frame(width: 52, height: 52)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            Image.Icon.Symbol.gallery
+                .renderingMode(.template)
+                .foregroundStyle(Color.Common.white)
+                .frame(width: 56, height: 56)
+                .background(Color.Gray.gray400, in: .circle)
         }
     }
     
@@ -206,6 +225,17 @@ private extension ProofPhotoView {
         }
         .disabled(store.isCapturing)
     }
+    
+    var dimmedView: some View {
+        Color.Dimmed.dimmed70
+            .opacity(store.isCommentFocused ? 1 : 0)
+            .transition(.opacity)
+            .animation(.easeInOut, value: store.isCommentFocused)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                store.send(.dimmedBackgroundTapped)
+            }
+    }
 }
 
 // MARK: - Preiview Methods
@@ -219,6 +249,7 @@ private extension ProofPhotoView {
         return Color.clear
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
+            .readSize { rectFrame = $0 }
             .overlay {
                 content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -228,12 +259,16 @@ private extension ProofPhotoView {
             .overlay(alignment: .top) {
                 previewTopControls
             }
+            .overlay(dimmedView)
             .overlay(alignment: .bottom) {
-                TXCommentCircle(
-                    commentText: $store.commentText,
-                    isEditable: true
-                )
+                VStack(spacing: 8) {
+                    if store.isCommentFocused {
+                        commentExpalinText
+                    }
+                    commentCircle
+                }
                 .padding(.bottom, 26)
+                .animation(.easeOut(duration: 0.25), value: keyboardInset)
             }
             .insideBorder(
                 .white.opacity(0.2),
@@ -241,14 +276,35 @@ private extension ProofPhotoView {
                 lineWidth: 2
             )
     }
+    
+    var commentExpalinText: some View {
+        Text("5글자로 코멘트를 남길 수 있어요")
+            .typography(.b2_14r)
+            .foregroundStyle(Color.Gray.gray100)
+    }
+    
+    var commentCircle: some View {
+        TXCommentCircle(
+            commentText: $store.commentText,
+            isEditable: true,
+            keyboardInset: keyboardInset,
+            isFocused: $store.isCommentFocused,
+            onFocused: { isFocused in
+                store.send(.focusChanged(isFocused))
+            }
+        )
+    }
+}
+
+// MARK: - Private Methods
+private extension ProofPhotoView {
+    var keyboardInset: CGFloat { max(0, rectFrame.maxY - keyboardFrame.minY) }
 }
 
 #Preview {
     ProofPhotoView(
         store: Store(
-            initialState: ProofPhotoReducer.State(
-                galleryThumbnail: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
-            ),
+            initialState: ProofPhotoReducer.State(),
             reducer: {
                 ProofPhotoReducer()
             }

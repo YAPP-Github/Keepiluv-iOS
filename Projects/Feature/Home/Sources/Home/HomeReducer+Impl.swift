@@ -100,7 +100,7 @@ extension HomeReducer {
                 case .settingTapped:
                     return .none
                     
-                case .backTapped, .closeTapped:
+                case .backTapped, .rightTapped:
                     return .none
                 }
                 
@@ -127,8 +127,12 @@ extension HomeReducer {
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
                     return .send(.showToast(.poke(message: "님을 찔렀어요!")))
+                } else {
+                    return .send(.delegate(.goToGoalDetail))
                 }
-                return .none
+                
+            case .myCardTapped:
+                return .send(.delegate(.goToGoalDetail))
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
@@ -153,6 +157,9 @@ extension HomeReducer {
                 return .none
 
             case .binding:
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

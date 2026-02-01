@@ -77,12 +77,21 @@ public struct HomeReducer {
         case goalCheckButtonTapped(id: String, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
+        case myCardTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        /// 홈 화면에서 외부로 전달하는 이벤트입니다.
+        public enum Delegate {
+            case goToGoalDetail
+        }
         
     }
     
