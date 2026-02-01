@@ -96,7 +96,7 @@ public struct HomeReducer {
         case showToast(TXToastType)
         case authorizationCompleted(isAuthorized: Bool)
         case proofPhotoDismissed
-        case addGoalButtonTapped
+        case addGoalButtonTapped(GoalCategory)
         
         // MARK: - Delegate
         case delegate(Delegate)
@@ -104,7 +104,7 @@ public struct HomeReducer {
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case goToGoalDetail
-            case goToMakeGoal
+            case goToMakeGoal(GoalCategory)
         }
         
     }
