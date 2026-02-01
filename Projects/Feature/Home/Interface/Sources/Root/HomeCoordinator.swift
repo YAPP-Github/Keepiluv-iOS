@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureProofPhotoInterface
 
 /// Home Feature의 NavigationStack을 관리하는 Root Reducer입니다.
 ///
@@ -20,9 +21,9 @@ import FeatureGoalDetailInterface
 /// ```
 @Reducer
 public struct HomeCoordinator {
-    let reducer: Reduce<State, Action>
-    let homeReducer: HomeReducer
-    public let goalDetailReducer: GoalDetailReducer
+    private let reducer: Reduce<State, Action>
+    private let homeReducer: HomeReducer
+    private let goalDetailReducer: GoalDetailReducer
     
     /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///

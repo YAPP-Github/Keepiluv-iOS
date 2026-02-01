@@ -89,10 +89,12 @@ public struct GoalDetailView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .onDisappear {
+            store.send(.onDisappear)
+        }
         .fullScreenCover(
             isPresented: $store.isPresentedProofPhoto,
-            onDismiss: { store.send(.proofPhotoDismissed)
-            },
+            onDismiss: { store.send(.proofPhotoDismissed) },
             content: {
                 IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
                     proofPhotoFactory.makeView(store)
