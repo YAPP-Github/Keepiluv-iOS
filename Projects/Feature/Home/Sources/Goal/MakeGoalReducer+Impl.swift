@@ -13,7 +13,25 @@ import FeatureHomeInterface
 extension MakeGoalReducer {
     public init() {
         let reducer = Reduce<State, Action> { state, action in
-            return .none
+            switch action {
+            case .binding:
+                return .none
+
+            case .emojiButtonTapped:
+                return .none
+
+            case .periodSelected:
+                return .none
+
+            case .startDateTapped:
+                return .none
+
+            case .endDateTapped:
+                return .none
+
+            case .completeButtonTapped:
+                return .none
+            }
         }
         
         self.init(reducer: reducer)

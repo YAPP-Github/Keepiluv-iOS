@@ -29,9 +29,9 @@ extension HomeCoordinator {
                 state.goalDetail = .init()
                 return .none
                 
-            case .home(.delegate(.goToMakeGoal)):
+            case let .home(.delegate(.goToMakeGoal(category))):
                 state.routes.append(.makeGoal)
-                state.makeGoal = .init()
+                state.makeGoal = .init(category: category, mode: .add)
                 return .none
                 
             case .goalDetail(.delegate(.navigateBack)):

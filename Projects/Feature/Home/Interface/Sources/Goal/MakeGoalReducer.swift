@@ -16,15 +16,33 @@ public struct MakeGoalReducer {
     
     @ObservableState
     public struct State: Equatable {
+        public var mode: Mode
+        public var category: GoalCategory
+        public var goalTitle: String
+        public var isEndDateOn: Bool = false
         
+        public enum Mode: Equatable {
+            case add
+            case edit
+        }
         
-        public init() {
-            
+        public init(
+            category: GoalCategory,
+            mode: Mode = .add
+        ) {
+            self.mode = mode
+            self.category = category
+            self.goalTitle = category.title
         }
     }
     
-    public enum Action {
-        
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case emojiButtonTapped
+        case periodSelected
+        case startDateTapped
+        case endDateTapped
+        case completeButtonTapped
     }
     
     public init(reducer: Reduce<State, Action>) {
@@ -32,7 +50,7 @@ public struct MakeGoalReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }
-
