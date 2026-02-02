@@ -32,6 +32,12 @@ struct MakeGoalView: View {
         }
         .padding(.horizontal, 20)
         .toolbar(.hidden, for: .navigationBar)
+        .calendarSheet(
+            isPresented: $store.isCalendarSheetPresented,
+            selectedDate: $store.calendarSheetDate,
+            completeButtonText: "완료",
+            onComplete: { store.send(.monthCalendarConfirmTapped) }
+        )
     }
 }
 
@@ -104,7 +110,7 @@ private extension MakeGoalView {
                 
                 if store.showPeriodCount {
                     valueText(store.periodCountText)
-                    dropDownButton { store.send(.endDateTapped) }
+                    dropDownButton { store.send(.periodSelected) }
                 }
             }
         }
@@ -117,7 +123,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText("2월 1일")
+            valueText(dateText(store.startDate))
             
             dropDownButton { store.send(.startDateTapped) }
         }
@@ -141,7 +147,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText("2월 1일")
+            valueText(dateText(store.endDate))
             
             dropDownButton { store.send(.endDateTapped) }
         }
@@ -183,6 +189,14 @@ private extension MakeGoalView {
         Text(text)
             .typography(.b2_14r)
             .foregroundStyle(Color.Gray.gray500)
+    }
+
+    func dateText(_ date: TXCalendarDate?) -> String {
+        guard let date = date else { return "" }
+        if let day = date.day {
+            return "\(date.month)월 \(day)일"
+        }
+        return "\(date.month)월"
     }
 }
 
