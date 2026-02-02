@@ -15,6 +15,10 @@ extension MakeGoalReducer {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 
+                // MARK: - LifeCycle
+            case .onDisappear:
+                return .none
+                
                 // MARK: - User Action
             case .emojiButtonTapped:
                 return .none
@@ -52,6 +56,13 @@ extension MakeGoalReducer {
                 return .none
                 
             case .completeButtonTapped:
+                // FIXME: - POST
+                return .send(.delegate(.navigateBack))
+                
+            case .navigationBackButtonTapped:
+                return .send(.delegate(.navigateBack))
+                
+            case .delegate:
                 return .none
                 
             case .binding:

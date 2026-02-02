@@ -80,7 +80,7 @@ public struct MakeGoalReducer {
 
             self.mode = mode
             self.category = category
-            self.goalTitle = category.title
+            self.goalTitle = category != .custom ? category.title : ""
             self.selectedPeriod = category.repeatCycle.text
             self.periodCount = category.repeatCycle.count
             
@@ -99,6 +99,9 @@ public struct MakeGoalReducer {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         
+        // MARK: - LifeCycle
+        case onDisappear
+        
         // MARK: - User Action
         case emojiButtonTapped
         case periodSelected
@@ -106,6 +109,15 @@ public struct MakeGoalReducer {
         case endDateTapped
         case monthCalendarConfirmTapped
         case completeButtonTapped
+        case navigationBackButtonTapped
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        /// MakeGoalReducer 화면에서 외부로 전달하는 이벤트입니다.
+        public enum Delegate {
+            case navigateBack
+        }
     }
     
     /// 외부에서 주입한 Reduce로 MakeGoalReducer를 구성합니다.

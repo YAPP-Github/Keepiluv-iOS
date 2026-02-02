@@ -32,6 +32,7 @@ struct MakeGoalView: View {
         }
         .padding(.horizontal, 20)
         .toolbar(.hidden, for: .navigationBar)
+        .onDisappear { store.send(.onDisappear) }
         .calendarSheet(
             isPresented: $store.isCalendarSheetPresented,
             selectedDate: $store.calendarSheetDate,
@@ -48,8 +49,9 @@ private extension MakeGoalView {
             style: .subTitle(
                 title: "직접 만들기",
                 rightText: ""
-            )
-        )
+            )) { _ in
+                store.send(.navigationBackButtonTapped)
+            }
     }
     
     var emojiButton: some View {

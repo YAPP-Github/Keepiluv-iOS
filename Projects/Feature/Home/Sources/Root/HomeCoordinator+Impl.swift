@@ -42,6 +42,14 @@ extension HomeCoordinator {
                 state.goalDetail = nil
                 return .none
                 
+            case .makeGoal(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+                
+            case .makeGoal(.onDisappear):
+                state.makeGoal = nil
+                return .none
+                
             case .home:
                 return .none
                 
