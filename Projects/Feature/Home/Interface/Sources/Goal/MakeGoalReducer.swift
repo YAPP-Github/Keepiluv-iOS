@@ -8,6 +8,8 @@
 import Foundation
 
 import ComposableArchitecture
+import SharedDesignSystem
+import SharedUtil
 
 /// 목표 생성/수정 화면의 상태와 액션을 관리하는 Reducer입니다.
 ///
@@ -37,6 +39,11 @@ public struct MakeGoalReducer {
         public var goalTitle: String
         public var selectedPeriod: String?
         public var periodCount: Int
+        public var startDate: TXCalendarDate
+        public var endDate: TXCalendarDate
+        public var calendarSheetDate: TXCalendarDate
+        public var isCalendarSheetPresented: Bool = false
+        public var calendarTarget: CalendarTarget?
         public var isEndDateOn: Bool = false
         public var showPeriodCount: Bool {
             selectedPeriod != "매일"
@@ -47,6 +54,11 @@ public struct MakeGoalReducer {
         public enum Mode: Equatable {
             case add
             case edit
+        }
+
+        public enum CalendarTarget: Equatable {
+            case startDate
+            case endDate
         }
         
         /// 목표 생성/수정 화면의 상태를 생성합니다.
@@ -59,11 +71,22 @@ public struct MakeGoalReducer {
             category: GoalCategory,
             mode: Mode,
         ) {
+            let now = CalendarNow()
+            let today = TXCalendarDate(
+                year: now.year,
+                month: now.month,
+                day: now.day
+            )
+
             self.mode = mode
             self.category = category
             self.goalTitle = category.title
             self.selectedPeriod = category.repeatCycle.text
             self.periodCount = category.repeatCycle.count
+            
+            self.startDate = today
+            self.endDate = today
+            self.calendarSheetDate = today
         }
     }
     
@@ -75,10 +98,13 @@ public struct MakeGoalReducer {
     /// ```
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        
+        // MARK: - User Action
         case emojiButtonTapped
         case periodSelected
         case startDateTapped
         case endDateTapped
+        case monthCalendarConfirmTapped
         case completeButtonTapped
     }
     
