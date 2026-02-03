@@ -49,12 +49,22 @@ struct MakeGoalView: View {
         ) {
             VStack(spacing: 0) {
                 HStack(spacing: 8) {
-                    TXRoundedRectangleButton(config: .small(text: "매주", colorStyle: .white)) {
-                        
+                    TXRoundedRectangleButton(
+                        config: .small(
+                            text: store.weeklyPeriodText,
+                            colorStyle: store.selectedPeriod.isWeekly ? .black : .white
+                        )
+                    ) {
+                        store.send(.periodSheetWeeklyTapped)
                     }
                     
-                    TXRoundedRectangleButton(config: .small(text: "매월", colorStyle: .white)) {
-                        
+                    TXRoundedRectangleButton(
+                        config: .small(
+                            text: store.monthlyPeriodText,
+                            colorStyle: store.selectedPeriod.isMonthly ? .black : .white
+                        )
+                    ) {
+                        store.send(.periodSheetMonthlyTapped)
                     }
                 }
                 
@@ -64,14 +74,15 @@ struct MakeGoalView: View {
                             image: .Icon.Symbol.minus,
                             frameSize: .init(width: 36, height: 36),
                             imageSize: .init(width: 28, height: 28),
-                            colorStyle: .black
+                            colorStyle: store.isMinusEnable ? .black : .disable
                         )
                     ) {
-                        
+                        store.send(.periodSheetMinusTapped)
                     }
+                    .disabled(!store.isMinusEnable)
                     
                     HStack(spacing: 8) {
-                        Text("6")
+                        Text("\(store.periodCount)")
                             .typography(.h2_24r)
                             .foregroundStyle(Color.Gray.gray500)
                         
@@ -91,18 +102,19 @@ struct MakeGoalView: View {
                             image: .Icon.Symbol.plus,
                             frameSize: .init(width: 36, height: 36),
                             imageSize: .init(width: 28, height: 28),
-                            colorStyle: .black
+                            colorStyle: store.isPlusEnable ? .black : .disable
                         )
                     ) {
-                        
+                        store.send(.periodSheetPlusTapped)
                     }
+                    .disabled(!store.isPlusEnable)
                     
                     
                 }
                 .padding(.top, 36)
                 
                 TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
-                    
+                    store.send(.periodSheetCompleteTapped)
                 }
                 .padding(.top ,40)
                 .padding(.horizontal, 20)
@@ -175,8 +187,14 @@ private extension MakeGoalView {
             
             HStack(spacing: 8) {
                 TXTabGroup(
-                    selectedItem: $store.selectedPeriod,
-                    config: .period()
+                    selectedItem: periodSelectionBinding,
+                    config: .period(
+                        items: [
+                            store.dailyPeriodText,
+                            store.weeklyPeriodText,
+                            store.monthlyPeriodText
+                        ]
+                    )
                 )
                 
                 Spacer()
@@ -264,11 +282,32 @@ private extension MakeGoalView {
             .foregroundStyle(Color.Gray.gray500)
     }
 
+}
+
+// MARK: - Private Methods
+private extension MakeGoalView {
     func dateText(_ date: TXCalendarDate?) -> String {
         guard let date = date else { return "" }
         if let day = date.day {
             return "\(date.month)월 \(day)일"
         }
         return "\(date.month)월"
+    }
+    
+    var periodSelectionBinding: Binding<String?> {
+        Binding(
+            get: { store.selectedPeriod.text },
+            set: { newValue in
+                guard let newValue else { return }
+
+                if newValue == store.dailyPeriodText {
+                    store.selectedPeriod = .daily
+                } else if newValue == store.weeklyPeriodText {
+                    store.selectedPeriod = .weekly(count: store.weeklyPeriodCount)
+                } else if newValue == store.monthlyPeriodText {
+                    store.selectedPeriod = .monthly(count: store.monthlyPeriodCount)
+                }
+            }
+        )
     }
 }

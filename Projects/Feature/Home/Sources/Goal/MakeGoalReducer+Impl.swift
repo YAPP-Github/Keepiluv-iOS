@@ -26,6 +26,50 @@ extension MakeGoalReducer {
             case .periodSelected:
                 state.isPeriodSheetPresented = true
                 return .none
+
+            case .periodSheetWeeklyTapped:
+                state.selectedPeriod = .weekly(count: state.weeklyPeriodCount)
+                return .none
+
+            case .periodSheetMonthlyTapped:
+                state.selectedPeriod = .monthly(count: state.monthlyPeriodCount)
+                return .none
+
+            case .periodSheetMinusTapped:
+                switch state.selectedPeriod {
+                case .daily:
+                    return .none
+                    
+                case .weekly:
+                    state.weeklyPeriodCount -= 1
+                    state.selectedPeriod = .weekly(count: state.weeklyPeriodCount)
+                    
+                case .monthly:
+                    state.monthlyPeriodCount -= 1
+                    state.selectedPeriod = .monthly(count: state.monthlyPeriodCount)
+                }
+                
+                return .none
+                
+            case .periodSheetPlusTapped:
+                switch state.selectedPeriod {
+                case .daily:
+                    return .none
+                    
+                case .weekly:
+                    state.weeklyPeriodCount += 1
+                    state.selectedPeriod = .weekly(count: state.weeklyPeriodCount)
+                    
+                case .monthly:
+                    state.monthlyPeriodCount += 1
+                    state.selectedPeriod = .monthly(count: state.monthlyPeriodCount)
+                }
+                
+                return .none
+
+            case .periodSheetCompleteTapped:
+                state.isPeriodSheetPresented = false
+                return .none
                 
             case .startDateTapped:
                 state.calendarTarget = .startDate
@@ -65,7 +109,7 @@ extension MakeGoalReducer {
                 
             case .delegate:
                 return .none
-                
+
             case .binding:
                 return .none
             }

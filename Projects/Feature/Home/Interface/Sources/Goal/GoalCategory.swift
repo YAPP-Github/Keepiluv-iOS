@@ -22,10 +22,7 @@ public enum GoalCategory: CaseIterable, Equatable {
     case book
     case cleaning
     case call
-    
-    
-    
-    
+
     /// 목표 반복 주기를 표현하는 타입입니다.
     ///
     /// ## 사용 예시
@@ -33,7 +30,7 @@ public enum GoalCategory: CaseIterable, Equatable {
     /// let cycle = RepeatCycle.weekly(count: 3)
     /// print(cycle.count)
     /// ```
-    public enum RepeatCycle {
+    public enum RepeatCycle: Equatable {
         case daily
         case weekly(count: Int)
         case monthly(count: Int)
@@ -80,6 +77,21 @@ extension GoalCategory {
 
 
 extension GoalCategory.RepeatCycle {
+    public var isDaily: Bool {
+        if case .daily = self { return true }
+        return false
+    }
+
+    public var isWeekly: Bool {
+        if case .weekly = self { return true }
+        return false
+    }
+
+    public var isMonthly: Bool {
+        if case .monthly = self { return true }
+        return false
+    }
+
     public var count: Int {
         switch self {
         case .daily: return 0
