@@ -13,6 +13,7 @@ public enum ColorStyle {
     case gray200
     case gray300
     case gray400
+    case disable
 }
 
 extension ColorStyle {
@@ -23,6 +24,9 @@ extension ColorStyle {
 
         case .white:
             return Color.Gray.gray500
+            
+        case .disable:
+            return Color.Gray.gray300
         }
     }
 
@@ -33,6 +37,9 @@ extension ColorStyle {
 
         case .white:
             return Color.Common.white
+            
+        case .disable:
+            return Color.Gray.gray100
 
         case .gray200:
             return Color.Gray.gray200
