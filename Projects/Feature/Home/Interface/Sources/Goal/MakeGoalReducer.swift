@@ -34,11 +34,19 @@ public struct MakeGoalReducer {
     /// let state = MakeGoalReducer.State(category: .book)
     /// ```
     public struct State: Equatable {
+        public let minimumPeriodCount = 1
+        public let weeklyMaximumPeriodCount = 6
+        public let monthlyMaximumPeriodCount = 25
+        public let dailyPeriodText = GoalCategory.RepeatCycle.daily.text
+        public let weeklyPeriodText = GoalCategory.RepeatCycle.weekly(count: 1).text
+        public let monthlyPeriodText = GoalCategory.RepeatCycle.monthly(count: 1).text
+        
         public var mode: Mode
         public var category: GoalCategory
         public var goalTitle: String
-        public var selectedPeriod: String?
-        public var periodCount: Int
+        public var selectedPeriod: GoalCategory.RepeatCycle
+        public var weeklyPeriodCount: Int = 1
+        public var monthlyPeriodCount: Int = 1
         public var startDate: TXCalendarDate
         public var endDate: TXCalendarDate
         public var calendarSheetDate: TXCalendarDate
@@ -47,10 +55,8 @@ public struct MakeGoalReducer {
         public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
         
-        public var showPeriodCount: Bool {
-            selectedPeriod != "매일"
-        }
-        public var periodCountText: String { "\(selectedPeriod ?? "") \(periodCount)번"}
+        public var showPeriodCount: Bool { !selectedPeriod.isDaily }
+        public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
         
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
@@ -83,12 +89,15 @@ public struct MakeGoalReducer {
             self.mode = mode
             self.category = category
             self.goalTitle = category != .custom ? category.title : ""
-            self.selectedPeriod = category.repeatCycle.text
-            self.periodCount = category.repeatCycle.count
+            self.selectedPeriod = category.repeatCycle
             
             self.startDate = today
             self.endDate = today
             self.calendarSheetDate = today
+
+            let repeatCycle = category.repeatCycle
+            self.weeklyPeriodCount = repeatCycle.isWeekly ? repeatCycle.count : minimumPeriodCount
+            self.monthlyPeriodCount = repeatCycle.isMonthly ? repeatCycle.count : minimumPeriodCount
         }
     }
     
@@ -107,6 +116,11 @@ public struct MakeGoalReducer {
         // MARK: - User Action
         case emojiButtonTapped
         case periodSelected
+        case periodSheetWeeklyTapped
+        case periodSheetMonthlyTapped
+        case periodSheetMinusTapped
+        case periodSheetPlusTapped
+        case periodSheetCompleteTapped
         case startDateTapped
         case endDateTapped
         case monthCalendarConfirmTapped
@@ -135,5 +149,42 @@ public struct MakeGoalReducer {
     public var body: some ReducerOf<Self> {
         BindingReducer()
         reducer
+    }
+}
+
+// MARK: - Functions
+public extension MakeGoalReducer.State {
+    var periodCount: Int {
+        switch selectedPeriod {
+        case .daily: return 0
+        case let .weekly(count): return count
+        case let .monthly(count): return count
+        }
+    }
+
+    var isMinusEnable: Bool { periodCount > minimumPeriodCount }
+
+    var isPlusEnable: Bool {
+        if case .monthly = selectedPeriod {
+            return periodCount < monthlyMaximumPeriodCount
+        } else if case .weekly = selectedPeriod {
+            return periodCount < weeklyMaximumPeriodCount
+        } else {
+            return false
+        }
+    }
+    
+    var selectedPeriodName: String {
+        get {
+            selectedPeriod.text
+        } set {
+            if newValue == dailyPeriodText {
+                selectedPeriod = .daily
+            } else if newValue == weeklyPeriodText {
+                selectedPeriod = .weekly(count: weeklyPeriodCount)
+            } else if newValue == monthlyPeriodText {
+                selectedPeriod = .monthly(count: monthlyPeriodCount)
+            }
+        }
     }
 }
