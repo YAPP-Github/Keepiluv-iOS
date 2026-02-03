@@ -33,12 +33,17 @@ struct MakeGoalView: View {
         .padding(.horizontal, 20)
         .toolbar(.hidden, for: .navigationBar)
         .onDisappear { store.send(.onDisappear) }
-        .calendarSheet(
-            isPresented: $store.isCalendarSheetPresented,
-            selectedDate: $store.calendarSheetDate,
-            completeButtonText: "완료",
-            onComplete: { store.send(.monthCalendarConfirmTapped) }
-        )
+        .txBottomSheet(
+            isPresented: $store.isCalendarSheetPresented
+        ) {
+            TXCalendarBottomSheet(
+                selectedDate: $store.calendarSheetDate,
+                completeButtonText: "완료",
+                onComplete: {
+                    store.send(.monthCalendarConfirmTapped)
+                }
+            )
+        }
     }
 }
 
@@ -200,19 +205,4 @@ private extension MakeGoalView {
         }
         return "\(date.month)월"
     }
-}
-
-#Preview {
-    MakeGoalView(
-        store: Store(
-            initialState: MakeGoalReducer
-                .State(
-                    category: .walk,
-                    mode: .add
-                ),
-            reducer: {
-                MakeGoalReducer()
-            }
-        )
-    )
 }
