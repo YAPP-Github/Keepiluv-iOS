@@ -45,6 +45,8 @@ public struct MakeGoalReducer {
         public var isCalendarSheetPresented: Bool = false
         public var calendarTarget: CalendarTarget?
         public var isEndDateOn: Bool = false
+        public var isPeriodSheetPresented: Bool = false
+        
         public var showPeriodCount: Bool {
             selectedPeriod != "매일"
         }
