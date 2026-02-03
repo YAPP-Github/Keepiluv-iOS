@@ -44,6 +44,72 @@ struct MakeGoalView: View {
                 }
             )
         }
+        .txBottomSheet(
+            isPresented: $store.isPeriodSheetPresented
+        ) {
+            VStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    TXRoundedRectangleButton(config: .small(text: "매주", colorStyle: .white)) {
+                        
+                    }
+                    
+                    TXRoundedRectangleButton(config: .small(text: "매월", colorStyle: .white)) {
+                        
+                    }
+                }
+                
+                HStack(spacing: 16) {
+                    TXCircleButton(
+                        config: .init(
+                            image: .Icon.Symbol.minus,
+                            frameSize: .init(width: 36, height: 36),
+                            imageSize: .init(width: 28, height: 28),
+                            colorStyle: .black
+                        )
+                    ) {
+                        
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Text("6")
+                            .typography(.h2_24r)
+                            .foregroundStyle(Color.Gray.gray500)
+                        
+                        Text("번")
+                            .typography(.t2_16b)
+                            .foregroundStyle(Color.Gray.gray300)
+                    }
+                    .frame(width: 96, height: 58)
+                    .insideBorder(
+                        Color.Gray.gray300,
+                        shape: RoundedRectangle(cornerRadius: 12),
+                        lineWidth: 1.2
+                    )
+                    
+                    TXCircleButton(
+                        config: .init(
+                            image: .Icon.Symbol.plus,
+                            frameSize: .init(width: 36, height: 36),
+                            imageSize: .init(width: 28, height: 28),
+                            colorStyle: .black
+                        )
+                    ) {
+                        
+                    }
+                    
+                    
+                }
+                .padding(.top, 36)
+                
+                TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
+                    
+                }
+                .padding(.top ,40)
+                .padding(.horizontal, 20)
+            }
+            .padding(.top, 36)
+            .padding(.bottom, TXSafeArea.inset(.bottom))
+        }
     }
 }
 

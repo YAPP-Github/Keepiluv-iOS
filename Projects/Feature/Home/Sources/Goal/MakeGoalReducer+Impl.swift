@@ -24,6 +24,7 @@ extension MakeGoalReducer {
                 return .none
                 
             case .periodSelected:
+                state.isPeriodSheetPresented = true
                 return .none
                 
             case .startDateTapped:
