@@ -40,8 +40,13 @@ public struct OnboardingCodeInputReducer {
         /// 초대 코드 총 자릿수
         static let codeLength = 8
 
-        public init(myInviteCode: String = "") {
+        public init(
+            myInviteCode: String = "",
+            receivedCode: String = ""
+        ) {
             self.myInviteCode = myInviteCode
+            let filtered = receivedCode.filter { $0.isNumber || $0.isLetter }
+            self.receivedCode = String(filtered.prefix(Self.codeLength)).uppercased()
         }
     }
 

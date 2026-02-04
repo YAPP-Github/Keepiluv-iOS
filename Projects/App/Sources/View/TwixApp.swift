@@ -14,31 +14,43 @@ import CoreLogging
 
 @main
 struct TwixApp: App {
+    let store = Store(
+        initialState: AppCoordinator.State()
+    ) {
+        AppCoordinator()
+    } withDependencies: {
+        $0.networkClient = .liveValue
+        $0.tokenStorage = .liveValue
+    }
+
     init() {
         configureKakaoSDK()
     }
 
     var body: some Scene {
         WindowGroup {
-            AppRootView(
-                store: Store(
-                    initialState: AppRootReducer.State()
-                ) {
-                    AppRootReducer()
-                } withDependencies: {
-                    $0.networkClient = .liveValue
-                    $0.tokenStorage = .liveValue
+            AppRootView(store: store)
+                .onOpenURL { url in
+                    // 유니버셜 링크 처리 (invite code)
+                    if let inviteCode = parseInviteCode(from: url) {
+                        store.send(.deepLinkReceived(code: inviteCode))
+                        return
+                    }
+
+                    // 카카오 로그인 URL 처리
+                    if AuthApi.isKakaoTalkLoginUrl(url) {
+                        _ = AuthController.handleOpenUrl(url: url)
+                        return
+                    }
+
+                    // 구글 로그인 URL 처리
+                    GIDSignIn.sharedInstance.handle(url)
                 }
-            )
-            .onOpenURL { url in
-                if AuthApi.isKakaoTalkLoginUrl(url) {
-                    _ = AuthController.handleOpenUrl(url: url)
-                }
-                GIDSignIn.sharedInstance.handle(url)
-            }
         }
     }
 }
+
+// MARK: - Private Methods
 
 private extension TwixApp {
     func configureKakaoSDK() {
@@ -46,5 +58,20 @@ private extension TwixApp {
             fatalError("KAKAO_APP_KEY not found in Info.plist")
         }
         KakaoSDK.initSDK(appKey: kakaoAppKey)
+    }
+
+    /// 유니버셜 링크에서 invite code 파싱
+    /// - URL 형식: https://{DEEPLINK_HOST}/invite?code=12345678
+    func parseInviteCode(from url: URL) -> String? {
+        guard let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String,
+              let host = url.host,
+              host.contains(deeplinkHost),
+              url.path == "/invite",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let code = components.queryItems?.first(where: { $0.name == "code" })?.value,
+              !code.isEmpty else {
+            return nil
+        }
+        return code
     }
 }

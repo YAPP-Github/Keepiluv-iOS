@@ -29,19 +29,28 @@ public struct OnboardingCoordinator {
         var profile: OnboardingProfileReducer.State?
         var dday: OnboardingDdayReducer.State?
         var myInviteCode: String
+        var pendingReceivedCode: String?
 
         public init(
             myInviteCode: String = "",
-            shareContent: String = ""
+            shareContent: String = "",
+            pendingReceivedCode: String? = nil
         ) {
             self.myInviteCode = myInviteCode
             self.connect = OnboardingConnectReducer.State(shareContent: shareContent)
+            self.pendingReceivedCode = pendingReceivedCode
         }
     }
 
     public enum Action: BindableAction {
         // MARK: - Binding
         case binding(BindingAction<State>)
+
+        // MARK: - LifeCycle
+        case onAppear
+
+        // MARK: - Deep Link
+        case deepLinkReceived(code: String)
 
         // MARK: - Child Action
         case connect(OnboardingConnectReducer.Action)
@@ -72,12 +81,40 @@ public struct OnboardingCoordinator {
             case .binding:
                 return .none
 
+            // MARK: - LifeCycle
+            case .onAppear:
+                if let code = state.pendingReceivedCode {
+                    state.pendingReceivedCode = nil
+                    state.codeInput = OnboardingCodeInputReducer.State(
+                        myInviteCode: state.myInviteCode,
+                        receivedCode: code
+                    )
+                    state.routes.append(.codeInput)
+                }
+                return .none
+
+            // MARK: - Deep Link
+            case let .deepLinkReceived(code):
+                state.routes.removeAll()
+                state.codeInput = OnboardingCodeInputReducer.State(
+                    myInviteCode: state.myInviteCode,
+                    receivedCode: code
+                )
+                state.profile = nil
+                state.dday = nil
+                state.routes.append(.codeInput)
+                return .none
+
             // MARK: - Connect Delegate
             case .connect(.delegate(.navigateBack)):
                 return .send(.delegate(.navigateBack))
 
             case .connect(.delegate(.navigateToCodeInput)):
-                state.codeInput = OnboardingCodeInputReducer.State(myInviteCode: state.myInviteCode)
+                state.codeInput = OnboardingCodeInputReducer.State(
+                    myInviteCode: state.myInviteCode,
+                    receivedCode: state.pendingReceivedCode ?? ""
+                )
+                state.pendingReceivedCode = nil
                 state.routes.append(.codeInput)
                 return .none
 
