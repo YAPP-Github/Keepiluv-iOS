@@ -49,6 +49,14 @@ struct MakeGoalView: View {
         ) {
             periodSheet
         }
+        .txModal(
+            item: $store.modal,
+            onAction: { action in
+                if case let .confirmWithIndex(index) = action {
+                    store.send(.modalConfirmTapped(index))
+                }
+            }
+        )
     }
 }
 
@@ -68,13 +76,15 @@ private extension MakeGoalView {
         Button {
             store.send(.emojiButtonTapped)
         } label: {
-            Image.Icon.Illustration.emojiAdd
+            store.selectedEmoji
+                .resizable()
+                .frame(width: 56, height: 56)
                 .padding(26)
                 .background(Color.Gray.gray50, in: .circle)
                 .insideBorder(
                     Color.Gray.gray500,
                     shape: .circle,
-                    lineWidth: 1
+                    lineWidth: LineWidth.m
                 )
         }
         .buttonStyle(.plain)

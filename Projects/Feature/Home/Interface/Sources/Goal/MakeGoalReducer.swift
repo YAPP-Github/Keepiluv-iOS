@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import SwiftUI
 import SharedDesignSystem
 import SharedUtil
 
@@ -40,7 +41,7 @@ public struct MakeGoalReducer {
         public let dailyPeriodText = GoalCategory.RepeatCycle.daily.text
         public let weeklyPeriodText = GoalCategory.RepeatCycle.weekly(count: 1).text
         public let monthlyPeriodText = GoalCategory.RepeatCycle.monthly(count: 1).text
-        
+        public let iconImages: [Image] = GoalCategory.images
         public var mode: Mode
         public var category: GoalCategory
         public var goalTitle: String
@@ -54,9 +55,13 @@ public struct MakeGoalReducer {
         public var calendarTarget: CalendarTarget?
         public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
+        public var selectedEmojiIndex: Int
         
         public var showPeriodCount: Bool { !selectedPeriod.isDaily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
+        public var selectedEmoji: Image { iconImages[selectedEmojiIndex] }
+        
+        public var modal: TXModalType?
         
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
@@ -90,6 +95,7 @@ public struct MakeGoalReducer {
             self.category = category
             self.goalTitle = category != .custom ? category.title : ""
             self.selectedPeriod = category.repeatCycle
+            self.selectedEmojiIndex = category.iconIndex
             
             self.startDate = today
             self.endDate = today
@@ -126,6 +132,7 @@ public struct MakeGoalReducer {
         case monthCalendarConfirmTapped
         case completeButtonTapped
         case navigationBackButtonTapped
+        case modalConfirmTapped(Int)
         
         // MARK: - Delegate
         case delegate(Delegate)
