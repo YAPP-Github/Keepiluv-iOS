@@ -59,9 +59,7 @@ private extension AuthClient {
         let loginProvider = createLoginProvider(for: provider)
         let loginResult = try await loginProvider.performLogin()
 
-        guard let authCode = loginResult.identityToken else {
-            throw AuthLoginError.missingCredential
-        }
+        let authCode = loginResult.code
 
         logger.debug("authCode: \(authCode)")
 
