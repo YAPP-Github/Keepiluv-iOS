@@ -80,6 +80,16 @@ enum AuthEndpoint: Endpoint {
         }
     }
 
+    var requiresAuth: Bool {
+        switch self {
+        case .logout:
+            return true
+
+        case .signInWithApple, .signInWithKakao, .signInWithGoogle, .refresh:
+            return false
+        }
+    }
+
     var featureTag: FeatureTag { .auth }
 }
 
