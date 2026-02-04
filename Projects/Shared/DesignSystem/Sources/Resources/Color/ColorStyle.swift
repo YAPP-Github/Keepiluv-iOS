@@ -53,6 +53,9 @@ extension ColorStyle {
     }
 
     var borderColor: Color {
-        return Color.Gray.gray500
+        switch self {
+        case .disable: Color.Gray.gray100
+        case .black, .gray200, .gray300, .gray400, .white: Color.Gray.gray500
+        }
     }
 }
