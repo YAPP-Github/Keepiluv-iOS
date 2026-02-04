@@ -3,6 +3,7 @@ import CoreNetwork
 import CoreNetworkInterface
 import CoreStorage
 import CoreStorageInterface
+import DomainAuthInterface
 import GoogleSignIn
 import KakaoSDKAuth
 import KakaoSDKCommon
@@ -21,6 +22,9 @@ struct TwixApp: App {
     } withDependencies: {
         $0.networkClient = .liveValue
         $0.tokenStorage = .liveValue
+        $0.accessTokenProvider = {
+            await TokenManager.shared.accessToken
+        }
     }
 
     init() {

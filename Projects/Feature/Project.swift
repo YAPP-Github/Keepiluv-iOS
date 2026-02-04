@@ -10,6 +10,8 @@ let project = Project.makeModule(
                 dependencies: [
                     .external(dependency: .ComposableArchitecture),
                     .core(implements: .logging),
+                    .domain(implements: .goal),
+                    .domain(implements: .onboarding),
                 ] + Module.Feature.allCases.flatMap { [
                     .feature(interface: $0),
                     .feature(implements: $0)

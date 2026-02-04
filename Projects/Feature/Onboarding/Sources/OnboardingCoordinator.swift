@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import Foundation
 
 /// 온보딩 플로우 전체를 관리하는 Coordinator Reducer입니다.
@@ -21,6 +22,8 @@ import Foundation
 /// ```
 @Reducer
 public struct OnboardingCoordinator {
+    @Dependency(\.onboardingClient)
+    private var onboardingClient
     @ObservableState
     public struct State: Equatable {
         var routes: [OnboardingRoute] = []
@@ -30,6 +33,7 @@ public struct OnboardingCoordinator {
         var dday: OnboardingDdayReducer.State?
         var myInviteCode: String
         var pendingReceivedCode: String?
+        var isLoadingInviteCode: Bool = false
 
         public init(
             myInviteCode: String = "",
@@ -48,6 +52,9 @@ public struct OnboardingCoordinator {
 
         // MARK: - LifeCycle
         case onAppear
+
+        // MARK: - API Response
+        case fetchInviteCodeResponse(Result<String, Error>)
 
         // MARK: - Deep Link
         case deepLinkReceived(code: String)
@@ -83,6 +90,20 @@ public struct OnboardingCoordinator {
 
             // MARK: - LifeCycle
             case .onAppear:
+                // 초대 코드가 비어있으면 API 호출
+                if state.myInviteCode.isEmpty {
+                    state.isLoadingInviteCode = true
+                    return .run { send in
+                        do {
+                            let inviteCode = try await onboardingClient.fetchInviteCode()
+                            await send(.fetchInviteCodeResponse(.success(inviteCode)))
+                        } catch {
+                            await send(.fetchInviteCodeResponse(.failure(error)))
+                        }
+                    }
+                }
+
+                // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
                 if let code = state.pendingReceivedCode {
                     state.pendingReceivedCode = nil
                     state.codeInput = OnboardingCodeInputReducer.State(
@@ -91,6 +112,28 @@ public struct OnboardingCoordinator {
                     )
                     state.routes.append(.codeInput)
                 }
+                return .none
+
+            // MARK: - API Response
+            case let .fetchInviteCodeResponse(.success(inviteCode)):
+                state.isLoadingInviteCode = false
+                state.myInviteCode = inviteCode
+                state.connect.myInviteCode = inviteCode
+
+                // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
+                if let code = state.pendingReceivedCode {
+                    state.pendingReceivedCode = nil
+                    state.codeInput = OnboardingCodeInputReducer.State(
+                        myInviteCode: inviteCode,
+                        receivedCode: code
+                    )
+                    state.routes.append(.codeInput)
+                }
+                return .none
+
+            case .fetchInviteCodeResponse(.failure):
+                state.isLoadingInviteCode = false
+                // 에러 발생 시 임시 코드 사용 (또는 에러 처리)
                 return .none
 
             // MARK: - Deep Link

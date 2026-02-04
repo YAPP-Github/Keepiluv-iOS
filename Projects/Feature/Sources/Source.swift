@@ -5,6 +5,7 @@
 //  Created by Jiyong on 1/15/26.
 //
 
+@_exported import DomainOnboardingInterface
 import FeatureAuth
 import FeatureMainTab
 import FeatureOnboarding

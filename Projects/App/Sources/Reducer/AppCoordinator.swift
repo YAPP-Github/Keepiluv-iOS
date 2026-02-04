@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import CoreNetworkInterface
 import DomainAuthInterface
+import DomainOnboardingInterface
 import Feature
 import Foundation
 
@@ -69,7 +71,7 @@ struct AppCoordinator {
     enum Action {
         case onAppear
         case checkAuthResult(Result<Token?, Error>)
-        case checkCoupleConnectionResult(isConnected: Bool)
+        case checkOnboardingStatusResult(Result<OnboardingStatus, Error>)
         case deepLinkReceived(code: String)
         case route(RouteAction)
     }
@@ -104,13 +106,19 @@ struct AppCoordinator {
                 }
 
             case .checkAuthResult(.success(let token)):
-                state.isCheckingAuth = false
                 if token != nil {
-                    // TODO: 실제 API 연동 시 커플 연결 여부 체크
-                    // 임시로 Onboarding으로 이동 (테스트용)
-                    // return .send(.checkCoupleConnectionResult(isConnected: false))
-                    state.route = .mainTab(MainTabReducer.State())
+                    // 토큰이 있으면 onboarding/status API로 상태 확인
+                    return .run { send in
+                        @Dependency(\.onboardingClient) var onboardingClient
+                        do {
+                            let status = try await onboardingClient.fetchStatus()
+                            await send(.checkOnboardingStatusResult(.success(status)))
+                        } catch {
+                            await send(.checkOnboardingStatusResult(.failure(error)))
+                        }
+                    }
                 } else {
+                    state.isCheckingAuth = false
                     state.route = .auth(AuthReducer.State())
                 }
                 return .none
@@ -120,17 +128,38 @@ struct AppCoordinator {
                 state.route = .auth(AuthReducer.State())
                 return .none
 
-            case let .checkCoupleConnectionResult(isConnected):
-                if isConnected {
+            case let .checkOnboardingStatusResult(.success(status)):
+                state.isCheckingAuth = false
+                switch status {
+                case .completed:
+                    // 온보딩 완료 → MainTab
                     state.route = .mainTab(MainTabReducer.State())
-                } else {
-                    // 커플 미연결 → Onboarding으로 이동
+
+                case .coupleConnection, .profile, .anniversary:
+                    // 온보딩 미완료 → Onboarding
                     state.route = .onboarding(OnboardingCoordinator.State(
-                        myInviteCode: "", // TODO: API에서 받아온 내 초대 코드
+                        myInviteCode: "",
                         pendingReceivedCode: state.pendingInviteCode
                     ))
                     state.pendingInviteCode = nil
                 }
+                return .none
+
+            case let .checkOnboardingStatusResult(.failure(error)):
+                state.isCheckingAuth = false
+                if let networkError = error as? NetworkError,
+                   case .authorizationError = networkError {
+                    // 인증 실패 (401) → Auth로 이동
+                    state.route = .auth(AuthReducer.State())
+                    return .none
+                }
+
+                // 온보딩 상태 확인 실패 → Onboarding으로 이동
+                state.route = .onboarding(OnboardingCoordinator.State(
+                    myInviteCode: "",
+                    pendingReceivedCode: state.pendingInviteCode
+                ))
+                state.pendingInviteCode = nil
                 return .none
 
             case let .deepLinkReceived(code):
@@ -142,11 +171,17 @@ struct AppCoordinator {
                 // Auth 화면이면 로그인 후 Onboarding에서 처리됨 (pendingInviteCode 저장됨)
                 return .none
 
-            case .route(.auth(.delegate(.loginSucceeded))):
-                // 로그인 성공 → 커플 연결 여부 체크
-                // TODO: 실제 API 연동 시 아래 주석 해제
-                // return .send(.checkCoupleConnectionResult(isConnected: false))
-                state.route = .mainTab(MainTabReducer.State())
+            case let .route(.auth(.delegate(.loginSucceeded(authResult)))):
+                // 로그인 성공 → 신규 유저면 Onboarding, 기존 유저면 MainTab
+                if authResult.isNewUser {
+                    state.route = .onboarding(OnboardingCoordinator.State(
+                        myInviteCode: "",
+                        pendingReceivedCode: state.pendingInviteCode
+                    ))
+                    state.pendingInviteCode = nil
+                } else {
+                    state.route = .mainTab(MainTabReducer.State())
+                }
                 return .none
 
             case .route(.onboarding(.delegate(.onboardingCompleted))):
