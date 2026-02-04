@@ -52,8 +52,7 @@ private extension KakaoLoginProvider {
 
                 let result = AuthLoginResult(
                     provider: .kakao,
-                    identityToken: accessToken,
-                    authorizationCode: nil
+                    code: accessToken
                 )
 
                 continuation.resume(returning: result)
@@ -77,8 +76,7 @@ private extension KakaoLoginProvider {
 
                 let result = AuthLoginResult(
                     provider: .kakao,
-                    identityToken: accessToken,
-                    authorizationCode: nil
+                    code: accessToken
                 )
 
                 continuation.resume(returning: result)

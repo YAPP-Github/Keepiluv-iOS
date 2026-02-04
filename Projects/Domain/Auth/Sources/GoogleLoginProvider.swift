@@ -14,7 +14,7 @@ import UIKit
 /// Google 로그인을 수행하는 Provider입니다.
 ///
 /// Google Sign-In SDK를 사용하여 Google OAuth 로그인을 처리하고,
-/// idToken을 획득하여 AuthLoginResult로 변환합니다.
+/// serverAuthCode를 획득하여 AuthLoginResult로 변환합니다.
 @preconcurrency
 public final class GoogleLoginProvider: SocialLoginProviderProtocol {
     public var providerType: AuthProvider { .google }
@@ -25,8 +25,9 @@ public final class GoogleLoginProvider: SocialLoginProviderProtocol {
     public func performLogin() async throws -> AuthLoginResult {
         let rootViewController = try getRootViewController()
         let clientID = try getClientID()
+        let serverClientID = try getServerClientID()
 
-        let config = GIDConfiguration(clientID: clientID)
+        let config = GIDConfiguration(clientID: clientID, serverClientID: serverClientID)
         GIDSignIn.sharedInstance.configuration = config
 
         do {
@@ -69,15 +70,29 @@ private extension GoogleLoginProvider {
         return clientID
     }
 
+    func getServerClientID() throws -> String {
+        enum ErrorCode {
+            static let missingServerClientID = -3
+        }
+
+        guard let serverClientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_SERVER_CLIENT_ID") as? String else {
+            throw AuthLoginError.providerError(
+                NSError(domain: "GoogleLoginProvider", code: ErrorCode.missingServerClientID, userInfo: [
+                    NSLocalizedDescriptionKey: "GOOGLE_SERVER_CLIENT_ID가 설정되지 않았습니다."
+                ])
+            )
+        }
+        return serverClientID
+    }
+
     func extractAuthResult(from result: GIDSignInResult) throws -> AuthLoginResult {
-        guard let idToken = result.user.idToken?.tokenString else {
+        guard let serverAuthCode = result.serverAuthCode else {
             throw AuthLoginError.missingCredential
         }
 
         return AuthLoginResult(
             provider: .google,
-            identityToken: idToken,
-            authorizationCode: result.serverAuthCode
+            code: serverAuthCode
         )
     }
 }
