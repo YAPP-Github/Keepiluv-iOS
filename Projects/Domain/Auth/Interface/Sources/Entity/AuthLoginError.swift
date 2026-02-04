@@ -29,6 +29,9 @@ public enum AuthLoginError: Error {
 
     /// 토큰 저장 실패
     case storageFailed(Error)
+
+    /// 토큰 갱신 실패
+    case tokenRefreshFailed
 }
 
 // MARK: - LocalizedError
@@ -56,6 +59,9 @@ extension AuthLoginError: LocalizedError {
             
         case .storageFailed(let error):
             return "토큰 저장 실패: \(error.localizedDescription)"
+
+        case .tokenRefreshFailed:
+            return "토큰 갱신에 실패했습니다."
         }
     }
 }
