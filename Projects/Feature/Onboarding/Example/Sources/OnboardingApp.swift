@@ -13,8 +13,7 @@ import SwiftUI
 struct OnboardingApp: App {
     let store = Store(
         initialState: OnboardingCoordinator.State(
-            myInviteCode: "KDJ34923",
-            shareContent: "초대 코드: KDJ34923"
+            myInviteCode: "KDJ34923"
         ),
         reducer: { OnboardingCoordinator() }
     )
