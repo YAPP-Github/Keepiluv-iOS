@@ -9,6 +9,7 @@ import SwiftUI
 
 /// 딤 처리된 배경 위에 표시되는 모달 컨테이너입니다.
 public struct TXModalView<Content: View>: View {
+    private let type: TXModalType
     private let content: Content
     private let onAction: (TXModalAction) -> Void
 
@@ -28,9 +29,11 @@ public struct TXModalView<Content: View>: View {
     /// )
     /// ```
     public init(
+        type: TXModalType,
         @ViewBuilder content: () -> Content,
-        onAction: @escaping (TXModalAction) -> Void
+        onAction: @escaping (TXModalAction) -> Void,
     ) {
+        self.type = type
         self.content = content()
         self.onAction = onAction
     }
@@ -43,11 +46,9 @@ public struct TXModalView<Content: View>: View {
                 content
                 actionButtons
             }
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .frame(width: 350)
-            )
+            .frame(width: 350)
+            .background(Color.Common.white)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
 }
@@ -62,16 +63,33 @@ private extension TXModalView {
             }
     }
 
+    @ViewBuilder
     var actionButtons: some View {
-        TXRoundedRectangleGroupButton(
-            config: .modal(),
-            actionLeft: {
-                onAction(.cancel)
-            },
-            actionRight: {
-                onAction(.confirm)
+        Group {
+            switch type {
+            case .info:
+                TXRoundedRectangleGroupButton(
+                    config: .modal(),
+                    actionLeft: {
+                        onAction(.cancel)
+                    },
+                    actionRight: {
+                        onAction(.confirm)
+                    }
+                )
+                
+            case let .gridButton(config):
+                TXRoundedRectangleButton(
+                    config: .long(
+                        text: config.buttonTitle,
+                        colorStyle: .black
+                    )
+                ) {
+                    onAction(.confirm)
+                }
+                .padding(.horizontal, 20)
             }
-        )
+        }
         .padding(.top, Spacing.spacing9)
         .padding(.bottom, Spacing.spacing6)
     }
@@ -79,14 +97,10 @@ private extension TXModalView {
 
 #Preview {
     VStack {
-        TXModalView {
-            TXInfoModalContent(
-                config: .init(
-                    image: .Icon.Illustration.warning,
-                    title: "목표를 이루셨나요?",
-                    subtitle: "목표를 완료해도 사진은 사라지지 않아요"
-                )
-            )
-        } onAction: { _ in }
+        TXModalView(type: .info(.deleteGoal)) {
+            TXInfoModalContent(config: .deleteGoal)
+        } onAction: { _ in
+            
+        }
     }
 }
