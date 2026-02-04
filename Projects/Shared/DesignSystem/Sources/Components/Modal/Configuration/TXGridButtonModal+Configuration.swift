@@ -8,6 +8,15 @@
 import SwiftUI
 
 public extension TXGridButtonModalContent.Configuration {
+    /// 아이콘 선택용 그리드 모달 기본 구성을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = TXGridButtonModalContent.Configuration.selectIcon(
+    ///     icons: [.Icon.Illustration.book, .Icon.Illustration.exercise],
+    ///     selectedIndex: 0
+    /// )
+    /// ```
     static func selectIcon(
         icons: [Image],
         selectedIndex: Int

@@ -10,6 +10,7 @@ import SwiftUI
 /// 아이콘 선택 그리드를 표시하는 모달 콘텐츠입니다.
 public struct TXGridButtonModalContent: View {
 
+    /// 아이콘 선택 그리드 콘텐츠의 표시 구성을 정의합니다.
     public struct Configuration: Equatable {
         let title: String
         let icons: [Image]
@@ -50,6 +51,15 @@ public struct TXGridButtonModalContent: View {
     private let config: Configuration
     @Binding private var selectedIndex: Int
     
+    /// 아이콘 선택 그리드 모달 콘텐츠를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXGridButtonModalContent(
+    ///     config: .selectIcon(icons: [.Icon.Illustration.book], selectedIndex: 0),
+    ///     selectedIndex: .constant(0)
+    /// )
+    /// ```
     public init(
         config: Configuration,
         selectedIndex: Binding<Int>
