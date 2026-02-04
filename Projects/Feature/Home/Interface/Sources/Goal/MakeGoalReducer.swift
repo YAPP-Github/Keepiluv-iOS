@@ -60,6 +60,7 @@ public struct MakeGoalReducer {
         public var showPeriodCount: Bool { !selectedPeriod.isDaily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
         public var selectedEmoji: Image { iconImages[selectedEmojiIndex] }
+        public var completeButtonDisabled: Bool { goalTitle.isEmpty }
         
         public var modal: TXModalType?
         

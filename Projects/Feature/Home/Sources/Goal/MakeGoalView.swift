@@ -30,6 +30,7 @@ struct MakeGoalView: View {
             
             completeButton
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
         .toolbar(.hidden, for: .navigationBar)
         .onDisappear { store.send(.onDisappear) }
@@ -186,11 +187,12 @@ private extension MakeGoalView {
         TXRoundedRectangleButton(
             config: .long(
                 text: "완료",
-                colorStyle: .black
+                colorStyle: store.completeButtonDisabled ? .disable : .black
             )
         ) {
             store.send(.completeButtonTapped)
         }
+        .disabled(store.completeButtonDisabled)
     }
     
     var divider: some View {
