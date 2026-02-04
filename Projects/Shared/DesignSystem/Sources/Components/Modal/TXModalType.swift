@@ -9,14 +9,17 @@ import Foundation
 
 /// 모달 UI에서 사용할 수 있는 유형을 정의합니다.
 public enum TXModalType: Equatable {
-    case deleteGoal
+    case info(TXInfoModalContent.Configuration)
+    case gridButton
 }
 
 extension TXModalType: Identifiable {
     public var id: String {
         switch self {
-        case .deleteGoal:
-            return "deleteGoal"
+        case .info:
+            return "info"
+        case .gridButton:
+            return "gridButton"
         }
     }
 }
