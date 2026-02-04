@@ -38,9 +38,9 @@ public struct OnboardingConnectReducer {
         case binding(BindingAction<State>)
 
         // MARK: - User Action
-        case backButtonTapped
         case directConnectCardTapped
         case sendInvitationButtonTapped
+        case logoutButtonTapped
 
         // MARK: - Update State
         case shareSheetDismissed
@@ -49,8 +49,8 @@ public struct OnboardingConnectReducer {
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
-            case navigateBack
             case navigateToCodeInput
+            case logoutRequested
         }
     }
 
@@ -63,15 +63,15 @@ public struct OnboardingConnectReducer {
             case .binding:
                 return .none
 
-            case .backButtonTapped:
-                return .send(.delegate(.navigateBack))
-
             case .directConnectCardTapped:
                 return .send(.delegate(.navigateToCodeInput))
 
             case .sendInvitationButtonTapped:
                 state.isShareSheetPresented = true
                 return .none
+
+            case .logoutButtonTapped:
+                return .send(.delegate(.logoutRequested))
 
             case .shareSheetDismissed:
                 state.isShareSheetPresented = false

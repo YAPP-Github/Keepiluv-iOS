@@ -19,15 +19,10 @@ public struct OnboardingProfileView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            TXNavigationBar(style: .iconOnly(.back)) { action in
-                if action == .backTapped {
-                    store.send(.backButtonTapped)
-                }
-            }
-
             ScrollView {
                 VStack(spacing: 0) {
                     titleSection
+                        .padding(.top, 72)
                         .padding(.horizontal, Spacing.spacing9)
                         .padding(.bottom, 32)
 
