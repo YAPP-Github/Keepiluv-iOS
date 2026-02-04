@@ -34,15 +34,38 @@ public struct OnboardingCoordinator {
         var myInviteCode: String
         var pendingReceivedCode: String?
         var isLoadingInviteCode: Bool = false
+        var initialStatus: OnboardingStatus
 
         public init(
+            initialStatus: OnboardingStatus = .coupleConnection,
             myInviteCode: String = "",
-            shareContent: String = "",
             pendingReceivedCode: String? = nil
         ) {
+            self.initialStatus = initialStatus
             self.myInviteCode = myInviteCode
-            self.connect = OnboardingConnectReducer.State(shareContent: shareContent)
+            self.connect = OnboardingConnectReducer.State()
             self.pendingReceivedCode = pendingReceivedCode
+
+            // 초기 상태에 따라 시작 화면 설정
+            switch initialStatus {
+            case .coupleConnection:
+                // Connect부터 시작 (기본)
+                break
+
+            case .profileSetup:
+                // Profile부터 시작
+                self.profile = OnboardingProfileReducer.State()
+                self.routes = [.profile]
+
+            case .anniversarySetup:
+                // Dday부터 시작
+                self.dday = OnboardingDdayReducer.State()
+                self.routes = [.dday]
+
+            case .completed:
+                // 완료 상태면 여기 오면 안됨
+                break
+            }
         }
     }
 
@@ -69,7 +92,7 @@ public struct OnboardingCoordinator {
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
-            case navigateBack
+            case logoutRequested
             case onboardingCompleted
         }
     }
@@ -119,6 +142,9 @@ public struct OnboardingCoordinator {
                 state.isLoadingInviteCode = false
                 state.myInviteCode = inviteCode
                 state.connect.myInviteCode = inviteCode
+                if let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String {
+                    state.connect.shareContent = "https://\(deeplinkHost)/invite?code=\(inviteCode)"
+                }
 
                 // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
                 if let code = state.pendingReceivedCode {
@@ -149,8 +175,8 @@ public struct OnboardingCoordinator {
                 return .none
 
             // MARK: - Connect Delegate
-            case .connect(.delegate(.navigateBack)):
-                return .send(.delegate(.navigateBack))
+            case .connect(.delegate(.logoutRequested)):
+                return .send(.delegate(.logoutRequested))
 
             case .connect(.delegate(.navigateToCodeInput)):
                 state.codeInput = OnboardingCodeInputReducer.State(
