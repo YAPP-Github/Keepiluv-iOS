@@ -47,80 +47,7 @@ struct MakeGoalView: View {
         .txBottomSheet(
             isPresented: $store.isPeriodSheetPresented
         ) {
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    TXRoundedRectangleButton(
-                        config: .small(
-                            text: store.weeklyPeriodText,
-                            colorStyle: store.selectedPeriod.isWeekly ? .black : .white
-                        )
-                    ) {
-                        store.send(.periodSheetWeeklyTapped)
-                    }
-                    
-                    TXRoundedRectangleButton(
-                        config: .small(
-                            text: store.monthlyPeriodText,
-                            colorStyle: store.selectedPeriod.isMonthly ? .black : .white
-                        )
-                    ) {
-                        store.send(.periodSheetMonthlyTapped)
-                    }
-                }
-                
-                HStack(spacing: 16) {
-                    TXCircleButton(
-                        config: .init(
-                            image: .Icon.Symbol.minus,
-                            frameSize: .init(width: 36, height: 36),
-                            imageSize: .init(width: 28, height: 28),
-                            colorStyle: store.isMinusEnable ? .black : .disable
-                        )
-                    ) {
-                        store.send(.periodSheetMinusTapped)
-                    }
-                    .disabled(!store.isMinusEnable)
-                    
-                    HStack(spacing: 8) {
-                        Text("\(store.periodCount)")
-                            .typography(.h2_24r)
-                            .foregroundStyle(Color.Gray.gray500)
-                        
-                        Text("번")
-                            .typography(.t2_16b)
-                            .foregroundStyle(Color.Gray.gray300)
-                    }
-                    .frame(width: 96, height: 58)
-                    .insideBorder(
-                        Color.Gray.gray300,
-                        shape: RoundedRectangle(cornerRadius: 12),
-                        lineWidth: 1.2
-                    )
-                    
-                    TXCircleButton(
-                        config: .init(
-                            image: .Icon.Symbol.plus,
-                            frameSize: .init(width: 36, height: 36),
-                            imageSize: .init(width: 28, height: 28),
-                            colorStyle: store.isPlusEnable ? .black : .disable
-                        )
-                    ) {
-                        store.send(.periodSheetPlusTapped)
-                    }
-                    .disabled(!store.isPlusEnable)
-                    
-                    
-                }
-                .padding(.top, 36)
-                
-                TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
-                    store.send(.periodSheetCompleteTapped)
-                }
-                .padding(.top ,40)
-                .padding(.horizontal, 20)
-            }
-            .padding(.top, 36)
-            .padding(.bottom, TXSafeArea.inset(.bottom))
+            periodSheet
         }
     }
 }
@@ -280,6 +207,90 @@ private extension MakeGoalView {
         Text(text)
             .typography(.b2_14r)
             .foregroundStyle(Color.Gray.gray500)
+    }
+    
+    var periodSheet: some View {
+        VStack(spacing: 0) {
+            periodTabButtons
+            periodCountContent
+                .padding(.top, 36)
+            
+            TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
+                store.send(.periodSheetCompleteTapped)
+            }
+            .padding(.top ,40)
+            .padding(.horizontal, 20)
+        }
+        .padding(.top, 36)
+        .padding(.bottom, TXSafeArea.inset(.bottom))
+    }
+    
+    var periodTabButtons: some View {
+        HStack(spacing: 8) {
+            TXRoundedRectangleButton(
+                config: .small(
+                    text: store.weeklyPeriodText,
+                    colorStyle: store.selectedPeriod.isWeekly ? .black : .white
+                )
+            ) {
+                store.send(.periodSheetWeeklyTapped)
+            }
+            
+            TXRoundedRectangleButton(
+                config: .small(
+                    text: store.monthlyPeriodText,
+                    colorStyle: store.selectedPeriod.isMonthly ? .black : .white
+                )
+            ) {
+                store.send(.periodSheetMonthlyTapped)
+            }
+        }
+    }
+    
+    var periodCountContent: some View {
+        HStack(spacing: 16) {
+            TXCircleButton(
+                config: .init(
+                    image: .Icon.Symbol.minus,
+                    frameSize: .init(width: 36, height: 36),
+                    imageSize: .init(width: 28, height: 28),
+                    colorStyle: store.isMinusEnable ? .black : .disable
+                )
+            ) {
+                store.send(.periodSheetMinusTapped)
+            }
+            .disabled(!store.isMinusEnable)
+            
+            HStack(spacing: 8) {
+                Text("\(store.periodCount)")
+                    .typography(.h2_24r)
+                    .foregroundStyle(Color.Gray.gray500)
+                
+                Text("번")
+                    .typography(.t2_16b)
+                    .foregroundStyle(Color.Gray.gray300)
+            }
+            .frame(width: 96, height: 58)
+            .insideBorder(
+                Color.Gray.gray300,
+                shape: RoundedRectangle(cornerRadius: 12),
+                lineWidth: 1.2
+            )
+            
+            TXCircleButton(
+                config: .init(
+                    image: .Icon.Symbol.plus,
+                    frameSize: .init(width: 36, height: 36),
+                    imageSize: .init(width: 28, height: 28),
+                    colorStyle: store.isPlusEnable ? .black : .disable
+                )
+            ) {
+                store.send(.periodSheetPlusTapped)
+            }
+            .disabled(!store.isPlusEnable)
+            
+            
+        }
     }
 
 }
