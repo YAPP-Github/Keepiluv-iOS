@@ -81,27 +81,26 @@ extension NetworkClient: @retroactive DependencyKey {
 
         return Self(
             provider: NetworkProvider(interceptors: interceptors),
-            tokenProvider: {
-                @Dependency(\.accessTokenProvider) var accessTokenProvider
-                return await accessTokenProvider()
-            }
+            tokenProvider: nil
         )
     }()
-}
 
-// MARK: - AccessTokenProvider Dependency
+    public static func live(
+        tokenProvider: @escaping @Sendable () async -> String?
+    ) -> NetworkClient {
+        #if DEBUG
+        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
+        #else
+        let interceptors: [NetworkInterceptor] = []
+        #endif
 
-public struct AccessTokenProviderKey: DependencyKey {
-    public static let liveValue: @Sendable () async -> String? = { nil }
-    public static let testValue: @Sendable () async -> String? = { nil }
-}
-
-public extension DependencyValues {
-    var accessTokenProvider: @Sendable () async -> String? {
-        get { self[AccessTokenProviderKey.self] }
-        set { self[AccessTokenProviderKey.self] = newValue }
+        return Self(
+            provider: NetworkProvider(interceptors: interceptors),
+            tokenProvider: tokenProvider
+        )
     }
 }
+
 
 private extension NetworkProvider {
     func makeURL(endpoint: Endpoint) -> URL? {

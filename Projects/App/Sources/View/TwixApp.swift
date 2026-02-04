@@ -20,11 +20,10 @@ struct TwixApp: App {
     ) {
         AppCoordinator()
     } withDependencies: {
-        $0.networkClient = .liveValue
-        $0.tokenStorage = .liveValue
-        $0.accessTokenProvider = {
+        $0.networkClient = .live(tokenProvider: {
             await TokenManager.shared.accessToken
-        }
+        })
+        $0.tokenStorage = .liveValue
     }
 
     init() {
