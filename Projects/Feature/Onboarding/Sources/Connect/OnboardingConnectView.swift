@@ -19,15 +19,10 @@ public struct OnboardingConnectView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            TXNavigationBar(style: .iconOnly(.back)) { action in
-                if action == .backTapped {
-                    store.send(.backButtonTapped)
-                }
-            }
-
             ScrollView {
                 VStack(spacing: 0) {
                     titleSection
+                        .padding(.top, 72)
 
                     illustrationSection
                         .padding(.top, 40)
@@ -36,6 +31,9 @@ public struct OnboardingConnectView: View {
                     buttonSection
                         .padding(.horizontal, Spacing.spacing12)
                         .padding(.bottom, Spacing.spacing5)
+
+                    logoutButton
+                        .padding(.top, Spacing.spacing6)
                 }
             }
         }
@@ -57,8 +55,8 @@ private extension OnboardingConnectView {
     var titleSection: some View {
         HStack {
             Text("""
-                짝꿍과
-                연결해 볼까요?
+                짝꿍과 연결하고
+                함께 키피럽 시작하세요
                 """)
                 .typography(.h3_22eb)
                 .foregroundStyle(Color.Gray.gray500)
@@ -143,5 +141,24 @@ private extension OnboardingConnectView {
                 Circle()
                     .strokeBorder(Color.Gray.gray500, lineWidth: LineWidth.m)
             )
+    }
+
+    var logoutButton: some View {
+        Button {
+            store.send(.logoutButtonTapped)
+        } label: {
+            HStack(spacing: Spacing.spacing2) {
+                Image.Icon.Symbol.logout
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color.Gray.gray300)
+
+                Text("로그아웃")
+                    .typography(.c1_12r)
+                    .foregroundStyle(Color.Gray.gray300)
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
