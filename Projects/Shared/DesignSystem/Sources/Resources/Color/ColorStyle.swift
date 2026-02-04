@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 디자인 시스템 버튼/컴포넌트에서 사용하는 색상 스타일 집합입니다.
 public enum ColorStyle {
     case black
     case white
