@@ -11,4 +11,5 @@ import Foundation
 public enum TXModalAction: Equatable {
     case cancel
     case confirm
+    case confirmWithIndex(Int)
 }

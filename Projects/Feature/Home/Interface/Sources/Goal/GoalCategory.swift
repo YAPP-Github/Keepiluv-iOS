@@ -46,8 +46,7 @@ extension GoalCategory {
         .Icon.Illustration.pencil,
         .Icon.Illustration.health,
         .Icon.Illustration.heartDouble,
-        .Icon.Illustration.laptop,
-        .Icon.Illustration.default,
+        .Icon.Illustration.laptop
     ]
     
     
