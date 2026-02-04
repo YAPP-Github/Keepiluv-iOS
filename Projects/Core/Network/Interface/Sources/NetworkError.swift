@@ -13,6 +13,7 @@ public enum NetworkError: Error {
     case invalidResponseError
     case authorizationError
     case badRequestError
+    case notFoundError
     case serverError
     case decodingError
     case encodingError
@@ -33,6 +34,9 @@ extension NetworkError {
 
         case .badRequestError:
             return "요청이 올바르지 않습니다."
+
+        case .notFoundError:
+            return "요청한 리소스를 찾을 수 없습니다."
 
         case .serverError:
             return "서버 에러입니다."

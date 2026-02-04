@@ -9,6 +9,10 @@ import ComposableArchitecture
 import CoreNetworkInterface
 import Foundation
 
+#if DEBUG
+import CoreLogging
+#endif
+
 public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
@@ -27,6 +31,7 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
         }
 
         let request = try makeURLRequest(url: url, endpoint: endpoint)
+        let featureTag = endpoint.featureTag.rawValue
 
         return try await withCheckedThrowingContinuation { continuation in
             var createdTask: URLSessionDataTask?
@@ -56,6 +61,7 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
                 }
             }
 
+            task.taskDescription = featureTag
             createdTask = task
 
             interceptors.forEach { $0.didCreateTask(task) }
@@ -65,8 +71,36 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     }
 }
 
-extension NetworkClient: DependencyKey {
-    public static let liveValue = Self(provider: NetworkProvider())
+extension NetworkClient: @retroactive DependencyKey {
+    public static let liveValue: NetworkClient = {
+        #if DEBUG
+        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
+        #else
+        let interceptors: [NetworkInterceptor] = []
+        #endif
+
+        return Self(
+            provider: NetworkProvider(interceptors: interceptors),
+            tokenProvider: {
+                @Dependency(\.accessTokenProvider) var accessTokenProvider
+                return await accessTokenProvider()
+            }
+        )
+    }()
+}
+
+// MARK: - AccessTokenProvider Dependency
+
+public struct AccessTokenProviderKey: DependencyKey {
+    public static let liveValue: @Sendable () async -> String? = { nil }
+    public static let testValue: @Sendable () async -> String? = { nil }
+}
+
+public extension DependencyValues {
+    var accessTokenProvider: @Sendable () async -> String? {
+        get { self[AccessTokenProviderKey.self] }
+        set { self[AccessTokenProviderKey.self] = newValue }
+    }
 }
 
 private extension NetworkProvider {
@@ -115,6 +149,9 @@ private extension NetworkProvider {
         case HTTPStatusCode.unauthorized:
             throw NetworkError.authorizationError
             
+        case HTTPStatusCode.notFound:
+            throw NetworkError.notFoundError
+
         case HTTPStatusCode.badRequest:
             throw NetworkError.badRequestError
             
