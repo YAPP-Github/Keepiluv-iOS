@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import Foundation
 import SharedDesignSystem
 
@@ -22,19 +23,16 @@ import SharedDesignSystem
 /// ```
 @Reducer
 public struct OnboardingProfileReducer {
-    /// 프로필 설정 화면의 상태입니다.
+    @Dependency(\.onboardingClient)
+    private var onboardingClient
+
     @ObservableState
     public struct State: Equatable {
-        /// 닉네임 입력값
         var nickname: String = ""
-
-        /// 토스트 상태
         var toast: TXToastType?
+        var isLoading: Bool = false
 
-        /// 닉네임 최소 길이
         static let minLength = 2
-
-        /// 닉네임 최대 길이
         static let maxLength = 8
 
         public init() {}
@@ -48,12 +46,15 @@ public struct OnboardingProfileReducer {
         case backButtonTapped
         case completeButtonTapped
 
+        // MARK: - API Response
+        case registerProfileResponse(Result<Void, Error>)
+
         // MARK: - Delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
             case navigateBack
-            case profileCompleted(nickname: String)
+            case profileCompleted
         }
     }
 
@@ -70,6 +71,8 @@ public struct OnboardingProfileReducer {
                 return .send(.delegate(.navigateBack))
 
             case .completeButtonTapped:
+                guard !state.isLoading else { return .none }
+
                 // 비속어 체크
                 if state.containsProfanity {
                     state.toast = .fit(message: "닉네임에 비속어가 포함되어 있습니다.")
@@ -82,7 +85,25 @@ public struct OnboardingProfileReducer {
                     return .none
                 }
 
-                return .send(.delegate(.profileCompleted(nickname: state.nickname)))
+                state.isLoading = true
+                let nickname = state.nickname
+                return .run { send in
+                    do {
+                        try await onboardingClient.registerProfile(nickname)
+                        await send(.registerProfileResponse(.success(())))
+                    } catch {
+                        await send(.registerProfileResponse(.failure(error)))
+                    }
+                }
+
+            case .registerProfileResponse(.success):
+                state.isLoading = false
+                return .send(.delegate(.profileCompleted))
+
+            case .registerProfileResponse(.failure):
+                state.isLoading = false
+                state.toast = .fit(message: "프로필 등록에 실패했어요. 다시 시도해주세요")
+                return .none
 
             case .delegate:
                 return .none

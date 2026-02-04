@@ -2,10 +2,11 @@
 //  OnboardingDdayReducer.swift
 //  FeatureOnboarding
 //
-//  Created by Claude on 01/29/26.
+//  Created by Jiyong on 01/29/26.
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import Foundation
 import SharedDesignSystem
 
@@ -22,14 +23,15 @@ import SharedDesignSystem
 /// ```
 @Reducer
 public struct OnboardingDdayReducer {
-    /// 기념일 등록 화면의 상태입니다.
+    @Dependency(\.onboardingClient)
+    private var onboardingClient
+
     @ObservableState
     public struct State: Equatable {
-        /// 선택된 날짜
         var selectedDate: TXCalendarDate
-
-        /// 캘린더 시트 표시 여부
         var showCalendarSheet: Bool = false
+        var isLoading: Bool = false
+        var toast: TXToastType?
 
         public init() {
             self.selectedDate = TXCalendarDate()
@@ -48,12 +50,15 @@ public struct OnboardingDdayReducer {
         // MARK: - Update State
         case calendarCompleted
 
+        // MARK: - API Response
+        case setAnniversaryResponse(Result<Void, Error>)
+
         // MARK: - Delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
             case navigateBack
-            case ddayCompleted(date: Date)
+            case ddayCompleted
         }
     }
 
@@ -78,8 +83,25 @@ public struct OnboardingDdayReducer {
                 return .none
 
             case .completeButtonTapped:
-                guard let date = state.selectedDate.date else { return .none }
-                return .send(.delegate(.ddayCompleted(date: date)))
+                guard let date = state.selectedDate.date, !state.isLoading else { return .none }
+                state.isLoading = true
+                return .run { send in
+                    do {
+                        try await onboardingClient.setAnniversary(date)
+                        await send(.setAnniversaryResponse(.success(())))
+                    } catch {
+                        await send(.setAnniversaryResponse(.failure(error)))
+                    }
+                }
+
+            case .setAnniversaryResponse(.success):
+                state.isLoading = false
+                return .send(.delegate(.ddayCompleted))
+
+            case .setAnniversaryResponse(.failure):
+                state.isLoading = false
+                state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
+                return .none
 
             case .delegate:
                 return .none

@@ -14,6 +14,7 @@ let project = Project.makeModule(
                 resources: ["Resources/**"],
                 dependencies: [
                     .feature(interface: .onboarding),
+                    .domain(interface: .onboarding),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -45,6 +46,7 @@ let project = Project.makeModule(
                 entitlements: .file(path: "FeatureOnboardingExample.entitlements"),
                 dependencies: [
                     .feature(implements: .onboarding),
+                    .domain(implements: .onboarding),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )

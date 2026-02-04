@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import Foundation
 import SharedDesignSystem
 import UIKit
@@ -23,22 +24,17 @@ import UIKit
 /// ```
 @Reducer
 public struct OnboardingCodeInputReducer {
-    /// 초대 코드 입력 화면의 상태입니다.
+    @Dependency(\.onboardingClient)
+    private var onboardingClient
+
     @ObservableState
     public struct State: Equatable {
-        /// 내 초대 코드 (표시용)
         var myInviteCode: String
-
-        /// 상대방 초대 코드 입력값 (8자리)
         var receivedCode: String = ""
-
-        /// 현재 포커스된 입력 필드 인덱스
-        var focusedIndex: Int? = nil
-
-        /// 토스트 상태
+        var focusedIndex: Int?
         var toast: TXToastType?
+        var isLoading: Bool = false
 
-        /// 초대 코드 총 자릿수
         static let codeLength = 8
 
         public init(
@@ -61,6 +57,9 @@ public struct OnboardingCodeInputReducer {
         case copyMyCodeButtonTapped
         case completeButtonTapped
         case codeFieldTapped
+
+        // MARK: - API Response
+        case connectCoupleResponse(Result<Void, Error>)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -101,9 +100,36 @@ public struct OnboardingCodeInputReducer {
                 return .none
 
             case .completeButtonTapped:
-                guard state.isCodeComplete else { return .none }
-                // TODO: API 호출 후 연결 완료 처리
+                guard state.isCodeComplete, !state.isLoading else { return .none }
+                state.isLoading = true
+                let inviteCode = state.receivedCode
+                return .run { send in
+                    do {
+                        try await onboardingClient.connectCouple(inviteCode)
+                        await send(.connectCoupleResponse(.success(())))
+                    } catch {
+                        await send(.connectCoupleResponse(.failure(error)))
+                    }
+                }
+
+            case .connectCoupleResponse(.success):
+                state.isLoading = false
                 return .send(.delegate(.coupleConnected))
+
+            case let .connectCoupleResponse(.failure(error)):
+                state.isLoading = false
+                if let onboardingError = error as? OnboardingError {
+                    switch onboardingError {
+                    case .inviteCodeNotFound:
+                        state.toast = .fit(message: "초대 코드를 찾을 수 없어요")
+
+                    default:
+                        state.toast = .fit(message: "연결에 실패했어요. 다시 시도해주세요")
+                    }
+                } else {
+                    state.toast = .fit(message: "연결에 실패했어요. 다시 시도해주세요")
+                }
+                return .none
 
             case .codeFieldTapped:
                 state.focusedIndex = min(state.receivedCode.count, State.codeLength - 1)

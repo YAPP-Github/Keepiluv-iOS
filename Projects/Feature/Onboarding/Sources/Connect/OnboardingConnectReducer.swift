@@ -25,9 +25,11 @@ public struct OnboardingConnectReducer {
     public struct State: Equatable {
         var isShareSheetPresented: Bool = false
         var shareContent: String
+        var myInviteCode: String
 
-        public init(shareContent: String = "") {
+        public init(shareContent: String = "", myInviteCode: String = "") {
             self.shareContent = shareContent
+            self.myInviteCode = myInviteCode
         }
     }
 
