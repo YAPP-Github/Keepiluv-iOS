@@ -77,6 +77,7 @@ public extension Image.Icon.Symbol {
     static let selectedSelected = SymbolAsset.selectedSelected.swiftUIImage
     static let copy = SymbolAsset.icCopy.swiftUIImage
     static let calendar = SymbolAsset.icCalendar.swiftUIImage
+    static let logout = SymbolAsset.icLogout.swiftUIImage
 }
 
 public extension Image.Illustration {
