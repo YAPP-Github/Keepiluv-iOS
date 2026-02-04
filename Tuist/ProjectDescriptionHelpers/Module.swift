@@ -69,7 +69,8 @@ public extension Module {
     enum Domain: String, CaseIterable {
         case goal = "Goal"
         case auth = "Auth"
-        
+        case onboarding = "Onboarding"
+
         /// Domain 타겟 이름의 기본 prefix입니다.
         public static let name: String = "Domain"
     }
