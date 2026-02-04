@@ -146,7 +146,7 @@ private extension HomeView {
             Spacer()
             
             Button {
-                
+                store.send(.editButtonTapped)
             } label: {
                 Image.Icon.Symbol.edit
             }

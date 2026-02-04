@@ -84,7 +84,8 @@ public struct MainTabReducer {
             HomeCoordinator(
                 goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
                 proofPhotoReducer: proofPhotoReducer,
-                makeGoalReducer: MakeGoalReducer()
+                makeGoalReducer: MakeGoalReducer(),
+                editGoalReducer: EditGoalReducer()
             )
         }
 
@@ -109,6 +110,10 @@ public struct MainTabReducer {
                 
             case .home(.makeGoal(.delegate(.navigateBack))):
                 state.isTabBarHidden = false
+                return .none
+                
+            case .home(.home(.delegate(.goToEditGoal))):
+                state.isTabBarHidden = true
                 return .none
                 
             case .home:

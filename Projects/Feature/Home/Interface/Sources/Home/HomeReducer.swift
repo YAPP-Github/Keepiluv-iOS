@@ -88,6 +88,7 @@ public struct HomeReducer {
         case yourCardTapped(GoalCardItem)
         case myCardTapped
         case floatingButtonTapped
+        case editButtonTapped
         
         // MARK: - Update State
         case fetchGoalsCompleted([GoalCardItem])
@@ -105,6 +106,7 @@ public struct HomeReducer {
         public enum Delegate {
             case goToGoalDetail
             case goToMakeGoal(GoalCategory)
+            case goToEditGoal
         }
     }
     
