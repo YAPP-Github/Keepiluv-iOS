@@ -7,6 +7,15 @@
 
 import Foundation
 
+/// 네트워크 요청을 호출하는 Feature를 구분하기 위한 태그입니다.
+public enum FeatureTag: String {
+    case auth = "Auth"
+    case onboarding = "Onboarding"
+    case home = "Home"
+    case goal = "Goal"
+    case unknown = "Unknown"
+}
+
 /// 네트워크 요청의 기본 정보를 정의하는 프로토콜입니다.
 ///
 /// ## 사용 예시
@@ -27,4 +36,13 @@ public protocol Endpoint {
     var headers: [String: String]? { get }
     var query: [URLQueryItem]? { get }
     var body: Encodable? { get }
+    var requiresAuth: Bool { get }
+    var featureTag: FeatureTag { get }
+}
+
+// MARK: - Default Values
+
+public extension Endpoint {
+    var requiresAuth: Bool { false }
+    var featureTag: FeatureTag { .unknown }
 }
