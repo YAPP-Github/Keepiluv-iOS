@@ -12,10 +12,11 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// CardHeaderView(
-///     config: .goalCheck(
+///     config: .goalCheckClosed(
 ///         goalName: "목표 이름",
 ///         iconImage: .Icon.Illustration.exercise,
-///         isMyChecked: $isMyChecked
+///         isMyChecked: isMyChecked,
+///         action: { }
 ///     )
 /// )
 /// ```
@@ -31,7 +32,8 @@ public struct CardHeaderView: View {
     ///     config: .goalCheckClosed(
     ///         goalName: "목표 이름",
     ///         iconImage: .Icon.Illustration.exercise,
-    ///         isMyChecked: .constant(false)
+    ///         isMyChecked: false,
+    ///         action: { }
     ///     )
     /// )
     /// ```
@@ -80,11 +82,12 @@ private extension CardHeaderView {
     
     @ViewBuilder var rightContent: some View {
         switch config.content {
-        case let .goalCheck(isMyChecked, isCoupleChecked):
+        case let .goalCheck(isMyChecked, isCoupleChecked, action):
             TXToggleButton(
                 config: .goalCheck(),
                 isMyChecked: isMyChecked,
-                isCoupleChecked: isCoupleChecked
+                isCoupleChecked: isCoupleChecked,
+                action: action
             )
             
         case let .goalAdd(action):
@@ -117,7 +120,8 @@ private struct CardHeaderPreview: View {
                 config: .goalCheckClosed(
                     goalName: "목표 이름",
                     iconImage: .Icon.Illustration.exercise,
-                    isMyChecked: $isMyChecked
+                    isMyChecked: isMyChecked,
+                    action: { isMyChecked.toggle() }
                 )
             )
             

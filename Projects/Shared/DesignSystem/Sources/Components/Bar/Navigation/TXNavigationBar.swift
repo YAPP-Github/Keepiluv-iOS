@@ -67,8 +67,8 @@ public struct TXNavigationBar: View {
             case let .mainTitle(title):
                 mainTitleContent(title: title)
 
-            case let .home(subTitle, mainTitle):
-                homeContent(subTitle: subTitle, mainTitle: mainTitle)
+            case let .home(homeStyle):
+                homeContent(homeStyle)
 
             case let .subTitle(title):
                 subTitleContent(title: title)
@@ -98,17 +98,17 @@ private extension TXNavigationBar {
 
 // MARK: - Home Style
 private extension TXNavigationBar {
-    func homeContent(subTitle: String, mainTitle: String) -> some View {
+    func homeContent(_ homeStyle: Style.Home) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                subTitleRow(subTitle: subTitle)
-                mainTitleRow(mainTitle: mainTitle)
+                subTitleRow(subTitle: homeStyle.subTitle)
+                mainTitleRow(homeStyle)
             }
             .padding(.vertical, 12)
 
             Spacer()
 
-            homeActionButtons()
+            homeActionButtons(isRemained: homeStyle.isRemainedAlarm)
         }
         .padding(style.horizontalPadding)
     }
@@ -132,32 +132,34 @@ private extension TXNavigationBar {
         .buttonStyle(.plain)
     }
 
-    func mainTitleRow(mainTitle: String) -> some View {
+    func mainTitleRow(_ homeStyle: Style.Home) -> some View {
         HStack(spacing: 4) {
-            Text(mainTitle)
+            Text(homeStyle.mainTitle)
                 .typography(style.titleFont)
                 .foregroundStyle(style.foregroundColor)
 
-            Button {
-                onAction?(.refreshTapped)
-            } label: {
-                Image.Icon.Symbol.icReturn
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(style.iconForegroundColor)
+            if !homeStyle.isHiddenRefresh {
+                Button {
+                    onAction?(.refreshTapped)
+                } label: {
+                    Image.Icon.Symbol.icReturn
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(style.iconForegroundColor)
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 4)
             }
-            .buttonStyle(.plain)
-            .padding(.bottom, 4)
         }
     }
 
-    func homeActionButtons() -> some View {
+    func homeActionButtons(isRemained: Bool) -> some View {
         HStack(spacing: 0) {
             Button {
                 onAction?(.alertTapped)
             } label: {
-                Image.Icon.Symbol.alert
+                alertImage(isRemained: isRemained)
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: style.iconSize.width, height: style.iconSize.height)
@@ -178,6 +180,10 @@ private extension TXNavigationBar {
             }
             .buttonStyle(.plain)
         }
+    }
+    
+    func alertImage(isRemained: Bool) -> Image {
+        return isRemained ? Image.Icon.Symbol.alertRemained : Image.Icon.Symbol.alert
     }
 }
 
@@ -261,7 +267,7 @@ private extension TXNavigationBar {
 
 #Preview("Home") {
     TXNavigationBar(
-        style: .home(subTitle: "1월 2026", mainTitle: "오늘 우리 목표")
+        style: .home(.init(subTitle: "1월 2026", mainTitle: "오늘 우리 목표", isHiddenRefresh: false, isRemainedAlarm: false))
     ) { action in
         print(action)
     }

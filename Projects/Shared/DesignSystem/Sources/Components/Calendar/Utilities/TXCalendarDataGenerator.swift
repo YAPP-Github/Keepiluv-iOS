@@ -27,6 +27,38 @@ public enum TXCalendarDataGenerator {
         }
         return buildWeeks(context: context, selectedDay: date.day)
     }
+
+    /// TXCalendarDate를 사용하여 특정 주의 캘린더 데이터를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let date = TXCalendarDate(year: 2026, month: 12, day: 14)
+    /// let week = TXCalendarDataGenerator.generateWeekData(for: date)
+    /// let nextWeek = TXCalendarDataGenerator.generateWeekData(for: date, weekOffset: 1)
+    /// let prevWeek = TXCalendarDataGenerator.generateWeekData(for: date, weekOffset: -1)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - date: 기준 날짜
+    ///   - weekOffset: 기준 주에서 이동할 주 단위 오프셋 (예: 다음 주 1, 저번 주 -1)
+    /// - Returns: 주 단위로 그룹화된 날짜 아이템 배열
+    public static func generateWeekData(
+        for date: TXCalendarDate,
+        weekOffset: Int = 0
+    ) -> [[TXCalendarDateItem]] {
+        guard let baseDate = date.date,
+              let targetDate = dateByAddingWeeks(to: baseDate, offset: weekOffset),
+              let interval = calendar.dateInterval(of: .weekOfYear, for: targetDate) else {
+            return []
+        }
+
+        let selectedComponents = calendar.dateComponents([.year, .month, .day], from: targetDate)
+        let items = buildWeekItems(
+            startDate: interval.start,
+            selectedComponents: selectedComponents
+        )
+        return [items]
+    }
 }
 
 // MARK: - Month Context
@@ -106,5 +138,49 @@ private extension TXCalendarDataGenerator {
             week.append(.init(text: "\(nextDay)", status: .lastMonth))
             nextDay += 1
         }
+    }
+}
+
+// MARK: - Week Helpers
+private extension TXCalendarDataGenerator {
+    static func dateByAddingWeeks(to date: Date, offset: Int) -> Date? {
+        calendar.date(byAdding: .weekOfYear, value: offset, to: date) ?? date
+    }
+
+    static func buildWeekItems(
+        startDate: Date,
+        selectedComponents: DateComponents
+    ) -> [TXCalendarDateItem] {
+        let referenceMonth = selectedComponents.month
+        return (0..<TXCalendarLayout.daysInWeek).compactMap { offset in
+            guard let dayDate = calendar.date(byAdding: .day, value: offset, to: startDate) else {
+                return nil
+            }
+            let components = calendar.dateComponents([.year, .month, .day], from: dayDate)
+            let status = weekItemStatus(
+                components: components,
+                selectedComponents: selectedComponents,
+                referenceMonth: referenceMonth
+            )
+            let text = components.day.map(String.init) ?? ""
+            return .init(
+                text: text,
+                status: status,
+                dateComponents: components
+            )
+        }
+    }
+
+    static func weekItemStatus(
+        components: DateComponents,
+        selectedComponents: DateComponents,
+        referenceMonth: Int?
+    ) -> TXCalendarDateStatus {
+        let isSelected = components.year == selectedComponents.year
+            && components.month == selectedComponents.month
+            && components.day == selectedComponents.day
+        if isSelected { return .selectedLine }
+        if referenceMonth != components.month { return .lastMonth }
+        return .default
     }
 }

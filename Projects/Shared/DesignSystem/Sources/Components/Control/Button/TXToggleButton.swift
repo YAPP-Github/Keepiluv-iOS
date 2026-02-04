@@ -13,8 +13,9 @@ import SwiftUI
 /// ```swift
 /// TXToggleButton(
 ///     config: .goalCheck(),
-///     isMyChecked: $isMyChecked,
-///     isCoupleChecked: isCoupleChecked
+///     isMyChecked: isMyChecked,
+///     isCoupleChecked: isCoupleChecked,
+///     action: { }
 /// )
 /// ```
 public struct TXToggleButton: View {
@@ -49,17 +50,20 @@ public struct TXToggleButton: View {
     }
     
     private let config: Configuration
-    @Binding public var isMyChecked: Bool
+    private let isMyChecked: Bool
     private let isCoupleChecked: Bool
+    private let action: () -> Void
 
     public init(
         config: Configuration,
-        isMyChecked: Binding<Bool>,
-        isCoupleChecked: Bool
+        isMyChecked: Bool,
+        isCoupleChecked: Bool,
+        action: @escaping () -> Void
     ) {
         self.config = config
-        self._isMyChecked = isMyChecked
+        self.isMyChecked = isMyChecked
         self.isCoupleChecked = isCoupleChecked
+        self.action = action
     }
     
     public var body: some View {
@@ -79,7 +83,7 @@ private extension TXToggleButton {
         image(for: item, isSelected: isSelected)
             .zIndex(zIndex(for: item))
             .onTapGesture {
-                isMyChecked.toggle()
+                action()
             }
     }
 }
@@ -123,8 +127,9 @@ private extension TXToggleButton {
     VStack {
         TXToggleButton(
             config: .goalCheck(),
-            isMyChecked: $isMyChecked,
-            isCoupleChecked: true
+            isMyChecked: isMyChecked,
+            isCoupleChecked: true,
+            action: { isMyChecked.toggle() }
         )
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

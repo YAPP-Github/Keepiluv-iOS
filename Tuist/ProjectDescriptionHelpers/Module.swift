@@ -49,6 +49,7 @@ public extension Module {
     /// 화면 단위 또는 사용자 플로우 단위로 구성되며,
     /// UI와 사용자 상호작용 로직을 중심으로 설계됩니다.
     enum Feature: String, CaseIterable {
+        case home = "Home"
         case proofPhoto = "ProofPhoto"
         case goalDetail = "GoalDetail"
         case auth = "Auth"
@@ -66,6 +67,7 @@ public extension Module {
     /// 앱의 핵심 규칙과 정책을 담으며,
     /// Feature에 의존하지 않고 독립적으로 설계되는 것이 원칙입니다.
     enum Domain: String, CaseIterable {
+        case goal = "Goal"
         case auth = "Auth"
         
         /// Domain 타겟 이름의 기본 prefix입니다.
@@ -94,6 +96,7 @@ public extension Module {
     ///
     /// 디자인 시스템, UI 컴포넌트, 범용 유틸리티 등을 포함합니다.
     enum Shared: String, CaseIterable {
+        case util = "Util"
         case thirdPartyLib = "ThirdPartyLib"
         case designSystem = "DesignSystem"
         

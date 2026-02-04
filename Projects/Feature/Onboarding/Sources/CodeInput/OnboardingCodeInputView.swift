@@ -30,10 +30,10 @@ public struct OnboardingCodeInputView: View {
                 VStack(spacing: 0) {
                     titleSection
                         .padding(.horizontal, Spacing.spacing9)
-                        .padding(.bottom, Constants.titleBodySpacing)
+                        .padding(.bottom, 92)
 
                     bodySection
-                        .padding(.horizontal, Constants.horizontalPadding)
+                        .padding(.horizontal, 36)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -49,10 +49,7 @@ public struct OnboardingCodeInputView: View {
         .onTapGesture {
             isTextFieldFocused = false
         }
-        .txToast(
-            isPresented: $store.showCopyToast,
-            message: "초대 코드가 복사되었어요"
-        )
+        .txToast(item: $store.toast)
     }
 }
 
@@ -74,7 +71,7 @@ private extension OnboardingCodeInputView {
     }
 
     var bodySection: some View {
-        VStack(spacing: Constants.sectionSpacing) {
+        VStack(spacing: 52) {
             myInviteCodeCard
             receivedCodeSection
         }
@@ -138,11 +135,12 @@ private extension OnboardingCodeInputView {
         ZStack {
             hiddenTextField
 
-            HStack(spacing: Spacing.spacing3) {
+            HStack {
                 ForEach(0..<OnboardingCodeInputReducer.State.codeLength, id: \.self) { index in
                     codeInputCell(at: index)
                 }
             }
+            .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
             .onTapGesture {
                 store.send(.codeFieldTapped)
@@ -191,7 +189,7 @@ private extension OnboardingCodeInputView {
                 cursor
             }
         }
-        .frame(width: Constants.cellWidth, height: Constants.cellHeight)
+        .frame(width: 36, height: 58)
     }
 
     var cursor: some View {
@@ -210,17 +208,5 @@ private extension OnboardingCodeInputView {
             action: { store.send(.completeButtonTapped) }
         )
         .disabled(!store.isCodeComplete)
-    }
-}
-
-// MARK: - Constants
-
-private extension OnboardingCodeInputView {
-    enum Constants {
-        static let horizontalPadding: CGFloat = 36
-        static let titleBodySpacing: CGFloat = 92
-        static let sectionSpacing: CGFloat = 52
-        static let cellWidth: CGFloat = 36
-        static let cellHeight: CGFloat = 58
     }
 }

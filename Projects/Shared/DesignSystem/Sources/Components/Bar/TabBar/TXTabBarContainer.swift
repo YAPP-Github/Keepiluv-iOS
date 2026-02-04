@@ -41,11 +41,11 @@ public struct TXTabBarContainer<Content: View>: View {
     }
 
     public var body: some View {
-        content()
-            .safeAreaInset(edge: .bottom) {
-                TXTabBar(selectedItem: $selectedItem)
-                    .ignoresSafeArea(.keyboard)
-            }
+        VStack(spacing: 0) {
+            content()
+            TXTabBar(selectedItem: $selectedItem)
+        }
+        .ignoresSafeArea(.keyboard)
     }
 }
 

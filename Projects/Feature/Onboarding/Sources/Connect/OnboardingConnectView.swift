@@ -31,15 +31,11 @@ public struct OnboardingConnectView: View {
 
                     illustrationSection
                         .padding(.top, 40)
+                        .padding(.bottom, 47)
 
-                    directConnectCard
-                        .padding(.top, 40)
-                        .padding(.horizontal, Spacing.spacing8)
-
-                    bottomButton
-                        .padding(.top, Spacing.spacing6)
-                        .padding(.horizontal, Spacing.spacing8)
-                        .padding(.vertical, Spacing.spacing5)
+                    buttonSection
+                        .padding(.horizontal, Spacing.spacing12)
+                        .padding(.bottom, Spacing.spacing5)
                 }
             }
         }
@@ -60,8 +56,11 @@ public struct OnboardingConnectView: View {
 private extension OnboardingConnectView {
     var titleSection: some View {
         HStack {
-            Text("짝꿍과 연결해볼까요?")
-                .typography(.h3_22b)
+            Text("""
+                짝꿍과
+                연결해 볼까요?
+                """)
+                .typography(.h3_22eb)
                 .foregroundStyle(Color.Gray.gray500)
             Spacer()
         }
@@ -69,10 +68,33 @@ private extension OnboardingConnectView {
     }
 
     var illustrationSection: some View {
-        Image.Illustration.connect
+        Image.Illustration.invite
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .padding(.horizontal, 27)
+            .frame(width: 300, height: 300)
+    }
+
+    var buttonSection: some View {
+        VStack(spacing: 20) {
+            sendInvitationButton
+
+            directConnectCard
+        }
+    }
+
+    var sendInvitationButton: some View {
+        Button {
+            store.send(.sendInvitationButtonTapped)
+        } label: {
+            Text("초대장 보내기")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Common.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 86)
+                .background(Color.Gray.gray500)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+        }
+        .buttonStyle(.plain)
     }
 
     var directConnectCard: some View {
@@ -80,28 +102,29 @@ private extension OnboardingConnectView {
             store.send(.directConnectCardTapped)
         } label: {
             HStack(spacing: 3) {
-                VStack(alignment: .leading, spacing: Spacing.spacing3) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text("짝꿍에게 코드를 받았다면?")
                         .typography(.c1_12r)
                         .foregroundStyle(Color.Gray.gray400)
 
-                    Text("직접 연결하기")
-                        .typography(.t2_16b)
-                        .foregroundStyle(Color.Gray.gray500)
+                    HStack(spacing: 0) {
+                        Text("직접 ").typography(.t2_16eb)
+                        Text("연결하기").typography(.t2_16b)
+                    }.foregroundStyle(Color.Gray.gray500)
                 }
 
                 Spacer()
 
                 arrowButton
             }
-            .padding(.horizontal, Spacing.spacing9)
-            .padding(.vertical, Spacing.spacing7)
-            .frame(height: 96)
+            .padding(.horizontal, 25)
+            .padding(.vertical, 18)
+            .frame(height: 86)
             .background(Color.Common.white)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: Radius.s),
-                lineWidth: LineWidth.m
+            .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.s)
+                    .strokeBorder(Color.Gray.gray500, lineWidth: 1.2)
             )
         }
         .buttonStyle(.plain)
@@ -111,7 +134,7 @@ private extension OnboardingConnectView {
         Image.Icon.Symbol.arrow3Right
             .resizable()
             .renderingMode(.template)
-            .frame(width: 24, height: 24)
+            .frame(width: 34, height: 34)
             .foregroundStyle(Color.Gray.gray500)
             .frame(width: 44, height: 44)
             .background(Color.Gray.gray50)
@@ -120,12 +143,5 @@ private extension OnboardingConnectView {
                 Circle()
                     .strokeBorder(Color.Gray.gray500, lineWidth: LineWidth.m)
             )
-    }
-
-    var bottomButton: some View {
-        TXRoundedRectangleButton(
-            config: .long(text: "초대장 보내기", colorStyle: .black),
-            action: { store.send(.sendInvitationButtonTapped) }
-        )
     }
 }
