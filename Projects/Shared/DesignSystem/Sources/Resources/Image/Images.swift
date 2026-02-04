@@ -30,7 +30,6 @@ public extension Image.Icon.Illustration {
     
     static let add = IllustrationAsset.iconAdd.swiftUIImage
     static let delete = IllustrationAsset.iconDelete.swiftUIImage
-    static let drug = IllustrationAsset.iconDrug.swiftUIImage
     static let emoji1 = IllustrationAsset.iconEmoji1.swiftUIImage
     static let emoji2 = IllustrationAsset.iconEmoji2.swiftUIImage
     static let emoji3 = IllustrationAsset.iconEmoji3.swiftUIImage
@@ -38,11 +37,17 @@ public extension Image.Icon.Illustration {
     static let emoji5 = IllustrationAsset.iconEmoji5.swiftUIImage
     static let emojiAdd = IllustrationAsset.iconEmojiAdd.swiftUIImage
     static let exercise = IllustrationAsset.iconExercise.swiftUIImage
-    static let fire = IllustrationAsset.iconFire.swiftUIImage
     static let heart = IllustrationAsset.iconHeart.swiftUIImage
     static let success = IllustrationAsset.iconSuccess.swiftUIImage
     static let goalEmpty = IllustrationAsset.iconGoalEmpty.swiftUIImage
     static let warning = IllustrationAsset.iconWarning.swiftUIImage
+    static let `default` = IllustrationAsset.iconDefault.swiftUIImage
+    static let clean = IllustrationAsset.iconClean.swiftUIImage
+    static let book = IllustrationAsset.iconBook.swiftUIImage
+    static let pencil = IllustrationAsset.iconPencil.swiftUIImage
+    static let health = IllustrationAsset.iconHealth.swiftUIImage
+    static let heartDouble = IllustrationAsset.iconHeartDouble.swiftUIImage
+    static let laptop = IllustrationAsset.iconLaptop.swiftUIImage
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.

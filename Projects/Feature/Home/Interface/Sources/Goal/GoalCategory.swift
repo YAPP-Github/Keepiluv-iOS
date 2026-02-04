@@ -38,6 +38,19 @@ public enum GoalCategory: CaseIterable, Equatable {
 }
 
 extension GoalCategory {
+    public static let images: [Image] = [
+        .Icon.Illustration.default,
+        .Icon.Illustration.clean,
+        .Icon.Illustration.exercise,
+        .Icon.Illustration.book,
+        .Icon.Illustration.pencil,
+        .Icon.Illustration.health,
+        .Icon.Illustration.heartDouble,
+        .Icon.Illustration.laptop,
+        .Icon.Illustration.default,
+    ]
+    
+    
     public var title: String {
         switch self {
         case .custom: "직접 만들기"
@@ -53,12 +66,12 @@ extension GoalCategory {
     public var icon: Image {
         switch self {
         case .custom: .Icon.Illustration.add
-        case .health: .Icon.Illustration.drug
-        case .vitamin: .Icon.Illustration.drug
-        case .walk: .Icon.Illustration.drug
-        case .book: .Icon.Illustration.drug
-        case .cleaning: .Icon.Illustration.drug
-        case .call: .Icon.Illustration.drug
+        case .health: .Icon.Illustration.exercise
+        case .vitamin: .Icon.Illustration.health
+        case .walk: .Icon.Illustration.default
+        case .book: .Icon.Illustration.book
+        case .cleaning: .Icon.Illustration.clean
+        case .call: .Icon.Illustration.heartDouble
         }
     }
     
@@ -71,6 +84,18 @@ extension GoalCategory {
         case .book: .monthly(count: 4)
         case .cleaning: .weekly(count: 1)
         case .call: .daily
+        }
+    }
+    
+    public var iconIndex: Int {
+        switch self {
+        case .custom: 0
+        case .health: 2
+        case .vitamin: 5
+        case .walk: 0
+        case .book: 3
+        case .cleaning: 1
+        case .call: 6
         }
     }
 }

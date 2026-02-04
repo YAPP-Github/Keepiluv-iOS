@@ -65,21 +65,21 @@ extension GoalClient: TestDependencyKey {
                 ),
                 Goal(
                     id: "2",
-                    goalIcon: .Icon.Illustration.drug,
+                    goalIcon: .Icon.Illustration.book,
                     title: "목표 2222222",
                     isCompleted: true,
                     image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage
                 ),
                 Goal(
                     id: "3",
-                    goalIcon: .Icon.Illustration.fire,
+                    goalIcon: .Icon.Illustration.clean,
                     title: "목표 3333333",
                     isCompleted: false,
                     emoji: .Icon.Illustration.emoji1
                 ),
                 Goal(
                     id: "4",
-                    goalIcon: .Icon.Illustration.drug,
+                    goalIcon: .Icon.Illustration.default,
                     title: "목표 4444444",
                     isCompleted: false
                 )
