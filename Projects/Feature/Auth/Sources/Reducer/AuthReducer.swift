@@ -28,7 +28,7 @@ public struct AuthReducer {
     public struct State: Equatable {
         public var isLoading = false
         public var errorMessage: String?
-        public var lastLoginResult: AuthLoginResult?
+        public var lastAuthResult: AuthResult?
 
         public init() {}
     }
@@ -37,13 +37,13 @@ public struct AuthReducer {
         case appleLoginButtonTapped
         case kakaoLoginButtonTapped
         case googleLoginButtonTapped
-        case loginResponse(Result<AuthLoginResult, Error>)
+        case loginResponse(Result<AuthResult, Error>)
         case dismissError
         case delegate(Delegate)
 
         @CasePathable
         public enum Delegate {
-            case loginSucceeded(AuthLoginResult)
+            case loginSucceeded(AuthResult)
         }
     }
 
@@ -96,13 +96,8 @@ private extension AuthReducer {
 
         return .run { send in
             do {
-                let token = try await authClient.signIn(provider)
-                let result = AuthLoginResult(
-                    provider: provider,
-                    identityToken: token.accessToken,
-                    authorizationCode: nil
-                )
-                await send(.loginResponse(.success(result)))
+                let authResult = try await authClient.signIn(provider)
+                await send(.loginResponse(.success(authResult)))
             } catch {
                 await send(.loginResponse(.failure(error)))
             }
@@ -111,10 +106,10 @@ private extension AuthReducer {
 
     static func handleLoginSuccess(
         state: inout State,
-        result: AuthLoginResult
+        result: AuthResult
     ) -> Effect<Action> {
         state.isLoading = false
-        state.lastLoginResult = result
+        state.lastAuthResult = result
         #if DEBUG
         logger.info("\(debugPayload(for: result))")
         #endif
@@ -143,11 +138,11 @@ private func errorMessage(for error: Error) -> String {
     return error.localizedDescription
 }
 
-private func debugPayload(for result: AuthLoginResult) -> String {
-    let provider = result.provider.rawValue
-    let idToken = escapeForJSON(result.identityToken ?? "")
-    let authorizationCode = escapeForJSON(result.authorizationCode ?? "")
-    return "{\"provider\":\"\(provider)\",\"id_token\":\"\(idToken)\",\"authorization_code\":\"\(authorizationCode)\"}"
+private func debugPayload(for result: AuthResult) -> String {
+    let userId = result.userId
+    let isNewUser = result.isNewUser
+    let accessToken = escapeForJSON(String(result.token.accessToken.prefix(20)))
+    return "{\"userId\":\(userId),\"isNewUser\":\(isNewUser),\"accessToken\":\"\(accessToken)...\"}"
 }
 
 private func escapeForJSON(_ value: String) -> String {
