@@ -116,7 +116,7 @@ extension HomeReducer {
             case let .goalCheckButtonTapped(id, isChecked):
                 if isChecked {
                     state.pendingDeleteGoalID = id
-                    state.modal = .deleteGoal
+                    state.modal = .info(.deleteGoal)
                     return .none
                 } else {
                     return .run { send in

@@ -81,7 +81,11 @@ public struct HomeView: View {
         }
         .txModal(
             item: $store.modal,
-            onConfirm: { store.send(.modalConfirmTapped) }
+            onAction: { action in
+                if action == .confirm {
+                    store.send(.modalConfirmTapped)
+                }
+            }
         )
         .txToast(item: $store.toast) {
             

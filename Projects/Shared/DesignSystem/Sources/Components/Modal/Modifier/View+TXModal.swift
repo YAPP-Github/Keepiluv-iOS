@@ -13,7 +13,7 @@ public struct TXModalModifier: ViewModifier {
     private let animationDuration: Double = 0.2
     
     @Binding private var item: TXModalType?
-    private let onConfirm: () -> Void
+    private let onAction: (TXModalAction) -> Void
     
     /// TXModalModifier를 생성합니다.
     ///
@@ -23,26 +23,30 @@ public struct TXModalModifier: ViewModifier {
     ///     .modifier(
     ///         TXModalModifier(
     ///             item: $modal,
-    ///             onConfirm: { }
+    ///             onAction: { _ in }
     ///         )
     ///     )
     /// ```
     public init(
         item: Binding<TXModalType?>,
-        onConfirm: @escaping () -> Void
+        onAction: @escaping (TXModalAction) -> Void
     ) {
         self._item = item
-        self.onConfirm = onConfirm
+        self.onAction = onAction
     }
 
     public func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $item) { item in
                 TXModalView(
-                    config: item.configuration(onConfirm: confirmAndDismiss),
-                    onDismiss: startDismiss
+                    content: {
+                        modalContent(for: item)
+                    },
+                    onAction: handleAction
                 )
-                .presentationBackground(.clear)
+                .presentationBackground {
+                    Color.clear
+                }
                 .opacity(isVisible ? 1 : 0)
                 .onAppear {
                     withAnimation(.easeInOut(duration: animationDuration)) {
@@ -58,8 +62,18 @@ public struct TXModalModifier: ViewModifier {
 
 // MARK: - Private Methods
 private extension TXModalModifier {
-    private func confirmAndDismiss() {
-        onConfirm()
+    @ViewBuilder
+    func modalContent(for item: TXModalType) -> some View {
+        switch item {
+        case let .info(config):
+            TXInfoModalContent(config: config)
+        case .gridButton:
+            
+        }
+    }
+
+    func handleAction(_ action: TXModalAction) {
+        onAction(action)
         startDismiss()
     }
 
@@ -81,14 +95,14 @@ public extension View {
     /// ## 사용 예시
     /// ```swift
     /// VStack { }
-    ///     .txModal(item: $modal) {
-    ///         // confirm action
+    ///     .txModal(item: $modal) { action in
+    ///         // handle modal action
     ///     }
     /// ```
     func txModal(
         item: Binding<TXModalType?>,
-        onConfirm: @escaping () -> Void
+        onAction: @escaping (TXModalAction) -> Void
     ) -> some View {
-        modifier(TXModalModifier(item: item, onConfirm: onConfirm))
+        modifier(TXModalModifier(item: item, onAction: onAction))
     }
 }
