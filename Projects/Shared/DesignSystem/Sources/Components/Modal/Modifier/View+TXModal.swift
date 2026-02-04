@@ -10,6 +10,7 @@ import SwiftUI
 /// TXModalType 기반 모달 표시를 위한 ViewModifier입니다.
 public struct TXModalModifier: ViewModifier {
     @State private var isVisible = false
+    @State private var selectedIndex = 0
     private let animationDuration: Double = 0.2
     
     @Binding private var item: TXModalType?
@@ -39,16 +40,18 @@ public struct TXModalModifier: ViewModifier {
         content
             .fullScreenCover(item: $item) { item in
                 TXModalView(
+                    type: item,
                     content: {
                         modalContent(for: item)
                     },
                     onAction: handleAction
                 )
-                .presentationBackground {
-                    Color.clear
-                }
+                .presentationBackground(.clear)
                 .opacity(isVisible ? 1 : 0)
                 .onAppear {
+                    if case let .gridButton(config) = item {
+                        selectedIndex = config.selectedIndex
+                    }
                     withAnimation(.easeInOut(duration: animationDuration)) {
                         isVisible = true
                     }
@@ -67,13 +70,20 @@ private extension TXModalModifier {
         switch item {
         case let .info(config):
             TXInfoModalContent(config: config)
-        case .gridButton:
-            
+        case let .gridButton(config):
+            TXGridButtonModalContent(
+                config: config,
+                selectedIndex: $selectedIndex
+            )
         }
     }
 
     func handleAction(_ action: TXModalAction) {
-        onAction(action)
+        if case .gridButton = item, action == .confirm {
+            onAction(.confirmWithIndex(selectedIndex))
+        } else {
+            onAction(action)
+        }
         startDismiss()
     }
 
@@ -103,6 +113,11 @@ public extension View {
         item: Binding<TXModalType?>,
         onAction: @escaping (TXModalAction) -> Void
     ) -> some View {
-        modifier(TXModalModifier(item: item, onAction: onAction))
+        modifier(
+            TXModalModifier(
+                item: item,
+                onAction: onAction
+            )
+        )
     }
 }

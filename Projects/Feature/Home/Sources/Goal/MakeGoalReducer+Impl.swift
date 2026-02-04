@@ -12,7 +12,9 @@ import FeatureHomeInterface
 
 extension MakeGoalReducer {
     public init() {
-        let reducer = Reduce<State, Action> { state, action in
+        let reducer = Reduce<State, Action> {
+            state,
+            action in
             switch action {
                 
                 // MARK: - LifeCycle
@@ -21,6 +23,17 @@ extension MakeGoalReducer {
                 
                 // MARK: - User Action
             case .emojiButtonTapped:
+                state.modal = 
+                    .gridButton(
+                        .selectIcon(
+                            icons: state.iconImages,
+                            selectedIndex: state.selectedEmojiIndex
+                        )
+                    )
+                return .none
+
+            case let .modalConfirmTapped(index):
+                state.selectedEmojiIndex = index
                 return .none
                 
             case .periodSelected:
