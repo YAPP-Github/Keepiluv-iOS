@@ -195,3 +195,13 @@ public extension MakeGoalReducer.State {
         }
     }
 }
+
+
+public extension MakeGoalReducer.State.Mode {
+    var title: String {
+        switch self {
+        case .add: return "직접 만들기"
+        case .edit: return "목표 수정"
+        }
+    }
+}
