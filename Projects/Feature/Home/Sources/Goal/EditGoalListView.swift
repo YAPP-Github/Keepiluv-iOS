@@ -30,9 +30,17 @@ struct EditGoalListView: View {
             store.send(.onDisappear)
         }
         .onTapGesture {
-            guard store.selectedCardMenuID != nil else { return }
+            guard store.selectedCardMenu != nil else { return }
             store.send(.backgroundTapped)
         }
+        .txModal(
+            item: $store.modal,
+            onAction: { action in
+                if action == .confirm {
+                    store.send(.modalConfirmTapped)
+                }
+            }
+        )
     }
 }
 
@@ -70,12 +78,12 @@ private extension EditGoalListView {
                                 endDate: card.endDate
                             ),
                             action: {
-                                store.send(.cardMenuButtonTapped(card.id))
+                                store.send(.cardMenuButtonTapped(card))
                             }
                         )
                     )
                     .overlay(alignment: .topTrailing) {
-                        if store.selectedCardMenuID == card.id {
+                        if store.selectedCardMenu == card {
                             dropdown
                         }
                     }

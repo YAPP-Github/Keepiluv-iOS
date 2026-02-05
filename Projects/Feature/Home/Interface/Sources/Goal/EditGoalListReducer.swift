@@ -37,7 +37,8 @@ public struct EditGoalListReducer {
         public var calendarDate: TXCalendarDate
         public var calendarWeeks: [[TXCalendarDateItem]]
         public var cards: [GoalEditCardItem] = []
-        public var selectedCardMenuID: String?
+        public var selectedCardMenu: GoalEditCardItem?
+        public var modal: TXModalType?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -58,7 +59,9 @@ public struct EditGoalListReducer {
     }
     
     /// 목표 편집 화면에서 발생 가능한 이벤트입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         case onDisappear
@@ -66,9 +69,10 @@ public struct EditGoalListReducer {
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBackButtonTapped
-        case cardMenuButtonTapped(String)
+        case cardMenuButtonTapped(GoalEditCardItem)
         case cardMenuItemSelected(TXDropdownItem)
         case backgroundTapped
+        case modalConfirmTapped
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
@@ -96,6 +100,7 @@ public struct EditGoalListReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }

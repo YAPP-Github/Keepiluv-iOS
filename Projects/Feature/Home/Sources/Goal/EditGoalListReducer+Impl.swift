@@ -45,7 +45,7 @@ extension EditGoalListReducer {
                 }
                 
             case .onDisappear:
-                state.selectedCardMenuID = nil
+                state.selectedCardMenu = nil
                 return .none
                 
                 // MARK: - User Action
@@ -61,25 +61,32 @@ extension EditGoalListReducer {
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
                 
-            case let .cardMenuButtonTapped(id):
-                state.selectedCardMenuID = state.selectedCardMenuID == id ? nil : id
+            case let .cardMenuButtonTapped(card):
+                state.selectedCardMenu = state.selectedCardMenu == card ? nil : card
                 return .none
                 
             case let .cardMenuItemSelected(item):
-                state.selectedCardMenuID = nil
                 switch item {
                 case .edit:
                     // TODO: - API연동할 때 MakeGoalItem 넘기기
                     return .send(.delegate(.goToGoalEdit))
                     
                 case .finish:
+                    guard let card = state.selectedCardMenu else { return .none }
+                    state.modal = .info(.finishGoal(for: card))
+                    state.selectedCardMenu = nil
+                    return .none
                     
                 case .delete:
+                    return .none
                 }
-                return .none
                 
             case .backgroundTapped:
-                state.selectedCardMenuID = nil
+                state.selectedCardMenu = nil
+                return .none
+                
+            case .modalConfirmTapped:
+                // TODO: - finish API
                 return .none
                 
                 // MARK: - Update State
@@ -93,6 +100,9 @@ extension EditGoalListReducer {
                 return .none
                 
             case .delegate:
+                return .none
+                
+            case .binding:
                 return .none
             }
         }
