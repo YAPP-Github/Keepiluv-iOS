@@ -66,20 +66,22 @@ extension EditGoalListReducer {
                 return .none
                 
             case let .cardMenuItemSelected(item):
+                guard let card = state.selectedCardMenu else { return .none }
+                
                 switch item {
                 case .edit:
                     // TODO: - API연동할 때 MakeGoalItem 넘기기
                     return .send(.delegate(.goToGoalEdit))
                     
                 case .finish:
-                    guard let card = state.selectedCardMenu else { return .none }
                     state.modal = .info(.finishGoal(for: card))
-                    state.selectedCardMenu = nil
-                    return .none
                     
                 case .delete:
-                    return .none
+                    state.modal = .info(.editDeleteGoal(for: card))
                 }
+                
+                state.selectedCardMenu = nil
+                return .none
                 
             case .backgroundTapped:
                 state.selectedCardMenu = nil

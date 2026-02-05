@@ -33,10 +33,20 @@ public extension TXInfoModalContent.Configuration {
     static func finishGoal(for card: GoalEditCardItem) -> Self {
         return .init(
             image: card.iconImage,
-            title: card.goalName,
-            subtitle: "이룬 목표에서 확인할 수 있어요.",
+            title: "\(card.goalName)\n목표를 이루셨나요?",
+            subtitle: "이룬 목표에서 확인할 수 있어요",
             leftButtonText: "취소",
             rightButtonText: "이뤘어요"
+        )
+    }
+    
+    static func editDeleteGoal(for card: GoalEditCardItem) -> Self {
+        return .init(
+            image: card.iconImage,
+            title: "\(card.goalName)\n목표를 삭제할까요?",
+            subtitle: "저장된 인증샷은 모두 삭제됩니다.",
+            leftButtonText: "취소",
+            rightButtonText: "삭제"
         )
     }
 }
