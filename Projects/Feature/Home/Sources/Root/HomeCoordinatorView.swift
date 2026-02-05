@@ -47,9 +47,9 @@ public struct HomeCoordinatorView: View {
                             goalDetailFactory.makeView(store)
                         }
                         
-                    case .editGoal:
-                        IfLetStore(store.scope(state: \.editGoal, action: \.editGoal)) { store in
-                            EditGoalView(store: store)
+                    case .editGoalList:
+                        IfLetStore(store.scope(state: \.editGoalList, action: \.editGoalList)) { store in
+                            EditGoalListView(store: store)
                         }
                         
                     case .makeGoal:

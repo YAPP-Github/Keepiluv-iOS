@@ -25,7 +25,7 @@ public struct HomeCoordinator {
     private let homeReducer: HomeReducer
     private let goalDetailReducer: GoalDetailReducer
     private let makeGoalReducer: MakeGoalReducer
-    private let editGoalReducer: EditGoalReducer
+    private let editGoalListReducer: EditGoalListReducer
     
     /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///
@@ -40,7 +40,7 @@ public struct HomeCoordinator {
         public var home = HomeReducer.State()
         public var goalDetail: GoalDetailReducer.State?
         public var makeGoal: MakeGoalReducer.State?
-        public var editGoal: EditGoalReducer.State?
+        public var editGoalList: EditGoalListReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -64,7 +64,7 @@ public struct HomeCoordinator {
         case home(HomeReducer.Action)
         case goalDetail(GoalDetailReducer.Action)
         case makeGoal(MakeGoalReducer.Action)
-        case editGoal(EditGoalReducer.Action)
+        case editGoalList(EditGoalListReducer.Action)
     }
 
     /// 외부에서 주입된 Reduce로 HomeCoordinatorReducer를 구성합니다.
@@ -81,13 +81,13 @@ public struct HomeCoordinator {
         homeReducer: HomeReducer,
         goalDetailReducer: GoalDetailReducer,
         makeGoalReducer: MakeGoalReducer,
-        editGoalReducer: EditGoalReducer
+        editGoalListReducer: EditGoalListReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
         self.goalDetailReducer = goalDetailReducer
         self.makeGoalReducer = makeGoalReducer
-        self.editGoalReducer = editGoalReducer
+        self.editGoalListReducer = editGoalListReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -104,8 +104,8 @@ public struct HomeCoordinator {
             .ifLet(\.makeGoal, action: \.makeGoal) {
                 makeGoalReducer
             }
-            .ifLet(\.editGoal, action: \.editGoal) {
-                editGoalReducer
+            .ifLet(\.editGoalList, action: \.editGoalList) {
+                editGoalListReducer
             }
     }
 }

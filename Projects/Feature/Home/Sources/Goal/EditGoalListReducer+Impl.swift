@@ -1,5 +1,5 @@
 //
-//  EditGoalReducer+Impl.swift
+//  EditGoalListReducer+Impl.swift
 //  FeatureHome
 //
 //  Created by 정지훈 on 2/4/26.
@@ -12,12 +12,12 @@ import DomainGoalInterface
 import FeatureHomeInterface
 import SharedDesignSystem
 
-extension EditGoalReducer {
-    /// 실제 로직을 포함한 EditGoalReducer를 생성합니다.
+extension EditGoalListReducer {
+    /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let reducer = EditGoalReducer()
+    /// let reducer = EditGoalListReducer()
     /// ```
     // swiftlint:disable:next function_body_length
     public init() {
@@ -70,7 +70,7 @@ extension EditGoalReducer {
                 switch item {
                 case .edit:
                     // TODO: - API연동할 때 MakeGoalItem 넘기기
-                    return .send(.delegate(.goToEditGoal))
+                    return .send(.delegate(.goToGoalEdit))
                     
                 case .finish:
                     

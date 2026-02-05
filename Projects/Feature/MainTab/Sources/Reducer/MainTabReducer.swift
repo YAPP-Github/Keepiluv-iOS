@@ -85,7 +85,7 @@ public struct MainTabReducer {
                 goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
                 proofPhotoReducer: proofPhotoReducer,
                 makeGoalReducer: MakeGoalReducer(),
-                editGoalReducer: EditGoalReducer()
+                editGoalListReducer: EditGoalListReducer()
             )
         }
 
@@ -112,11 +112,11 @@ public struct MainTabReducer {
                 state.isTabBarHidden = !state.home.routes.isEmpty
                 return .none
                 
-            case .home(.home(.delegate(.goToEditGoal))):
+            case .home(.home(.delegate(.goToEditGoalList))):
                 state.isTabBarHidden = true
                 return .none
                 
-            case .home(.editGoal(.delegate(.navigateBack))):
+            case .home(.editGoalList(.delegate(.navigateBack))):
                 state.isTabBarHidden = false
                 return .none
                 
