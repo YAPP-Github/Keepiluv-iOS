@@ -38,7 +38,9 @@ private extension EditGoalView {
         TXCalendar(
             mode: .weekly,
             weeks: store.calendarWeeks,
-            onSelect: { _ in }
+            onSelect: { item in
+                store.send(.calendarDateSelected(item))
+            }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
         .padding(.top, 4)
