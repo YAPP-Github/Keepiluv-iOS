@@ -1,5 +1,5 @@
 //
-//  EditGoalView.swift
+//  EditGoalListView.swift
 //  FeatureHome
 //
 //  Created by 정지훈 on 2/4/26.
@@ -11,9 +11,9 @@ import ComposableArchitecture
 import FeatureHomeInterface
 import SharedDesignSystem
 
-struct EditGoalView: View {
+struct EditGoalListView: View {
     
-    @Bindable var store: StoreOf<EditGoalReducer>
+    @Bindable var store: StoreOf<EditGoalListReducer>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -36,7 +36,7 @@ struct EditGoalView: View {
     }
 }
 
-private extension EditGoalView {
+private extension EditGoalListView {
     var navigationBar: some View {
         TXNavigationBar(style: .subTitle(title: "편집", rightText: "")) { _ in
             store.send(.navigationBackButtonTapped)
@@ -93,7 +93,7 @@ private extension EditGoalView {
     }
 }
 #Preview {
-    EditGoalView(store: Store(initialState: EditGoalReducer.State(), reducer: {
-        EditGoalReducer()
+    EditGoalListView(store: Store(initialState: EditGoalListReducer.State(), reducer: {
+        EditGoalListReducer()
     }))
 }

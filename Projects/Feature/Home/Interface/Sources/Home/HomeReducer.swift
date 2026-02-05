@@ -106,7 +106,7 @@ public struct HomeReducer {
         public enum Delegate {
             case goToGoalDetail
             case goToMakeGoal(GoalCategory)
-            case goToEditGoal
+            case goToEditGoalList
         }
     }
     

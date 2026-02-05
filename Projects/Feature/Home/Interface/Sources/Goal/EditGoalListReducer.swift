@@ -1,5 +1,5 @@
 //
-//  EditGoalReducer.swift
+//  EditGoalListReducer.swift
 //  FeatureHome
 //
 //  Created by 정지훈 on 2/4/26.
@@ -17,11 +17,11 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// let store = Store(initialState: EditGoalReducer.State()) {
-///     EditGoalReducer()
+/// let store = Store(initialState: EditGoalListReducer.State()) {
+///     EditGoalListReducer()
 /// }
 /// ```
-public struct EditGoalReducer {
+public struct EditGoalListReducer {
     
     let reducer: Reduce<State, Action>
     
@@ -30,7 +30,7 @@ public struct EditGoalReducer {
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let state = EditGoalReducer.State()
+    /// let state = EditGoalListReducer.State()
     /// ```
     public struct State: Equatable {
         
@@ -43,7 +43,7 @@ public struct EditGoalReducer {
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = EditGoalReducer.State()
+        /// let state = EditGoalListReducer.State()
         /// ```
         public init() {
             let nowDate = CalendarNow()
@@ -79,15 +79,15 @@ public struct EditGoalReducer {
         
         public enum Delegate {
             case navigateBack
-            case goToEditGoal
+            case goToGoalEdit
         }
     }
     
-    /// 외부에서 주입한 Reduce로 EditGoalReducer를 구성합니다.
+    /// 외부에서 주입한 Reduce로 EditGoalListReducer를 구성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let reducer = EditGoalReducer(
+    /// let reducer = EditGoalListReducer(
     ///     reducer: Reduce { _, _ in .none }
     /// )
     /// ```
