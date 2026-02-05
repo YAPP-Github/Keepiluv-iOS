@@ -40,6 +40,12 @@ public extension TXInfoModalContent.Configuration {
         )
     }
     
+    /// 목표 삭제 확인용 정보 모달 설정을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let config = TXInfoModalContent.Configuration.editDeleteGoal(for: card)
+    /// ```
     static func editDeleteGoal(for card: GoalEditCardItem) -> Self {
         return .init(
             image: card.iconImage,
