@@ -62,7 +62,11 @@ public struct EditGoalReducer {
         // MARK: - LifeCycle
         case onAppear
         
+        // MARK: - User Action
+        case calendarDateSelected(TXCalendarDateItem)
+        
         // MARK: - Update State
+        case setCalendarDate(TXCalendarDate)
         case fetchGoalsCompleted([GoalEditCardItem])
     }
     

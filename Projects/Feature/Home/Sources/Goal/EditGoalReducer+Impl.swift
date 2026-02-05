@@ -43,8 +43,23 @@ extension EditGoalReducer {
                     }
                     await send(.fetchGoalsCompleted(items))
                 }
+            
+                // MARK: - User Action
+            case let .calendarDateSelected(item):
+                guard let components = item.dateComponents,
+                      let year = components.year,
+                      let month = components.month,
+                      let day = components.day else {
+                    return .none
+                }
+                return .send(.setCalendarDate(.init(year: year, month: month, day: day)))
                 
                 // MARK: - Update State
+            case let .setCalendarDate(date):
+                state.calendarDate = date
+                state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
+                return .none
+                
             case let .fetchGoalsCompleted(items):
                 state.cards = items
                 return .none
