@@ -51,9 +51,8 @@ public struct HomeView: View {
             } else {
                 goalEmptyView
             }
-            
-            Spacer()
         }
+        .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
             if store.hasCards {
                 floatingButton
@@ -87,7 +86,12 @@ public struct HomeView: View {
                 }
             }
         )
-        .txToast(item: $store.toast) { }
+        .txToast(
+            item: $store.toast,
+            onButtonTap: {
+                
+            }, customPadding: Constants.tabBarHeight + 16
+        )
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },
@@ -182,19 +186,18 @@ private extension HomeView {
             ),
             actionLeft: {
                 store.send(.myCardTapped)
-            },
-            actionRight: {
+            }, actionRight: {
+                
                 store.send(.yourCardTapped(card))
             }
         )
     }
-    
     var floatingButton: some View {
         TXCircleButton(config: .plus()) {
             store.send(.floatingButtonTapped)
         }
         .padding(.trailing, 16)
-        .padding(.bottom, 12)
+        .padding(.bottom, Constants.tabBarHeight + 12)
     }
     
     var goalEmptyView: some View {
@@ -209,5 +212,11 @@ private extension HomeView {
                 .padding(.leading, 74)
         }
         .padding(.top, 136)
+    }
+}
+
+private extension HomeView {
+    enum Constants {
+        static let tabBarHeight: CGFloat = 58
     }
 }

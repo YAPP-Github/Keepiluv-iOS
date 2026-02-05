@@ -23,12 +23,9 @@ public enum TXDropdownItem: CaseIterable, Equatable, Hashable {
 public extension TXDropdownItem {
     var title: String {
         switch self {
-        case .edit:
-            return "수정하기"
-        case .finish:
-            return "끝내기"
-        case .delete:
-            return "삭제하기"
+        case .edit: return "수정하기"
+        case .finish: return "끝내기"
+        case .delete: return "삭제하기"
         }
     }
 }

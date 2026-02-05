@@ -136,7 +136,7 @@ private extension GoalEditCardView {
                 iconImage: .Icon.Illustration.default,
                 repeatCycle: "매일",
                 startDate: "yyyy년 m월 d일",
-                endDate: "미설정"                
+                endDate: "미설정"
             ),
             action: { }
         )

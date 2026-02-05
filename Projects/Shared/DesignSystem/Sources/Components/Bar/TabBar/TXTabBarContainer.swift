@@ -54,13 +54,13 @@ public struct TXTabBarContainer<Content: View>: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            content()
-            if !isTabBarHidden {
-                TXTabBar(selectedItem: $selectedItem)
+        content()
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !isTabBarHidden {
+                    TXTabBar(selectedItem: $selectedItem)
+                }
             }
-        }
-        .ignoresSafeArea(.keyboard)
+            .ignoresSafeArea(.keyboard)
     }
 }
 
