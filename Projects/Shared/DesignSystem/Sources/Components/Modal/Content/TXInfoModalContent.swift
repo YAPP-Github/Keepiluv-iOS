@@ -14,6 +14,8 @@ public struct TXInfoModalContent: View {
         let image: Image
         let title: String
         let subtitle: String
+        let leftButtonText: String
+        let rightButtonText: String
         let imageSize: CGSize
         let imageFrameSize: CGSize
         
@@ -24,19 +26,25 @@ public struct TXInfoModalContent: View {
         /// let config = TXInfoModalContent.Configuration(
         ///     image: .Icon.Illustration.emoji2,
         ///     title: "목표를 이루셨나요?",
-        ///     subtitle: "목표를 완료해도 사진은 사라지지 않아요"
+        ///     subtitle: "목표를 완료해도 사진은 사라지지 않아요",
+        ///     leftButtonText: "취소",
+        ///     rightButtonText: "삭제"
         /// )
         /// ```
         public init(
             image: Image,
             title: String,
             subtitle: String,
+            leftButtonText: String,
+            rightButtonText: String,
             imageSize: CGSize = CGSize(width: 42, height: 42),
             imageFrameSize: CGSize = CGSize(width: 64, height: 64)
         ) {
             self.image = image
             self.title = title
             self.subtitle = subtitle
+            self.leftButtonText = leftButtonText
+            self.rightButtonText = rightButtonText
             self.imageSize = imageSize
             self.imageFrameSize = imageFrameSize
         }
@@ -80,7 +88,9 @@ public struct TXInfoModalContent: View {
         config: .init(
             image: .Icon.Illustration.emoji2,
             title: "목표를 이루셨나요?",
-            subtitle: "목표를 완료해도 사진은 사라지지 않아요"
+            subtitle: "목표를 완료해도 사진은 사라지지 않아요",
+            leftButtonText: "취소",
+            rightButtonText: "삭제"
         )
     )
 }
