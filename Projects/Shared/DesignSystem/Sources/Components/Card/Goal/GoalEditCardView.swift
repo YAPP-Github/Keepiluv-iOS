@@ -130,11 +130,13 @@ private extension GoalEditCardView {
 #Preview {
     GoalEditCardView(
         config: .goalEdit(
-            goalName: "목표 이름",
             item: .init(
+                id: "1",
+                goalName: "목표 이름",
+                iconImage: .Icon.Illustration.default,
                 repeatCycle: "매일",
                 startDate: "yyyy년 m월 d일",
-                endDate: "미설정",
+                endDate: "미설정"                
             ),
             action: { }
         )
