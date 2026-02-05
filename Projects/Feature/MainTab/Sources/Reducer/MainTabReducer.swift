@@ -93,34 +93,20 @@ public struct MainTabReducer {
             switch action {
                 // MARK: - User Action
             case .selectedTabChanged:
+                switch state.selectedTab {
+                case .home:
+                    state.isTabBarHidden = !state.home.routes.isEmpty
+                    
+                case .statistics, .couple:
+                    state.isTabBarHidden = false
+                }
                 return .none
                 
                 // MARK: - Child Action
-            case .home(.home(.delegate(.goToGoalDetail))):
-                state.isTabBarHidden = true
-                return .none
-                
-            case .home(.goalDetail(.delegate(.navigateBack))):
-                state.isTabBarHidden = false
-                return .none
-                
-            case .home(.home(.delegate(.goToMakeGoal))):
-                state.isTabBarHidden = true
-                return .none
-                
-            case .home(.makeGoal(.delegate(.navigateBack))):
-                state.isTabBarHidden = !state.home.routes.isEmpty
-                return .none
-                
-            case .home(.home(.delegate(.goToEditGoalList))):
-                state.isTabBarHidden = true
-                return .none
-                
-            case .home(.editGoalList(.delegate(.navigateBack))):
-                state.isTabBarHidden = false
-                return .none
-                
             case .home:
+                if state.selectedTab == .home {
+                    state.isTabBarHidden = !state.home.routes.isEmpty
+                }
                 return .none
                 
             case .binding:
