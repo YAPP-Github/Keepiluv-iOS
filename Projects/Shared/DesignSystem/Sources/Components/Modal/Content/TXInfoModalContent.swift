@@ -17,7 +17,6 @@ public struct TXInfoModalContent: View {
         let leftButtonText: String
         let rightButtonText: String
         let imageSize: CGSize
-        let imageFrameSize: CGSize
         
         /// 정보형 모달 콘텐츠 구성을 생성합니다.
         ///
@@ -37,8 +36,7 @@ public struct TXInfoModalContent: View {
             subtitle: String,
             leftButtonText: String,
             rightButtonText: String,
-            imageSize: CGSize = CGSize(width: 42, height: 42),
-            imageFrameSize: CGSize = CGSize(width: 64, height: 64)
+            imageSize: CGSize = CGSize(width: 60, height: 60)
         ) {
             self.image = image
             self.title = title
@@ -46,7 +44,6 @@ public struct TXInfoModalContent: View {
             self.leftButtonText = leftButtonText
             self.rightButtonText = rightButtonText
             self.imageSize = imageSize
-            self.imageFrameSize = imageFrameSize
         }
     }
     
@@ -68,7 +65,6 @@ public struct TXInfoModalContent: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: config.imageSize.width, height: config.imageSize.height)
-                .frame(width: config.imageFrameSize.width, height: config.imageFrameSize.height)
                 .padding(.top, Spacing.spacing8)
 
             Text(config.title)
