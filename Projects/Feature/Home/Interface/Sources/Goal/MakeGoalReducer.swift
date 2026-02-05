@@ -5,10 +5,9 @@
 //  Created by 정지훈 on 2/1/26.
 //
 
-import Foundation
+import SwiftUI
 
 import ComposableArchitecture
-import SwiftUI
 import SharedDesignSystem
 import SharedUtil
 

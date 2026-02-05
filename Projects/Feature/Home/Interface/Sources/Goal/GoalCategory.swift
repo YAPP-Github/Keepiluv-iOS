@@ -49,7 +49,6 @@ extension GoalCategory {
         .Icon.Illustration.laptop
     ]
     
-    
     public var title: String {
         switch self {
         case .custom: "직접 만들기"
@@ -98,7 +97,6 @@ extension GoalCategory {
         }
     }
 }
-
 
 extension GoalCategory.RepeatCycle {
     public var isDaily: Bool {

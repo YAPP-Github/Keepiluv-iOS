@@ -9,13 +9,12 @@ import Foundation
 
 import ComposableArchitecture
 import CoreLogging
-import FeatureHome
-import FeatureHomeInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
+import FeatureHome
+import FeatureHomeInterface
 import FeatureProofPhoto
 import FeatureProofPhotoInterface
-
 import SharedDesignSystem
 
 /// 앱의 메인 탭 화면을 관리하는 Reducer입니다.

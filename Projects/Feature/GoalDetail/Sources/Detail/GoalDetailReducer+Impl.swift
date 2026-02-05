@@ -46,7 +46,7 @@ extension GoalDetailReducer {
                 // MARK: - Action
             case .bottomButtonTapped:
                 let shouldGoToProofPhoto = (state.currentUser == .mySelf && !state.isCompleted) || state.isEditing
-                if shouldGoToProofPhoto { 
+                if shouldGoToProofPhoto {
                     return .run { send in
                         let isAuthorized = await captureSessionClient.fetchIsAuthorized()
                         await send(.authorizationCompleted(isAuthorized: isAuthorized))
@@ -66,8 +66,7 @@ extension GoalDetailReducer {
                         newItem?.comment = state.commentText
                         
                         guard let newItem else { return .none }
-                        state.item?.completedGoal[0] = newItem
-                        
+                        state.item?.completedGoal[0] = newItem 
                     } else {
                         state.isEditing = true
                         state.commentText = state.comment

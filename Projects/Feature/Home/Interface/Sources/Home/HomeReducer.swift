@@ -106,7 +106,6 @@ public struct HomeReducer {
             case goToGoalDetail
             case goToMakeGoal(GoalCategory)
         }
-        
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.

@@ -40,13 +40,13 @@ public struct GoalDetail: Equatable {
     public init(
         id: String,
         title: String,
+        completedGoal: [CompletedGoal],
         selectedIndex: Int? = nil,
-        completedGoal: [CompletedGoal]
     ) {
         self.id = id
         self.title = title
-        self.selectedIndex = selectedIndex
         self.completedGoal = completedGoal
+        self.selectedIndex = selectedIndex
     }
     
     /// 목표 인증 정보를 나타내는 모델입니다.
@@ -76,7 +76,12 @@ public struct GoalDetail: Equatable {
         ///     createdAt: nil
         /// )
         /// ```
-        public init(owner: Owner, image: Image? = nil, comment: String, createdAt: String?) {
+        public init(
+            owner: Owner,
+            image: Image? = nil,
+            comment: String,
+            createdAt: String?
+        ) {
             self.owner = owner
             self.image = image
             self.comment = comment

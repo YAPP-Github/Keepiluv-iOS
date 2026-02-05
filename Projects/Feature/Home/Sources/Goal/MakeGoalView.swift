@@ -68,9 +68,10 @@ private extension MakeGoalView {
             style: .subTitle(
                 title: "직접 만들기",
                 rightText: ""
-            )) { _ in
+            ), onAction: { _ in
                 store.send(.navigationBackButtonTapped)
             }
+        )
     }
     
     var emojiButton: some View {
@@ -230,7 +231,7 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
                 store.send(.periodSheetCompleteTapped)
             }
-            .padding(.top ,40)
+            .padding(.top, 40)
             .padding(.horizontal, 20)
         }
         .padding(.top, 36)
@@ -267,27 +268,13 @@ private extension MakeGoalView {
                     frameSize: .init(width: 36, height: 36),
                     imageSize: .init(width: 28, height: 28),
                     colorStyle: store.isMinusEnable ? .black : .disable
-                )
-            ) {
-                store.send(.periodSheetMinusTapped)
-            }
+                ), action: {
+                    store.send(.periodSheetMinusTapped)
+                }
+            )
             .disabled(!store.isMinusEnable)
             
-            HStack(spacing: 8) {
-                Text("\(store.periodCount)")
-                    .typography(.h2_24r)
-                    .foregroundStyle(Color.Gray.gray500)
-                
-                Text("번")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray300)
-            }
-            .frame(width: 96, height: 58)
-            .insideBorder(
-                Color.Gray.gray300,
-                shape: RoundedRectangle(cornerRadius: 12),
-                lineWidth: 1.2
-            )
+            sheetPeriodCount
             
             TXCircleButton(
                 config: .init(
@@ -300,11 +287,26 @@ private extension MakeGoalView {
                 store.send(.periodSheetPlusTapped)
             }
             .disabled(!store.isPlusEnable)
-            
-            
         }
     }
-
+    
+    var sheetPeriodCount: some View {
+        HStack(spacing: 8) {
+            Text("\(store.periodCount)")
+                .typography(.h2_24r)
+                .foregroundStyle(Color.Gray.gray500)
+            
+            Text("번")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Gray.gray300)
+        }
+        .frame(width: 96, height: 58)
+        .insideBorder(
+            Color.Gray.gray300,
+            shape: RoundedRectangle(cornerRadius: 12),
+            lineWidth: 1.2
+        )
+    }
 }
 
 // MARK: - Private Methods

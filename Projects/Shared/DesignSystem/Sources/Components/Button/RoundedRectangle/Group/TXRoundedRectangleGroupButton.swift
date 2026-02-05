@@ -109,6 +109,7 @@ private extension TXRoundedRectangleGroupButton {
         switch layout {
         case .calendarSheet:
             return .long(text: text, colorStyle: colorStyle)
+            
         case .modal:
             return .medium(text: text, colorStyle: colorStyle)
         }

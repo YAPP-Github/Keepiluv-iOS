@@ -64,37 +64,47 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
                 }
             ) {
                 ZStack(alignment: .bottom) {
-                    sheetContent()
-                        .readSize { frame in
-                            guard !didCaptureInitialHeight else { return }
-                            didCaptureInitialHeight = true
-                            sheetHeight = frame.height
-                            if dimmedOpacity == 0 {
-                                sheetOffset = frame.height
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .bottom)
-                        .background(Color.Common.white)
-                        .clipShape(
-                            UnevenRoundedRectangle(cornerRadii: .init(topLeading: Radius.m, topTrailing: Radius.m))
-                        )
-                        .offset(y: sheetOffset)
+                    content
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .ignoresSafeArea(.container, edges: .bottom)
                 .onAppear { presentAnimated() }
-                .presentationBackground {
-                    Color.Dimmed.dimmed70
-                        .opacity(dimmedOpacity)
-                        .ignoresSafeArea()
-                        .contentShape(Rectangle())
-                        .onTapGesture { startDismiss() }
-                }
+                .presentationBackground { dimmedBackground }
             }
             .transaction { $0.disablesAnimations = true }
     }
 }
 
+// MARK: - SubViews {
+private extension TXBottomSheetModifier {
+    var content: some View {
+        sheetContent()
+            .readSize { frame in
+                guard !didCaptureInitialHeight else { return }
+                didCaptureInitialHeight = true
+                sheetHeight = frame.height
+                if dimmedOpacity == 0 {
+                    sheetOffset = frame.height
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .bottom)
+            .background(Color.Common.white)
+            .clipShape(
+                UnevenRoundedRectangle(cornerRadii: .init(topLeading: Radius.m, topTrailing: Radius.m))
+            )
+            .offset(y: sheetOffset)
+    }
+    
+    var dimmedBackground: some View {
+        Color.Dimmed.dimmed70
+            .opacity(dimmedOpacity)
+            .ignoresSafeArea()
+            .contentShape(Rectangle())
+            .onTapGesture { startDismiss() }
+    }
+}
+
+// MARK: - Function
 private extension TXBottomSheetModifier {
     func resetSheetState() {
         sheetHeight = 0

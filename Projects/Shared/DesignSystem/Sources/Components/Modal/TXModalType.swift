@@ -18,6 +18,7 @@ extension TXModalType: Identifiable {
         switch self {
         case .info:
             return "info"
+            
         case .gridButton:
             return "gridButton"
         }

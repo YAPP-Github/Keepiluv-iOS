@@ -33,8 +33,8 @@ public struct GoalDetailFactory {
 }
 
 extension GoalDetailFactory: TestDependencyKey {
-    static public var testValue: GoalDetailFactory = Self(
-        makeView: { _ in 
+    public static var testValue: GoalDetailFactory = Self(
+        makeView: { _ in
             assertionFailure("GoalDetailFactory.makeView is unimplemented")
             return AnyView(EmptyView())
         }

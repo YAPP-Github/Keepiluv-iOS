@@ -70,6 +70,7 @@ private extension TXModalModifier {
         switch item {
         case let .info(config):
             TXInfoModalContent(config: config)
+            
         case let .gridButton(config):
             TXGridButtonModalContent(
                 config: config,

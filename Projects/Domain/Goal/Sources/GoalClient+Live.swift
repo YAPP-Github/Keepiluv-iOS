@@ -23,5 +23,4 @@ extension GoalClient: @retroactive DependencyKey {
             return GoalDetail(id: "", title: "", completedGoal: [])
         }
     )
-    
 }

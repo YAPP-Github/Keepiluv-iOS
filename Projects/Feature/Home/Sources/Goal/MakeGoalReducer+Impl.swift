@@ -11,10 +11,10 @@ import ComposableArchitecture
 import FeatureHomeInterface
 
 extension MakeGoalReducer {
+    // swiftlint:disable:next function_body_length
     public init() {
-        let reducer = Reduce<State, Action> {
-            state,
-            action in
+        // swiftlint:disable:next closure_body_length
+        let reducer = Reduce<State, Action> { state, action in
             switch action {
                 
                 // MARK: - LifeCycle
@@ -23,13 +23,12 @@ extension MakeGoalReducer {
                 
                 // MARK: - User Action
             case .emojiButtonTapped:
-                state.modal = 
-                    .gridButton(
-                        .selectIcon(
-                            icons: state.iconImages,
-                            selectedIndex: state.selectedEmojiIndex
-                        )
+                state.modal =  .gridButton(
+                    .selectIcon(
+                        icons: state.iconImages,
+                        selectedIndex: state.selectedEmojiIndex
                     )
+                )
                 return .none
 
             case let .modalConfirmTapped(index):
@@ -106,6 +105,7 @@ extension MakeGoalReducer {
                 switch target {
                 case .startDate:
                     state.startDate = state.calendarSheetDate
+
                 case .endDate:
                     state.endDate = state.calendarSheetDate
                 }

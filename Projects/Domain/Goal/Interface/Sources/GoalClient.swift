@@ -90,7 +90,6 @@ extension GoalClient: TestDependencyKey {
                 .init(
                     id: "1",
                     title: "아이스크림 먹기",
-                    selectedIndex: 3,
                     completedGoal: [
                         .init(
                             owner: .mySelf,
@@ -104,7 +103,8 @@ extension GoalClient: TestDependencyKey {
                             comment: "코멘트내용",
                             createdAt: "6시간 전"
                         )
-                    ]
+                    ],
+                    selectedIndex: 3
                 )
         }
     )

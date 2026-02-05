@@ -15,8 +15,6 @@ extension TXNavigationBar {
         case subTitle(title: String, rightText: String?)
         case noTitle
         
-        
-        
         /// 홈 스타일에서 사용하는 설정 값입니다.
         ///
         /// ## 사용 예시
