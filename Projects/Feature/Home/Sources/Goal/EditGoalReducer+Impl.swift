@@ -65,6 +65,19 @@ extension EditGoalReducer {
                 state.selectedCardMenuID = state.selectedCardMenuID == id ? nil : id
                 return .none
                 
+            case let .cardMenuItemSelected(item):
+                state.selectedCardMenuID = nil
+                switch item {
+                case .edit:
+                    // TODO: - API연동할 때 MakeGoalItem 넘기기
+                    return .send(.delegate(.goToEditGoal))
+                    
+                case .finish:
+                    
+                case .delete:
+                }
+                return .none
+                
             case .backgroundTapped:
                 state.selectedCardMenuID = nil
                 return .none
