@@ -116,6 +116,10 @@ public struct MainTabReducer {
                 state.isTabBarHidden = true
                 return .none
                 
+            case .home(.editGoal(.delegate(.navigateBack))):
+                state.isTabBarHidden = false
+                return .none
+                
             case .home:
                 return .none
                 

@@ -26,12 +26,17 @@ struct EditGoalView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .onDisappear {
+            store.send(.onDisappear)
+        }
     }
 }
 
 private extension EditGoalView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "편집", rightText: "")) { _ in }
+        TXNavigationBar(style: .subTitle(title: "편집", rightText: "")) { _ in
+            store.send(.navigationBackButtonTapped)
+        }
     }
     
     var weekCalendar: some View {

@@ -61,13 +61,22 @@ public struct EditGoalReducer {
     public enum Action {
         // MARK: - LifeCycle
         case onAppear
+        case onDisappear
         
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
+        case navigationBackButtonTapped
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
         case fetchGoalsCompleted([GoalEditCardItem])
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        public enum Delegate {
+            case navigateBack
+        }
     }
     
     /// 외부에서 주입한 Reduce로 EditGoalReducer를 구성합니다.
