@@ -36,7 +36,8 @@ public struct EditGoalReducer {
         
         public var calendarDate: TXCalendarDate
         public var calendarWeeks: [[TXCalendarDateItem]]
-        public var cards: [GoalEditCardItem]
+        public var cards: [GoalEditCardItem] = []
+        public var selectedCardMenuID: String?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -53,7 +54,6 @@ public struct EditGoalReducer {
             )
             self.calendarDate = today
             self.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: today)
-            self.cards = []
         }
     }
     
@@ -66,6 +66,8 @@ public struct EditGoalReducer {
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBackButtonTapped
+        case cardMenuButtonTapped(String)
+        case backgroundTapped
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
