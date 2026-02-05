@@ -10,8 +10,8 @@ import PhotosUI
 import SwiftUI
 
 import ComposableArchitecture
-import SharedDesignSystem
 import DomainGoalInterface
+import SharedDesignSystem
 
 /// ProofPhoto 화면의 상태와 액션을 정의하는 리듀서입니다.
 @Reducer

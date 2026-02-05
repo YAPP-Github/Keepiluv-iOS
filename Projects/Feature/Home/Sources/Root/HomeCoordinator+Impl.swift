@@ -7,8 +7,8 @@
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
-import FeatureProofPhotoInterface
 import FeatureHomeInterface
+import FeatureProofPhotoInterface
 
 extension HomeCoordinator {
     /// 기본 구성의 HomeCoordinatorReducer를 생성합니다.
@@ -17,6 +17,7 @@ extension HomeCoordinator {
     /// ```swift
     /// let reducer = HomeCoordinatorReducer()
     /// ```
+    // swiftlint:disable:next function_body_length
     public init(
         goalDetailReducer: GoalDetailReducer,
         proofPhotoReducer: ProofPhotoReducer,

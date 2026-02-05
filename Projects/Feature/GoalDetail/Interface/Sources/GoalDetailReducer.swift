@@ -31,10 +31,11 @@ public struct GoalDetailReducer {
         public var comment: String { currentCard?.comment ?? "" }
         public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {
-            if case .mySelf = currentUser,
-               isCompleted {
+            if case .mySelf = currentUser, isCompleted {
                 return isEditing ? "저장" : "수정"
-            } else { return "" }
+            } else {
+                return ""
+            }
         }
         
         public var proofPhoto: ProofPhotoReducer.State?

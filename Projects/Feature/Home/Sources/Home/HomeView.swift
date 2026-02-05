@@ -87,9 +87,7 @@ public struct HomeView: View {
                 }
             }
         )
-        .txToast(item: $store.toast) {
-            
-        }
+        .txToast(item: $store.toast) { }
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },
@@ -112,9 +110,10 @@ private extension HomeView {
                     isHiddenRefresh: store.isRefreshHidden,
                     isRemainedAlarm: false,
                 )
-            )) { action in
+            ), onAction: { action in
                 store.send(.navigationBarAction(action))
             }
+        )
     }
     
     // FIXME: - Calendar

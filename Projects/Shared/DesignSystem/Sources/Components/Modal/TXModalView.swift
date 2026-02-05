@@ -99,8 +99,6 @@ private extension TXModalView {
     VStack {
         TXModalView(type: .info(.deleteGoal)) {
             TXInfoModalContent(config: .deleteGoal)
-        } onAction: { _ in
-            
-        }
+        } onAction: { _ in }
     }
 }

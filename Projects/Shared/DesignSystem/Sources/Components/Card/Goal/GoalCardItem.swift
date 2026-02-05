@@ -37,8 +37,8 @@ public struct GoalCardItem: Identifiable, Equatable {
     /// ```
     public struct Card: Equatable {
         let image: Image?
-        let emoji: Image?
         public var isSelected: Bool
+        let emoji: Image?
         
         /// 이미지/이모지로 GoalCardItem.Card를 생성합니다.
         ///
@@ -51,12 +51,12 @@ public struct GoalCardItem: Identifiable, Equatable {
         /// ```
         public init(
             image: Image?,
-            emoji: Image? = nil,
-            isSelected: Bool
+            isSelected: Bool,
+            emoji: Image? = nil
         ) {
             self.image = image
-            self.emoji = emoji
             self.isSelected = isSelected
+            self.emoji = emoji
         }
     }
     
