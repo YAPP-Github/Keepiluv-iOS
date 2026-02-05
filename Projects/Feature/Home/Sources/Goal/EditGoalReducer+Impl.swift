@@ -43,6 +43,9 @@ extension EditGoalReducer {
                     }
                     await send(.fetchGoalsCompleted(items))
                 }
+                
+            case .onDisappear:
+                return .none
             
                 // MARK: - User Action
             case let .calendarDateSelected(item):
@@ -54,6 +57,9 @@ extension EditGoalReducer {
                 }
                 return .send(.setCalendarDate(.init(year: year, month: month, day: day)))
                 
+            case .navigationBackButtonTapped:
+                return .send(.delegate(.navigateBack))
+                
                 // MARK: - Update State
             case let .setCalendarDate(date):
                 state.calendarDate = date
@@ -62,6 +68,9 @@ extension EditGoalReducer {
                 
             case let .fetchGoalsCompleted(items):
                 state.cards = items
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
