@@ -20,7 +20,7 @@ struct EditGoalView: View {
             navigationBar
             weekCalendar
             cardScrollView
-            .padding(.top, 16)
+                .padding(.top, 16)
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -28,6 +28,10 @@ struct EditGoalView: View {
         }
         .onDisappear {
             store.send(.onDisappear)
+        }
+        .onTapGesture {
+            guard store.selectedCardMenuID != nil else { return }
+            store.send(.backgroundTapped)
         }
     }
 }
@@ -65,16 +69,29 @@ private extension EditGoalView {
                                 startDate: card.startDate,
                                 endDate: card.endDate
                             ),
-                            action: { }
+                            action: {
+                                store.send(.cardMenuButtonTapped(card.id))
+                            }
                         )
                     )
+                    .overlay(alignment: .topTrailing) {
+                        if store.selectedCardMenuID == card.id {
+                            dropdown
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 20)
         }
     }
+    
+    var dropdown: some View {
+        TXDropdown(config: .goal()) { _ in
+            
+        }
+        .offset(x: -16, y: 48)
+    }
 }
-
 #Preview {
     EditGoalView(store: Store(initialState: EditGoalReducer.State(), reducer: {
         EditGoalReducer()

@@ -45,8 +45,9 @@ extension EditGoalReducer {
                 }
                 
             case .onDisappear:
+                state.selectedCardMenuID = nil
                 return .none
-            
+                
                 // MARK: - User Action
             case let .calendarDateSelected(item):
                 guard let components = item.dateComponents,
@@ -59,6 +60,14 @@ extension EditGoalReducer {
                 
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
+                
+            case let .cardMenuButtonTapped(id):
+                state.selectedCardMenuID = state.selectedCardMenuID == id ? nil : id
+                return .none
+                
+            case .backgroundTapped:
+                state.selectedCardMenuID = nil
+                return .none
                 
                 // MARK: - Update State
             case let .setCalendarDate(date):
