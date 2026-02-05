@@ -80,6 +80,10 @@ public struct TXDropdown: View {
                 }
             }
         }
+        .background(
+            Color.Common.white,
+            in: RoundedRectangle(cornerRadius: config.cornerRadius)
+        )
         .insideBorder(
             config.borderColor,
             shape: RoundedRectangle(cornerRadius: config.cornerRadius),
