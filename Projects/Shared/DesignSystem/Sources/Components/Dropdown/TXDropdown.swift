@@ -11,13 +11,15 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXDropdown(config: .defaultItems()) { item in
-///     print(item)
+/// TXDropdown(config: .goal) { item in
+///     if item == .edit {
+///         print("수정하기 선택")
+///     }
 /// }
 /// ```
 public struct TXDropdown: View {
     public struct Configuration {
-        let items: [String]
+        let items: [TXDropdownItem]
         let width: CGFloat = 88
         let itemHeight: CGFloat = 44
         let leadingPadding: CGFloat = Spacing.spacing7
@@ -32,17 +34,31 @@ public struct TXDropdown: View {
         let shadowX: CGFloat = 2
         let shadowY: CGFloat = 1
 
-        public init(items: [String]) {
+        /// 드롭다운에 표시할 항목 목록으로 설정을 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let config = TXDropdown.Configuration(items: [.edit, .finish, .delete])
+        /// ```
+        public init(items: [TXDropdownItem]) {
             self.items = items
         }
     }
 
     private let config: Configuration
-    private let onSelect: (String) -> Void
+    private let onSelect: (TXDropdownItem) -> Void
     
+    /// 설정값과 선택 액션으로 드롭다운을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXDropdown(config: .goal) { item in
+    ///     print(item)
+    /// }
+    /// ```
     public init(
         config: Configuration,
-        onSelect: @escaping (String) -> Void
+        onSelect: @escaping (TXDropdownItem) -> Void
     ) {
         self.config = config
         self.onSelect = onSelect
@@ -50,11 +66,11 @@ public struct TXDropdown: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            ForEach(config.items.indices, id: \.self) { index in
+            ForEach(Array(config.items.enumerated()), id: \.offset) { index, item in
                 Button {
-                    onSelect(config.items[index])
+                    onSelect(item)
                 } label: {
-                    dropdownItem(at: index)
+                    dropdownItem(item)
                 }
 
                 if index != config.items.indices.last {
@@ -81,8 +97,8 @@ public struct TXDropdown: View {
 
 // MARK: - SubViews
 private extension TXDropdown {
-    func dropdownItem(at index: Int) -> some View {
-        Text(config.items[index])
+    func dropdownItem(_ item: TXDropdownItem) -> some View {
+        Text(item.title)
             .typography(config.textTypography)
             .foregroundStyle(config.textColor)
             .frame(maxWidth: .infinity, maxHeight: config.itemHeight, alignment: .leading)
@@ -92,6 +108,6 @@ private extension TXDropdown {
 
 #Preview {
     VStack {
-        TXDropdown(config: .goal(), onSelect: { _ in })
+        TXDropdown(config: .init(items: TXDropdownItem.allCases), onSelect: { _ in })
     }
 }
