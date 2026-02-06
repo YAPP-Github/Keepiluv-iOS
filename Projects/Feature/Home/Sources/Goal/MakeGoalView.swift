@@ -77,7 +77,7 @@ private extension MakeGoalView {
         Button {
             store.send(.emojiButtonTapped)
         } label: {
-            store.selectedEmoji
+            store.selectedEmoji.image
                 .resizable()
                 .frame(width: 56, height: 56)
                 .padding(26)
@@ -240,7 +240,7 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.weeklyPeriodText,
-                    colorStyle: store.selectedPeriod.isWeekly ? .black : .white
+                    colorStyle: store.selectedPeriod == .weekly ? .black : .white
                 )
             ) {
                 store.send(.periodSheetWeeklyTapped)
@@ -249,7 +249,7 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.monthlyPeriodText,
-                    colorStyle: store.selectedPeriod.isMonthly ? .black : .white
+                    colorStyle: store.selectedPeriod == .monthly ? .black : .white
                 )
             ) {
                 store.send(.periodSheetMonthlyTapped)
@@ -317,9 +317,9 @@ private extension MakeGoalView {
                 if newValue == store.dailyPeriodText {
                     store.selectedPeriod = .daily
                 } else if newValue == store.weeklyPeriodText {
-                    store.selectedPeriod = .weekly(count: store.weeklyPeriodCount)
+                    store.selectedPeriod = .weekly
                 } else if newValue == store.monthlyPeriodText {
-                    store.selectedPeriod = .monthly(count: store.monthlyPeriodCount)
+                    store.selectedPeriod = .monthly
                 }
             }
         )
