@@ -26,15 +26,15 @@ public struct GoalListResponseDTO: Decodable {
         // let repeatCycle: String
         let myCompleted: Bool
         let partnerCompleted: Bool
-        let myVerification: Verification
-        let partnerVerification: Verification
+        let myVerification: Verification?
+        let partnerVerification: Verification?
     }
 
     public struct Verification: Decodable {
-        let photologId: Int
-        let imageUrl: String
+//        let photologId: Int
+        let imageUrl: String?
         // let comment: String
-        let reaction: String
+        let reaction: String?
         // let uploadedAt: String
     }
 }
@@ -54,13 +54,13 @@ public extension GoalListResponseDTO {
                 title: $0.name,
                 myVerification: .init(
                     isCompleted: $0.myCompleted,
-                    imageURL: $0.myVerification.imageUrl,
-                    emoji: Goal.Reaction(rawValue: $0.myVerification.reaction)
+                    imageURL: $0.myVerification?.imageUrl,
+                    emoji: Goal.Reaction(rawValue: $0.myVerification?.reaction ?? "")
                 ),
                 yourVerification: .init(
                     isCompleted: $0.partnerCompleted,
-                    imageURL: $0.partnerVerification.imageUrl,
-                    emoji: Goal.Reaction(rawValue: $0.partnerVerification.reaction)
+                    imageURL: $0.partnerVerification?.imageUrl,
+                    emoji: Goal.Reaction(rawValue: $0.partnerVerification?.reaction ?? "")
                 )
             )
         }
