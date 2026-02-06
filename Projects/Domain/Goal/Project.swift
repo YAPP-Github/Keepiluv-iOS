@@ -17,6 +17,7 @@ let project = Project.makeModule(
             implements: .goal,
             config: .init(
                 dependencies: [
+                    .core(interface: .network),
                     .domain(interface: .goal),
                     .external(dependency: .ComposableArchitecture)
                 ]
