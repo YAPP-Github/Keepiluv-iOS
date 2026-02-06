@@ -13,7 +13,7 @@ import Foundation
 /// Apple Sign In을 수행하는 Provider입니다.
 ///
 /// ASAuthorizationController를 사용하여 Apple OAuth 로그인을 처리하고,
-/// authorizationCode를 획득하여 AuthLoginResult로 변환합니다.
+/// identityToken을 획득하여 AuthLoginResult로 변환합니다.
 public final class AppleLoginProvider: NSObject, SocialLoginProviderProtocol {
     public var providerType: AuthProvider { .apple }
 
@@ -52,7 +52,9 @@ extension AppleLoginProvider: ASAuthorizationControllerDelegate {
             return
         }
 
-        guard let authorizationCodeData = appleIDCredential.authorizationCode,
+        guard let identityTokenData = appleIDCredential.identityToken,
+              let identityToken = String(data: identityTokenData, encoding: .utf8),
+              let authorizationCodeData = appleIDCredential.authorizationCode,
               let authorizationCode = String(data: authorizationCodeData, encoding: .utf8) else {
             continuation?.resume(throwing: AuthLoginError.missingCredential)
             continuation = nil
@@ -61,7 +63,8 @@ extension AppleLoginProvider: ASAuthorizationControllerDelegate {
 
         let result = AuthLoginResult(
             provider: .apple,
-            code: authorizationCode
+            code: identityToken,
+            authorizationCode: authorizationCode
         )
 
         continuation?.resume(returning: result)

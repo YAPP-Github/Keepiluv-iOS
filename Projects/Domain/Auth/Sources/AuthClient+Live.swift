@@ -59,11 +59,9 @@ private extension AuthClient {
         let loginProvider = createLoginProvider(for: provider)
         let loginResult = try await loginProvider.performLogin()
 
-        let authCode = loginResult.code
+        logger.debug("loginResult: \(loginResult)")
 
-        logger.debug("authCode: \(authCode)")
-
-        let endpoint = createAuthEndpoint(for: provider, code: authCode)
+        let endpoint = createAuthEndpoint(from: loginResult)
         let response: SignInResponse = try await networkClient.request(endpoint: endpoint)
 
         let token = Token(
@@ -118,16 +116,19 @@ private extension AuthClient {
         }
     }
 
-    static func createAuthEndpoint(for provider: AuthProvider, code: String) -> AuthEndpoint {
-        switch provider {
+    static func createAuthEndpoint(from loginResult: AuthLoginResult) -> AuthEndpoint {
+        switch loginResult.provider {
         case .apple:
-            return .signInWithApple(code: code)
+            return .signInWithApple(
+                idToken: loginResult.code,
+                authorizationCode: loginResult.authorizationCode ?? ""
+            )
 
         case .kakao:
-            return .signInWithKakao(code: code)
+            return .signInWithKakao(idToken: loginResult.code)
 
         case .google:
-            return .signInWithGoogle(code: code)
+            return .signInWithGoogle(idToken: loginResult.code)
         }
     }
 }

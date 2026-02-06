@@ -10,16 +10,15 @@ import SwiftUI
 import UIKit
 
 /// Shake 제스처 감지 시 Pulse UI를 표시하는 ViewModifier
+///
+/// UIWindow extension이 shake를 자동으로 감지하므로
+/// 별도의 overlay 없이 NotificationCenter를 통해 이벤트를 수신합니다.
 struct ShakeDetectorModifier: ViewModifier {
     let label: String
     @State private var isShowingPulse = false
 
     func body(content: Content) -> some View {
         content
-            .overlay(
-                ShakeDetectingHostingView()
-                    .allowsHitTesting(false)
-            )
             .sheet(isPresented: $isShowingPulse) {
                 PulseNetworkLogViewProvider().makePulseLogView(label: label)
             }
@@ -29,7 +28,8 @@ struct ShakeDetectorModifier: ViewModifier {
     }
 }
 
-/// Shake를 감지하기 위한 투명한 HostingView
+/// Deprecated: UIWindow extension이 shake를 자동으로 감지합니다.
+@available(*, deprecated, message: "UIWindow extension handles shake detection automatically")
 struct ShakeDetectingHostingView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> ShakeDetectingHostingController {
         ShakeDetectingHostingController()
@@ -38,8 +38,8 @@ struct ShakeDetectingHostingView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: ShakeDetectingHostingController, context: Context) {}
 }
 
-/// Deprecated: Use ShakeDetectorModifier directly
-@available(*, deprecated, message: "Use ShakeDetectorModifier directly")
+/// Deprecated: UIWindow extension이 shake를 자동으로 감지합니다.
+@available(*, deprecated, message: "UIWindow extension handles shake detection automatically")
 struct ShakeDetectingView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> ShakeDetectingViewController {
         ShakeDetectingViewController()
