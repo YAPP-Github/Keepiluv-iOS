@@ -28,12 +28,24 @@ extension GoalClient: @retroactive DependencyKey {
                     let response: GoalListResponseDTO = try await networkClient.request(
                         endpoint: GoalEndpoint.fetchGoalList(date: date)
                     )
-                    
                     return response.toEntity(response)
                 } catch {
+                    
                     throw error
                 }
-            }, fetchGoalDetail: {
+            },
+            createGoal: { request in
+                do {
+                    let response: GoalCreateResponseDTO = try await networkClient.request(
+                        endpoint: GoalEndpoint.createGoal(request)
+                    )
+                    return response.toEntity(response)
+                } catch {
+
+                    throw error
+                }
+            },
+            fetchGoalDetail: {
                 return GoalDetail(id: "", title: "", completedGoal: [])
             }
         )

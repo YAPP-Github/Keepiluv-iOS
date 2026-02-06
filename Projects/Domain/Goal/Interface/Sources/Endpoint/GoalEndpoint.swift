@@ -12,13 +12,14 @@ import CoreNetworkInterface
 /// 목표 관련 API 엔드포인트 정의입니다.
 public enum GoalEndpoint: Endpoint {
     case fetchGoalList(date: String)
+    case createGoal(GoalCreateRequestDTO)
 }
     
 extension GoalEndpoint {
     public var path: String {
         switch self {
-        case .fetchGoalList:
-            return "/api/v1/goals"
+        case .fetchGoalList: return "/api/v1/goals"
+        case .createGoal: return "/api/v1/goals"
         }
     }
     
@@ -26,6 +27,9 @@ extension GoalEndpoint {
         switch self {
         case .fetchGoalList:
             return .get
+            
+        case .createGoal:
+            return .post
         }
     }
     
@@ -37,13 +41,22 @@ extension GoalEndpoint {
         switch self {
         case let .fetchGoalList(date):
             return [URLQueryItem(name: "date", value: date)]
+            
+        case .createGoal:
+            return nil
         }
     }
     
     public var body: (any Encodable)? {
         switch self {
-            case .fetchGoalList:
+        case .fetchGoalList:
             return nil
+            
+        case let .createGoal(request):
+            return request
         }
     }
+    
+    public var requiresAuth: Bool { true }
+    public var featureTag: FeatureTag { .goal }
 }
