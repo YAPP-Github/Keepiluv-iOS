@@ -9,6 +9,7 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
 import FeatureProofPhotoInterface
+import FeatureSettingsInterface
 
 extension HomeCoordinator {
     /// 기본 구성의 HomeCoordinatorReducer를 생성합니다.
@@ -22,7 +23,8 @@ extension HomeCoordinator {
         goalDetailReducer: GoalDetailReducer,
         proofPhotoReducer: ProofPhotoReducer,
         makeGoalReducer: MakeGoalReducer,
-        editGoalListReducer: EditGoalListReducer
+        editGoalListReducer: EditGoalListReducer,
+        settingsReducer: SettingsReducer
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
@@ -39,6 +41,11 @@ extension HomeCoordinator {
             case .home(.delegate(.goToEditGoalList)):
                 state.routes.append(.editGoalList)
                 state.editGoalList = .init()
+                return .none
+
+            case .home(.delegate(.goToSettings)):
+                state.settings = .init()
+                state.isSettingsPresented = true
                 return .none
                 
             case .goalDetail(.delegate(.navigateBack)):
@@ -79,7 +86,29 @@ extension HomeCoordinator {
                 
             case .editGoalList:
                 return .none
-                
+
+            case .settings(.delegate(.navigateBack)):
+                state.isSettingsPresented = false
+                return .none
+
+            case .settings(.delegate(.logoutCompleted)):
+                state.isSettingsPresented = false
+                return .send(.delegate(.logoutCompleted))
+
+            case .settings(.delegate(.withdrawCompleted)):
+                state.isSettingsPresented = false
+                return .send(.delegate(.withdrawCompleted))
+
+            case .settingsDismissed:
+                state.settings = nil
+                return .none
+
+            case .settings:
+                return .none
+
+            case .delegate:
+                return .none
+
             case .binding:
                 return .none
             }
@@ -90,7 +119,8 @@ extension HomeCoordinator {
             homeReducer: HomeReducer(proofPhotoReducer: proofPhotoReducer),
             goalDetailReducer: goalDetailReducer,
             makeGoalReducer: makeGoalReducer,
-            editGoalListReducer: editGoalListReducer
+            editGoalListReducer: editGoalListReducer,
+            settingsReducer: settingsReducer
         )
     }
 }

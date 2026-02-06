@@ -109,6 +109,7 @@ public struct HomeReducer {
             case goToGoalDetail
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList
+            case goToSettings
         }
     }
     

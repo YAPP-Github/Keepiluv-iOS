@@ -103,7 +103,7 @@ extension HomeReducer {
                     return .none
                     
                 case .settingTapped:
-                    return .none
+                    return .send(.delegate(.goToSettings))
                     
                 case .backTapped, .rightTapped, .closeTapped:
                     return .none

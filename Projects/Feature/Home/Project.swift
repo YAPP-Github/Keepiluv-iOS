@@ -11,6 +11,7 @@ let project = Project.makeModule(
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
+                    .feature(interface: .settings),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -24,6 +25,7 @@ let project = Project.makeModule(
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
+                    .feature(interface: .settings),
                     .feature(interface: .home),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),
