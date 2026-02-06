@@ -105,7 +105,7 @@ extension HomeReducer {
                 case .settingTapped:
                     return .none
                     
-                case .backTapped, .rightTapped:
+                case .backTapped, .rightTapped, .closeTapped:
                     return .none
                 }
                 
@@ -163,7 +163,7 @@ extension HomeReducer {
             case let .setCalendarDate(date):
                  let now = state.nowDate
                 state.calendarDate = date
-                state.calendarMonthTitle = "\(date.month)월\(date.year)"
+                state.calendarMonthTitle = "\(date.month)월 \(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
                 state.isRefreshHidden = (
                     date.year == now.year &&

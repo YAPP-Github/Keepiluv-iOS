@@ -9,6 +9,10 @@ import ComposableArchitecture
 import CoreNetworkInterface
 import Foundation
 
+#if DEBUG
+import CoreLogging
+#endif
+
 public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
@@ -27,6 +31,7 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
         }
 
         let request = try makeURLRequest(url: url, endpoint: endpoint)
+        let featureTag = endpoint.featureTag.rawValue
 
         return try await withCheckedThrowingContinuation { continuation in
             var createdTask: URLSessionDataTask?
@@ -56,6 +61,7 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
                 }
             }
 
+            task.taskDescription = featureTag
             createdTask = task
 
             interceptors.forEach { $0.didCreateTask(task) }
@@ -65,11 +71,46 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     }
 }
 
-extension NetworkClient: DependencyKey {
-    public static let liveValue = Self(provider: NetworkProvider())
+extension NetworkClient: @retroactive DependencyKey {
+    public static let liveValue: NetworkClient = {
+        #if DEBUG
+        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
+        #else
+        let interceptors: [NetworkInterceptor] = []
+        #endif
+
+        return Self(
+            provider: NetworkProvider(interceptors: interceptors),
+            tokenProvider: nil
+        )
+    }()
+
+    public static func live(
+        tokenProvider: @escaping @Sendable () async -> String?
+    ) -> NetworkClient {
+        #if DEBUG
+        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
+        #else
+        let interceptors: [NetworkInterceptor] = []
+        #endif
+
+        return Self(
+            provider: NetworkProvider(interceptors: interceptors),
+            tokenProvider: tokenProvider
+        )
+    }
 }
 
+
 private extension NetworkProvider {
+    struct APIErrorResponse: Decodable {
+        let code: String?
+    }
+
+    func parseErrorCode(from data: Data) -> String? {
+        try? JSONDecoder().decode(APIErrorResponse.self, from: data).code
+    }
+
     func makeURL(endpoint: Endpoint) -> URL? {
         let url = endpoint.baseURL.appending(path: endpoint.path, directoryHint: .notDirectory)
 
@@ -107,7 +148,9 @@ private extension NetworkProvider {
         
         switch httpResponse.statusCode {
         case HTTPStatusCode.success:
-            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+            let jsonData = data.isEmpty ? Data("{}".utf8) : data
+
+            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: jsonData) else {
                 throw NetworkError.decodingError
             }
             return decodedResponse
@@ -115,8 +158,12 @@ private extension NetworkProvider {
         case HTTPStatusCode.unauthorized:
             throw NetworkError.authorizationError
             
+        case HTTPStatusCode.notFound:
+            throw NetworkError.notFoundError
+
         case HTTPStatusCode.badRequest:
-            throw NetworkError.badRequestError
+            let errorCode = parseErrorCode(from: data)
+            throw NetworkError.badRequestError(code: errorCode)
             
         case HTTPStatusCode.serverError:
             throw NetworkError.serverError

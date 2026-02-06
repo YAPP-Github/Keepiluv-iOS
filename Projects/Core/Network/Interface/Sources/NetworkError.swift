@@ -8,11 +8,12 @@
 import Foundation
 
 /// 네트워크 요청 과정에서 발생할 수 있는 에러를 정의합니다.
-public enum NetworkError: Error {
+public enum NetworkError: Error, Equatable {
     case invalidURLError
     case invalidResponseError
     case authorizationError
-    case badRequestError
+    case badRequestError(code: String?)
+    case notFoundError
     case serverError
     case decodingError
     case encodingError
@@ -33,6 +34,9 @@ extension NetworkError {
 
         case .badRequestError:
             return "요청이 올바르지 않습니다."
+
+        case .notFoundError:
+            return "요청한 리소스를 찾을 수 없습니다."
 
         case .serverError:
             return "서버 에러입니다."

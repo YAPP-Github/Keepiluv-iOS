@@ -1,17 +1,54 @@
 //
-//  OnboardingView.swift
-//
+//  OnboardingApp.swift
+//  FeatureOnboardingExample
 //
 //  Created by Jihun on 12/29/25.
 //
 
+import ComposableArchitecture
+import DomainOnboardingInterface
+import FeatureOnboarding
 import SwiftUI
 
 @main
 struct OnboardingApp: App {
+    let store: StoreOf<OnboardingCoordinator>
+
+    init() {
+        self.store = Store(
+            initialState: OnboardingCoordinator.State(
+                myInviteCode: "KDJ34923"
+            ),
+            reducer: { OnboardingCoordinator() },
+            withDependencies: {
+                $0.onboardingClient = .previewValue
+            }
+        )
+    }
+
     var body: some Scene {
         WindowGroup {
-            Text("Hello Twix")
+            OnboardingCoordinatorView(store: store)
+                .onOpenURL { url in
+                    if let code = parseInviteCode(from: url) {
+                        store.send(.deepLinkReceived(code: code))
+                    }
+                }
         }
     }
+}
+
+// MARK: - Deep Link Parsing
+
+private func parseInviteCode(from url: URL) -> String? {
+    guard let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String,
+          let host = url.host,
+          host.contains(deeplinkHost),
+          url.path == "/invite",
+          let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+          let code = components.queryItems?.first(where: { $0.name == "code" })?.value,
+          !code.isEmpty else {
+        return nil
+    }
+    return code
 }

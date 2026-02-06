@@ -9,26 +9,21 @@ import Foundation
 
 /// 인증 과정에서 발생할 수 있는 에러를 나타냅니다.
 public enum AuthLoginError: Error {
-    /// 지원하지 않는 로그인 제공자
     case unsupportedProvider
 
-    /// 필수 인증 정보 누락 (identityToken 등)
     case missingCredential
 
-    /// 사용자가 로그인을 취소함
     case userCanceled
 
-    /// OAuth 제공자에서 발생한 에러
     case providerError(Error)
 
-    /// 서버 API 호출 실패
     case serverError
 
-    /// 네트워크 연결 실패
     case networkError(Error)
 
-    /// 토큰 저장 실패
     case storageFailed(Error)
+
+    case tokenRefreshFailed
 }
 
 // MARK: - LocalizedError
@@ -56,6 +51,9 @@ extension AuthLoginError: LocalizedError {
             
         case .storageFailed(let error):
             return "토큰 저장 실패: \(error.localizedDescription)"
+
+        case .tokenRefreshFailed:
+            return "토큰 갱신에 실패했습니다."
         }
     }
 }
