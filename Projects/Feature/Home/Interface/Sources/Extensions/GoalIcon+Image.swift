@@ -11,7 +11,7 @@ import DomainGoalInterface
 import SharedDesignSystem
 
 extension Goal.Icon {
-    var image: Image {
+    public var image: Image {
         switch self {
         case .default:
             return .Icon.Illustration.default
@@ -29,8 +29,6 @@ extension Goal.Icon {
             return .Icon.Illustration.heartDouble
         case .laptop:
             return .Icon.Illustration.laptop
-        case .add:
-            return .Icon.Illustration.add
         }
     }
 }

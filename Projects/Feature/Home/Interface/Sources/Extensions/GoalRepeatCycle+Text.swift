@@ -8,7 +8,7 @@
 import DomainGoalInterface
 
 extension Goal.RepeatCycle {
-    var text: String {
+    public var text: String {
         switch self {
         case .daily: return "매일"
         case .weekly: return "매주"

@@ -11,7 +11,7 @@ import DomainGoalInterface
 import SharedDesignSystem
 
 extension Goal.Reaction {
-    var image: Image {
+    public var image: Image {
         switch self {
         case .happy:
             return .Icon.Illustration.happy

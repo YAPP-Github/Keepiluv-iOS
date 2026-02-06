@@ -21,17 +21,15 @@ import Foundation
 /// ```
 public struct Goal {
     /// 목표 아이콘 종류입니다.
-    public enum Icon: String, Equatable {
+    public enum Icon: String, Equatable, CaseIterable {
         case `default` = "ICON_DEFAULT"
         case clean = "ICON_CLEAN"
         case exercise = "ICON_EXERCISE"
         case book = "ICON_BOOK"
         case pencil = "ICON_PENCIL"
         case health = "ICON_HEALTH"
-        case heartDouble = "ICON_HEART_DOUBLE"
+        case heartDouble = "ICON_HEART"
         case laptop = "ICON_LAPTOP"
-        case add = "ICON_ADD"
-        
     }
     
     /// 목표 인증 리액션 종류입니다.
@@ -42,6 +40,12 @@ public struct Goal {
         case doubt = "EMOJI_DOUBT"
         case fuck = "EMOJI_FUCK"
         case heart = "EMOJI_HEART"
+    }
+    
+    public enum RepeatCycle: String, Equatable {
+        case daily = "DAILY"
+        case weekly = "WEEKLY"
+        case monthly = "MONTHLY"
     }
     
     public let id: Int
