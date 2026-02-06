@@ -40,6 +40,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     private let buttonContent: (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent
     private let completeButtonText: String?
     private let onComplete: (() -> Void)?
+    private let isDateEnabled: ((TXCalendarDateItem) -> Bool)?
 
     /// 커스텀 버튼을 사용하는 이니셜라이저입니다.
     ///
@@ -60,16 +61,19 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     /// ```
     public init(
         selectedDate: Binding<TXCalendarDate>,
+        isDateEnabled: ((TXCalendarDateItem) -> Bool)? = nil,
         @ViewBuilder buttonContent: @escaping (_ exitPickerModeIfNeeded: @escaping () -> Bool) -> ButtonContent
     ) {
         self._selectedDate = selectedDate
         self.buttonContent = buttonContent
         self.completeButtonText = nil
         self.onComplete = nil
+        self.isDateEnabled = isDateEnabled
     }
 
     public var body: some View {
         let currentWeeks = TXCalendarDataGenerator.generateMonthData(for: selectedDate)
+        let displayWeeks = applyDisabledStatus(to: currentWeeks)
         let currentCalendarHeight = calendarContentHeight(for: currentWeeks)
 
         VStack(spacing: 0) {
@@ -92,10 +96,10 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                 } else {
                     TXCalendar(
                         mode: .monthly,
-                        weeks: currentWeeks,
+                        weeks: displayWeeks,
                         config: calendarConfig
                     ) { item in
-                        if let day = Int(item.text), item.status != .lastMonth {
+                        if let day = Int(item.text), item.status != .lastDate {
                             selectedDate.selectDay(day)
                         }
                     }
@@ -133,7 +137,8 @@ public extension TXCalendarBottomSheet where ButtonContent == DefaultCalendarBut
     init(
         selectedDate: Binding<TXCalendarDate>,
         completeButtonText: String = "완료",
-        onComplete: @escaping () -> Void
+        onComplete: @escaping () -> Void,
+        isDateEnabled: ((TXCalendarDateItem) -> Bool)? = nil
     ) {
         self._selectedDate = selectedDate
         self.buttonContent = { _ in
@@ -141,6 +146,7 @@ public extension TXCalendarBottomSheet where ButtonContent == DefaultCalendarBut
         }
         self.completeButtonText = completeButtonText
         self.onComplete = onComplete
+        self.isDateEnabled = isDateEnabled
     }
 }
 
@@ -222,5 +228,21 @@ private extension TXCalendarBottomSheet {
         }
         .frame(height: height)
         .padding(.horizontal, Spacing.spacing7)
+    }
+
+    func applyDisabledStatus(to weeks: [[TXCalendarDateItem]]) -> [[TXCalendarDateItem]] {
+        guard let isDateEnabled else { return weeks }
+        return weeks.map { week in
+            week.map { item in
+                guard item.status != .lastDate else { return item }
+                if isDateEnabled(item) { return item }
+                return TXCalendarDateItem(
+                    id: item.id,
+                    text: item.text,
+                    status: .lastDate,
+                    dateComponents: item.dateComponents
+                )
+            }
+        }
     }
 }

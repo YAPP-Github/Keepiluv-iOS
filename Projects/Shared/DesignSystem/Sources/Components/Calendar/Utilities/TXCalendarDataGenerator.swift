@@ -106,7 +106,8 @@ private extension TXCalendarDataGenerator {
 
         for day in 1...context.daysInMonth {
             let status: TXCalendarDateStatus = (day == selectedDay) ? .selectedFilled : .default
-            currentWeek.append(.init(text: "\(day)", status: status))
+            let components = DateComponents(year: context.year, month: context.month, day: day)
+            currentWeek.append(.init(text: "\(day)", status: status, dateComponents: components))
 
             if currentWeek.count == 7 {
                 weeks.append(currentWeek)
@@ -128,14 +129,14 @@ private extension TXCalendarDataGenerator {
 
         return (0..<leadingCount).map { idx in
             let day = context.daysInPreviousMonth - leadingCount + 1 + idx
-            return .init(text: "\(day)", status: .lastMonth)
+            return .init(text: "\(day)", status: .lastDate)
         }
     }
 
     static func appendTrailingItems(to week: inout [TXCalendarDateItem]) {
         var nextDay = 1
         while week.count < 7 {
-            week.append(.init(text: "\(nextDay)", status: .lastMonth))
+            week.append(.init(text: "\(nextDay)", status: .lastDate))
             nextDay += 1
         }
     }
@@ -180,7 +181,7 @@ private extension TXCalendarDataGenerator {
             && components.month == selectedComponents.month
             && components.day == selectedComponents.day
         if isSelected { return .selectedLine }
-        if referenceMonth != components.month { return .lastMonth }
+        if referenceMonth != components.month { return .lastDate }
         return .default
     }
 }
