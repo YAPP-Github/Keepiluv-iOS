@@ -31,6 +31,8 @@ public extension TargetDependency {
         case PulseUI
         case PulseProxy
 
+        case Kingfisher
+
         case ComposableArchitecture
     }
     
