@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import DomainGoalInterface
@@ -28,14 +29,14 @@ extension EditGoalListReducer {
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                return .run { send in
-                    let goals = try await goalClient.fetchGoals()
+                return .run { [calendarDate = state.calendarDate] send in
+                    let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: calendarDate))
                     let items = goals.map { goal in
                         // FIXME: - Goal Entity 변경
                         GoalEditCardItem(
-                            id: goal.id,
+                            id: String(goal.id),
                             goalName: goal.title,
-                            iconImage: goal.goalIcon,
+                            iconImage: goal.goalIcon.image,
                             repeatCycle: "미정",
                             startDate: "-",
                             endDate: "미설정"

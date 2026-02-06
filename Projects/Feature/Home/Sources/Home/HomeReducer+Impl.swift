@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 import ComposableArchitecture
 import CoreCaptureSessionInterface
@@ -44,27 +45,24 @@ extension HomeReducer {
                 )
                 return .run { send in
                     await send(.setCalendarDate(date))
-                    let myGoals = try await goalClient.fetchGoals()
-                    let yourGoals = try await goalClient.fetchGoals().shuffled()
-                    
-                    let items = zip(myGoals, yourGoals).map { myGoal, yourGoal in
+                    let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
+                    let items = goals.map { goal in
                         GoalCardItem(
-                            id: myGoal.id,
-                            goalName: myGoal.title,
-                            goalEmoji: myGoal.goalIcon,
+                            id: String(goal.id),
+                            goalName: goal.title,
+                            goalEmoji: goal.goalIcon.image,
                             myCard: .init(
-                                image: myGoal.image,
-                                isSelected: myGoal.isCompleted,
-                                emoji: myGoal.emoji
+                                image: nil,
+                                isSelected: goal.myVerification.isCompleted,
+                                emoji: goal.myVerification.emoji?.image
                             ),
                             yourCard: .init(
-                                image: yourGoal.image,
-                                isSelected: yourGoal.isCompleted,
-                                emoji: yourGoal.emoji
+                                image: nil,
+                                isSelected: goal.yourVerification.isCompleted,
+                                emoji: goal.yourVerification.emoji?.image
                             )
                         )
                     }
-                    
                     await send(.fetchGoalsCompleted(items))
                 }
                 
