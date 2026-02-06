@@ -228,7 +228,7 @@ private extension GoalCardView {
             yourCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
                 isSelected: true,
-                emoji: .Icon.Illustration.emoji5
+                emoji: .Icon.Illustration.fuck
             )
         ),
         GoalCardItem(
@@ -238,7 +238,7 @@ private extension GoalCardView {
             myCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
                 isSelected: true,
-                emoji: .Icon.Illustration.emoji1
+                emoji: .Icon.Illustration.heart
             ),
             yourCard: .init(
                 image: nil,

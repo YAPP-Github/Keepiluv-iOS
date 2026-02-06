@@ -30,11 +30,11 @@ public extension Image.Icon.Illustration {
     
     static let add = IllustrationAsset.iconAdd.swiftUIImage
     static let delete = IllustrationAsset.iconDelete.swiftUIImage
-    static let emoji1 = IllustrationAsset.iconEmoji1.swiftUIImage
-    static let emoji2 = IllustrationAsset.iconEmoji2.swiftUIImage
-    static let emoji3 = IllustrationAsset.iconEmoji3.swiftUIImage
-    static let emoji4 = IllustrationAsset.iconEmoji4.swiftUIImage
-    static let emoji5 = IllustrationAsset.iconEmoji5.swiftUIImage
+    static let happy = IllustrationAsset.happy.swiftUIImage
+    static let trouble = IllustrationAsset.trouble.swiftUIImage
+    static let love = IllustrationAsset.love.swiftUIImage
+    static let doubt = IllustrationAsset.doubt.swiftUIImage
+    static let fuck = IllustrationAsset.fuck.swiftUIImage
     static let emojiAdd = IllustrationAsset.iconEmojiAdd.swiftUIImage
     static let exercise = IllustrationAsset.iconExercise.swiftUIImage
     static let heart = IllustrationAsset.iconHeart.swiftUIImage
