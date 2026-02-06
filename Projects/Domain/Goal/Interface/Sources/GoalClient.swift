@@ -61,7 +61,7 @@ extension GoalClient: TestDependencyKey {
                     title: "목표 1111111",
                     isCompleted: true,
                     image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                    emoji: .Icon.Illustration.emoji1
+                    emoji: .Icon.Illustration.doubt
                 ),
                 Goal(
                     id: "2",
@@ -75,7 +75,7 @@ extension GoalClient: TestDependencyKey {
                     goalIcon: .Icon.Illustration.clean,
                     title: "목표 3333333",
                     isCompleted: false,
-                    emoji: .Icon.Illustration.emoji1
+                    emoji: .Icon.Illustration.fuck
                 ),
                 Goal(
                     id: "4",
