@@ -9,6 +9,16 @@ import SwiftUI
 import UIKit
 
 public extension View {
+    /// 카메라 권한이 없을 때 설정 이동을 유도하는 공용 Alert를 제공합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// SomeView()
+    ///     .cameraPermissionAlert(
+    ///         isPresented: .constant(true),
+    ///         onDismiss: { }
+    ///     )
+    /// ```
     func cameraPermissionAlert(
         isPresented: Binding<Bool>,
         onDismiss: @escaping () -> Void
