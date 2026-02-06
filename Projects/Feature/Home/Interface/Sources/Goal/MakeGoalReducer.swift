@@ -41,6 +41,7 @@ public struct MakeGoalReducer {
         public let weeklyPeriodText = GoalCategory.RepeatCycle.weekly(count: 1).text
         public let monthlyPeriodText = GoalCategory.RepeatCycle.monthly(count: 1).text
         public let iconImages: [Image] = GoalCategory.images
+        
         public var mode: Mode
         public var category: GoalCategory
         public var goalTitle: String
@@ -55,6 +56,8 @@ public struct MakeGoalReducer {
         public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
         public var selectedEmojiIndex: Int
+        public var startDateText: String
+        public var endDateText: String
         
         public var showPeriodCount: Bool { !selectedPeriod.isDaily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
@@ -100,6 +103,8 @@ public struct MakeGoalReducer {
             self.startDate = today
             self.endDate = today
             self.calendarSheetDate = today
+            self.startDateText = "\(today.month)월 \(today.day ?? 1)일"
+            self.endDateText = "\(today.month)월 \(today.day ?? 1)일"
 
             let repeatCycle = category.repeatCycle
             self.weeklyPeriodCount = repeatCycle.isWeekly ? repeatCycle.count : minimumPeriodCount
@@ -130,6 +135,7 @@ public struct MakeGoalReducer {
         case startDateTapped
         case endDateTapped
         case monthCalendarConfirmTapped
+        case updateDateText
         case completeButtonTapped
         case navigationBackButtonTapped
         case modalConfirmTapped(Int)
@@ -192,6 +198,33 @@ public extension MakeGoalReducer.State {
             } else if newValue == monthlyPeriodText {
                 selectedPeriod = .monthly(count: monthlyPeriodCount)
             }
+        }
+    }
+
+    var calendarMinimumDate: TXCalendarDate? {
+        switch calendarTarget {
+        case .startDate:
+            let now = CalendarNow()
+            return TXCalendarDate(year: now.year, month: now.month, day: now.day)
+        case .endDate:
+            return startDate
+            
+        case .none:
+            return nil
+        }
+    }
+
+    var isCalendarDateEnabled: (TXCalendarDateItem) -> Bool {
+        { item in
+            guard let minimumDate = calendarMinimumDate else { return true }
+            guard let components = item.dateComponents,
+                  let year = components.year,
+                  let month = components.month,
+                  let day = components.day else {
+                return true
+            }
+            let itemDate = TXCalendarDate(year: year, month: month, day: day)
+            return !TXCalendarUtil.isEarlier(itemDate, than: minimumDate)
         }
     }
 }

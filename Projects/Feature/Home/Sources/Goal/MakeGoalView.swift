@@ -40,9 +40,8 @@ struct MakeGoalView: View {
             TXCalendarBottomSheet(
                 selectedDate: $store.calendarSheetDate,
                 completeButtonText: "완료",
-                onComplete: {
-                    store.send(.monthCalendarConfirmTapped)
-                }
+                onComplete: { store.send(.monthCalendarConfirmTapped) },
+                isDateEnabled: store.isCalendarDateEnabled
             )
         }
         .txBottomSheet(
@@ -153,8 +152,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText(dateText(store.startDate))
-            
+            valueText(store.startDateText)
             dropDownButton { store.send(.startDateTapped) }
         }
         .padding(.vertical, 21.5)
@@ -177,8 +175,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText(dateText(store.endDate))
-            
+            valueText(store.endDateText)
             dropDownButton { store.send(.endDateTapped) }
         }
         .padding(.vertical, 21.5)
@@ -311,14 +308,6 @@ private extension MakeGoalView {
 
 // MARK: - Private Methods
 private extension MakeGoalView {
-    func dateText(_ date: TXCalendarDate?) -> String {
-        guard let date = date else { return "" }
-        if let day = date.day {
-            return "\(date.month)월 \(day)일"
-        }
-        return "\(date.month)월"
-    }
-    
     var periodSelectionBinding: Binding<String?> {
         Binding(
             get: { store.selectedPeriod.text },
