@@ -103,7 +103,7 @@ public struct TXRectangleButton: View {
                       let imageSize = config.imageSize {
                 iconLabel(image: image, imageSize: imageSize)
             } else {
-                EmptyView()
+                emptyLabel()
             }
         }
         .disabled(config.text == "")
@@ -136,6 +136,12 @@ private extension TXRectangleButton {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: imageSize.width, height: imageSize.height)
+        }
+    }
+
+    func emptyLabel() -> some View {
+        baseLabel {
+            Color.clear
         }
     }
 }
