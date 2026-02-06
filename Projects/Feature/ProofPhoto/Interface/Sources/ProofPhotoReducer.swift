@@ -33,6 +33,7 @@ public struct ProofPhotoReducer {
         public var isCapturing: Bool = false
         public var hasImage: Bool { imageData != nil }
         public var toast: TXToastType?
+        public var goalId: Int
 
         /// 상태를 생성합니다.
         ///
@@ -42,7 +43,11 @@ public struct ProofPhotoReducer {
         ///     galleryThumbnail: image
         /// )
         /// ```
-        public init(comment: String = "") {
+        public init(
+            goalId: Int,
+            comment: String = ""
+        ) {
+            self.goalId = goalId
             self.commentText = comment
         }
     }

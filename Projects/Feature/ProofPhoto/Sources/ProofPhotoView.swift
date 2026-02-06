@@ -304,7 +304,7 @@ private extension ProofPhotoView {
 #Preview {
     ProofPhotoView(
         store: Store(
-            initialState: ProofPhotoReducer.State(),
+            initialState: ProofPhotoReducer.State(goalId: 2),
             reducer: {
                 ProofPhotoReducer()
             }

@@ -60,7 +60,7 @@ public struct GoalCardItem: Identifiable, Equatable {
         }
     }
     
-    public let id: String
+    public let id: Int
     public let goalName: String
     public let goalEmoji: Image
     public var myCard: Card
@@ -79,7 +79,7 @@ public struct GoalCardItem: Identifiable, Equatable {
     /// )
     /// ```
     public init(
-        id: String,
+        id: Int,
         goalName: String,
         goalEmoji: Image,
         myCard: Card,

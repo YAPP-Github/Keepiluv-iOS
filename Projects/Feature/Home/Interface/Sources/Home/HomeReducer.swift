@@ -44,7 +44,7 @@ public struct HomeReducer {
         public var calendarSheetDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
-        public var pendingDeleteGoalID: String?
+        public var pendingDeleteGoalID: Int?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
@@ -84,7 +84,7 @@ public struct HomeReducer {
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
-        case goalCheckButtonTapped(id: String, isChecked: Bool)
+        case goalCheckButtonTapped(id: Int, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
         case myCardTapped
@@ -96,7 +96,7 @@ public struct HomeReducer {
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
-        case authorizationCompleted(isAuthorized: Bool)
+        case authorizationCompleted(id: Int, isAuthorized: Bool)
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
         case cameraPermissionAlertDismissed
