@@ -27,8 +27,10 @@ struct AccountView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
-        .txModal(item: $store.modal) {
-            store.send(.modalConfirmTapped)
+        .txModal(item: $store.modal) { action in
+            if action == .confirm {
+                store.send(.modalConfirmTapped)
+            }
         }
     }
 }

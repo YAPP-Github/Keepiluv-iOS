@@ -68,6 +68,9 @@ public struct SettingsView: View {
         ) {
             store.send(.languageConfirmed)
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 

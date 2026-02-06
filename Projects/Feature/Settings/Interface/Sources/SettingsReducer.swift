@@ -125,12 +125,18 @@ public struct SettingsReducer {
 
         // MARK: - API Response
         case updateNicknameResponse(Result<Void, Error>)
+        case fetchMyProfileResponse(Result<String, Error>)
+        case fetchCoupleCodeResponse(Result<String, Error>)
+        case logoutResponse(Result<Void, Error>)
+        case withdrawResponse(Result<Void, Error>)
 
         // MARK: - Delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
             case navigateBack
+            case logoutCompleted
+            case withdrawCompleted
         }
     }
 

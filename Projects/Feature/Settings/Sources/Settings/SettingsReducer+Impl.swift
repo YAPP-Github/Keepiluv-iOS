@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import DomainAuthInterface
+import DomainOnboardingInterface
 import FeatureSettingsInterface
 import Foundation
 import SharedUtil
@@ -48,11 +50,32 @@ private func reduceCore(
         return .none
 
     case .onAppear:
+        @Dependency(\.authClient) var authClient
+        @Dependency(\.onboardingClient) var onboardingClient
+
         state.appVersion = AppVersionProvider.currentVersion
-        return .run { send in
-            let storeVersion = await AppVersionProvider.fetchStoreVersion()
-            await send(.storeVersionResponse(storeVersion))
-        }
+        return .merge(
+            .run { send in
+                let storeVersion = await AppVersionProvider.fetchStoreVersion()
+                await send(.storeVersionResponse(storeVersion))
+            },
+            .run { send in
+                do {
+                    let profile = try await authClient.fetchMyProfile()
+                    await send(.fetchMyProfileResponse(.success(profile.name)))
+                } catch {
+                    await send(.fetchMyProfileResponse(.failure(error)))
+                }
+            },
+            .run { send in
+                do {
+                    let coupleCode = try await onboardingClient.fetchInviteCode()
+                    await send(.fetchCoupleCodeResponse(.success(coupleCode)))
+                } catch {
+                    await send(.fetchCoupleCodeResponse(.failure(error)))
+                }
+            }
+        )
 
     case .storeVersionResponse(let version):
         state.storeVersion = version ?? "-"
@@ -107,25 +130,43 @@ private func reduceCore(
         return .none
 
     case .logoutTapped:
-        // TODO: 로그아웃 로직 구현
-        return .none
+        @Dependency(\.authClient) var authClient
+
+        state.isLoading = true
+        return .run { send in
+            do {
+                try await authClient.signOut()
+                await send(.logoutResponse(.success(())))
+            } catch {
+                await send(.logoutResponse(.failure(error)))
+            }
+        }
 
     case .disconnectCoupleTapped:
-        state.modal = .disconnectCouple
+        state.modal = .info(.disconnectCouple)
         return .none
 
     case .withdrawTapped:
-        state.modal = .withdraw
+        state.modal = .info(.withdraw)
         return .none
 
     case .modalConfirmTapped:
+        @Dependency(\.authClient) var authClient
+
         switch state.modal {
-        case .disconnectCouple:
+        case .info(.disconnectCouple):
             // TODO: 커플 끊기 API 호출
             break
-        case .withdraw:
-            // TODO: 탈퇴 API 호출
-            break
+        case .info(.withdraw):
+            state.isLoading = true
+            return .run { send in
+                do {
+                    try await authClient.withdraw()
+                    await send(.withdrawResponse(.success(())))
+                } catch {
+                    await send(.withdrawResponse(.failure(error)))
+                }
+            }
         default:
             break
         }
@@ -141,6 +182,41 @@ private func reduceCore(
 
     case .notificationSettingTapped:
         state.routes.append(.notificationSettings)
+        return .none
+
+    case .fetchMyProfileResponse(.success(let name)):
+        state.nickname = name
+        state.originalNickname = name
+        return .none
+
+    case .fetchMyProfileResponse(.failure):
+        // 프로필 조회 실패 시 기존 닉네임 유지
+        return .none
+
+    case .fetchCoupleCodeResponse(.success(let coupleCode)):
+        state.coupleCode = coupleCode
+        return .none
+
+    case .fetchCoupleCodeResponse(.failure):
+        // 커플 코드 조회 실패 시 빈 문자열 유지
+        return .none
+
+    case .logoutResponse(.success):
+        state.isLoading = false
+        return .send(.delegate(.logoutCompleted))
+
+    case .logoutResponse(.failure):
+        state.isLoading = false
+        // TODO: 에러 처리 (토스트 등)
+        return .none
+
+    case .withdrawResponse(.success):
+        state.isLoading = false
+        return .send(.delegate(.withdrawCompleted))
+
+    case .withdrawResponse(.failure):
+        state.isLoading = false
+        // TODO: 에러 처리 (토스트 등)
         return .none
 
     case .inquiryTapped,
