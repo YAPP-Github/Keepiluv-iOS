@@ -34,7 +34,7 @@ struct NotificationSettingsView: View {
 
 private extension NotificationSettingsView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "알림 설정", rightText: nil)) { action in
+        TXNavigationBar(style: .subTitle(title: "알림 설정", rightText: "")) { action in
             if action == .backTapped {
                 store.send(.popRoute)
             }

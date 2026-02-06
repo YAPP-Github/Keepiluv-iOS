@@ -37,7 +37,7 @@ struct InfoView: View {
 
 private extension InfoView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "정보", rightText: nil)) { action in
+        TXNavigationBar(style: .subTitle(title: "정보", rightText: "")) { action in
             if action == .backTapped {
                 store.send(.popRoute)
             }

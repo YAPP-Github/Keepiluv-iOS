@@ -75,7 +75,7 @@ public struct SettingsView: View {
 
 private extension SettingsView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "설정", rightText: nil)) { action in
+        TXNavigationBar(style: .subTitle(title: "설정", rightText: "")) { action in
             switch action {
             case .backTapped:
                 store.send(.backButtonTapped)
