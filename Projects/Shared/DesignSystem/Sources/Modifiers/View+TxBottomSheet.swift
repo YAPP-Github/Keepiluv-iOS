@@ -64,7 +64,7 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
                 }
             ) {
                 ZStack(alignment: .bottom) {
-                    content
+                    sheetView
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .ignoresSafeArea(.container, edges: .bottom)
@@ -77,7 +77,7 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
 
 // MARK: - SubViews {
 private extension TXBottomSheetModifier {
-    var content: some View {
+    var sheetView: some View {
         sheetContent()
             .readSize { frame in
                 guard !didCaptureInitialHeight else { return }
