@@ -48,6 +48,8 @@ public extension Image.Icon.Illustration {
     static let health = IllustrationAsset.iconHealth.swiftUIImage
     static let heartDouble = IllustrationAsset.iconHeartDouble.swiftUIImage
     static let laptop = IllustrationAsset.iconLaptop.swiftUIImage
+    static let profile = IllustrationAsset.iconProfile.swiftUIImage
+    static let modalWarning = IllustrationAsset.iconModalWarning.swiftUIImage
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.
@@ -59,6 +61,7 @@ public extension Image.Icon.Symbol {
     static let arrow1LLeft = SymbolAsset.icArrow1LLeft.swiftUIImage
     static let arrow1MLeft = SymbolAsset.icArrow1MLeft.swiftUIImage
     static let arrow1MRight = SymbolAsset.icArrow1MRight.swiftUIImage
+    static let arrow1MDown = SymbolAsset.icArrow1MDown.swiftUIImage
     static let arrow1SRight = SymbolAsset.icArrow1SRight.swiftUIImage
     static let arrow3Left = SymbolAsset.icArrow3Left.swiftUIImage
     static let arrow3Right = SymbolAsset.icArrow3Right.swiftUIImage
@@ -90,6 +93,10 @@ public extension Image.Icon.Symbol {
     static let copy = SymbolAsset.icCopy.swiftUIImage
     static let calendar = SymbolAsset.icCalendar.swiftUIImage
     static let logout = SymbolAsset.icLogout.swiftUIImage
+    static let info = SymbolAsset.icInfo.swiftUIImage
+    static let lang = SymbolAsset.icLang.swiftUIImage
+    static let profile = SymbolAsset.icProfile.swiftUIImage
+    static let qa = SymbolAsset.icQa.swiftUIImage
 }
 
 public extension Image.Illustration {

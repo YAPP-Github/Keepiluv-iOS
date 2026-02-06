@@ -3,10 +3,12 @@ import ProjectDescriptionHelpers
 
 let project = Project.makeModule(
     name: Module.Shared.name + Module.Shared.util.rawValue,
-    targets: [    
+    targets: [
         .shared(
             implements: .util,
-            config: .init()
+            config: .init(
+                resources: ["Resources/**"]
+            )
         )
     ]
 )

@@ -14,6 +14,7 @@ extension TXNavigationBar {
         case home(Home)
         case subTitle(title: String, rightText: String?)
         case iconOnly(IconStyle)
+        case noTitle
 
         /// 홈 스타일에서 사용하는 설정 값입니다.
         ///
@@ -68,14 +69,14 @@ extension TXNavigationBar {
 extension TXNavigationBar.Style {
     var backgroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly:
+        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Common.white
         }
     }
 
     var foregroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly:
+        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Gray.gray500
         }
     }
@@ -86,7 +87,7 @@ extension TXNavigationBar.Style {
 
     var iconForegroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly:
+        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Gray.gray400
         }
     }
@@ -102,7 +103,7 @@ extension TXNavigationBar.Style {
         case .subTitle:
             return 80
 
-        case .iconOnly:
+        case .iconOnly, .noTitle:
             return 72
         }
     }
@@ -112,7 +113,7 @@ extension TXNavigationBar.Style {
         case .mainTitle, .home:
             return .h3_22b
 
-        case .subTitle, .iconOnly:
+        case .subTitle, .iconOnly, .noTitle:
             return .h4_20b
         }
     }
@@ -129,7 +130,7 @@ extension TXNavigationBar.Style {
         case .subTitle:
             return EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
-        case .iconOnly:
+        case .iconOnly, .noTitle:
             return EdgeInsets(top: 14, leading: 10, bottom: 14, trailing: 10)
         }
     }
@@ -144,7 +145,7 @@ extension TXNavigationBar.Style {
 
     var actionButtonSize: CGSize {
         switch self {
-        case .mainTitle, .home, .iconOnly:
+        case .mainTitle, .home, .iconOnly, .noTitle:
             return CGSize(width: 44, height: 44)
 
         case .subTitle:
