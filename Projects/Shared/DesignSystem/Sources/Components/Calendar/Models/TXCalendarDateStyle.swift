@@ -19,7 +19,7 @@ public struct TXCalendarDateStyle {
     let borderWidth: CGFloat
     let typography: TypographyToken
     let defaultTextColor: Color
-    let lastMonthTextColor: Color
+    let lastDateTextColor: Color
     let selectedFilledTextColor: Color
     let selectedFilledBackgroundColor: Color
     let selectedLineTextColor: Color
@@ -32,7 +32,7 @@ public struct TXCalendarDateStyle {
         borderWidth: CGFloat = LineWidth.m,
         typography: TypographyToken = .b1_14b,
         defaultTextColor: Color = Color.Gray.gray500,
-        lastMonthTextColor: Color = Color.Gray.gray200,
+        lastDateTextColor: Color = Color.Gray.gray200,
         selectedFilledTextColor: Color = Color.Common.white,
         selectedFilledBackgroundColor: Color = Color.Gray.gray500,
         selectedLineTextColor: Color = Color.Gray.gray500,
@@ -44,7 +44,7 @@ public struct TXCalendarDateStyle {
         self.borderWidth = borderWidth
         self.typography = typography
         self.defaultTextColor = defaultTextColor
-        self.lastMonthTextColor = lastMonthTextColor
+        self.lastDateTextColor = lastDateTextColor
         self.selectedFilledTextColor = selectedFilledTextColor
         self.selectedFilledBackgroundColor = selectedFilledBackgroundColor
         self.selectedLineTextColor = selectedLineTextColor

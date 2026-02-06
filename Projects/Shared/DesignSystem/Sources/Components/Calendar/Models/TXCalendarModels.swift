@@ -12,7 +12,7 @@ public enum TXCalendarDateStatus {
     case `default`
     case selectedLine
     case selectedFilled
-    case lastMonth
+    case lastDate
 }
 
 /// 캘린더에서 사용하는 날짜 셀 데이터입니다.
