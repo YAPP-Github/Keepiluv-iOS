@@ -61,7 +61,7 @@ extension PhotoLogEndpoint {
     }
 
     public var requiresAuth: Bool { true }
-    public var featureTag: FeatureTag { .photoLog }
+    public var featureTag: FeatureTag { .proopPhoto }
 }
 
 // MARK: - Configuration
