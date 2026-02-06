@@ -82,7 +82,7 @@ public struct TXInfoModalContent: View {
 #Preview {
     TXInfoModalContent(
         config: .init(
-            image: .Icon.Illustration.emoji2,
+            image: .Icon.Illustration.trouble,
             title: "목표를 이루셨나요?",
             subtitle: "목표를 완료해도 사진은 사라지지 않아요",
             leftButtonText: "취소",

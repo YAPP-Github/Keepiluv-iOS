@@ -64,11 +64,11 @@ public struct GoalDetailView: View {
                 ZStack {
                     backgroundRect
                     
-                    if store.isCompleted {
-                        completedImageCard
-                    } else {
-                        nonCompletedCard
-                            .overlay(nonCompletedText)
+                    SwipeableCardView(
+                        isEditing: store.isEditing,
+                        onCardAction: { store.send(.cardTapped) }
+                    ) {
+                        currentCardView
                     }
                 }
                 .padding(.horizontal, 27)
@@ -108,6 +108,17 @@ public struct GoalDetailView: View {
 
 // MARK: - SubViews
 private extension GoalDetailView {
+    var currentCardView: some View {
+        Group {
+            if store.isCompleted {
+                completedImageCard
+            } else {
+                nonCompletedCard
+                    .overlay(nonCompletedText)
+            }
+        }
+        .animation(.spring(response: 0.36, dampingFraction: 0.86), value: store.currentUser)
+    }
     
     var backgroundRect: some View {
         RoundedRectangle(cornerRadius: 20)
@@ -142,10 +153,6 @@ private extension GoalDetailView {
                         .padding(.bottom, 26)
                 }
                 .rotationEffect(.degrees(degree(isBackground: false)))
-                .onTapGesture {
-                    guard !store.isEditing else { return }
-                    store.send(.cardTapped)
-                }
         } else {
             EmptyView()
         }
@@ -178,37 +185,11 @@ private extension GoalDetailView {
     }
     
     @ViewBuilder var reactionBar: some View {
-        let emojis = [
-            Image.Icon.Illustration.emoji1,
-            Image.Icon.Illustration.emoji2,
-            Image.Icon.Illustration.emoji3,
-            Image.Icon.Illustration.emoji4,
-            Image.Icon.Illustration.emoji5
-        ]
-        
-        HStack(spacing: 0) {
-            ForEach(emojis.indices, id: \.self) { index in
-                let isSelected = store.selectedReactionIndex == index
-                Button {
-                    store.send(.reactionEmojiTapped(index))
-                } label: {
-                    emojis[index]
-                        .padding(.horizontal, 8)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(isSelected ? Color.Gray.gray300 : Color.clear)
-                if index != emojis.count - 1 {
-                    Rectangle()
-                        .frame(width: 1)
-                }
+        ReactionBarView(
+            selectedIndex: store.selectedReactionIndex,
+            onTap: { index in
+                store.send(.reactionEmojiTapped(index))
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: 68)
-        .background(Color.Gray.gray100)
-        .clipShape(.capsule)
-        .overlay(
-            Capsule()
-                .stroke(Color.black, lineWidth: 1)
         )
     }
     
@@ -222,11 +203,6 @@ private extension GoalDetailView {
             )
             .frame(width: 336, height: 336)
             .rotationEffect(.degrees(degree(isBackground: false)))
-            .onTapGesture {
-                if !store.isEditing {
-                    store.send(.cardTapped)
-                }
-            }
             .clipShape(RoundedRectangle(cornerRadius: 20))
     }
     
