@@ -97,6 +97,9 @@ public extension Image.Icon.Symbol {
     static let lang = SymbolAsset.icLang.swiftUIImage
     static let profile = SymbolAsset.icProfile.swiftUIImage
     static let qa = SymbolAsset.icQa.swiftUIImage
+    static let apple = SymbolAsset.icApple.swiftUIImage
+    static let google = SymbolAsset.icGoogle.swiftUIImage
+    static let kakao = SymbolAsset.icKakao.swiftUIImage
 }
 
 public extension Image.Illustration {
@@ -106,6 +109,8 @@ public extension Image.Illustration {
     static let poke = IllustrationAsset.illustPoke.swiftUIImage
     static let connect = IllustrationAsset.illustConnect.swiftUIImage
     static let invite = IllustrationAsset.illustInvite.swiftUIImage
+    static let singing = IllustrationAsset.illustSinging.swiftUIImage
+    static let logo = SharedDesignSystemAsset.ImageAssets.logo.swiftUIImage
 }
 
 public extension Image.Vector {

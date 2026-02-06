@@ -21,6 +21,7 @@ let project = Project.makeModule(
                     .domain(interface: .auth),
                     .domain(implements: .auth),
                     .core(implements: .logging),
+                    .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
