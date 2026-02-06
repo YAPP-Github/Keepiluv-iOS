@@ -16,9 +16,12 @@ import Foundation
 struct AppCoordinator {
     @Dependency(\.tokenManager)
     var tokenManager
-    
+
     @Dependency(\.onboardingClient)
     var onboardingClient
+
+    @Dependency(\.authClient)
+    var authClient
 
     private let authReducer: AuthReducer
     private let onboardingCoordinator: OnboardingCoordinator
@@ -164,8 +167,7 @@ struct AppCoordinator {
                 return .none
 
             case .route(.auth(.delegate(.loginSucceeded))):
-                return .run { send in
-                    @Dependency(\.onboardingClient) var onboardingClient
+                return .run { [onboardingClient] send in
                     do {
                         let status = try await onboardingClient.fetchStatus()
                         await send(.checkOnboardingStatusResult(.success(status)))
@@ -179,8 +181,7 @@ struct AppCoordinator {
                 return .none
 
             case .route(.onboarding(.delegate(.logoutRequested))):
-                return .run { send in
-                    @Dependency(\.authClient) var authClient
+                return .run { [authClient] send in
                     try? await authClient.signOut()
                     await send(.checkAuthResult(.failure(NSError(domain: "Logout", code: 0))))
                 }

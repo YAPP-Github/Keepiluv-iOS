@@ -80,6 +80,9 @@ public struct OnboardingCoordinator {
         // MARK: - API Response
         case fetchInviteCodeResponse(Result<String, Error>)
 
+        // MARK: - Navigation
+        case navigateToCodeInputWithCode(myInviteCode: String, receivedCode: String)
+
         // MARK: - Deep Link
         case deepLinkReceived(code: String)
 
@@ -107,6 +110,7 @@ public struct OnboardingCoordinator {
             OnboardingConnectReducer()
         }
 
+        // swiftlint:disable:next closure_body_length
         Reduce { state, action in
             switch action {
             case .binding:
@@ -130,11 +134,10 @@ public struct OnboardingCoordinator {
                 // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
                 if let code = state.pendingReceivedCode {
                     state.pendingReceivedCode = nil
-                    state.codeInput = OnboardingCodeInputReducer.State(
+                    return .send(.navigateToCodeInputWithCode(
                         myInviteCode: state.myInviteCode,
                         receivedCode: code
-                    )
-                    state.routes.append(.codeInput)
+                    ))
                 }
                 return .none
 
@@ -150,17 +153,25 @@ public struct OnboardingCoordinator {
                 // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
                 if let code = state.pendingReceivedCode {
                     state.pendingReceivedCode = nil
-                    state.codeInput = OnboardingCodeInputReducer.State(
+                    return .send(.navigateToCodeInputWithCode(
                         myInviteCode: inviteCode,
                         receivedCode: code
-                    )
-                    state.routes.append(.codeInput)
+                    ))
                 }
                 return .none
 
             case .fetchInviteCodeResponse(.failure):
                 state.isLoadingInviteCode = false
                 // 에러 발생 시 임시 코드 사용 (또는 에러 처리)
+                return .none
+
+            // MARK: - Navigation
+            case let .navigateToCodeInputWithCode(myInviteCode, receivedCode):
+                state.codeInput = OnboardingCodeInputReducer.State(
+                    myInviteCode: myInviteCode,
+                    receivedCode: receivedCode
+                )
+                state.routes.append(.codeInput)
                 return .none
 
             // MARK: - Deep Link
