@@ -58,9 +58,10 @@ public struct OnboardingCoordinator {
                 self.routes = [.profile]
 
             case .anniversarySetup:
-                // Dday부터 시작
+                // Dday부터 시작하지만, back 버튼으로 Profile로 돌아갈 수 있도록 설정
+                self.profile = OnboardingProfileReducer.State()
                 self.dday = OnboardingDdayReducer.State()
-                self.routes = [.dday]
+                self.routes = [.profile, .dday]
 
             case .completed:
                 // 완료 상태면 여기 오면 안됨

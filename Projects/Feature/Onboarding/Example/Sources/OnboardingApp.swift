@@ -6,17 +6,25 @@
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import FeatureOnboarding
 import SwiftUI
 
 @main
 struct OnboardingApp: App {
-    let store = Store(
-        initialState: OnboardingCoordinator.State(
-            myInviteCode: "KDJ34923"
-        ),
-        reducer: { OnboardingCoordinator() }
-    )
+    let store: StoreOf<OnboardingCoordinator>
+
+    init() {
+        self.store = Store(
+            initialState: OnboardingCoordinator.State(
+                myInviteCode: "KDJ34923"
+            ),
+            reducer: { OnboardingCoordinator() },
+            withDependencies: {
+                $0.onboardingClient = .previewValue
+            }
+        )
+    }
 
     var body: some Scene {
         WindowGroup {
