@@ -30,7 +30,7 @@ private extension TXCalendarDateCell {
         switch item.status {
         case .selectedFilled: style.selectedFilledTextColor
         case .selectedLine: style.selectedLineTextColor
-        case .lastMonth: style.lastMonthTextColor
+        case .lastDate: style.lastDateTextColor
         case .default: style.defaultTextColor
         }
     }
@@ -48,7 +48,7 @@ private extension TXCalendarDateCell {
                     shape.stroke(style.selectedLineBorderColor, lineWidth: style.borderWidth)
                 }
 
-        case .default, .lastMonth:
+        case .default, .lastDate:
             EmptyView()
         }
     }
