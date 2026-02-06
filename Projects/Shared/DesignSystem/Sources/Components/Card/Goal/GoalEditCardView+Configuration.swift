@@ -23,13 +23,12 @@ extension GoalEditCardView.Configuration {
     /// )
     /// ```
     public static func goalEdit(
-        goalName: String,
         item: GoalEditCardItem,
         action: @escaping () -> Void
     ) -> Self {
         let headerConfig = CardHeaderView.Configuration.goalEdit(
-            goalName: goalName,
-            iconImage: .Icon.Illustration.exercise,
+            goalName: item.goalName,
+            iconImage: item.iconImage,
             action: action
         )
 

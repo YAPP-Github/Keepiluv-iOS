@@ -18,7 +18,10 @@ public enum TXButtonGroupLayout {
 /// ## 사용 예시
 /// ```swift
 /// TXRoundedRectangleGroupButton(
-///     config: .modal(),
+///     config: .modal(
+///         leftText: "취소",
+///         rightText: "삭제"
+///     ),
 ///     actionLeft: {
 ///         print("cancel")
 ///     },
@@ -55,8 +58,18 @@ public struct TXRoundedRectangleGroupButton: View {
     private let actionLeft: () -> Void
     private let actionRight: () -> Void
 
+    /// 버튼 그룹을 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXRoundedRectangleGroupButton(
+    ///     config: .modal(leftText: "취소", rightText: "삭제"),
+    ///     actionLeft: { },
+    ///     actionRight: { }
+    /// )
+    /// ```
     public init(
-        config: Configuration = .modal(),
+        config: Configuration,
         layout: TXButtonGroupLayout = .modal,
         actionLeft: @escaping () -> Void,
         actionRight: @escaping () -> Void
@@ -118,7 +131,7 @@ private extension TXRoundedRectangleGroupButton {
 
 #Preview {
     TXRoundedRectangleGroupButton(
-        config: .modal(),
+        config: .modal(leftText: "취소", rightText: "삭제"),
         actionLeft: { },
         actionRight: { }
     )

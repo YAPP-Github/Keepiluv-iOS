@@ -18,6 +18,7 @@ public struct TXModalView<Content: View>: View {
     /// ## 사용 예시
     /// ```swift
     /// TXModalView(
+    ///     type: .info(.deleteGoal),
     ///     content: {
     ///         TXInfoModalContent(config: .deleteGoal)
     ///     },
@@ -67,9 +68,12 @@ private extension TXModalView {
     var actionButtons: some View {
         Group {
             switch type {
-            case .info:
+            case let .info(config):
                 TXRoundedRectangleGroupButton(
-                    config: .modal(),
+                    config: .modal(
+                        leftText: config.leftButtonText,
+                        rightText: config.rightButtonText
+                    ),
                     actionLeft: {
                         onAction(.cancel)
                     },
