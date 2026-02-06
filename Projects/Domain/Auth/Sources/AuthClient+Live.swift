@@ -59,9 +59,7 @@ extension AuthClient: @retroactive DependencyKey {
             return UserProfile(
                 id: response.id,
                 name: response.name,
-                email: response.email,
-                oauthProvider: response.oauthProvider,
-                oauthProviderId: response.oauthProviderId
+                email: response.email
             )
         }
     )

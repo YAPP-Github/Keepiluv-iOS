@@ -42,21 +42,15 @@ public struct UserProfile: Equatable, Sendable {
     public let id: Int
     public let name: String
     public let email: String
-    public let oauthProvider: String
-    public let oauthProviderId: String
 
     public init(
         id: Int,
         name: String,
-        email: String,
-        oauthProvider: String,
-        oauthProviderId: String
+        email: String
     ) {
         self.id = id
         self.name = name
         self.email = email
-        self.oauthProvider = oauthProvider
-        self.oauthProviderId = oauthProviderId
     }
 }
 
@@ -123,9 +117,7 @@ extension AuthClient: TestDependencyKey {
             UserProfile(
                 id: 1,
                 name: "Preview User",
-                email: "preview@example.com",
-                oauthProvider: "APPLE",
-                oauthProviderId: "preview_id"
+                email: "preview@example.com"
             )
         }
     )
