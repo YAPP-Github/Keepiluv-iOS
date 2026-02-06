@@ -104,7 +104,12 @@ extension GoalDetailReducer {
                     return .none
                 }
                 state.isPresentedProofPhoto = true
-                state.proofPhoto = ProofPhotoReducer.State(comment: state.comment)
+                guard let goalId = Int(state.item?.id ?? "") else { return .none }
+                
+                state.proofPhoto = ProofPhotoReducer.State(
+                    goalId: goalId,
+                    comment: state.comment
+                )
                 
                 return .none
                 

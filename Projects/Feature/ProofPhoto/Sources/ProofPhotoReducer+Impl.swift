@@ -9,8 +9,11 @@ import AVFoundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import DomainGoalInterface
+import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
 import PhotosUI
+import SharedDesignSystem
+import SharedUtil
 
 // FIXME: - Remove
 import SwiftUI
@@ -25,6 +28,7 @@ extension ProofPhotoReducer {
     /// ```
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
+        @Dependency(\.photoLogClient) var photoLogClient
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
@@ -98,14 +102,42 @@ extension ProofPhotoReducer {
                           let uiImage = UIImage(data: imageData) else {
                         return .none
                     }
-                    
-                    let completedGoal = GoalDetail.CompletedGoal(
-                        owner: .mySelf,
-                        image: Image(uiImage: uiImage),
-                        comment: state.commentText,
-                        createdAt: "방금"
+
+                    let goalId = state.goalId
+                    let comment = state.commentText
+                    let calendarNow = CalendarNow()
+                    let verificationDate = TXCalendarUtil.apiDateString(
+                        for: TXCalendarDate(
+                            year: calendarNow.year,
+                            month: calendarNow.month,
+                            day: calendarNow.day
+                        )
                     )
-                    return .send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+
+                    return .run { send in
+                        do {
+                            let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
+                            try await uploadImageData(imageData, to: uploadResponse.uploadUrl)
+
+                            let request = PhotoLogCreateRequestDTO(
+                                goalId: goalId,
+                                fileName: uploadResponse.fileName,
+                                comment: comment,
+                                verificationDate: verificationDate
+                            )
+                            _ = try await photoLogClient.createPhotoLog(request)
+
+                            let completedGoal = GoalDetail.CompletedGoal(
+                                owner: .mySelf,
+                                image: Image(uiImage: uiImage),
+                                comment: comment,
+                                createdAt: "방금"
+                            )
+                            await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+                        } catch {
+                            await send(.showToast(.fit(message: "업로드에 실패했어요. 다시 시도해주세요.")))
+                        }
+                    }
                 }
                 
             case .dimmedBackgroundTapped:
@@ -161,4 +193,16 @@ extension ProofPhotoReducer {
         self.init(reducer: reducer)
     }
     // swiftlint: enable function_body_length
+}
+
+private func uploadImageData(_ data: Data, to uploadURLString: String) async throws {
+    guard let url = URL(string: uploadURLString) else {
+        throw URLError(.badURL)
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.setValue("image/png", forHTTPHeaderField: "Content-Type")
+
+    let asdf = try await URLSession.shared.upload(for: request, from: data)
 }
