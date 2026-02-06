@@ -36,7 +36,7 @@ public struct GoalCardItem: Identifiable, Equatable {
     /// )
     /// ```
     public struct Card: Equatable {
-        let image: Image?
+        let imageURL: URL?
         public var isSelected: Bool
         let emoji: Image?
         
@@ -50,11 +50,11 @@ public struct GoalCardItem: Identifiable, Equatable {
         /// )
         /// ```
         public init(
-            image: Image?,
+            imageURL: URL? = nil,
             isSelected: Bool,
             emoji: Image? = nil
         ) {
-            self.image = image
+            self.imageURL = imageURL
             self.isSelected = isSelected
             self.emoji = emoji
         }

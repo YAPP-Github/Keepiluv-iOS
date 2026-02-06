@@ -43,28 +43,7 @@ extension HomeReducer {
                     month: now.month,
                     day: now.day
                 )
-                return .run { send in
-                    await send(.setCalendarDate(date))
-                    let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
-                    let items = goals.map { goal in
-                        GoalCardItem(
-                            id: goal.id,
-                            goalName: goal.title,
-                            goalEmoji: goal.goalIcon.image,
-                            myCard: .init(
-                                image: nil,
-                                isSelected: goal.myVerification.isCompleted,
-                                emoji: goal.myVerification.emoji?.image
-                            ),
-                            yourCard: .init(
-                                image: nil,
-                                isSelected: goal.yourVerification.isCompleted,
-                                emoji: goal.yourVerification.emoji?.image
-                            )
-                        )
-                    }
-                    await send(.fetchGoalsCompleted(items))
-                }
+                return .send(.setCalendarDate(date))
                 
                 // MARK: - User Action
             case let .calendarDateSelected(item):
@@ -159,7 +138,7 @@ extension HomeReducer {
                 return .none
                 
             case let .setCalendarDate(date):
-                 let now = state.nowDate
+                let now = state.nowDate
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월 \(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
@@ -168,7 +147,30 @@ extension HomeReducer {
                     date.month == now.month &&
                     date.day == now.day
                 )
-                return .none
+                state.isLoading = true
+                return .run { send in
+                    let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
+                    let items: [GoalCardItem] = goals.map { goal in
+                        let myImageURL = goal.myVerification.imageURL.flatMap(URL.init(string:))
+                        let yourImageURL = goal.yourVerification.imageURL.flatMap(URL.init(string:))
+                        return GoalCardItem(
+                            id: goal.id,
+                            goalName: goal.title,
+                            goalEmoji: goal.goalIcon.image,
+                            myCard: .init(
+                                imageURL: myImageURL,
+                                isSelected: goal.myVerification.isCompleted,
+                                emoji: goal.myVerification.emoji?.image
+                            ),
+                            yourCard: .init(
+                                imageURL: yourImageURL,
+                                isSelected: goal.yourVerification.isCompleted,
+                                emoji: goal.yourVerification.emoji?.image
+                            )
+                        )
+                    }
+                    await send(.fetchGoalsCompleted(items))
+                }
                 
             case let .showToast(toast):
                 state.toast = toast

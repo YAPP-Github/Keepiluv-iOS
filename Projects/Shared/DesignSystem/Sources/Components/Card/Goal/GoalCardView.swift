@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 /// 목표 카드 UI를 구성하는 뷰입니다.
 ///
@@ -160,9 +161,12 @@ private extension GoalCardView {
         )
         
         Group {
-            if let image = item.image {
-                image
+            if let imageURL = item.imageURL {
+                KFImage(imageURL)
                     .resizable()
+                    .placeholder {
+                        unCompletedView(placeholder: placeholder)
+                    }
                     .clipShape(unEvenRoundedRect)
             } else {
                 unCompletedView(placeholder: placeholder)
@@ -198,70 +202,3 @@ private extension GoalCardView {
     }
 }
 
-// swiftlint: disable closure_body_length
-#Preview {
-    let items: [GoalCardItem] = [
-        GoalCardItem(
-            id: 1,
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                isSelected: true,
-                emoji: nil
-            ),
-            yourCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                isSelected: true,
-                emoji: nil
-            )
-        ),
-        GoalCardItem(
-            id: 2,
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: nil,
-                isSelected: false,
-                emoji: nil
-            ),
-            yourCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                isSelected: true,
-                emoji: .Icon.Illustration.fuck
-            )
-        ),
-        GoalCardItem(
-            id: 3,
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                isSelected: true,
-                emoji: .Icon.Illustration.heart
-            ),
-            yourCard: .init(
-                image: nil,
-                isSelected: false,
-                emoji: nil
-            )
-        )
-    ]
-    
-    VStack {
-        ForEach(items.indices, id: \.self) { index in
-            GoalCardView(
-                config: .goalCheck(
-                    item: items[index],
-                    isMyChecked: items[index].myCard.isSelected,
-                    isCoupleChecked: items[index].yourCard.isSelected,
-                    action: { }
-                ),
-                actionLeft: { },
-                actionRight: { }
-            )
-            .padding(.horizontal, Spacing.spacing8)
-        }
-    }
-}
-// swiftlint: enable closure_body_length
