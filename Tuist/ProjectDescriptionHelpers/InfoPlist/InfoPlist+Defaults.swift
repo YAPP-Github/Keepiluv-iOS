@@ -12,6 +12,9 @@ public extension Project.Environment {
         public static let launchScreen: [String: Plist.Value] = [
             "UILaunchScreen": [
                 "UIColorName": "LaunchScreenBackground"
+            ],
+            "UISupportedInterfaceOrientations": [
+                "UIInterfaceOrientationPortrait"
             ]
         ]
     }

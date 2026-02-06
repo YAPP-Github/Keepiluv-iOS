@@ -40,6 +40,7 @@ let project = Project(
                 ],
                 settings: .settings(
                     base: [
+                        "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
                         "CODE_SIGN_STYLE": "Manual",
                         "DEVELOPMENT_TEAM": "\(Project.Environment.BundleId.teamId)",
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)",
