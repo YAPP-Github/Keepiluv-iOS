@@ -19,10 +19,12 @@ public struct OnboardingConnectView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
+            topAppBar
+
             ScrollView {
                 VStack(spacing: 0) {
                     titleSection
-                        .padding(.top, 72)
+                        .padding(.top, Spacing.spacing8)
 
                     illustrationSection
                         .padding(.top, 40)
@@ -30,10 +32,9 @@ public struct OnboardingConnectView: View {
 
                     buttonSection
                         .padding(.horizontal, Spacing.spacing12)
-                        .padding(.bottom, Spacing.spacing5)
 
-                    logoutButton
-                        .padding(.top, Spacing.spacing6)
+                    restoreCoupleButton
+                        .padding(.top, Spacing.spacing8)
                 }
             }
         }
@@ -46,12 +47,35 @@ public struct OnboardingConnectView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+        .txBottomSheet(isPresented: $store.isRestoreCoupleSheetPresented) {
+            restoreCoupleSheetContent
+        }
     }
 }
 
 // MARK: - Subviews
 
 private extension OnboardingConnectView {
+    var topAppBar: some View {
+        HStack {
+            Button {
+                store.send(.logoutButtonTapped)
+            } label: {
+                Image.Icon.Symbol.logout
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(Color.Gray.gray500)
+            }
+            .buttonStyle(.plain)
+            .frame(width: 44, height: 44)
+
+            Spacer()
+        }
+        .padding(.leading, 10)
+        .padding(.top, 14)
+    }
+
     var titleSection: some View {
         HStack {
             Text("""
@@ -143,22 +167,66 @@ private extension OnboardingConnectView {
             )
     }
 
-    var logoutButton: some View {
+    var restoreCoupleButton: some View {
         Button {
-            store.send(.logoutButtonTapped)
+            store.send(.restoreCoupleButtonTapped)
         } label: {
-            HStack(spacing: Spacing.spacing2) {
-                Image.Icon.Symbol.logout
+            HStack(spacing: 0) {
+                Text("해지한 커플 복구하려면?")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray400)
+
+                Image.Icon.Symbol.arrow1MRight
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(Color.Gray.gray300)
-
-                Text("로그아웃")
-                    .typography(.c1_12r)
-                    .foregroundStyle(Color.Gray.gray300)
+                    .foregroundStyle(Color.Gray.gray400)
             }
         }
         .buttonStyle(.plain)
+    }
+
+    var restoreCoupleSheetContent: some View {
+        VStack(spacing: 18) {
+            // Header
+            VStack(alignment: .leading, spacing: 3) {
+                Text("해지한 커플 복구하려면?")
+                    .typography(.t1_18eb)
+                    .foregroundStyle(Color.Gray.gray500)
+
+                Text("아래 내용을 포함하여 문의해 주시기 바랍니다.\n고객센터 메일 - ttwixteamm@gmail.com")
+                    .typography(.b2_14r)
+                    .foregroundStyle(Color.Gray.gray400)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 30)
+
+            // Info Box
+            VStack(alignment: .leading, spacing: 0) {
+                bulletItem("본인 로그인 계정 메일")
+                bulletItem("짝꿍의 로그인 계정 메일")
+                bulletItem("해지 일시")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Spacing.spacing7)
+            .padding(.vertical, Spacing.spacing4)
+            .background(Color.Gray.gray50)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+            .padding(.horizontal, 30)
+        }
+        .padding(.top, 28)
+        .padding(.bottom, TXSafeArea.inset(.bottom) + Spacing.spacing7)
+    }
+
+    func bulletItem(_ text: String) -> some View {
+        HStack(alignment: .top, spacing: Spacing.spacing2) {
+            Text("•")
+                .typography(.b4_12b)
+                .foregroundStyle(Color.Gray.gray300)
+
+            Text(text)
+                .typography(.b4_12b)
+                .foregroundStyle(Color.Gray.gray300)
+        }
     }
 }

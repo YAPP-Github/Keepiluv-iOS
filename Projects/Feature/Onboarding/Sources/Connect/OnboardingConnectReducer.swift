@@ -24,6 +24,7 @@ public struct OnboardingConnectReducer {
     @ObservableState
     public struct State: Equatable {
         var isShareSheetPresented: Bool = false
+        var isRestoreCoupleSheetPresented: Bool = false
         var shareContent: String
         var myInviteCode: String
 
@@ -41,9 +42,11 @@ public struct OnboardingConnectReducer {
         case directConnectCardTapped
         case sendInvitationButtonTapped
         case logoutButtonTapped
+        case restoreCoupleButtonTapped
 
         // MARK: - Update State
         case shareSheetDismissed
+        case restoreCoupleSheetDismissed
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -73,8 +76,16 @@ public struct OnboardingConnectReducer {
             case .logoutButtonTapped:
                 return .send(.delegate(.logoutRequested))
 
+            case .restoreCoupleButtonTapped:
+                state.isRestoreCoupleSheetPresented = true
+                return .none
+
             case .shareSheetDismissed:
                 state.isShareSheetPresented = false
+                return .none
+
+            case .restoreCoupleSheetDismissed:
+                state.isRestoreCoupleSheetPresented = false
                 return .none
 
             case .delegate:
