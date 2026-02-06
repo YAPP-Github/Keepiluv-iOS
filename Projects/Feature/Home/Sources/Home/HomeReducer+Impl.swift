@@ -54,13 +54,13 @@ extension HomeReducer {
                             goalEmoji: myGoal.goalIcon,
                             myCard: .init(
                                 image: myGoal.image,
-                                emoji: myGoal.emoji,
-                                isSelected: myGoal.isCompleted
+                                isSelected: myGoal.isCompleted,
+                                emoji: myGoal.emoji
                             ),
                             yourCard: .init(
                                 image: yourGoal.image,
-                                emoji: yourGoal.emoji,
-                                isSelected: yourGoal.isCompleted
+                                isSelected: yourGoal.isCompleted,
+                                emoji: yourGoal.emoji
                             )
                         )
                     }
@@ -116,7 +116,7 @@ extension HomeReducer {
             case let .goalCheckButtonTapped(id, isChecked):
                 if isChecked {
                     state.pendingDeleteGoalID = id
-                    state.modal = .deleteGoal
+                    state.modal = .info(.deleteGoal)
                     return .none
                 } else {
                     return .run { send in

@@ -7,12 +7,14 @@
 
 import SwiftUI
 
+/// 디자인 시스템 버튼/컴포넌트에서 사용하는 색상 스타일 집합입니다.
 public enum ColorStyle {
     case black
     case white
     case gray200
     case gray300
     case gray400
+    case disable
 }
 
 extension ColorStyle {
@@ -23,6 +25,9 @@ extension ColorStyle {
 
         case .white:
             return Color.Gray.gray500
+            
+        case .disable:
+            return Color.Gray.gray300
         }
     }
 
@@ -33,6 +38,9 @@ extension ColorStyle {
 
         case .white:
             return Color.Common.white
+            
+        case .disable:
+            return Color.Gray.gray100
 
         case .gray200:
             return Color.Gray.gray200
@@ -46,6 +54,9 @@ extension ColorStyle {
     }
 
     var borderColor: Color {
-        return Color.Gray.gray500
+        switch self {
+        case .disable: Color.Gray.gray100
+        case .black, .gray200, .gray300, .gray400, .white: Color.Gray.gray500
+        }
     }
 }

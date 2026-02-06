@@ -129,23 +129,23 @@ private extension TXCalendar {
 
     func weekRow(spacing: CGFloat) -> some View {
         HStack(spacing: spacing) {
-            ForEach(weekDateItems) { item in
+            ForEach(Array(weekDateItems.enumerated()), id: \.offset) { _, item in
                 dateButton(for: item)
             }
         }
     }
 
     func monthGrid(spacing: CGFloat) -> some View {
-        LazyVGrid(
-            columns: TXCalendarLayout.gridColumns(
-                cellSize: config.dateStyle.size,
-                spacing: spacing,
-                columns: TXCalendarLayout.daysInWeek
-            ),
-            spacing: config.monthlyRowSpacing
+        Grid(
+            horizontalSpacing: spacing,
+            verticalSpacing: config.monthlyRowSpacing
         ) {
-            ForEach(monthDateItems) { item in
-                dateButton(for: item)
+            ForEach(Array(weeks.enumerated()), id: \.offset) { _, week in
+                GridRow {
+                    ForEach(Array(week.enumerated()), id: \.offset) { _, item in
+                        dateButton(for: item)
+                    }
+                }
             }
         }
     }

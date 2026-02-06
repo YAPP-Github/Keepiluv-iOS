@@ -86,7 +86,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                     onPrevious: { selectedDate.goToPreviousMonth() },
                     onNext: { selectedDate.goToNextMonth() }
                 )
-
+                
                 if isDatePickerMode {
                     datePickerView(height: frozenCalendarHeight ?? currentCalendarHeight)
                 } else {
@@ -101,10 +101,12 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                     }
                 }
             }
+            .padding(.top, 28)
             .padding(.bottom, 40)
-
+            
             // 버튼 영역
             buttonArea
+                .padding(.bottom, TXSafeArea.inset(.bottom))
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)

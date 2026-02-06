@@ -10,8 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureHome
 import FeatureHomeInterface
-import FeatureProofPhoto
 import FeatureGoalDetail
+import FeatureProofPhoto
 import SharedDesignSystem
 
 /// 메인 탭 화면을 표시하는 View입니다.
@@ -48,8 +48,10 @@ public struct MainTabView: View {
             switch store.selectedTab {
             case .home:
                 HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
+                
             case .statistics:
                 EmptyView()
+                
             case .couple:
                 EmptyView()
             }

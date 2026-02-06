@@ -30,8 +30,34 @@ struct MakeGoalView: View {
             
             completeButton
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
         .toolbar(.hidden, for: .navigationBar)
+        .onDisappear { store.send(.onDisappear) }
+        .txBottomSheet(
+            isPresented: $store.isCalendarSheetPresented
+        ) {
+            TXCalendarBottomSheet(
+                selectedDate: $store.calendarSheetDate,
+                completeButtonText: "완료",
+                onComplete: {
+                    store.send(.monthCalendarConfirmTapped)
+                }
+            )
+        }
+        .txBottomSheet(
+            isPresented: $store.isPeriodSheetPresented
+        ) {
+            periodSheet
+        }
+        .txModal(
+            item: $store.modal,
+            onAction: { action in
+                if case let .confirmWithIndex(index) = action {
+                    store.send(.modalConfirmTapped(index))
+                }
+            }
+        )
     }
 }
 
@@ -42,7 +68,9 @@ private extension MakeGoalView {
             style: .subTitle(
                 title: "직접 만들기",
                 rightText: ""
-            )
+            ), onAction: { _ in
+                store.send(.navigationBackButtonTapped)
+            }
         )
     }
     
@@ -50,13 +78,15 @@ private extension MakeGoalView {
         Button {
             store.send(.emojiButtonTapped)
         } label: {
-            Image.Icon.Illustration.emojiAdd
+            store.selectedEmoji
+                .resizable()
+                .frame(width: 56, height: 56)
                 .padding(26)
                 .background(Color.Gray.gray50, in: .circle)
                 .insideBorder(
                     Color.Gray.gray500,
                     shape: .circle,
-                    lineWidth: 1
+                    lineWidth: LineWidth.m
                 )
         }
         .buttonStyle(.plain)
@@ -96,15 +126,21 @@ private extension MakeGoalView {
             
             HStack(spacing: 8) {
                 TXTabGroup(
-                    selectedItem: $store.selectedPeriod,
-                    config: .period()
+                    selectedItem: periodSelectionBinding,
+                    config: .period(
+                        items: [
+                            store.dailyPeriodText,
+                            store.weeklyPeriodText,
+                            store.monthlyPeriodText
+                        ]
+                    )
                 )
                 
                 Spacer()
                 
                 if store.showPeriodCount {
                     valueText(store.periodCountText)
-                    dropDownButton { store.send(.endDateTapped) }
+                    dropDownButton { store.send(.periodSelected) }
                 }
             }
         }
@@ -117,7 +153,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText("2월 1일")
+            valueText(dateText(store.startDate))
             
             dropDownButton { store.send(.startDateTapped) }
         }
@@ -141,7 +177,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText("2월 1일")
+            valueText(dateText(store.endDate))
             
             dropDownButton { store.send(.endDateTapped) }
         }
@@ -152,11 +188,12 @@ private extension MakeGoalView {
         TXRoundedRectangleButton(
             config: .long(
                 text: "완료",
-                colorStyle: .black
+                colorStyle: store.completeButtonDisabled ? .disable : .black
             )
         ) {
             store.send(.completeButtonTapped)
         }
+        .disabled(store.completeButtonDisabled)
     }
     
     var divider: some View {
@@ -184,19 +221,118 @@ private extension MakeGoalView {
             .typography(.b2_14r)
             .foregroundStyle(Color.Gray.gray500)
     }
+    
+    var periodSheet: some View {
+        VStack(spacing: 0) {
+            periodTabButtons
+            periodCountContent
+                .padding(.top, 36)
+            
+            TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
+                store.send(.periodSheetCompleteTapped)
+            }
+            .padding(.top, 40)
+            .padding(.horizontal, 20)
+        }
+        .padding(.top, 36)
+        .padding(.bottom, TXSafeArea.inset(.bottom))
+    }
+    
+    var periodTabButtons: some View {
+        HStack(spacing: 8) {
+            TXRoundedRectangleButton(
+                config: .small(
+                    text: store.weeklyPeriodText,
+                    colorStyle: store.selectedPeriod.isWeekly ? .black : .white
+                )
+            ) {
+                store.send(.periodSheetWeeklyTapped)
+            }
+            
+            TXRoundedRectangleButton(
+                config: .small(
+                    text: store.monthlyPeriodText,
+                    colorStyle: store.selectedPeriod.isMonthly ? .black : .white
+                )
+            ) {
+                store.send(.periodSheetMonthlyTapped)
+            }
+        }
+    }
+    
+    var periodCountContent: some View {
+        HStack(spacing: 16) {
+            TXCircleButton(
+                config: .init(
+                    image: .Icon.Symbol.minus,
+                    frameSize: .init(width: 36, height: 36),
+                    imageSize: .init(width: 28, height: 28),
+                    colorStyle: store.isMinusEnable ? .black : .disable
+                ), action: {
+                    store.send(.periodSheetMinusTapped)
+                }
+            )
+            .disabled(!store.isMinusEnable)
+            
+            sheetPeriodCount
+            
+            TXCircleButton(
+                config: .init(
+                    image: .Icon.Symbol.plus,
+                    frameSize: .init(width: 36, height: 36),
+                    imageSize: .init(width: 28, height: 28),
+                    colorStyle: store.isPlusEnable ? .black : .disable
+                )
+            ) {
+                store.send(.periodSheetPlusTapped)
+            }
+            .disabled(!store.isPlusEnable)
+        }
+    }
+    
+    var sheetPeriodCount: some View {
+        HStack(spacing: 8) {
+            Text("\(store.periodCount)")
+                .typography(.h2_24r)
+                .foregroundStyle(Color.Gray.gray500)
+            
+            Text("번")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Gray.gray300)
+        }
+        .frame(width: 96, height: 58)
+        .insideBorder(
+            Color.Gray.gray300,
+            shape: RoundedRectangle(cornerRadius: 12),
+            lineWidth: 1.2
+        )
+    }
 }
 
-#Preview {
-    MakeGoalView(
-        store: Store(
-            initialState: MakeGoalReducer
-                .State(
-                    category: .walk,
-                    mode: .add
-                ),
-            reducer: {
-                MakeGoalReducer()
+// MARK: - Private Methods
+private extension MakeGoalView {
+    func dateText(_ date: TXCalendarDate?) -> String {
+        guard let date = date else { return "" }
+        if let day = date.day {
+            return "\(date.month)월 \(day)일"
+        }
+        return "\(date.month)월"
+    }
+    
+    var periodSelectionBinding: Binding<String?> {
+        Binding(
+            get: { store.selectedPeriod.text },
+            set: { newValue in
+                guard let newValue else { return }
+
+                if newValue == store.dailyPeriodText {
+                    store.selectedPeriod = .daily
+                } else if newValue == store.weeklyPeriodText {
+                    store.selectedPeriod = .weekly(count: store.weeklyPeriodCount)
+                } else if newValue == store.monthlyPeriodText {
+                    store.selectedPeriod = .monthly(count: store.monthlyPeriodCount)
+                }
             }
         )
-    )
+    }
 }

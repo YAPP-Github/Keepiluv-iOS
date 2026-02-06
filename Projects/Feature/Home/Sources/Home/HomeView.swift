@@ -70,20 +70,24 @@ public struct HomeView: View {
         .transaction { transaction in
             transaction.disablesAnimations = false
         }
-        .calendarSheet(
-            isPresented: $store.isCalendarSheetPresented,
-            selectedDate: $store.calendarSheetDate,
-            onComplete: {
-                store.send(.monthCalendarConfirmTapped)
-            }
-        )
+        .txBottomSheet(
+            isPresented: $store.isCalendarSheetPresented
+        ) {
+            TXCalendarBottomSheet(
+                selectedDate: $store.calendarSheetDate,
+                completeButtonText: "완료",
+                onComplete: { store.send(.monthCalendarConfirmTapped) }
+            )
+        }
         .txModal(
             item: $store.modal,
-            onConfirm: { store.send(.modalConfirmTapped) }
+            onAction: { action in
+                if action == .confirm {
+                    store.send(.modalConfirmTapped)
+                }
+            }
         )
-        .txToast(item: $store.toast) {
-            
-        }
+        .txToast(item: $store.toast) { }
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },
@@ -106,9 +110,10 @@ private extension HomeView {
                     isHiddenRefresh: store.isRefreshHidden,
                     isRemainedAlarm: false,
                 )
-            )) { action in
+            ), onAction: { action in
                 store.send(.navigationBarAction(action))
             }
+        )
     }
     
     // FIXME: - Calendar

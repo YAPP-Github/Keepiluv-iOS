@@ -8,8 +8,8 @@
 import SwiftUI
 
 import ComposableArchitecture
-import FeatureHomeInterface
 import FeatureGoalDetailInterface
+import FeatureHomeInterface
 
 /// Home Feature의 NavigationStack을 제공하는 Root View입니다.
 ///
@@ -46,8 +46,10 @@ public struct HomeCoordinatorView: View {
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
                         }
+                        
                     case .edit:
                         Text("Edit")
+                        
                     case .makeGoal:
                         IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
                             MakeGoalView(store: store)
