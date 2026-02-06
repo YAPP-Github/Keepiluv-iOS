@@ -41,6 +41,28 @@ extension AuthClient: @retroactive DependencyKey {
         },
         refreshToken: {
             try await performRefreshToken()
+        },
+        withdraw: {
+            @Dependency(\.networkClient)
+            var networkClient
+            @Dependency(\.tokenManager)
+            var tokenManager
+
+            let _: WithdrawResponse = try await networkClient.request(endpoint: AuthEndpoint.withdraw)
+            try await tokenManager.deleteTokenFromStorage()
+        },
+        fetchMyProfile: {
+            @Dependency(\.networkClient)
+            var networkClient
+
+            let response: UserMeResponse = try await networkClient.request(endpoint: AuthEndpoint.me)
+            return UserProfile(
+                id: response.id,
+                name: response.name,
+                email: response.email,
+                oauthProvider: response.oauthProvider,
+                oauthProviderId: response.oauthProviderId
+            )
         }
     )
 }

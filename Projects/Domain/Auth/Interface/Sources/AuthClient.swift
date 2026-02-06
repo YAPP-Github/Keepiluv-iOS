@@ -37,6 +37,29 @@ public struct AuthResult: Equatable, Sendable {
     }
 }
 
+/// 사용자 프로필 정보입니다.
+public struct UserProfile: Equatable, Sendable {
+    public let id: Int
+    public let name: String
+    public let email: String
+    public let oauthProvider: String
+    public let oauthProviderId: String
+
+    public init(
+        id: Int,
+        name: String,
+        email: String,
+        oauthProvider: String,
+        oauthProviderId: String
+    ) {
+        self.id = id
+        self.name = name
+        self.email = email
+        self.oauthProvider = oauthProvider
+        self.oauthProviderId = oauthProviderId
+    }
+}
+
 public struct AuthClient: Sendable {
     public var signIn: @Sendable (AuthProvider) async throws -> AuthResult
 
@@ -46,16 +69,24 @@ public struct AuthClient: Sendable {
 
     public var refreshToken: @Sendable () async throws -> Token
 
+    public var withdraw: @Sendable () async throws -> Void
+
+    public var fetchMyProfile: @Sendable () async throws -> UserProfile
+
     public init(
         signIn: @escaping @Sendable (AuthProvider) async throws -> AuthResult,
         loadToken: @escaping @Sendable () async throws -> Token?,
         signOut: @escaping @Sendable () async throws -> Void,
-        refreshToken: @escaping @Sendable () async throws -> Token
+        refreshToken: @escaping @Sendable () async throws -> Token,
+        withdraw: @escaping @Sendable () async throws -> Void,
+        fetchMyProfile: @escaping @Sendable () async throws -> UserProfile
     ) {
         self.signIn = signIn
         self.loadToken = loadToken
         self.signOut = signOut
         self.refreshToken = refreshToken
+        self.withdraw = withdraw
+        self.fetchMyProfile = fetchMyProfile
     }
 }
 
@@ -86,6 +117,16 @@ extension AuthClient: TestDependencyKey {
                 refreshToken: "preview_refresh_token",
                 expiresAt: Date().addingTimeInterval(oneHourInSeconds)
             )
+        },
+        withdraw: { },
+        fetchMyProfile: {
+            UserProfile(
+                id: 1,
+                name: "Preview User",
+                email: "preview@example.com",
+                oauthProvider: "APPLE",
+                oauthProviderId: "preview_id"
+            )
         }
     )
 
@@ -106,6 +147,13 @@ extension AuthClient: TestDependencyKey {
         refreshToken: {
             assertionFailure("AuthClient.refreshToken이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             throw AuthLoginError.tokenRefreshFailed
+        },
+        withdraw: {
+            assertionFailure("AuthClient.withdraw가 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+        },
+        fetchMyProfile: {
+            assertionFailure("AuthClient.fetchMyProfile이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            throw AuthLoginError.unsupportedProvider
         }
     )
 }

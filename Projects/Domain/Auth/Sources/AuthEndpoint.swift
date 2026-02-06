@@ -26,6 +26,12 @@ enum AuthEndpoint: Endpoint {
     /// 토큰 갱신
     case refresh(refreshToken: String)
 
+    /// 회원 탈퇴
+    case withdraw
+
+    /// 내 프로필 조회
+    case me
+
     var baseURL: URL {
         guard let urlString = Configuration.apiBaseURL,
               let url = URL(string: urlString) else {
@@ -50,11 +56,26 @@ enum AuthEndpoint: Endpoint {
 
         case .refresh:
             return "/api/v1/auth/refresh"
+
+        case .withdraw:
+            return "/api/v1/auth/withdraw"
+
+        case .me:
+            return "/api/v1/users/me"
         }
     }
 
     var method: HTTPMethod {
-        .post
+        switch self {
+        case .me:
+            return .get
+
+        case .signInWithApple, .signInWithKakao, .signInWithGoogle, .logout, .refresh:
+            return .post
+            
+        case .withdraw:
+            return .delete
+        }
     }
 
     var headers: [String: String]? {
@@ -74,7 +95,7 @@ enum AuthEndpoint: Endpoint {
              .signInWithGoogle(let idToken):
             return SignInRequest(idToken: idToken)
 
-        case .logout:
+        case .logout, .withdraw, .me:
             return nil
 
         case .refresh(let refreshToken):
@@ -84,7 +105,7 @@ enum AuthEndpoint: Endpoint {
 
     var requiresAuth: Bool {
         switch self {
-        case .logout:
+        case .logout, .withdraw, .me:
             return true
 
         case .signInWithApple, .signInWithKakao, .signInWithGoogle, .refresh:
