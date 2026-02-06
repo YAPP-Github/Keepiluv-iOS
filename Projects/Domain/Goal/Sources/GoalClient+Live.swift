@@ -19,6 +19,7 @@ extension GoalClient: @retroactive DependencyKey {
     /// @Dependency(\.goalClient) var goalClient
     /// let goals = try await goalClient.fetchGoals("2026-02-06")
     /// ```
+
     static func live() -> GoalClient {
         @Dependency(\.networkClient) var networkClient
         
