@@ -185,7 +185,7 @@ private extension MakeGoalView {
         TXRoundedRectangleButton(
             config: .long(
                 text: "완료",
-                colorStyle: store.completeButtonDisabled ? .disable : .black
+                colorStyle: store.completeButtonDisabled ? .disabled : .black
             )
         ) {
             store.send(.completeButtonTapped)
@@ -264,7 +264,7 @@ private extension MakeGoalView {
                     image: .Icon.Symbol.minus,
                     frameSize: .init(width: 36, height: 36),
                     imageSize: .init(width: 28, height: 28),
-                    colorStyle: store.isMinusEnable ? .black : .disable
+                    colorStyle: store.isMinusEnable ? .black : .disabled
                 ), action: {
                     store.send(.periodSheetMinusTapped)
                 }
@@ -278,7 +278,7 @@ private extension MakeGoalView {
                     image: .Icon.Symbol.plus,
                     frameSize: .init(width: 36, height: 36),
                     imageSize: .init(width: 28, height: 28),
-                    colorStyle: store.isPlusEnable ? .black : .disable
+                    colorStyle: store.isPlusEnable ? .black : .disabled
                 )
             ) {
                 store.send(.periodSheetPlusTapped)

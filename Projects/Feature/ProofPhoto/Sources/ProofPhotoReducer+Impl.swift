@@ -92,7 +92,7 @@ extension ProofPhotoReducer {
             case .uploadButtonTapped:
                 // TODO: - post
                 if state.commentText.count < 5 {
-                    return .send(.showToast(.onlyText(message: "코멘트는 5글자로 입력해주세요!")))
+                    return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
                     guard let imageData = state.imageData,
                           let uiImage = UIImage(data: imageData) else {

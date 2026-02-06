@@ -17,6 +17,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .core(interface: .network),
+                    .core(implements: .logging),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )

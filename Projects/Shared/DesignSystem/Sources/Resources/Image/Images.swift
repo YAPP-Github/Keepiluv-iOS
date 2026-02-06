@@ -27,7 +27,7 @@ public extension Image.Icon {
 /// 모듈 전반에서 공통으로 사용하는 Illustration형식의 Icon 입니다.
 public extension Image.Icon.Illustration {
     typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Icons.Illustration
-    
+
     static let add = IllustrationAsset.iconAdd.swiftUIImage
     static let delete = IllustrationAsset.iconDelete.swiftUIImage
     static let happy = IllustrationAsset.happy.swiftUIImage
@@ -53,9 +53,10 @@ public extension Image.Icon.Illustration {
 /// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.
 public extension Image.Icon.Symbol {
     typealias SymbolAsset = SharedDesignSystemAsset.ImageAssets.Icons.Symbol
-    
+
     static let alert = SymbolAsset.icAlert.swiftUIImage
     static let alertRemained = SymbolAsset.icAlertRemained.swiftUIImage
+    static let arrow1LLeft = SymbolAsset.icArrow1LLeft.swiftUIImage
     static let arrow1MLeft = SymbolAsset.icArrow1MLeft.swiftUIImage
     static let arrow1MRight = SymbolAsset.icArrow1MRight.swiftUIImage
     static let arrow1SRight = SymbolAsset.icArrow1SRight.swiftUIImage
@@ -63,6 +64,7 @@ public extension Image.Icon.Symbol {
     static let arrow3Right = SymbolAsset.icArrow3Right.swiftUIImage
     static let arrow4 = SymbolAsset.icArrow4.swiftUIImage
     static let unCheckMe = SymbolAsset.icUnCheckMe.swiftUIImage
+    static let check = SymbolAsset.icCheck.swiftUIImage
     static let checkMe = SymbolAsset.icCheckMe.swiftUIImage
     static let unCheckYou = SymbolAsset.icUnCheckYou.swiftUIImage
     static let checkYou = SymbolAsset.icCheckYou.swiftUIImage
@@ -85,13 +87,18 @@ public extension Image.Icon.Symbol {
     static let selectedSelected = SymbolAsset.selectedSelected.swiftUIImage
     static let gallery = SymbolAsset.icGallery.swiftUIImage
     static let arrow2Down = SymbolAsset.icArrow2Down.swiftUIImage
+    static let copy = SymbolAsset.icCopy.swiftUIImage
+    static let calendar = SymbolAsset.icCalendar.swiftUIImage
+    static let logout = SymbolAsset.icLogout.swiftUIImage
 }
 
 public extension Image.Illustration {
     typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Illustration
-    
+
     static let keepiluv = IllustrationAsset.illustKeepiluv.swiftUIImage
     static let poke = IllustrationAsset.illustPoke.swiftUIImage
+    static let connect = IllustrationAsset.illustConnect.swiftUIImage
+    static let invite = IllustrationAsset.illustInvite.swiftUIImage
 }
 
 public extension Image.Vector {

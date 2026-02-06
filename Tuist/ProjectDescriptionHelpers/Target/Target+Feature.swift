@@ -85,7 +85,7 @@ public extension Target {
         newConfig.destinations = .iOS
         newConfig.resources = ["Resources/**"]
         newConfig.productName = exampleName
-        
+
         if let infoPlist = newConfig.infoPlist {
             newConfig.infoPlist = infoPlist.mergingLaunchScreenDefaults()
         } else {
@@ -93,7 +93,19 @@ public extension Target {
                 with: Project.Environment.InfoPlist.launchScreen
             )
         }
-        
+
+        // Example 앱 타겟에 코드 사이닝 설정 추가 (match Development)
+        newConfig.settings = .settings(
+            base: [
+                "CODE_SIGN_STYLE": "Manual",
+                "DEVELOPMENT_TEAM": "\(Project.Environment.BundleId.teamId)",
+                "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)",
+                "TARGETED_DEVICE_FAMILY": "1",
+                "SUPPORTS_MACCATALYST": "NO",
+                "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO"
+            ]
+        )
+
         return makeTarget(config: newConfig)
     }
 }

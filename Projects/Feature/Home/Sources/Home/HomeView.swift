@@ -51,12 +51,11 @@ public struct HomeView: View {
             } else {
                 goalEmptyView
             }
+            Spacer()
         }
         .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
-            if store.hasCards {
-                floatingButton
-            }
+            floatingButton
         }
         .onAppear {
             store.send(.onAppear)
@@ -105,6 +104,7 @@ public struct HomeView: View {
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
         .frame(alignment: .center)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

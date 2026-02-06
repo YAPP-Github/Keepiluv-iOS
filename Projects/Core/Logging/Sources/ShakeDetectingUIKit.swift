@@ -14,7 +14,20 @@ extension Notification.Name {
     static let deviceDidShake = Notification.Name("deviceDidShake")
 }
 
-/// 실제로 first responder가 되는 HostingController
+/// UIWindow에서 직접 shake를 감지합니다.
+/// First responder와 관계없이 모든 shake 이벤트를 캐치합니다.
+extension UIWindow {
+    override open func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        super.motionEnded(motion, with: event)
+
+        if motion == .motionShake {
+            NotificationCenter.default.post(name: .deviceDidShake, object: nil)
+        }
+    }
+}
+
+/// Deprecated: UIWindow extension이 shake를 자동으로 감지합니다.
+@available(*, deprecated, message: "UIWindow extension handles shake detection automatically")
 class ShakeDetectingHostingController: UIViewController {
     override var canBecomeFirstResponder: Bool {
         true

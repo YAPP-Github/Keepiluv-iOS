@@ -50,10 +50,12 @@ public struct MainTabView: View {
                 HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
                 
             case .statistics:
-                EmptyView()
-                
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
             case .couple:
-                EmptyView()
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }

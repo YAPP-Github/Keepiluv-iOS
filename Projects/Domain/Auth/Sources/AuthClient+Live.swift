@@ -24,17 +24,32 @@ extension AuthClient: @retroactive DependencyKey {
             return try await tokenManager.loadTokenFromStorage()
         },
         signOut: {
+            @Dependency(\.networkClient)
+            var networkClient
             @Dependency(\.tokenManager)
             var tokenManager
 
+            // 서버에 로그아웃 요청 (실패해도 로컬 토큰은 삭제)
+            do {
+                let _: EmptyResponse = try await networkClient.request(endpoint: AuthEndpoint.logout)
+            } catch {
+                // 서버 로그아웃 실패는 무시하고 로컬 토큰만 삭제
+                TXLogger(label: "Auth").info("서버 로그아웃 실패 (무시됨): \(error)")
+            }
+
             try await tokenManager.deleteTokenFromStorage()
+        },
+        refreshToken: {
+            try await performRefreshToken()
         }
     )
 }
 
 // MARK: - Private Implementation
 private extension AuthClient {
-    static func performSignIn(with provider: AuthProvider) async throws -> Token {
+    static let oneHourInSeconds: TimeInterval = 3_600
+
+    static func performSignIn(with provider: AuthProvider) async throws -> AuthResult {
         @Dependency(\.networkClient)
         var networkClient
         @Dependency(\.tokenManager)
@@ -44,19 +59,43 @@ private extension AuthClient {
         let loginProvider = createLoginProvider(for: provider)
         let loginResult = try await loginProvider.performLogin()
 
-        guard let identityToken = loginResult.identityToken else {
-            throw AuthLoginError.missingCredential
-        }
+        logger.debug("loginResult: \(loginResult)")
 
-        logger.debug("identityToken: \(identityToken)")
-
-        let endpoint = createAuthEndpoint(for: provider, identityToken: identityToken)
+        let endpoint = createAuthEndpoint(from: loginResult)
         let response: SignInResponse = try await networkClient.request(endpoint: endpoint)
 
         let token = Token(
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
-            expiresAt: response.expiresAt
+            expiresAt: Date().addingTimeInterval(oneHourInSeconds)
+        )
+
+        try await tokenManager.saveTokenToStorage(token)
+
+        return AuthResult(
+            token: token,
+            userId: response.userId,
+            isNewUser: response.isNewUser
+        )
+    }
+
+    static func performRefreshToken() async throws -> Token {
+        @Dependency(\.networkClient)
+        var networkClient
+        @Dependency(\.tokenManager)
+        var tokenManager
+
+        guard let currentRefreshToken = await tokenManager.refreshToken else {
+            throw AuthLoginError.tokenRefreshFailed
+        }
+
+        let endpoint = AuthEndpoint.refresh(refreshToken: currentRefreshToken)
+        let response: RefreshResponse = try await networkClient.request(endpoint: endpoint)
+
+        let token = Token(
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+            expiresAt: Date().addingTimeInterval(oneHourInSeconds)
         )
 
         try await tokenManager.saveTokenToStorage(token)
@@ -68,25 +107,33 @@ private extension AuthClient {
         switch provider {
         case .apple:
             return AppleLoginProvider()
-            
+
         case .kakao:
             return KakaoLoginProvider()
-            
+
         case .google:
             return GoogleLoginProvider()
         }
     }
 
-    static func createAuthEndpoint(for provider: AuthProvider, identityToken: String) -> AuthEndpoint {
-        switch provider {
+    static func createAuthEndpoint(from loginResult: AuthLoginResult) -> AuthEndpoint {
+        switch loginResult.provider {
         case .apple:
-            return .signInWithApple(identityToken: identityToken)
-            
+            return .signInWithApple(
+                idToken: loginResult.code,
+                authorizationCode: loginResult.authorizationCode ?? ""
+            )
+
         case .kakao:
-            return .signInWithKakao(accessToken: identityToken)
-            
+            return .signInWithKakao(idToken: loginResult.code)
+
         case .google:
-            return .signInWithGoogle(idToken: identityToken)
+            return .signInWithGoogle(idToken: loginResult.code)
         }
     }
 }
+
+// MARK: - Empty Response
+
+/// 빈 응답을 위한 타입
+struct EmptyResponse: Decodable {}

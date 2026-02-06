@@ -53,20 +53,17 @@ extension AppleLoginProvider: ASAuthorizationControllerDelegate {
         }
 
         guard let identityTokenData = appleIDCredential.identityToken,
-              let identityToken = String(data: identityTokenData, encoding: .utf8) else {
+              let identityToken = String(data: identityTokenData, encoding: .utf8),
+              let authorizationCodeData = appleIDCredential.authorizationCode,
+              let authorizationCode = String(data: authorizationCodeData, encoding: .utf8) else {
             continuation?.resume(throwing: AuthLoginError.missingCredential)
             continuation = nil
             return
         }
 
-        let authorizationCode: String? = {
-            guard let codeData = appleIDCredential.authorizationCode else { return nil }
-            return String(data: codeData, encoding: .utf8)
-        }()
-
         let result = AuthLoginResult(
             provider: .apple,
-            identityToken: identityToken,
+            code: identityToken,
             authorizationCode: authorizationCode
         )
 

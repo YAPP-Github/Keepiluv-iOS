@@ -54,6 +54,21 @@ Feature
 - 위 Feature는 자식 Feature를 Interface-only `makeView(_:)` 대신 직접 생성할 수 있습니다.
 - 그 외 Feature는 Interface 모듈만 import하며 `makeView(_:)` 또는 동등한 factory로만 조립합니다.
 
+## Navigation 규칙
+프로젝트 전체에서 **통일된 Navigation 패턴**을 사용합니다.
+
+### 사용 패턴: Route enum + `[Route]` 배열
+- `enum Route: Hashable` + `[Route]` 배열 사용
+- Child State는 Optional로 관리, `.ifLet`으로 Reducer 연결
+- 예시: `state.routes.append(.codeInput)`
+
+### 사용하지 않는 패턴: TCA 공식 StackState
+- `StackState<Path.State>` + `@Reducer enum Path` 사용 안 함
+- 이유: `@Reducer enum Path` 매크로가 Interface/Implementation 분리 구조에서 동작하지 않음
+- 예외 Feature도 코드 일관성을 위해 동일한 패턴 사용
+
+상세 가이드는 `docs/Guides/NavigationStack.md` 참고
+
 ## Reducer 생성 규칙
 - Interface에는 Reducer의 시그니처만 둡니다. (body는 외부 Reduce 주입)
 - Implementation에서 실제 Reduce를 구성하는 init을 제공합니다.

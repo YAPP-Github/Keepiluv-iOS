@@ -59,10 +59,10 @@ private extension GoogleLoginProvider {
             static let missingClientID = -2
         }
 
-        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_ID") as? String else {
+        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
             throw AuthLoginError.providerError(
                 NSError(domain: "GoogleLoginProvider", code: ErrorCode.missingClientID, userInfo: [
-                    NSLocalizedDescriptionKey: "GOOGLE_CLIENT_ID가 설정되지 않았습니다."
+                    NSLocalizedDescriptionKey: "GIDClientID가 설정되지 않았습니다."
                 ])
             )
         }
@@ -76,8 +76,7 @@ private extension GoogleLoginProvider {
 
         return AuthLoginResult(
             provider: .google,
-            identityToken: idToken,
-            authorizationCode: result.serverAuthCode
+            code: idToken
         )
     }
 }

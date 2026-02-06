@@ -11,8 +11,12 @@ let project = Project.makeModule(
         .feature(
             implements: .onboarding,
             config: .init(
+                resources: ["Resources/**"],
                 dependencies: [
-                    .feature(interface: .onboarding)
+                    .feature(interface: .onboarding),
+                    .domain(interface: .onboarding),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
@@ -35,8 +39,15 @@ let project = Project.makeModule(
         .feature(
             example: .onboarding,
             config: .init(
+                infoPlist: .extendingDefault(with: [
+                    "UIUserInterfaceStyle": "Light",
+                    "DEEPLINK_HOST": "keepiluv.jiyong.xyz"
+                ]),
+                entitlements: .file(path: "FeatureOnboardingExample.entitlements"),
                 dependencies: [
-                    .feature(interface: .onboarding)
+                    .feature(implements: .onboarding),
+                    .domain(implements: .onboarding),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         )

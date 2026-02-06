@@ -15,17 +15,20 @@ import SwiftUI
 /// TXTextField(text: $text, placeholderText: "플레이스홀더")
 /// ```
 public struct TXTextField: View {
-    
+
     @Binding public var text: String
     private let placeholderText: String
-    
+    private var isFocused: FocusState<Bool>.Binding?
+
     /// 텍스트 바인딩과 플레이스홀더를 전달해 텍스트 필드를 생성합니다.
     public init(
         text: Binding<String>,
-        placeholderText: String
+        placeholderText: String,
+        isFocused: FocusState<Bool>.Binding? = nil
     ) {
         self._text = text
         self.placeholderText = placeholderText
+        self.isFocused = isFocused
     }
     
     public var body: some View {
@@ -46,13 +49,19 @@ public struct TXTextField: View {
 
 // MARK: - SubViews
 private extension TXTextField {
+    @ViewBuilder
     var textField: some View {
         ZStack(alignment: .leading) {
             if text.isEmpty {
                 placeHolderView
             }
 
-            TextField("", text: $text)
+            if let isFocused {
+                TextField("", text: $text)
+                    .focused(isFocused)
+            } else {
+                TextField("", text: $text)
+            }
         }
         .padding(.leading, Spacing.spacing5)
     }

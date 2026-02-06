@@ -8,6 +8,7 @@ let project = Project(
             implements: .iOS,
             config: .init(
                 infoPlist: .extendingDefault(with: Project.Environment.InfoPlist.launchScreen.merging([
+                    "UIUserInterfaceStyle": "Light",
                     "LSApplicationQueriesSchemes": [
                         "kakaokompassauth",
                         "kakaolink",
@@ -24,8 +25,9 @@ let project = Project(
                         ]
                     ],
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
-                    "GOOGLE_CLIENT_ID": "$(GOOGLE_CLIENT_ID)",
-                    "GOOGLE_REVERSED_CLIENT_ID": "$(GOOGLE_REVERSED_CLIENT_ID)"
+                    "GIDClientID": "$(GOOGLE_CLIENT_ID)",
+                    "DEEPLINK_HOST": "$(DEEPLINK_HOST)",
+                    "API_BASE_URL": "$(API_BASE_URL)"
                 ], uniquingKeysWith: { current, _ in current })),
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],
@@ -38,6 +40,7 @@ let project = Project(
                 ],
                 settings: .settings(
                     base: [
+                        "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
                         "CODE_SIGN_STYLE": "Manual",
                         "DEVELOPMENT_TEAM": "\(Project.Environment.BundleId.teamId)",
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)",
@@ -47,7 +50,9 @@ let project = Project(
                         "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"],
                         "KAKAO_APP_KEY": "d62cbf5d1d7fbc9246c0d33998fce8cd",
                         "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
-                        "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3"
+                        "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3",
+                        "DEEPLINK_HOST": "keepiluv.jiyong.xyz",
+                        "API_BASE_URL": "https://api.dev.teamtwix.com"
                     ]
                 )
             )
