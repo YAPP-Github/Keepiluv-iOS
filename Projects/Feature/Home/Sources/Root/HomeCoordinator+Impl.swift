@@ -21,7 +21,8 @@ extension HomeCoordinator {
     public init(
         goalDetailReducer: GoalDetailReducer,
         proofPhotoReducer: ProofPhotoReducer,
-        makeGoalReducer: MakeGoalReducer
+        makeGoalReducer: MakeGoalReducer,
+        editGoalListReducer: EditGoalListReducer
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
@@ -33,6 +34,11 @@ extension HomeCoordinator {
             case let .home(.delegate(.goToMakeGoal(category))):
                 state.routes.append(.makeGoal)
                 state.makeGoal = .init(category: category, mode: .add)
+                return .none
+                
+            case .home(.delegate(.goToEditGoalList)):
+                state.routes.append(.editGoalList)
+                state.editGoalList = .init()
                 return .none
                 
             case .goalDetail(.delegate(.navigateBack)):
@@ -51,6 +57,17 @@ extension HomeCoordinator {
                 state.makeGoal = nil
                 return .none
                 
+            case .editGoalList(.delegate(.navigateBack)):
+                state.editGoalList = nil
+                state.routes.removeLast()
+                return .none
+                
+            case .editGoalList(.delegate(.goToGoalEdit)):
+                state.routes.append(.makeGoal)
+                // TODO: - API연동 시 Item 넘기기
+                state.makeGoal = .init(category: .custom, mode: .edit)
+                return .none
+                
             case .home:
                 return .none
                 
@@ -58,6 +75,9 @@ extension HomeCoordinator {
                 return .none
                 
             case .makeGoal:
+                return .none
+                
+            case .editGoalList:
                 return .none
                 
             case .binding:
@@ -69,7 +89,8 @@ extension HomeCoordinator {
             reducer: reducer,
             homeReducer: HomeReducer(proofPhotoReducer: proofPhotoReducer),
             goalDetailReducer: goalDetailReducer,
-            makeGoalReducer: makeGoalReducer
+            makeGoalReducer: makeGoalReducer,
+            editGoalListReducer: editGoalListReducer
         )
     }
 }

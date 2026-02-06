@@ -8,7 +8,11 @@
 import SwiftUI
 
 public extension TXDropdown.Configuration {
-    static func goal(items: [String] = ["수정하기", "끝내기", "삭제하기"]) -> Self {
-        .init(items: items)
-    }
+    /// 목표 카드 메뉴용 기본 드롭다운 설정입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXDropdown(config: .goal) { _ in }
+    /// ```
+    static var goal: Self { .init(items: [.edit, .finish, .delete]) }
 }

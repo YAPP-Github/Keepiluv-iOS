@@ -151,6 +151,9 @@ extension HomeReducer {
                 state.isAddGoalPresented = false
                 return .send(.delegate(.goToMakeGoal(category)))
                 
+            case .editButtonTapped:
+                return .send(.delegate(.goToEditGoalList))
+                
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):
                 state.isLoading = false

@@ -66,7 +66,7 @@ private extension MakeGoalView {
     var navigationBar: some View {
         TXNavigationBar(
             style: .subTitle(
-                title: "직접 만들기",
+                title: store.mode.title,
                 rightText: ""
             ), onAction: { _ in
                 store.send(.navigationBackButtonTapped)
