@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import FeatureHomeInterface
+import SharedDesignSystem
 
 extension MakeGoalReducer {
     // swiftlint:disable:next function_body_length
@@ -90,11 +91,13 @@ extension MakeGoalReducer {
                 return .none
                 
             case .endDateTapped:
-                
                 state.calendarTarget = .endDate
+                if TXCalendarUtil.isEarlier(state.endDate, than: state.startDate) {
+                    state.endDate = state.startDate
+                }
                 state.calendarSheetDate = state.endDate
                 state.isCalendarSheetPresented = true
-                return .none
+                return .send(.updateDateText)
                 
             case .monthCalendarConfirmTapped:
                 guard let target = state.calendarTarget else {
@@ -105,13 +108,16 @@ extension MakeGoalReducer {
                 switch target {
                 case .startDate:
                     state.startDate = state.calendarSheetDate
+                    if TXCalendarUtil.isEarlier(state.endDate, than: state.startDate) {
+                        state.endDate = state.startDate
+                    }
 
                 case .endDate:
                     state.endDate = state.calendarSheetDate
                 }
                 
                 state.isCalendarSheetPresented = false
-                return .none
+                return .send(.updateDateText)
                 
             case .completeButtonTapped:
                 // FIXME: - POST
@@ -119,7 +125,16 @@ extension MakeGoalReducer {
                 
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
+
+            case .updateDateText:
+                guard let startDay = state.startDate.day,
+                      let endDay = state.endDate.day
+                else { return .none}
                 
+                state.startDateText = "\(state.startDate.month)월 \(startDay)일"
+                state.endDateText = "\(state.endDate.month)월 \(endDay)일"
+                return .none
+
             case .delegate:
                 return .none
 
