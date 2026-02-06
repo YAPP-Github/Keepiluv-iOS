@@ -62,6 +62,14 @@ public struct HomeView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .sheet(isPresented: $store.isAddGoalPresented, content: {
+            AddGoalListView { category in
+                store.send(.addGoalButtonTapped(category))
+            }
+        })
+        .transaction { transaction in
+            transaction.disablesAnimations = false
+        }
         .calendarSheet(
             isPresented: $store.isCalendarSheetPresented,
             selectedDate: $store.calendarSheetDate,
@@ -178,7 +186,7 @@ private extension HomeView {
     
     var floatingButton: some View {
         TXCircleButton(config: .plus()) {
-            
+            store.send(.floatingButtonTapped)
         }
         .padding(.trailing, 16)
         .padding(.bottom, 12)

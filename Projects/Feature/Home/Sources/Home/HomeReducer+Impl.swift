@@ -124,7 +124,6 @@ extension HomeReducer {
                         await send(.authorizationCompleted(isAuthorized: isAuthorized))
                     }
                 }
-                return .none
                 
             case .modalConfirmTapped:
                 if let pendingID = state.pendingDeleteGoalID {
@@ -143,6 +142,14 @@ extension HomeReducer {
                 
             case .myCardTapped:
                 return .send(.delegate(.goToGoalDetail))
+                
+            case .floatingButtonTapped:
+                state.isAddGoalPresented = true
+                return .none
+                
+            case let .addGoalButtonTapped(category):
+                state.isAddGoalPresented = false
+                return .send(.delegate(.goToMakeGoal(category)))
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items):

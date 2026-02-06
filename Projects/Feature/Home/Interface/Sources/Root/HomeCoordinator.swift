@@ -24,6 +24,7 @@ public struct HomeCoordinator {
     private let reducer: Reduce<State, Action>
     private let homeReducer: HomeReducer
     private let goalDetailReducer: GoalDetailReducer
+    private let makeGoalReducer: MakeGoalReducer
     
     /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///
@@ -37,6 +38,7 @@ public struct HomeCoordinator {
         
         public var home = HomeReducer.State()
         public var goalDetail: GoalDetailReducer.State?
+        public var makeGoal: MakeGoalReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -59,6 +61,7 @@ public struct HomeCoordinator {
         // MARK: - Child Action
         case home(HomeReducer.Action)
         case goalDetail(GoalDetailReducer.Action)
+        case makeGoal(MakeGoalReducer.Action)
     }
 
     /// 외부에서 주입된 Reduce로 HomeCoordinatorReducer를 구성합니다.
@@ -73,11 +76,13 @@ public struct HomeCoordinator {
     public init(
         reducer: Reduce<State, Action>,
         homeReducer: HomeReducer,
-        goalDetailReducer: GoalDetailReducer
+        goalDetailReducer: GoalDetailReducer,
+        makeGoalReducer: MakeGoalReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
         self.goalDetailReducer = goalDetailReducer
+        self.makeGoalReducer = makeGoalReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -90,6 +95,9 @@ public struct HomeCoordinator {
         reducer
             .ifLet(\.goalDetail, action: \.goalDetail) {
                 goalDetailReducer
+            }
+            .ifLet(\.makeGoal, action: \.makeGoal) {
+                makeGoalReducer
             }
     }
 }
