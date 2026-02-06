@@ -140,7 +140,9 @@ private extension NetworkProvider {
         
         switch httpResponse.statusCode {
         case HTTPStatusCode.success:
-            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+            let jsonData = data.isEmpty ? Data("{}".utf8) : data
+
+            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: jsonData) else {
                 throw NetworkError.decodingError
             }
             return decodedResponse
