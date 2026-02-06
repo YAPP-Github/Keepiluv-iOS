@@ -51,6 +51,7 @@ public struct HomeReducer {
         public var modal: TXModalType?
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
+        public var isCameraPermissionAlertPresented: Bool = false
         
         public var proofPhoto: ProofPhotoReducer.State?
 
@@ -98,6 +99,7 @@ public struct HomeReducer {
         case authorizationCompleted(isAuthorized: Bool)
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
+        case cameraPermissionAlertDismissed
         
         // MARK: - Delegate
         case delegate(Delegate)

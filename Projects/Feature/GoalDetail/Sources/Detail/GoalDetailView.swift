@@ -103,6 +103,10 @@ public struct GoalDetailView: View {
                 }
             }
         )
+        .cameraPermissionAlert(
+            isPresented: $store.isCameraPermissionAlertPresented,
+            onDismiss: { store.send(.cameraPermissionAlertDismissed) }
+        )
     }
 }
 

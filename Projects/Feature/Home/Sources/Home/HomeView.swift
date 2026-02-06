@@ -100,6 +100,11 @@ public struct HomeView: View {
                 proofPhotoFactory.makeView(store)
             }
         }
+        .cameraPermissionAlert(
+            isPresented: $store.isCameraPermissionAlertPresented,
+            onDismiss: { store.send(.cameraPermissionAlertDismissed) }
+        )
+        .frame(alignment: .center)
     }
 }
 

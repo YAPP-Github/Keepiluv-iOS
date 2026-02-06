@@ -177,10 +177,16 @@ extension HomeReducer {
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
-                // TODO: - 권한 해제시 alert 띄워서 아이폰 설정으로 보내기
-                guard isAuthorized else { return .none }
+                if !isAuthorized {
+                    state.isCameraPermissionAlertPresented = true
+                    return .none
+                }
                 state.proofPhoto = .init()
                 state.isProofPhotoPresented = true
+                return .none
+                
+            case .cameraPermissionAlertDismissed:
+                state.isCameraPermissionAlertPresented = false
                 return .none
                 
             case .proofPhoto(.delegate(.closeProofPhoto)):
