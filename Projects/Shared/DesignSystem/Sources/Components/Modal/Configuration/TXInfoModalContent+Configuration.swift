@@ -55,4 +55,44 @@ public extension TXInfoModalContent.Configuration {
             rightButtonText: "삭제"
         )
     }
+
+    /// 커플 연결 해제 확인용 정보 모달 설정입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXInfoModalContent(config: .disconnectCouple)
+    /// ```
+    static var disconnectCouple: Self {
+        return .init(
+            image: .Icon.Illustration.modalWarning,
+            title: "정말 커플을 끊으시겠어요?",
+            subtitle: """
+            오늘부로 30일 후, 모든 데이터가 삭제됩니다.
+            복구 가능 기간은 30일 이내입니다.
+            복구 희망시 ttwixteamm@gmail.com로
+            문의해 주시기 바랍니다.
+            """,
+            leftButtonText: "취소",
+            rightButtonText: "해제"
+        )
+    }
+
+    /// 회원 탈퇴 확인용 정보 모달 설정입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// TXInfoModalContent(config: .withdraw)
+    /// ```
+    static var withdraw: Self {
+        return .init(
+            image: .Icon.Illustration.modalWarning,
+            title: "정말 탈퇴하시겠어요?",
+            subtitle: """
+            커플 연결이 끊어집니다.
+            데이터는 전부 삭제되며 복구가 불가능합니다.
+            """,
+            leftButtonText: "취소",
+            rightButtonText: "탈퇴"
+        )
+    }
 }

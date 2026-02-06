@@ -15,6 +15,8 @@ import FeatureHome
 import FeatureHomeInterface
 import FeatureProofPhoto
 import FeatureProofPhotoInterface
+import FeatureSettings
+import FeatureSettingsInterface
 import SharedDesignSystem
 
 /// 앱의 메인 탭 화면을 관리하는 Reducer입니다.
@@ -60,12 +62,20 @@ public struct MainTabReducer {
     /// ```
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        
+
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
-        
+
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
+
+        // MARK: - Delegate
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case logoutCompleted
+            case withdrawCompleted
+        }
     }
 
     /// 기본 구성의 MainTabReducer를 생성합니다.
@@ -85,7 +95,8 @@ public struct MainTabReducer {
                 goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
                 proofPhotoReducer: proofPhotoReducer,
                 makeGoalReducer: MakeGoalReducer(),
-                editGoalListReducer: EditGoalListReducer()
+                editGoalListReducer: EditGoalListReducer(),
+                settingsReducer: SettingsReducer()
             )
         }
 
@@ -96,19 +107,28 @@ public struct MainTabReducer {
                 switch state.selectedTab {
                 case .home:
                     state.isTabBarHidden = !state.home.routes.isEmpty
-                    
+
                 case .statistics, .couple:
                     state.isTabBarHidden = false
                 }
                 return .none
-                
+
                 // MARK: - Child Action
+            case .home(.delegate(.logoutCompleted)):
+                return .send(.delegate(.logoutCompleted))
+
+            case .home(.delegate(.withdrawCompleted)):
+                return .send(.delegate(.withdrawCompleted))
+
             case .home:
                 if state.selectedTab == .home {
                     state.isTabBarHidden = !state.home.routes.isEmpty
                 }
                 return .none
-                
+
+            case .delegate:
+                return .none
+
             case .binding:
                 return .none
             }

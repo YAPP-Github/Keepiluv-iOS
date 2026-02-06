@@ -186,6 +186,11 @@ struct AppCoordinator {
                     await send(.checkAuthResult(.failure(NSError(domain: "Logout", code: 0))))
                 }
 
+            case .route(.mainTab(.delegate(.logoutCompleted))),
+                 .route(.mainTab(.delegate(.withdrawCompleted))):
+                state.route = .auth(AuthReducer.State())
+                return .none
+
             case .route:
                 return .none
             }

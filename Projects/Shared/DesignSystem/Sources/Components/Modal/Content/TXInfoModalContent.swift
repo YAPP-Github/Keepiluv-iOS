@@ -74,6 +74,7 @@ public struct TXInfoModalContent: View {
 
             Text(config.subtitle)
                 .typography(.b2_14r)
+                .multilineTextAlignment(.center)
                 .padding(.top, Spacing.spacing6)
         }
     }
