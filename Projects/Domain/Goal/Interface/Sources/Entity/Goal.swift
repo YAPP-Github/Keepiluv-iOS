@@ -5,56 +5,110 @@
 //  Created by 정지훈 on 1/26/26.
 //
 
-import SwiftUI
+import Foundation
 
 /// 목표 카드에 표시할 목표 데이터 모델입니다.
 ///
 /// ## 사용 예시
 /// ```swift
 /// let goal = Goal(
-///     id: "1",
-///     goalIcon: .Icon.Illustration.exercise,
+///     id: 1,
+///     goalIcon: .exercise,
 ///     title: "목표 1111111",
-///     isCompleted: false,
-///     image: nil,
-///     emoji: .Icon.Illustration.emoji1
+///     myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+///     yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
 /// )
 /// ```
 public struct Goal {
-    // TODO: - Image로 임시 대체 후 Data로 타입 변경
-    public let id: String
-    public let goalIcon: Image
+    /// 목표 아이콘 종류입니다.
+    public enum Icon: String, Equatable {
+        case `default` = "ICON_DEFAULT"
+        case clean = "ICON_CLEAN"
+        case exercise = "ICON_EXERCISE"
+        case book = "ICON_BOOK"
+        case pencil = "ICON_PENCIL"
+        case health = "ICON_HEALTH"
+        case heartDouble = "ICON_HEART_DOUBLE"
+        case laptop = "ICON_LAPTOP"
+        case add = "ICON_ADD"
+        
+    }
+    
+    /// 목표 인증 리액션 종류입니다.
+    public enum Reaction: String, Equatable {
+        case happy = "EMOJI_HAPPY"
+        case trouble = "EMOJI_TROUBLE"
+        case love = "EMOJI_LOVE"
+        case doubt = "EMOJI_DOUBT"
+        case fuck = "EMOJI_FUCK"
+        case heart = "EMOJI_HEART"
+    }
+    
+    public let id: Int
+    public let goalIcon: Icon
     public let title: String
-    public let isCompleted: Bool
-    public var image: Image?
-    public var emoji: Image?
+    public let myVerification: Verification
+    public let yourVerification: Verification
+    
+    /// 목표 인증 상태를 나타내는 모델입니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let verification = Goal.Verification(
+    ///     isCompleted: true,
+    ///     imageURL: "https://example.com/image.png",
+    ///     emoji: .love
+    /// )
+    /// ```
+    public struct Verification {
+        public let isCompleted: Bool
+        public let imageURL: String?
+        public let emoji: Reaction?
+        
+        /// 목표 인증 정보를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let verification = Goal.Verification(
+        ///     isCompleted: false,
+        ///     imageURL: nil,
+        ///     emoji: nil
+        /// )
+        /// ```
+        public init(
+            isCompleted: Bool,
+            imageURL: String?,
+            emoji: Reaction?
+        ) {
+            self.isCompleted = isCompleted
+            self.imageURL = imageURL
+            self.emoji = emoji
+        }
+    }
     
     /// 목표 데이터를 생성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
     /// let goal = Goal(
-    ///     id: "1",
-    ///     goalIcon: .Icon.Illustration.exercise,
+    ///     id: 1,
+    ///     goalIcon: .exercise,
     ///     title: "목표 1111111",
-    ///     isCompleted: false,
-    ///     image: nil,
-    ///     emoji: .Icon.Illustration.emoji1
+    ///     myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+    ///     yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
     /// )
     /// ```
     public init(
-        id: String,
-        goalIcon: Image,
+        id: Int,
+        goalIcon: Icon,
         title: String,
-        isCompleted: Bool,
-        image: Image? = nil,
-        emoji: Image? = nil
+        myVerification: Verification,
+        yourVerification: Verification
     ) {
         self.id = id
         self.goalIcon = goalIcon
         self.title = title
-        self.isCompleted = isCompleted
-        self.image = image
-        self.emoji = emoji
+        self.myVerification = myVerification
+        self.yourVerification = yourVerification
     }
 }
