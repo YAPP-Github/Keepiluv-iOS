@@ -48,6 +48,10 @@ public struct HomeCoordinatorView: View {
                         }
                     case .edit:
                         Text("Edit")
+                    case .makeGoal:
+                        IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
+                            MakeGoalView(store: store)
+                        }
                     }
                 }
         }

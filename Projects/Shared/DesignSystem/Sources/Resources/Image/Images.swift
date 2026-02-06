@@ -79,6 +79,7 @@ public extension Image.Icon.Symbol {
     static let selectedSelected2 = SymbolAsset.selectedSelected2.swiftUIImage
     static let selectedSelected = SymbolAsset.selectedSelected.swiftUIImage
     static let gallery = SymbolAsset.icGallery.swiftUIImage
+    static let arrow2Down = SymbolAsset.icArrow2Down.swiftUIImage
 }
 
 public extension Image.Illustration {
