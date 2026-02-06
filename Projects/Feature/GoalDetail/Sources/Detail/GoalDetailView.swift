@@ -48,16 +48,18 @@ public struct GoalDetailView: View {
     }
     
     public var body: some View {
-        GeometryReader { proxy in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 TXNavigationBar(
                     style: .subTitle(
                         title: store.item?.title ?? "",
                         rightText: store.naviBarRightText
-                    )) { action in
+                    ),
+                    onAction: { action in
                         store.send(.navigationBarTapped(action))
                     }
-                    .overlay(dimmedView)
+                )
+                .overlay(dimmedView)
                 
                 ZStack {
                     backgroundRect

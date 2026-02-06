@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3637_56643)">
+<path d="M2 9.5V5.5L4.5 3.5L9.5 3L13.5 5L14 9.5L10.5 12L4.5 11.5L2 9.5Z" fill="white"/>
+<path d="M29.009 15.4127L21.0847 21.7944L14.708 13.4081L22.1653 7.48328C30.3163 5.72434 30.124 12.0366 29.009 15.4127Z" fill="#FFEB78"/>
+<path d="M6.84251 20.2536L14.2522 13.4042L21.1435 22.2582L13.6862 28.183C5.53522 29.9419 4.90148 23.4659 6.84251 20.2536Z" fill="#FF96AD"/>
+<rect x="3.51953" y="22.3281" width="27.8331" height="10.9344" rx="5.46722" transform="rotate(-39.1923 3.51953 22.3281)" stroke="#464646"/>
+<path d="M14.6211 13.9219L21.2168 22.0112" stroke="#464646" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="8" cy="6" rx="6" ry="3" stroke="#464646"/>
+<ellipse cx="8" cy="6" rx="6" ry="3" stroke="#464646"/>
+<ellipse cx="8" cy="6" rx="6" ry="3" stroke="#464646"/>
+<path d="M14 6V9C14 10.6569 11.3137 12 8 12C4.68629 12 2 10.6569 2 9V6" stroke="#464646"/>
+<path d="M14 6V9C14 10.6569 11.3137 12 8 12C4.68629 12 2 10.6569 2 9V6" stroke="#464646"/>
+<path d="M14 6V9C14 10.6569 11.3137 12 8 12C4.68629 12 2 10.6569 2 9V6" stroke="#464646"/>
+<path d="M3.07505 7.00791L13.4768 4.61861" stroke="#464646" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3637_56643">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>

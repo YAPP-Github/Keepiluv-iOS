@@ -22,29 +22,39 @@ private struct KeyboardFrameObserver: ViewModifier {
             }
             .onReceive(
                 NotificationCenter.default.publisher(
-                    for: UIResponder.keyboardWillChangeFrameNotification
+                    for: UIResponder.keyboardWillShowNotification
                 )
             ) { notification in
-                guard
-                    let frame = notification.userInfo?[
-                        UIResponder.keyboardFrameEndUserInfoKey
-                    ] as? CGRect
-                else { return }
-                if frame != self.frame {
-                    self.frame = frame
-                }
+                setKeyboardFrame(for: notification)
             }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIResponder.keyboardWillHideNotification
                 )
             ) { _ in
-                let screenHeight = UIScreen.main.bounds.height
-                let hiddenFrame = CGRect(x: 0, y: screenHeight, width: 0, height: 0)
-                if frame != hiddenFrame {
-                    frame = hiddenFrame
-                }
+                setHiddenFrame()
             }
+    }
+}
+
+private extension KeyboardFrameObserver {
+    func setKeyboardFrame(for notification: NotificationCenter.Publisher.Output) {
+        guard
+            let frame = notification.userInfo?[
+                UIResponder.keyboardFrameEndUserInfoKey
+            ] as? CGRect
+        else { return }
+        if frame != self.frame {
+            self.frame = frame
+        }
+    }
+    
+    func setHiddenFrame() {
+        let screenHeight = UIScreen.main.bounds.height
+        let hiddenFrame = CGRect(x: 0, y: screenHeight, width: 0, height: 0)
+        if frame != hiddenFrame {
+            frame = hiddenFrame
+        }
     }
 }
 

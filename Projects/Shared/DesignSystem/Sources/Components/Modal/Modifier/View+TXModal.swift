@@ -10,10 +10,11 @@ import SwiftUI
 /// TXModalType 기반 모달 표시를 위한 ViewModifier입니다.
 public struct TXModalModifier: ViewModifier {
     @State private var isVisible = false
+    @State private var selectedIndex = 0
     private let animationDuration: Double = 0.2
     
     @Binding private var item: TXModalType?
-    private let onConfirm: () -> Void
+    private let onAction: (TXModalAction) -> Void
     
     /// TXModalModifier를 생성합니다.
     ///
@@ -23,28 +24,34 @@ public struct TXModalModifier: ViewModifier {
     ///     .modifier(
     ///         TXModalModifier(
     ///             item: $modal,
-    ///             onConfirm: { }
+    ///             onAction: { _ in }
     ///         )
     ///     )
     /// ```
     public init(
         item: Binding<TXModalType?>,
-        onConfirm: @escaping () -> Void
+        onAction: @escaping (TXModalAction) -> Void
     ) {
         self._item = item
-        self.onConfirm = onConfirm
+        self.onAction = onAction
     }
 
     public func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $item) { item in
                 TXModalView(
-                    config: item.configuration(onConfirm: confirmAndDismiss),
-                    onDismiss: startDismiss
+                    type: item,
+                    content: {
+                        modalContent(for: item)
+                    },
+                    onAction: handleAction
                 )
                 .presentationBackground(.clear)
                 .opacity(isVisible ? 1 : 0)
                 .onAppear {
+                    if case let .gridButton(config) = item {
+                        selectedIndex = config.selectedIndex
+                    }
                     withAnimation(.easeInOut(duration: animationDuration)) {
                         isVisible = true
                     }
@@ -58,8 +65,26 @@ public struct TXModalModifier: ViewModifier {
 
 // MARK: - Private Methods
 private extension TXModalModifier {
-    private func confirmAndDismiss() {
-        onConfirm()
+    @ViewBuilder
+    func modalContent(for item: TXModalType) -> some View {
+        switch item {
+        case let .info(config):
+            TXInfoModalContent(config: config)
+            
+        case let .gridButton(config):
+            TXGridButtonModalContent(
+                config: config,
+                selectedIndex: $selectedIndex
+            )
+        }
+    }
+
+    func handleAction(_ action: TXModalAction) {
+        if case .gridButton = item, action == .confirm {
+            onAction(.confirmWithIndex(selectedIndex))
+        } else {
+            onAction(action)
+        }
         startDismiss()
     }
 
@@ -81,14 +106,19 @@ public extension View {
     /// ## 사용 예시
     /// ```swift
     /// VStack { }
-    ///     .txModal(item: $modal) {
-    ///         // confirm action
+    ///     .txModal(item: $modal) { action in
+    ///         // handle modal action
     ///     }
     /// ```
     func txModal(
         item: Binding<TXModalType?>,
-        onConfirm: @escaping () -> Void
+        onAction: @escaping (TXModalAction) -> Void
     ) -> some View {
-        modifier(TXModalModifier(item: item, onConfirm: onConfirm))
+        modifier(
+            TXModalModifier(
+                item: item,
+                onAction: onAction
+            )
+        )
     }
 }

@@ -52,22 +52,17 @@ public struct TXShadowButton: View {
 
         var buttonWidth: CGFloat? {
             switch style {
-            case .medium:
-                return 150
-            case .long:
-                return nil
+            case .medium: return 150
+            case .long: return nil
             }
         }
 
         var maxWidth: CGFloat? {
             switch style {
-            case .medium:
-                return nil
-            case .long:
-                return .infinity
+            case .medium: return nil
+            case .long: return .infinity
             }
         }
-
         /// 버튼 구성 값을 생성합니다.
         ///
         /// ## 사용 예시

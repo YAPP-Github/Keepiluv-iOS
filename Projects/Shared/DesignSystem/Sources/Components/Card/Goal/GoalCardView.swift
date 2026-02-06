@@ -207,13 +207,13 @@ private extension GoalCardView {
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                emoji: nil,
-                isSelected: true
+                isSelected: true,
+                emoji: nil
             ),
             yourCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                emoji: nil,
-                isSelected: true
+                isSelected: true,
+                emoji: nil
             )
         ),
         GoalCardItem(
@@ -222,13 +222,13 @@ private extension GoalCardView {
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
                 image: nil,
-                emoji: nil,
-                isSelected: false
+                isSelected: false,
+                emoji: nil
             ),
             yourCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                emoji: .Icon.Illustration.emoji5,
-                isSelected: true
+                isSelected: true,
+                emoji: .Icon.Illustration.emoji5
             )
         ),
         GoalCardItem(
@@ -237,13 +237,13 @@ private extension GoalCardView {
             goalEmoji: .Icon.Illustration.exercise,
             myCard: .init(
                 image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                emoji: .Icon.Illustration.emoji1,
-                isSelected: true
+                isSelected: true,
+                emoji: .Icon.Illustration.emoji1
             ),
             yourCard: .init(
                 image: nil,
-                emoji: nil,
-                isSelected: false
+                isSelected: false,
+                emoji: nil
             )
         )
     ]

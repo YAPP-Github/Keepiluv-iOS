@@ -22,10 +22,7 @@ public enum GoalCategory: CaseIterable, Equatable {
     case book
     case cleaning
     case call
-    
-    
-    
-    
+
     /// 목표 반복 주기를 표현하는 타입입니다.
     ///
     /// ## 사용 예시
@@ -33,7 +30,7 @@ public enum GoalCategory: CaseIterable, Equatable {
     /// let cycle = RepeatCycle.weekly(count: 3)
     /// print(cycle.count)
     /// ```
-    public enum RepeatCycle {
+    public enum RepeatCycle: Equatable {
         case daily
         case weekly(count: Int)
         case monthly(count: Int)
@@ -41,6 +38,17 @@ public enum GoalCategory: CaseIterable, Equatable {
 }
 
 extension GoalCategory {
+    public static let images: [Image] = [
+        .Icon.Illustration.default,
+        .Icon.Illustration.clean,
+        .Icon.Illustration.exercise,
+        .Icon.Illustration.book,
+        .Icon.Illustration.pencil,
+        .Icon.Illustration.health,
+        .Icon.Illustration.heartDouble,
+        .Icon.Illustration.laptop
+    ]
+    
     public var title: String {
         switch self {
         case .custom: "직접 만들기"
@@ -56,12 +64,12 @@ extension GoalCategory {
     public var icon: Image {
         switch self {
         case .custom: .Icon.Illustration.add
-        case .health: .Icon.Illustration.drug
-        case .vitamin: .Icon.Illustration.drug
-        case .walk: .Icon.Illustration.drug
-        case .book: .Icon.Illustration.drug
-        case .cleaning: .Icon.Illustration.drug
-        case .call: .Icon.Illustration.drug
+        case .health: .Icon.Illustration.exercise
+        case .vitamin: .Icon.Illustration.health
+        case .walk: .Icon.Illustration.default
+        case .book: .Icon.Illustration.book
+        case .cleaning: .Icon.Illustration.clean
+        case .call: .Icon.Illustration.heartDouble
         }
     }
     
@@ -76,10 +84,36 @@ extension GoalCategory {
         case .call: .daily
         }
     }
+    
+    public var iconIndex: Int {
+        switch self {
+        case .custom: 0
+        case .health: 2
+        case .vitamin: 5
+        case .walk: 0
+        case .book: 3
+        case .cleaning: 1
+        case .call: 6
+        }
+    }
 }
 
-
 extension GoalCategory.RepeatCycle {
+    public var isDaily: Bool {
+        if case .daily = self { return true }
+        return false
+    }
+
+    public var isWeekly: Bool {
+        if case .weekly = self { return true }
+        return false
+    }
+
+    public var isMonthly: Bool {
+        if case .monthly = self { return true }
+        return false
+    }
+
     public var count: Int {
         switch self {
         case .daily: return 0
