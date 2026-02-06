@@ -10,8 +10,6 @@ struct UserMeResponse: Decodable {
     let id: Int
     let name: String
     let email: String
-    let oauthProvider: String
-    let oauthProviderId: String
 }
 
 /// 회원 탈퇴 응답 DTO
