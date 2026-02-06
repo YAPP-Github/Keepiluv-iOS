@@ -146,11 +146,11 @@ private enum PreviewData {
 
     static let monthlyDates: [[TXCalendarDateItem]] = [
         [
-            .init(text: "26", status: .lastMonth),
-            .init(text: "27", status: .lastMonth),
-            .init(text: "28", status: .lastMonth),
-            .init(text: "29", status: .lastMonth),
-            .init(text: "30", status: .lastMonth),
+            .init(text: "26", status: .lastDate),
+            .init(text: "27", status: .lastDate),
+            .init(text: "28", status: .lastDate),
+            .init(text: "29", status: .lastDate),
+            .init(text: "30", status: .lastDate),
             .init(text: "1"),
             .init(text: "2")
         ],
@@ -187,8 +187,8 @@ private enum PreviewData {
             .init(text: "26"),
             .init(text: "27"),
             .init(text: "28"),
-            .init(text: "1", status: .lastMonth),
-            .init(text: "2", status: .lastMonth)
+            .init(text: "1", status: .lastDate),
+            .init(text: "2", status: .lastDate)
         ]
     ]
 }
