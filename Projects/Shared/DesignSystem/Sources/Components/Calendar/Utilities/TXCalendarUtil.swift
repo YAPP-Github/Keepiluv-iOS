@@ -28,4 +28,11 @@ public enum TXCalendarUtil {
         guard let lhsDate = lhs.date, let rhsDate = rhs.date else { return false }
         return lhsDate < rhsDate
     }
+    
+    public static func apiDateString(for component: TXCalendarDate) -> String {
+        let yearString = String(format: "%04d", component.year)
+        let monthString = String(format: "%02d", component.month)
+        let dayString = String(format: "%02d", component.day ?? 1)
+        return "\(yearString)-\(monthString)-\(dayString)"
+    }
 }
