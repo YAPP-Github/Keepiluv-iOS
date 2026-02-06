@@ -14,7 +14,7 @@ import UIKit
 /// Google 로그인을 수행하는 Provider입니다.
 ///
 /// Google Sign-In SDK를 사용하여 Google OAuth 로그인을 처리하고,
-/// serverAuthCode를 획득하여 AuthLoginResult로 변환합니다.
+/// idToken을 획득하여 AuthLoginResult로 변환합니다.
 @preconcurrency
 public final class GoogleLoginProvider: SocialLoginProviderProtocol {
     public var providerType: AuthProvider { .google }
@@ -25,9 +25,8 @@ public final class GoogleLoginProvider: SocialLoginProviderProtocol {
     public func performLogin() async throws -> AuthLoginResult {
         let rootViewController = try getRootViewController()
         let clientID = try getClientID()
-        let serverClientID = try getServerClientID()
 
-        let config = GIDConfiguration(clientID: clientID, serverClientID: serverClientID)
+        let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
         do {
@@ -60,39 +59,24 @@ private extension GoogleLoginProvider {
             static let missingClientID = -2
         }
 
-        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_ID") as? String else {
+        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else {
             throw AuthLoginError.providerError(
                 NSError(domain: "GoogleLoginProvider", code: ErrorCode.missingClientID, userInfo: [
-                    NSLocalizedDescriptionKey: "GOOGLE_CLIENT_ID가 설정되지 않았습니다."
+                    NSLocalizedDescriptionKey: "GIDClientID가 설정되지 않았습니다."
                 ])
             )
         }
         return clientID
     }
 
-    func getServerClientID() throws -> String {
-        enum ErrorCode {
-            static let missingServerClientID = -3
-        }
-
-        guard let serverClientID = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_SERVER_CLIENT_ID") as? String else {
-            throw AuthLoginError.providerError(
-                NSError(domain: "GoogleLoginProvider", code: ErrorCode.missingServerClientID, userInfo: [
-                    NSLocalizedDescriptionKey: "GOOGLE_SERVER_CLIENT_ID가 설정되지 않았습니다."
-                ])
-            )
-        }
-        return serverClientID
-    }
-
     func extractAuthResult(from result: GIDSignInResult) throws -> AuthLoginResult {
-        guard let serverAuthCode = result.serverAuthCode else {
+        guard let idToken = result.user.idToken?.tokenString else {
             throw AuthLoginError.missingCredential
         }
 
         return AuthLoginResult(
             provider: .google,
-            code: serverAuthCode
+            code: idToken
         )
     }
 }

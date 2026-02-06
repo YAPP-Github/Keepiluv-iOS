@@ -12,13 +12,13 @@ import Foundation
 /// Auth 관련 API 엔드포인트를 정의합니다.
 enum AuthEndpoint: Endpoint {
     /// Apple 로그인
-    case signInWithApple(code: String)
+    case signInWithApple(idToken: String, authorizationCode: String)
 
     /// Kakao 로그인
-    case signInWithKakao(code: String)
+    case signInWithKakao(idToken: String)
 
     /// Google 로그인
-    case signInWithGoogle(code: String)
+    case signInWithGoogle(idToken: String)
 
     /// 로그아웃
     case logout
@@ -37,13 +37,13 @@ enum AuthEndpoint: Endpoint {
     var path: String {
         switch self {
         case .signInWithApple:
-            return "/api/v1/auth/apple"
+            return "/api/v1/auth/apple/token"
 
         case .signInWithKakao:
-            return "/api/v1/auth/kakao"
+            return "/api/v1/auth/kakao/token"
 
         case .signInWithGoogle:
-            return "/api/v1/auth/google"
+            return "/api/v1/auth/google/token"
 
         case .logout:
             return "/api/v1/auth/logout"
@@ -67,10 +67,12 @@ enum AuthEndpoint: Endpoint {
 
     var body: Encodable? {
         switch self {
-        case .signInWithApple(let code),
-             .signInWithKakao(let code),
-             .signInWithGoogle(let code):
-            return SignInRequest(code: code)
+        case .signInWithApple(let idToken, let authorizationCode):
+            return AppleSignInRequest(idToken: idToken, authorizationCode: authorizationCode)
+
+        case .signInWithKakao(let idToken),
+             .signInWithGoogle(let idToken):
+            return SignInRequest(idToken: idToken)
 
         case .logout:
             return nil
@@ -107,9 +109,15 @@ private enum Configuration {
 
 // MARK: - Request DTOs
 
+/// Apple 로그인 요청 DTO
+private struct AppleSignInRequest: Encodable {
+    let idToken: String
+    let authorizationCode: String
+}
+
 /// 로그인 요청 DTO
 private struct SignInRequest: Encodable {
-    let code: String
+    let idToken: String
 }
 
 /// 토큰 갱신 요청 DTO
