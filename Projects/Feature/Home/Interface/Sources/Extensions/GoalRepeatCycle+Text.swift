@@ -2,7 +2,7 @@
 //  GoalRepeatCycle+Text.swift
 //  FeatureHome
 //
-//  Created by Codex on 2/6/26.
+//  Created by Jihun on 2/6/26.
 //
 
 import DomainGoalInterface

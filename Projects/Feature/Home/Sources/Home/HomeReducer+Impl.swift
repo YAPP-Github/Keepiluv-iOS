@@ -48,7 +48,7 @@ extension HomeReducer {
                     let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
                     let items = goals.map { goal in
                         GoalCardItem(
-                            id: String(goal.id),
+                            id: goal.id,
                             goalName: goal.title,
                             goalEmoji: goal.goalIcon.image,
                             myCard: .init(
@@ -119,7 +119,7 @@ extension HomeReducer {
                 } else {
                     return .run { send in
                         let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                        await send(.authorizationCompleted(isAuthorized: isAuthorized))
+                        await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
                     }
                 }
                 
@@ -174,12 +174,12 @@ extension HomeReducer {
                 state.toast = toast
                 return .none
                 
-            case let .authorizationCompleted(isAuthorized):
+            case let .authorizationCompleted(id, isAuthorized):
                 if !isAuthorized {
                     state.isCameraPermissionAlertPresented = true
                     return .none
                 }
-                state.proofPhoto = .init()
+                state.proofPhoto = .init(goalId: id)
                 state.isProofPhotoPresented = true
                 return .none
                 

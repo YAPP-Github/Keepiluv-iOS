@@ -12,6 +12,7 @@ let project = Project.makeModule(
             implements: .mainTab,
             config: .init(
                 dependencies: [
+                    .domain(interface: .photoLog),
                     .domain(interface: .goal),
                     .feature(interface: .mainTab),
                     .core(implements: .logging),
