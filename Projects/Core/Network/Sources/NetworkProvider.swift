@@ -103,6 +103,14 @@ extension NetworkClient: @retroactive DependencyKey {
 
 
 private extension NetworkProvider {
+    struct APIErrorResponse: Decodable {
+        let code: String?
+    }
+
+    func parseErrorCode(from data: Data) -> String? {
+        try? JSONDecoder().decode(APIErrorResponse.self, from: data).code
+    }
+
     func makeURL(endpoint: Endpoint) -> URL? {
         let url = endpoint.baseURL.appending(path: endpoint.path, directoryHint: .notDirectory)
 
@@ -154,7 +162,8 @@ private extension NetworkProvider {
             throw NetworkError.notFoundError
 
         case HTTPStatusCode.badRequest:
-            throw NetworkError.badRequestError
+            let errorCode = parseErrorCode(from: data)
+            throw NetworkError.badRequestError(code: errorCode)
             
         case HTTPStatusCode.serverError:
             throw NetworkError.serverError

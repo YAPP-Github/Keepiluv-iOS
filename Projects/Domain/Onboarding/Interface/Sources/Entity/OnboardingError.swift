@@ -10,6 +10,7 @@ public enum OnboardingError: Error, Equatable {
     case invalidInviteCode
     case inviteCodeNotFound
     case alreadyConnected
+    case alreadyOnboarded
     case networkError
     case serverError
     case unknown
@@ -28,6 +29,9 @@ extension OnboardingError: LocalizedError {
 
         case .alreadyConnected:
             return "이미 커플이 연결되어 있습니다."
+
+        case .alreadyOnboarded:
+            return "이미 온보딩이 완료되었습니다."
 
         case .networkError:
             return "네트워크 연결을 확인해주세요."

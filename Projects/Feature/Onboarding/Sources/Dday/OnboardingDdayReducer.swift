@@ -98,8 +98,13 @@ public struct OnboardingDdayReducer {
                 state.isLoading = false
                 return .send(.delegate(.ddayCompleted))
 
-            case .setAnniversaryResponse(.failure):
+            case let .setAnniversaryResponse(.failure(error)):
                 state.isLoading = false
+                // 이미 온보딩이 완료된 경우 (G4000), 성공과 동일하게 처리
+                if let onboardingError = error as? OnboardingError,
+                   onboardingError == .alreadyOnboarded {
+                    return .send(.delegate(.ddayCompleted))
+                }
                 state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
                 return .none
 

@@ -45,7 +45,7 @@ extension OnboardingClient: @retroactive DependencyKey {
                     endpoint: OnboardingEndpoint.registerProfile(nickname: nickname)
                 )
             } catch let error as NetworkError {
-                throw OnboardingErrorMapper.map(error, context: .general)
+                throw OnboardingErrorMapper.map(error, context: .profile)
             } catch {
                 throw OnboardingError.unknown
             }
@@ -64,7 +64,7 @@ extension OnboardingClient: @retroactive DependencyKey {
                     endpoint: OnboardingEndpoint.setAnniversary(date: dateString)
                 )
             } catch let error as NetworkError {
-                throw OnboardingErrorMapper.map(error, context: .general)
+                throw OnboardingErrorMapper.map(error, context: .anniversary)
             } catch {
                 throw OnboardingError.unknown
             }
@@ -96,7 +96,12 @@ private enum OnboardingErrorMapper {
     enum Context {
         case general
         case connectCouple
+        case profile
+        case anniversary
     }
+
+    // 이미 온보딩이 완료된 경우 반환되는 에러 코드
+    private static let alreadyOnboardedCode = "G4000"
 
     static func map(
         _ error: NetworkError,
@@ -111,6 +116,10 @@ private enum OnboardingErrorMapper {
 
         case .badRequestError where context == .connectCouple:
             return OnboardingError.invalidInviteCode
+
+        case let .badRequestError(code)
+            where (context == .profile || context == .anniversary) && code == alreadyOnboardedCode:
+            return OnboardingError.alreadyOnboarded
 
         case .serverError, .decodingError:
             return OnboardingError.serverError
