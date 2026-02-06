@@ -40,6 +40,7 @@ public struct GoalDetailReducer {
         
         public var proofPhoto: ProofPhotoReducer.State?
         public var isPresentedProofPhoto: Bool = false
+        public var isCameraPermissionAlertPresented: Bool = false
         
         public var selectedReactionIndex: Int?
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
@@ -77,6 +78,7 @@ public struct GoalDetailReducer {
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
         case proofPhotoDismissed
+        case cameraPermissionAlertDismissed
         
         // MARK: - Child Action
         case proofPhoto(ProofPhotoReducer.Action)
