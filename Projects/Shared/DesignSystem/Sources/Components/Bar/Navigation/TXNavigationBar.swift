@@ -81,6 +81,9 @@ public struct TXNavigationBar: View {
 
             case .iconOnly(let iconStyle):
                 iconOnlyContent(iconStyle: iconStyle)
+
+            case .noTitle:
+                Spacer()
             }
         }
         .frame(height: style.height)

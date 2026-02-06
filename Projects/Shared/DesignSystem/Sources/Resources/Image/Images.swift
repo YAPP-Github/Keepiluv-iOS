@@ -49,6 +49,7 @@ public extension Image.Icon.Illustration {
     static let heartDouble = IllustrationAsset.iconHeartDouble.swiftUIImage
     static let laptop = IllustrationAsset.iconLaptop.swiftUIImage
     static let profile = IllustrationAsset.iconProfile.swiftUIImage
+    static let modalWarning = IllustrationAsset.iconModalWarning.swiftUIImage
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Symbol형식의 Icon 입니다.
