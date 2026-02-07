@@ -11,6 +11,7 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import Kingfisher
 
 /// 목표 상세 화면을 렌더링하는 View입니다.
 ///
@@ -140,8 +141,8 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let image = store.currentCard?.image {
-            image
+        if let imageUrl = store.currentCard?.imageUrl {
+            KFImage(URL(string: imageUrl)!)
                 .resizable()
                 .insideBorder(
                     Color.Gray.gray500,
@@ -205,9 +206,10 @@ private extension GoalDetailView {
                 shape: RoundedRectangle(cornerRadius: 20),
                 lineWidth: 1.6
             )
-            .frame(width: 336, height: 336)
-            .rotationEffect(.degrees(degree(isBackground: false)))
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 20))
+            .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
     var nonCompletedText: some View {
@@ -279,7 +281,7 @@ private extension GoalDetailView {
 #Preview {
     GoalDetailView(
         store: Store(
-            initialState: GoalDetailReducer.State(),
+            initialState: GoalDetailReducer.State(currentUser: .mySelf, id: 1),
             reducer: { }
         )
     )

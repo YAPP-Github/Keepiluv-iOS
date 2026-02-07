@@ -35,8 +35,10 @@ extension GoalDetailReducer {
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
+                let goalId = state.goalId
+                
                 return .run { send in
-                    let item = try await goalClient.fetchGoalDetail()
+                    let item = try await goalClient.fetchGoalDetail(goalId)
                     await send(.fethedGoalDetailItem(item))
                 }
                 
@@ -59,14 +61,13 @@ extension GoalDetailReducer {
                     return .send(.delegate(.navigateBack))
                 } else if case .rightTapped = action {
                     if state.isEditing {
-                        // TODO: - post api
                         state.isEditing = false
                         state.isCommentFocused = false
-                        var newItem = state.item?.completedGoal[0]
-                        newItem?.comment = state.commentText
-                        
-                        guard let newItem else { return .none }
-                        state.item?.completedGoal[0] = newItem 
+                        if var current = state.item?.completedGoal.first(where: { $0.owner == .mySelf }) {
+                            current.comment = state.commentText
+                            return .send(.updateCompletedGoal(current))
+                        }
+                        return .none
                     } else {
                         state.isEditing = true
                         state.commentText = state.comment
@@ -95,7 +96,7 @@ extension GoalDetailReducer {
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
-                state.commentText = item.completedGoal.first?.comment ?? ""
+                state.commentText = state.comment
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -104,7 +105,7 @@ extension GoalDetailReducer {
                     return .none
                 }
                 state.isPresentedProofPhoto = true
-                guard let goalId = Int(state.item?.id ?? "") else { return .none }
+                guard let goalId = state.item?.id else { return .none }
                 
                 state.proofPhoto = ProofPhotoReducer.State(
                     goalId: goalId,
@@ -123,13 +124,21 @@ extension GoalDetailReducer {
                 return .none
                 
             case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
-                state.item?.completedGoal[0] = completedGoal
-                state.commentText = completedGoal.comment
                 state.isPresentedProofPhoto = false
-                return .none
+                return .send(.updateCompletedGoal(completedGoal))
                 
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
+                return .none
+
+            case let .updateCompletedGoal(completedGoal):
+                guard let index = state.item?.completedGoal.firstIndex(where: { $0.owner == completedGoal.owner }) else {
+                    return .none
+                }
+                state.item?.completedGoal[index] = completedGoal
+                if state.currentUser == completedGoal.owner {
+                    state.commentText = completedGoal.comment ?? ""
+                }
                 return .none
                 
             case .proofPhoto:

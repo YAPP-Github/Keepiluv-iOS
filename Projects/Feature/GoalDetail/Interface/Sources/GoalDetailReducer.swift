@@ -21,13 +21,14 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
+        public let goalId: Int
         public var item: GoalDetail?
-        public var currentUser: GoalDetail.Owner = .you
+        public var currentUser: GoalDetail.Owner
         public var currentCard: GoalDetail.CompletedGoal? {
-            let index = currentUser == .mySelf ? 0 : 1
-            return item?.completedGoal[index]
+            guard let item else { return nil }
+            return item.completedGoal.first { $0.owner == currentUser }
         }
-        public var isCompleted: Bool { currentCard?.image != nil }
+        public var isCompleted: Bool { currentCard?.imageUrl != nil }
         public var comment: String { currentCard?.comment ?? "" }
         public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {
@@ -55,7 +56,10 @@ public struct GoalDetailReducer {
         /// ```swift
         /// let state = GoalDetailReducer.State()
         /// ```
-        public init() { }
+        public init(currentUser: GoalDetail.Owner, id: Int) {
+            self.currentUser = currentUser
+            self.goalId = id
+        }
     }
     
     /// GoalDetail 화면에서 발생하는 액션입니다.
@@ -73,6 +77,7 @@ public struct GoalDetailReducer {
         case cardTapped
         case focusChanged(Bool)
         case dimmedBackgroundTapped
+        case updateCompletedGoal(GoalDetail.CompletedGoal)
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
