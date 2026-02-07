@@ -13,7 +13,6 @@ import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
 import PhotosUI
 import SharedDesignSystem
-import SharedUtil
 
 // FIXME: - Remove
 import SwiftUI
@@ -94,7 +93,6 @@ extension ProofPhotoReducer {
                 return .none
                 
             case .uploadButtonTapped:
-                // TODO: - post
                 if state.commentText.count < 5 {
                     return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
@@ -105,14 +103,7 @@ extension ProofPhotoReducer {
 
                     let goalId = state.goalId
                     let comment = state.commentText
-                    let calendarNow = CalendarNow()
-                    let verificationDate = TXCalendarUtil.apiDateString(
-                        for: TXCalendarDate(
-                            year: calendarNow.year,
-                            month: calendarNow.month,
-                            day: calendarNow.day
-                        )
-                    )
+                    let verificationDate = state.verificationDate
 
                     return .run { send in
                         do {

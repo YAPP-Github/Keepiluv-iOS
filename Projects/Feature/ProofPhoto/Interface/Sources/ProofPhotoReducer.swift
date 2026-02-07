@@ -34,21 +34,26 @@ public struct ProofPhotoReducer {
         public var hasImage: Bool { imageData != nil }
         public var toast: TXToastType?
         public var goalId: Int
+        public var verificationDate: String
 
         /// 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
         /// let state = ProofPhotoReducer.State(
-        ///     galleryThumbnail: image
+        ///     goalId: 1,
+        ///     comment: "응원합니다!",
+        ///     verificationDate: "2026-02-07"
         /// )
         /// ```
         public init(
             goalId: Int,
-            comment: String = ""
+            comment: String = "",
+            verificationDate: String
         ) {
             self.goalId = goalId
             self.commentText = comment
+            self.verificationDate = verificationDate
         }
     }
 

@@ -114,11 +114,13 @@ extension HomeReducer {
                 if !card.yourCard.isSelected {
                     return .send(.showToast(.poke(message: "님을 찔렀어요!")))
                 } else {
-                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you)))
+                    let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
+                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
                 }
                 
             case let .myCardTapped(card):
-                return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf)))
+                let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
+                return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf, verificationDate: verificationDate)))
                 
             case .floatingButtonTapped:
                 state.isAddGoalPresented = true
@@ -181,7 +183,10 @@ extension HomeReducer {
                     state.isCameraPermissionAlertPresented = true
                     return .none
                 }
-                state.proofPhoto = .init(goalId: id)
+                state.proofPhoto = .init(
+                    goalId: id,
+                    verificationDate: TXCalendarUtil.apiDateString(for: state.calendarDate)
+                )
                 state.isProofPhotoPresented = true
                 return .none
                 

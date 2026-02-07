@@ -109,7 +109,8 @@ extension GoalDetailReducer {
                 
                 state.proofPhoto = ProofPhotoReducer.State(
                     goalId: goalId,
-                    comment: state.comment
+                    comment: state.comment,
+                    verificationDate: state.verificationDate
                 )
                 
                 return .none

@@ -19,7 +19,11 @@ struct GoalDetailExampleView: View {
     var body: some View {
         GoalDetailView(
             store: Store(
-                initialState: GoalDetailReducer.State(),
+                initialState: GoalDetailReducer.State(
+                    currentUser: .mySelf,
+                    id: 1,
+                    verificationDate: "2026-02-07"
+                ),
                 reducer: {
                     GoalDetailReducer(
                         proofPhotoReducer: ProofPhotoReducer()

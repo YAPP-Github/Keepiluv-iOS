@@ -39,7 +39,13 @@ public struct GoalDetailView: View {
     /// ## 사용 예시
     /// ```swift
     /// let view = GoalDetailView(
-    ///     store: Store(initialState: GoalDetailReducer.State()) {
+    ///     store: Store(
+    ///         initialState: GoalDetailReducer.State(
+    ///             currentUser: .mySelf,
+    ///             id: 1,
+    ///             verificationDate: "2026-02-07"
+    ///         )
+    ///     ) {
     ///         GoalDetailReducer(proofPhotoReducer: ProofPhotoReducer())
     ///     }
     /// )
@@ -281,7 +287,11 @@ private extension GoalDetailView {
 #Preview {
     GoalDetailView(
         store: Store(
-            initialState: GoalDetailReducer.State(currentUser: .mySelf, id: 1),
+            initialState: GoalDetailReducer.State(
+                currentUser: .mySelf,
+                id: 1,
+                verificationDate: "2026-02-07"
+            ),
             reducer: { }
         )
     )

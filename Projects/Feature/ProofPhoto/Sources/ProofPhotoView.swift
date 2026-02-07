@@ -11,6 +11,7 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedUtil
 
 /// 인증샷 화면을 렌더링하는 View입니다.
 ///
@@ -18,7 +19,10 @@ import SharedDesignSystem
 /// ```swift
 /// ProofPhotoView(
 ///     store: Store(
-///         initialState: ProofPhotoReducer.State()
+///         initialState: ProofPhotoReducer.State(
+///             goalId: 1,
+///             verificationDate: "2026-02-07"
+///         )
 ///     ) {
 ///         ProofPhotoReducer()
 ///     }
@@ -36,7 +40,12 @@ public struct ProofPhotoView: View {
     /// ## 사용 예시
     /// ```swift
     /// let view = ProofPhotoView(
-    ///     store: Store(initialState: ProofPhotoReducer.State()) { ProofPhotoReducer() }
+    ///     store: Store(
+    ///         initialState: ProofPhotoReducer.State(
+    ///             goalId: 1,
+    ///             verificationDate: "2026-02-07"
+    ///         )
+    ///     ) { ProofPhotoReducer() }
     /// )
     /// ```
     public init(store: StoreOf<ProofPhotoReducer>) {
@@ -304,7 +313,16 @@ private extension ProofPhotoView {
 #Preview {
     ProofPhotoView(
         store: Store(
-            initialState: ProofPhotoReducer.State(goalId: 2),
+            initialState: ProofPhotoReducer.State(
+                goalId: 2,
+                verificationDate: TXCalendarUtil.apiDateString(
+                    for: TXCalendarDate(
+                        year: CalendarNow().year,
+                        month: CalendarNow().month,
+                        day: CalendarNow().day
+                    )
+                )
+            ),
             reducer: {
                 ProofPhotoReducer()
             }

@@ -28,9 +28,9 @@ extension HomeCoordinator {
     ) {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
-            case let .home(.delegate(.goToGoalDetail(id, owner))):
+            case let .home(.delegate(.goToGoalDetail(id, owner, verificationDate))):
                 state.routes.append(.detail)
-                state.goalDetail = .init(currentUser: owner, id: id)
+                state.goalDetail = .init(currentUser: owner, id: id, verificationDate: verificationDate)
                 return .none
                 
             case let .home(.delegate(.goToMakeGoal(category))):

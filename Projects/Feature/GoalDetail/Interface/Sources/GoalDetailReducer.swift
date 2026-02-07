@@ -24,6 +24,7 @@ public struct GoalDetailReducer {
         public let goalId: Int
         public var item: GoalDetail?
         public var currentUser: GoalDetail.Owner
+        public let verificationDate: String
         public var currentCard: GoalDetail.CompletedGoal? {
             guard let item else { return nil }
             return item.completedGoal.first { $0.owner == currentUser }
@@ -54,11 +55,20 @@ public struct GoalDetailReducer {
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = GoalDetailReducer.State()
+        /// let state = GoalDetailReducer.State(
+        ///     currentUser: .mySelf,
+        ///     id: 1,
+        ///     verificationDate: "2026-02-07"
+        /// )
         /// ```
-        public init(currentUser: GoalDetail.Owner, id: Int) {
+        public init(
+            currentUser: GoalDetail.Owner,
+            id: Int,
+            verificationDate: String
+        ) {
             self.currentUser = currentUser
             self.goalId = id
+            self.verificationDate = verificationDate
         }
     }
     
