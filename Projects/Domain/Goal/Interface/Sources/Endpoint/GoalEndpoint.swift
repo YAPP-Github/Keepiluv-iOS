@@ -13,6 +13,7 @@ import CoreNetworkInterface
 public enum GoalEndpoint: Endpoint {
     case fetchGoalList(date: String)
     case createGoal(GoalCreateRequestDTO)
+    case fetchGoalDetail(goalId: Int)
 }
     
 extension GoalEndpoint {
@@ -20,6 +21,8 @@ extension GoalEndpoint {
         switch self {
         case .fetchGoalList: return "/api/v1/goals"
         case .createGoal: return "/api/v1/goals"
+        case let .fetchGoalDetail(goalId):
+            return "/api/v1/photologs/goals/\(goalId)"
         }
     }
     
@@ -30,6 +33,9 @@ extension GoalEndpoint {
             
         case .createGoal:
             return .post
+
+        case .fetchGoalDetail:
+            return .get
         }
     }
     
@@ -44,6 +50,9 @@ extension GoalEndpoint {
             
         case .createGoal:
             return nil
+
+        case .fetchGoalDetail:
+            return nil
         }
     }
     
@@ -54,6 +63,9 @@ extension GoalEndpoint {
             
         case let .createGoal(request):
             return request
+
+        case .fetchGoalDetail:
+            return nil
         }
     }
     

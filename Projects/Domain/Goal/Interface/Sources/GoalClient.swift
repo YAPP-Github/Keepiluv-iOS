@@ -20,7 +20,7 @@ import CoreNetworkInterface
 public struct GoalClient {
     public var fetchGoals: (String) async throws -> [Goal]
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
-    public var fetchGoalDetail: () async throws -> GoalDetail
+    public var fetchGoalDetail: (Int) async throws -> GoalDetail
     
     /// 목표 조회 클로저를 주입하여 GoalClient를 생성합니다.
     ///
@@ -35,7 +35,7 @@ public struct GoalClient {
     public init(
         fetchGoals: @escaping (String) async throws -> [Goal],
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
-        fetchGoalDetail: @escaping () async throws -> GoalDetail
+        fetchGoalDetail: @escaping (Int) async throws -> GoalDetail
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
@@ -65,9 +65,9 @@ extension GoalClient: TestDependencyKey {
                 yourVerification: trashVerification
             )
         },
-        fetchGoalDetail: {
+        fetchGoalDetail: { _ in
             assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return .init(id: "error", title: "error", completedGoal: [])
+            return .init(id: 1, title: "error", completedGoal: [])
         }
     )
     

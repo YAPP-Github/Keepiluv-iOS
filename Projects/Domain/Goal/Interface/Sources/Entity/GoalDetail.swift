@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-import SharedDesignSystem
-
-// FIXME: - Image -> Data로 변환
 /// 목표 상세 정보를 나타내는 모델입니다.
 ///
 /// ## 사용 예시
@@ -21,7 +18,7 @@ import SharedDesignSystem
 /// )
 /// ```
 public struct GoalDetail: Equatable {
-    public let id: String
+    public let id: Int
     public let title: String
     public var selectedIndex: Int?
     public var completedGoal: [CompletedGoal]
@@ -38,7 +35,7 @@ public struct GoalDetail: Equatable {
     /// )
     /// ```
     public init(
-        id: String,
+        id: Int,
         title: String,
         completedGoal: [CompletedGoal],
         selectedIndex: Int? = nil,
@@ -61,8 +58,8 @@ public struct GoalDetail: Equatable {
     /// ```
     public struct CompletedGoal: Equatable {
         public let owner: Owner
-        public var image: Image?
-        public var comment: String
+        public var imageUrl: String?
+        public var comment: String?
         public let createdAt: String?
         
         /// 목표 인증 모델을 생성합니다.
@@ -71,19 +68,19 @@ public struct GoalDetail: Equatable {
         /// ```swift
         /// let completed = GoalDetail.CompletedGoal(
         ///     owner: .you,
-        ///     image: nil,
+        ///     imageUrl: nil,
         ///     comment: "응원할게요!",
         ///     createdAt: nil
         /// )
         /// ```
         public init(
             owner: Owner,
-            image: Image? = nil,
-            comment: String,
+            imageUrl: String?,
+            comment: String?,
             createdAt: String?
         ) {
             self.owner = owner
-            self.image = image
+            self.imageUrl = imageUrl
             self.comment = comment
             self.createdAt = createdAt
         }
