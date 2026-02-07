@@ -125,17 +125,17 @@ extension ProofPhotoReducer {
                                 comment: comment,
                                 verificationDate: verificationDate
                             )
-                            _ = try await photoLogClient.createPhotoLog(request)
+                            let photoLog = try await photoLogClient.createPhotoLog(request)
 
                             let completedGoal = GoalDetail.CompletedGoal(
                                 owner: .mySelf,
-                                image: Image(uiImage: uiImage),
+                                imageUrl: photoLog.imageUrl,
                                 comment: comment,
                                 createdAt: "방금"
                             )
                             await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
                         } catch {
-                            await send(.showToast(.fit(message: "업로드에 실패했어요. 다시 시도해주세요.")))
+                            
                         }
                     }
                 }

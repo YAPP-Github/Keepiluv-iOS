@@ -132,9 +132,10 @@ extension GoalDetailReducer {
                 return .none
 
             case let .updateCompletedGoal(completedGoal):
-                guard let index = state.item?.completedGoal.firstIndex(where: { $0.owner == completedGoal.owner }) else {
-                    return .none
-                }
+                guard let index = state.item?.completedGoal.firstIndex(
+                    where: { _ in completedGoal.owner == .mySelf }
+                ) else { return .none }
+                
                 state.item?.completedGoal[index] = completedGoal
                 if state.currentUser == completedGoal.owner {
                     state.commentText = completedGoal.comment ?? ""
