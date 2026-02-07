@@ -164,15 +164,14 @@ private extension GoalCardView {
             if let imageURL = item.imageURL {
                 KFImage(imageURL)
                     .resizable()
-                    .placeholder {
-                        unCompletedView(placeholder: placeholder)
-                    }
+                    .placeholder { }
                     .clipShape(unEvenRoundedRect)
             } else {
                 unCompletedView(placeholder: placeholder)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: config.imageHeight)
+        .frame(maxWidth: .infinity)
+        .frame(height: config.imageHeight)
         .insideBorder(
             config.borderColor,
             shape: unEvenRoundedRect,
@@ -192,6 +191,8 @@ private extension GoalCardView {
             Text(placeholder.text)
                 .typography(.b2_14r)
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: config.imageHeight)
     }
     
     func emojiImage(emoji: Image) -> some View {
@@ -201,4 +202,3 @@ private extension GoalCardView {
             .padding([.bottom, .trailing], config.emojiPadding)
     }
 }
-
