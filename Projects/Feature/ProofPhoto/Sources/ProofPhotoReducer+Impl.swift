@@ -14,9 +14,6 @@ import FeatureProofPhotoInterface
 import PhotosUI
 import SharedDesignSystem
 
-// FIXME: - Remove
-import SwiftUI
-
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
     /// 실제 로직을 포함한 ProofPhotoReducer를 생성합니다.
@@ -96,8 +93,7 @@ extension ProofPhotoReducer {
                 if state.commentText.count < 5 {
                     return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
-                    guard let imageData = state.imageData,
-                          let uiImage = UIImage(data: imageData) else {
+                    guard let imageData = state.imageData else {
                         return .none
                     }
 
