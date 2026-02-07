@@ -25,7 +25,7 @@ extension MakeGoalReducer {
                 
                 // MARK: - User Action
             case .emojiButtonTapped:
-                state.modal =  .gridButton(
+                state.modal = .gridButton(
                     .selectIcon(
                         icons: state.icons.map { $0.image },
                         selectedIndex: state.selectedEmojiIndex
@@ -130,7 +130,6 @@ extension MakeGoalReducer {
                     endDate: TXCalendarUtil.apiDateString(for: state.endDate)
                 )
                 return .run { send in
-                    
                     do {
                         _ = try await goalClient.createGoal(request)
                         await send(.delegate(.navigateBack))

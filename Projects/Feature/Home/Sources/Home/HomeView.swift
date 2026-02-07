@@ -190,7 +190,7 @@ private extension HomeView {
                 }
             ),
             actionLeft: {
-                store.send(.myCardTapped)
+                store.send(.myCardTapped(card))
             }, actionRight: {
                 
                 store.send(.yourCardTapped(card))

@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
@@ -87,7 +88,7 @@ public struct HomeReducer {
         case goalCheckButtonTapped(id: Int, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
-        case myCardTapped
+        case myCardTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
         
@@ -106,7 +107,7 @@ public struct HomeReducer {
         
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
-            case goToGoalDetail
+            case goToGoalDetail(id: Int, owner: GoalDetail.Owner)
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList
             case goToSettings

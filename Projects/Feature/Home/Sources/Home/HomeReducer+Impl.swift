@@ -114,11 +114,11 @@ extension HomeReducer {
                 if !card.yourCard.isSelected {
                     return .send(.showToast(.poke(message: "님을 찔렀어요!")))
                 } else {
-                    return .send(.delegate(.goToGoalDetail))
+                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you)))
                 }
                 
-            case .myCardTapped:
-                return .send(.delegate(.goToGoalDetail))
+            case let .myCardTapped(card):
+                return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf)))
                 
             case .floatingButtonTapped:
                 state.isAddGoalPresented = true
