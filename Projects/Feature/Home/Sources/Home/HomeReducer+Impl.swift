@@ -138,6 +138,10 @@ extension HomeReducer {
                 state.isLoading = false
                 state.cards = items
                 return .none
+
+            case .fetchGoalsFailed:
+                state.isLoading = false
+                return .send(.showToast(.warning(message: "목표 조회에 실패했어요")))
                 
             case let .setCalendarDate(date):
                 let now = state.nowDate
@@ -151,27 +155,31 @@ extension HomeReducer {
                 )
                 state.isLoading = true
                 return .run { send in
-                    let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
-                    let items: [GoalCardItem] = goals.map { goal in
-                        let myImageURL = goal.myVerification.imageURL.flatMap(URL.init(string:))
-                        let yourImageURL = goal.yourVerification.imageURL.flatMap(URL.init(string:))
-                        return GoalCardItem(
-                            id: goal.id,
-                            goalName: goal.title,
-                            goalEmoji: goal.goalIcon.image,
-                            myCard: .init(
-                                imageURL: myImageURL,
-                                isSelected: goal.myVerification.isCompleted,
-                                emoji: goal.myVerification.emoji?.image
-                            ),
-                            yourCard: .init(
-                                imageURL: yourImageURL,
-                                isSelected: goal.yourVerification.isCompleted,
-                                emoji: goal.yourVerification.emoji?.image
+                    do {
+                        let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
+                        let items: [GoalCardItem] = goals.map { goal in
+                            let myImageURL = goal.myVerification.imageURL.flatMap(URL.init(string:))
+                            let yourImageURL = goal.yourVerification.imageURL.flatMap(URL.init(string:))
+                            return GoalCardItem(
+                                id: goal.id,
+                                goalName: goal.title,
+                                goalEmoji: goal.goalIcon.image,
+                                myCard: .init(
+                                    imageURL: myImageURL,
+                                    isSelected: goal.myVerification.isCompleted,
+                                    emoji: goal.myVerification.emoji?.image
+                                ),
+                                yourCard: .init(
+                                    imageURL: yourImageURL,
+                                    isSelected: goal.yourVerification.isCompleted,
+                                    emoji: goal.yourVerification.emoji?.image
+                                )
                             )
-                        )
+                        }
+                        await send(.fetchGoalsCompleted(items))
+                    } catch {
+                        await send(.fetchGoalsFailed)
                     }
-                    await send(.fetchGoalsCompleted(items))
                 }
                 
             case let .showToast(toast):

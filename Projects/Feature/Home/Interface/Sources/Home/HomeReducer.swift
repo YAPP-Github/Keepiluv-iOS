@@ -101,7 +101,8 @@ public struct HomeReducer {
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
         case cameraPermissionAlertDismissed
-        
+        case fetchGoalsFailed
+
         // MARK: - Delegate
         case delegate(Delegate)
         
