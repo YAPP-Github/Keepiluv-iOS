@@ -53,14 +53,22 @@ public struct ProofPhotoView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            topBar
-            titleText
-                .padding(.top, 25)
-            photoPreview
-                .padding(.top, 38)
-            bottomControls
-                .padding(.top, 52)
+        GeometryReader { geometry in
+            let isCompactHeight = geometry.size.height < 700
+
+            VStack(spacing: 0) {
+                topBar
+                titleText
+                    .padding(.top, isCompactHeight ? 12 : 25)
+                photoPreview
+                    .padding(.top, isCompactHeight ? 16 : 38)
+                    .padding(.horizontal, isCompactHeight ? 20 : 0)
+
+                Spacer(minLength: isCompactHeight ? 16 : 52)
+
+                bottomControls
+                    .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 0 : 16)
+            }
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

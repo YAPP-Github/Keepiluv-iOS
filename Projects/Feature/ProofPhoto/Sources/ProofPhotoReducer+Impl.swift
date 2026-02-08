@@ -43,7 +43,6 @@ extension ProofPhotoReducer {
                 return .send(.delegate(.closeProofPhoto))
 
             case .captureButtonTapped:
-                // TODO: - Error 처리
                 guard !state.isCapturing else { return .none }
                 state.isCapturing = true
                 return .run { send in
@@ -90,7 +89,9 @@ extension ProofPhotoReducer {
                 return .none
                 
             case .uploadButtonTapped:
-                if state.commentText.count < 5 {
+                // 코멘트는 비워도 되지만, 입력할 경우 5글자여야 함
+                let commentCount = state.commentText.count
+                if commentCount > 0 && commentCount < 5 {
                     return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
                     guard let imageData = state.imageData else {
@@ -122,7 +123,7 @@ extension ProofPhotoReducer {
                             )
                             await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
                         } catch {
-                            
+                            await send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
                         }
                     }
                 }
@@ -163,7 +164,7 @@ extension ProofPhotoReducer {
                 
             case .captureFailed:
                 state.isCapturing = false
-                return .none
+                return .send(.showToast(.warning(message: "사진 촬영에 실패했어요")))
                 
             case let .showToast(toast):
                 state.toast = toast
