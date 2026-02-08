@@ -36,10 +36,14 @@ extension GoalDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 let goalId = state.goalId
-                
+
                 return .run { send in
-                    let item = try await goalClient.fetchGoalDetail(goalId)
-                    await send(.fethedGoalDetailItem(item))
+                    do {
+                        let item = try await goalClient.fetchGoalDetail(goalId)
+                        await send(.fethedGoalDetailItem(item))
+                    } catch {
+                        await send(.fetchGoalDetailFailed)
+                    }
                 }
                 
             case .onDisappear:
@@ -97,6 +101,13 @@ extension GoalDetailReducer {
             case let .fethedGoalDetailItem(item):
                 state.item = item
                 state.commentText = state.comment
+                return .none
+
+            case .fetchGoalDetailFailed:
+                return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
+
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):

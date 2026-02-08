@@ -50,6 +50,7 @@ public struct GoalDetailReducer {
         public var isEditing: Bool = false
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
+        public var toast: TXToastType?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -92,6 +93,8 @@ public struct GoalDetailReducer {
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
+        case fetchGoalDetailFailed
+        case showToast(TXToastType)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
         
