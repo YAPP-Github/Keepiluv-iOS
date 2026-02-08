@@ -23,7 +23,10 @@ public struct GoalListResponseDTO: Decodable {
         let goalId: Int
         let name: String
         let icon: String
-        // let repeatCycle: String
+        let repeatCycle: String?
+        let repeatCount: Int?
+        let startDate: String?
+        let endDate: String?
         let myCompleted: Bool
         let partnerCompleted: Bool
         let myVerification: Verification?
@@ -61,7 +64,11 @@ public extension GoalListResponseDTO {
                     isCompleted: $0.partnerCompleted,
                     imageURL: $0.partnerVerification?.imageUrl,
                     emoji: Goal.Reaction(rawValue: $0.partnerVerification?.reaction ?? "")
-                )
+                ),
+                repeatCycle: $0.repeatCycle.flatMap { Goal.RepeatCycle(rawValue: $0) },
+                repeatCount: $0.repeatCount,
+                startDate: $0.startDate,
+                endDate: $0.endDate
             )
         }
     }

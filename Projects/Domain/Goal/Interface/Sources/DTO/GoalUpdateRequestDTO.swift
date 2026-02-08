@@ -1,19 +1,18 @@
 //
-//  GoalCreateRequestDTO.swift
+//  GoalUpdateRequestDTO.swift
 //  DomainGoalInterface
 //
-//  Created by Jihun on 2/6/26.
+//  Created by Jiyong on 2/8/26.
 //
 
 import Foundation
 
-/// 목표 생성 요청 DTO입니다.
-public struct GoalCreateRequestDTO: Encodable {
+/// 목표 수정 요청 DTO입니다.
+public struct GoalUpdateRequestDTO: Encodable {
     public let name: String
     public let icon: String
     public let repeatCycle: String
     public let repeatCount: Int
-    public let startDate: String
     public let endDate: String?
 
     public init(
@@ -21,19 +20,17 @@ public struct GoalCreateRequestDTO: Encodable {
         icon: String,
         repeatCycle: String,
         repeatCount: Int,
-        startDate: String,
         endDate: String?
     ) {
         self.name = name
         self.icon = icon
         self.repeatCycle = repeatCycle
         self.repeatCount = repeatCount
-        self.startDate = startDate
         self.endDate = endDate
     }
 
     enum CodingKeys: String, CodingKey {
-        case name, icon, repeatCycle, repeatCount, startDate, endDate
+        case name, icon, repeatCycle, repeatCount, endDate
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -42,7 +39,6 @@ public struct GoalCreateRequestDTO: Encodable {
         try container.encode(icon, forKey: .icon)
         try container.encode(repeatCycle, forKey: .repeatCycle)
         try container.encode(repeatCount, forKey: .repeatCount)
-        try container.encode(startDate, forKey: .startDate)
         try container.encodeIfPresent(endDate, forKey: .endDate)
     }
 }

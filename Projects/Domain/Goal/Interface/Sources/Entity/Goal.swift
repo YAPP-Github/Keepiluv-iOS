@@ -53,6 +53,10 @@ public struct Goal {
     public let title: String
     public let myVerification: Verification
     public let yourVerification: Verification
+    public let repeatCycle: RepeatCycle?
+    public let repeatCount: Int?
+    public let startDate: String?
+    public let endDate: String?
     
     /// 목표 인증 상태를 나타내는 모델입니다.
     ///
@@ -107,12 +111,20 @@ public struct Goal {
         goalIcon: Icon,
         title: String,
         myVerification: Verification,
-        yourVerification: Verification
+        yourVerification: Verification,
+        repeatCycle: RepeatCycle? = nil,
+        repeatCount: Int? = nil,
+        startDate: String? = nil,
+        endDate: String? = nil
     ) {
         self.id = id
         self.goalIcon = goalIcon
         self.title = title
         self.myVerification = myVerification
         self.yourVerification = yourVerification
+        self.repeatCycle = repeatCycle
+        self.repeatCount = repeatCount
+        self.startDate = startDate
+        self.endDate = endDate
     }
 }

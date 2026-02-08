@@ -15,7 +15,7 @@ public struct GoalCreateResponseDTO: Decodable {
     public let repeatCycle: String
     public let repeatCount: Int
     public let startDate: String
-    public let endDate: String
+    public let endDate: String?
     public let goalStatus: String
     public let createdAt: String
 }
@@ -41,7 +41,11 @@ public extension GoalCreateResponseDTO {
                 isCompleted: false,
                 imageURL: nil,
                 emoji: nil
-            )
+            ),
+            repeatCycle: Goal.RepeatCycle(rawValue: response.repeatCycle),
+            repeatCount: response.repeatCount,
+            startDate: response.startDate,
+            endDate: response.endDate
         )
     }
 }

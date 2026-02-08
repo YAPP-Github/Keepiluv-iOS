@@ -20,9 +20,10 @@ extension GoalClient: @retroactive DependencyKey {
     /// let goals = try await goalClient.fetchGoals("2026-02-06")
     /// ```
 
+    // swiftlint:disable:next function_body_length
     static func live() -> GoalClient {
         @Dependency(\.networkClient) var networkClient
-        
+
         return .init(
             fetchGoals: { date in
                 do {
@@ -31,7 +32,6 @@ extension GoalClient: @retroactive DependencyKey {
                     )
                     return response.toEntity(response)
                 } catch {
-                    
                     throw error
                 }
             },
@@ -42,7 +42,6 @@ extension GoalClient: @retroactive DependencyKey {
                     )
                     return response.toEntity(response)
                 } catch {
-
                     throw error
                 }
             },
@@ -55,7 +54,48 @@ extension GoalClient: @retroactive DependencyKey {
                 } catch {
                     throw error
                 }
+            },
+            fetchGoalById: { goalId in
+                do {
+                    let response: GoalCreateResponseDTO = try await networkClient.request(
+                        endpoint: GoalEndpoint.fetchGoalById(goalId: goalId)
+                    )
+                    return response.toEntity(response)
+                } catch {
+                    throw error
+                }
+            },
+            updateGoal: { goalId, request in
+                do {
+                    let response: GoalCreateResponseDTO = try await networkClient.request(
+                        endpoint: GoalEndpoint.updateGoal(goalId: goalId, request)
+                    )
+                    return response.toEntity(response)
+                } catch {
+                    throw error
+                }
+            },
+            deleteGoal: { goalId in
+                do {
+                    let _: EmptyResponse = try await networkClient.request(
+                        endpoint: GoalEndpoint.deleteGoal(goalId: goalId)
+                    )
+                } catch {
+                    throw error
+                }
+            },
+            completeGoal: { goalId in
+                do {
+                    let response: GoalCompleteResponseDTO = try await networkClient.request(
+                        endpoint: GoalEndpoint.completeGoal(goalId: goalId)
+                    )
+                    return response
+                } catch {
+                    throw error
+                }
             }
         )
     }
 }
+
+private struct EmptyResponse: Decodable {}
