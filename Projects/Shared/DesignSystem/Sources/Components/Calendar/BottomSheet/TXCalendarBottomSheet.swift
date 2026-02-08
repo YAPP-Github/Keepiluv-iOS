@@ -110,7 +110,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
             
             // 버튼 영역
             buttonArea
-                .padding(.bottom, TXSafeArea.inset(.bottom))
+                .padding(.bottom, TXSafeArea.inset(.bottom) + 16)
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)

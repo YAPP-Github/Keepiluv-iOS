@@ -35,4 +35,21 @@ public enum TXCalendarUtil {
         let dayString = String(format: "%02d", component.day ?? 1)
         return "\(yearString)-\(monthString)-\(dayString)"
     }
+
+    /// API 날짜 문자열(YYYY-MM-DD)을 TXCalendarDate로 변환합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let date = TXCalendarUtil.parseAPIDateString("2026-02-08")
+    /// ```
+    public static func parseAPIDateString(_ dateString: String) -> TXCalendarDate? {
+        let components = dateString.split(separator: "-")
+        guard components.count == 3,
+              let year = Int(components[0]),
+              let month = Int(components[1]),
+              let day = Int(components[2]) else {
+            return nil
+        }
+        return TXCalendarDate(year: year, month: month, day: day)
+    }
 }
