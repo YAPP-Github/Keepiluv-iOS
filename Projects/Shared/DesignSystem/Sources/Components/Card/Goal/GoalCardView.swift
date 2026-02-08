@@ -34,6 +34,7 @@ public struct GoalCardView: View {
         struct Placeholder {
             let image: Image
             let text: String
+            let isButton: Bool
         }
         
         let headerConfig: CardHeaderView.Configuration
@@ -64,11 +65,13 @@ public struct GoalCardView: View {
             emojiPadding: CGFloat,
             myPlaceholder: Placeholder = .init(
                 image: Image.Illustration.keepiluv,
-                text: "킵잇럽!"
+                text: "KEEP IT UP!",
+                isButton: false
             ),
             yourPlaceholder: Placeholder = .init(
                 image: Image.Illustration.poke,
-                text: "찌르기~"
+                text: "찌르기!",
+                isButton: true
             )
         ) {
             self.headerConfig = headerConfig
@@ -136,13 +139,21 @@ private extension GoalCardView {
         .onTapGesture(perform: actionLeft)
     }
     
+    @ViewBuilder
     var yourContent: some View {
+        let hasImage = config.yourItem.imageURL != nil
+
         contentCell(
             item: config.yourItem,
             placeholder: config.yourPlaceholder,
-            bottomTrailingRadius: config.cornerRadius
+            bottomTrailingRadius: config.cornerRadius,
+            buttonAction: hasImage ? nil : actionRight
         )
-        .onTapGesture(perform: actionRight)
+        .onTapGesture {
+            if hasImage {
+                actionRight()
+            }
+        }
     }
     
     @ViewBuilder
@@ -150,7 +161,8 @@ private extension GoalCardView {
         item: GoalCardItem.Card,
         placeholder: Configuration.Placeholder,
         bottomLeadingRadius: CGFloat = 0,
-        bottomTrailingRadius: CGFloat = 0
+        bottomTrailingRadius: CGFloat = 0,
+        buttonAction: (() -> Void)? = nil
     ) -> some View {
         let unEvenRoundedRect = UnevenRoundedRectangle(
             cornerRadii: .init(
@@ -159,7 +171,7 @@ private extension GoalCardView {
             ),
             style: .continuous
         )
-        
+
         Group {
             if let imageURL = item.imageURL {
                 KFImage(imageURL)
@@ -167,7 +179,7 @@ private extension GoalCardView {
                     .placeholder { }
                     .clipShape(unEvenRoundedRect)
             } else {
-                unCompletedView(placeholder: placeholder)
+                unCompletedView(placeholder: placeholder, buttonAction: buttonAction)
             }
         }
         .frame(maxWidth: .infinity)
@@ -184,15 +196,54 @@ private extension GoalCardView {
         }
     }
     
-    func unCompletedView(placeholder: Configuration.Placeholder) -> some View {
+    func unCompletedView(
+        placeholder: Configuration.Placeholder,
+        buttonAction: (() -> Void)? = nil
+    ) -> some View {
         VStack(spacing: 0) {
             placeholder.image
-            
-            Text(placeholder.text)
-                .typography(.b2_14r)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+
+            if placeholder.isButton {
+                pokeButton(text: placeholder.text, action: buttonAction)
+            } else {
+                Text(placeholder.text)
+                    .typography(.b4_12b)
+                    .foregroundStyle(Color.Gray.gray400)
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: config.imageHeight)
+    }
+
+    func pokeButton(text: String, action: (() -> Void)?) -> some View {
+        Button {
+            action?()
+        } label: {
+            ZStack {
+                // Shadow
+                RoundedRectangle(cornerRadius: 999)
+                    .fill(Color.Gray.gray500)
+                    .frame(width: 64, height: 31)
+                    .offset(y: 1)
+
+                // Button
+                Text(text)
+                    .typography(.c2_11b)
+                    .foregroundStyle(Color.Gray.gray500)
+                    .frame(width: 64, height: 28)
+                    .background(Color.Common.white)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.Gray.gray500, lineWidth: 1)
+                    )
+            }
+            .frame(width: 64, height: 32)
+        }
+        .buttonStyle(.plain)
     }
     
     func emojiImage(emoji: Image) -> some View {
