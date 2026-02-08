@@ -69,10 +69,9 @@ extension HomeCoordinator {
                 state.routes.removeLast()
                 return .none
                 
-            case .editGoalList(.delegate(.goToGoalEdit)):
+            case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
                 state.routes.append(.makeGoal)
-                // TODO: - API연동 시 Item 넘기기
-                state.makeGoal = .init(category: .custom, mode: .edit)
+                state.makeGoal = .init(category: .custom, mode: .edit, editingGoalId: goalId)
                 return .none
                 
             case .home:

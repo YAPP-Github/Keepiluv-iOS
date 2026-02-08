@@ -19,20 +19,28 @@ struct MakeGoalView: View {
         VStack(spacing: 0) {
             navigationBar
                 .padding(.horizontal, -20)
-            emojiButton
-                .padding(.top, 52)
-            goalTitleField
-                .padding(.top, 44)
-            scheduleSection
-                .padding(.top, 44)
-            
-            Spacer()
-            
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    emojiButton
+                        .padding(.top, 52)
+                    goalTitleField
+                        .padding(.top, 44)
+                    scheduleSection
+                        .padding(.top, 44)
+                }
+                .padding(.bottom, 100)
+            }
+            .scrollIndicators(.hidden)
+
             completeButton
+                .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
+        .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { store.send(.onAppear) }
         .onDisappear { store.send(.onDisappear) }
         .txBottomSheet(
             isPresented: $store.isCalendarSheetPresented
@@ -232,7 +240,7 @@ private extension MakeGoalView {
             .padding(.horizontal, 20)
         }
         .padding(.top, 36)
-        .padding(.bottom, TXSafeArea.inset(.bottom))
+        .padding(.bottom, TXSafeArea.inset(.bottom) + 16)
     }
     
     var periodTabButtons: some View {

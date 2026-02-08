@@ -20,9 +20,64 @@ extension MakeGoalReducer {
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
+            case .onAppear:
+                if case .edit = state.mode, let goalId = state.editingGoalId {
+                    state.isLoading = true
+                    return .run { send in
+                        do {
+                            let goal = try await goalClient.fetchGoalById(goalId)
+                            await send(.fetchGoalCompleted(goal))
+                        } catch {
+                            await send(.fetchGoalFailed)
+                        }
+                    }
+                }
+                return .none
+
             case .onDisappear:
                 return .none
-                
+
+            case let .fetchGoalCompleted(goal):
+                state.isLoading = false
+                state.goalTitle = goal.title
+                state.selectedEmojiIndex = Goal.Icon.allCases.firstIndex(of: goal.goalIcon) ?? 0
+                if let repeatCycle = goal.repeatCycle {
+                    state.selectedPeriod = repeatCycle
+                }
+                if let repeatCount = goal.repeatCount {
+                    switch state.selectedPeriod {
+                    case .weekly:
+                        state.weeklyPeriodCount = repeatCount
+                    case .monthly:
+                        state.monthlyPeriodCount = repeatCount
+                    case .daily:
+                        break
+                    }
+                }
+                // 시작일/종료일 설정
+                if let startDateString = goal.startDate,
+                   let startDate = TXCalendarUtil.parseAPIDateString(startDateString) {
+                    state.startDate = startDate
+                }
+                if let endDateString = goal.endDate,
+                   let endDate = TXCalendarUtil.parseAPIDateString(endDateString) {
+                    state.endDate = endDate
+                    state.isEndDateOn = true
+                }
+                return .send(.updateDateText)
+
+            case .fetchGoalFailed:
+                state.isLoading = false
+                return .send(.showToast(.warning(message: "목표 정보를 불러오지 못했어요")))
+
+            case .createGoalFailed:
+                state.isLoading = false
+                return .send(.showToast(.warning(message: "목표 생성에 실패했어요")))
+
+            case .updateGoalFailed:
+                state.isLoading = false
+                return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
+
                 // MARK: - User Action
             case .emojiButtonTapped:
                 state.modal = .gridButton(
@@ -121,25 +176,59 @@ extension MakeGoalReducer {
                 return .send(.updateDateText)
                 
             case .completeButtonTapped:
-                let request = GoalCreateRequestDTO(
-                    name: state.goalTitle,
-                    icon: state.selectedEmoji.rawValue,
-                    repeatCycle: state.selectedPeriod.rawValue,
-                    repeatCount: state.periodCount,
-                    startDate: TXCalendarUtil.apiDateString(for: state.startDate),
-                    endDate: TXCalendarUtil.apiDateString(for: state.endDate)
-                )
-                return .run { send in
-                    do {
-                        _ = try await goalClient.createGoal(request)
-                        await send(.delegate(.navigateBack))
-                    } catch {
-                        
+                guard !state.isLoading else { return .none }
+                state.isLoading = true
+                let endDateString: String? = state.isEndDateOn
+                    ? TXCalendarUtil.apiDateString(for: state.endDate)
+                    : nil
+
+                switch state.mode {
+                case .add:
+                    let request = GoalCreateRequestDTO(
+                        name: state.goalTitle,
+                        icon: state.selectedEmoji.rawValue,
+                        repeatCycle: state.selectedPeriod.rawValue,
+                        repeatCount: state.periodCount,
+                        startDate: TXCalendarUtil.apiDateString(for: state.startDate),
+                        endDate: endDateString
+                    )
+                    return .run { send in
+                        do {
+                            _ = try await goalClient.createGoal(request)
+                            await send(.delegate(.navigateBack))
+                        } catch {
+                            await send(.createGoalFailed)
+                        }
+                    }
+
+                case .edit:
+                    guard let goalId = state.editingGoalId else {
+                        state.isLoading = false
+                        return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
+                    }
+                    let request = GoalUpdateRequestDTO(
+                        name: state.goalTitle,
+                        icon: state.selectedEmoji.rawValue,
+                        repeatCycle: state.selectedPeriod.rawValue,
+                        repeatCount: state.periodCount,
+                        endDate: endDateString
+                    )
+                    return .run { [goalId] send in
+                        do {
+                            _ = try await goalClient.updateGoal(goalId, request)
+                            await send(.delegate(.navigateBack))
+                        } catch {
+                            await send(.updateGoalFailed)
+                        }
                     }
                 }
                 
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
+
+            case let .showToast(toast):
+                state.toast = toast
+                return .none
 
             case .updateDateText:
                 guard let startDay = state.startDate.day,

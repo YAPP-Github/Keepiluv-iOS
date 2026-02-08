@@ -44,6 +44,7 @@ public struct MakeGoalReducer {
         public let monthlyPeriodText: String = Goal.RepeatCycle.monthly.text
         
         public var mode: Mode
+        public var editingGoalId: Int?
         public var category: GoalCategory
         public var goalTitle: String
         public var selectedPeriod: Goal.RepeatCycle
@@ -63,10 +64,12 @@ public struct MakeGoalReducer {
         public var showPeriodCount: Bool { selectedPeriod != .daily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
         public var selectedEmoji: Goal.Icon { icons[selectedEmojiIndex] }
-        public var completeButtonDisabled: Bool { goalTitle.isEmpty }
+        public var completeButtonDisabled: Bool { goalTitle.isEmpty || isLoading }
         
         public var modal: TXModalType?
-        
+        public var toast: TXToastType?
+        public var isLoading: Bool = false
+
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
             case add
@@ -86,7 +89,8 @@ public struct MakeGoalReducer {
         /// ```
         public init(
             category: GoalCategory,
-            mode: Mode
+            mode: Mode,
+            editingGoalId: Int? = nil
         ) {
             let now = CalendarNow()
             let today = TXCalendarDate(
@@ -96,11 +100,12 @@ public struct MakeGoalReducer {
             )
 
             self.mode = mode
+            self.editingGoalId = editingGoalId
             self.category = category
             self.goalTitle = category != .custom ? category.title : ""
             self.selectedPeriod = category.repeatCycle
             self.selectedEmojiIndex = category.iconIndex
-            
+
             self.startDate = today
             self.endDate = today
             self.calendarSheetDate = today
@@ -123,8 +128,15 @@ public struct MakeGoalReducer {
         case binding(BindingAction<State>)
         
         // MARK: - LifeCycle
+        case onAppear
         case onDisappear
-        
+
+        // MARK: - Update State
+        case fetchGoalCompleted(Goal)
+        case fetchGoalFailed
+        case createGoalFailed
+        case updateGoalFailed
+
         // MARK: - User Action
         case emojiButtonTapped
         case periodSelected
@@ -140,7 +152,8 @@ public struct MakeGoalReducer {
         case completeButtonTapped
         case navigationBackButtonTapped
         case modalConfirmTapped(Int)
-        
+        case showToast(TXToastType)
+
         // MARK: - Delegate
         case delegate(Delegate)
         
