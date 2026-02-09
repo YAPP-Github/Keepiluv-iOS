@@ -29,6 +29,7 @@ end
 platform :ios do
   WORKSPACE_NAME     = "Twix.xcworkspace"
   MAIN_APP_SCHEME    = "Twix"
+  DEBUG_APP_SCHEME   = "TwixDebug"
   WORKSPACE_SCHEME   = "Twix-Workspace"
 
   BUNDLE_ID          = ENV["APP_IDENTIFIER"]
@@ -145,7 +146,7 @@ platform :ios do
 
     xcodebuild(
       workspace: WORKSPACE_NAME,
-      scheme: MAIN_APP_SCHEME,
+      scheme: DEBUG_APP_SCHEME,
       configuration: "Debug",
       xcargs: "CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=''"
     )

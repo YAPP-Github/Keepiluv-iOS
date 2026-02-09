@@ -1,11 +1,10 @@
 //
 //  PulseNetworkLogViewProvider.swift
-//  CoreLogging
+//  CoreLoggingDebug
 //
 //  Created by Jiyong
 //
 
-#if DEBUG
 import CoreLoggingInterface
 import Pulse
 import PulseUI
@@ -14,10 +13,8 @@ import SwiftUI
 public struct PulseNetworkLogViewProvider: NetworkLogViewProviding {
     public init() {}
 
-    // swiftlint:disable incompatible_concurrency_annotation
     @MainActor
     public func makePulseLogView(label: String) -> AnyView {
-        // swiftlint:enable incompatible_concurrency_annotation
         AnyView(
             NavigationStack {
                 // Label별 Store 사용 - 해당 label의 로그만 자동 표시
@@ -79,4 +76,3 @@ extension LoggerStore {
     private static var labeledStores: [String: LoggerStore] = [:]
     private static let labeledStoresLock = NSLock()
 }
-#endif

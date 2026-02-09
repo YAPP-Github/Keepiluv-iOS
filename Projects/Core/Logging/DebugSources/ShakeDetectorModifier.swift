@@ -1,11 +1,10 @@
 //
 //  ShakeDetectorModifier.swift
-//  CoreLogging
+//  CoreLoggingDebug
 //
 //  Created by Jiyong
 //
 
-#if DEBUG
 import SwiftUI
 import UIKit
 
@@ -52,7 +51,7 @@ public extension View {
     /// Shake 제스처로 Pulse 로그 UI를 표시하도록 설정합니다.
     ///
     /// 디바이스를 흔들면 특정 label 로그를 볼 수 있는 Pulse UI가 표시됩니다.
-    /// DEBUG 빌드에서만 사용 가능합니다.
+    /// CoreLoggingDebug 모듈에서만 사용 가능합니다.
     ///
     /// - Returns: Shake 감지가 적용된 View
     ///
@@ -67,4 +66,3 @@ public extension View {
         modifier(ShakeDetectorModifier(label: label))
     }
 }
-#endif

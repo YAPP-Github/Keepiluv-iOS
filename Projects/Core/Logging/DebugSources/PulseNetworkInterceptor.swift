@@ -1,16 +1,15 @@
 //
 //  PulseNetworkInterceptor.swift
-//  CoreLogging
+//  CoreLoggingDebug
 //
 //  Created by Jiyong
 //
 
-#if DEBUG
 import CoreNetworkInterface
 import Foundation
 import Pulse
 
-/// Pulse를 사용하여 네트워크 요청을 로깅하는 Interceptor (DEBUG 전용)
+/// Pulse를 사용하여 네트워크 요청을 로깅하는 Interceptor
 public final class PulseNetworkInterceptor: NetworkInterceptor {
     private let labelLogger: NetworkLogger
     private let globalLogger: NetworkLogger
@@ -42,4 +41,3 @@ public final class PulseNetworkInterceptor: NetworkInterceptor {
         globalLogger.logTask(task, didCompleteWithError: error)
     }
 }
-#endif
