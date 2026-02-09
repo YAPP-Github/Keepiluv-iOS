@@ -17,6 +17,9 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
 
+    /// 최대 시도 횟수 (원본 1회 + 재시도 1회)
+    private let maxAttempts = 2
+
     /// NetworkProvider를 생성합니다.
     /// - Parameter interceptors: 네트워크 요청을 intercept할 Interceptor 배열 (기본값: 빈 배열)
     public init(interceptors: [NetworkInterceptor] = []) {
@@ -24,18 +27,58 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
         self.interceptors = interceptors
     }
 
-    // swiftlint:disable:next function_body_length
     public func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
         guard let url = makeURL(endpoint: endpoint) else {
             throw NetworkError.invalidURLError
         }
 
-        let request = try makeURLRequest(url: url, endpoint: endpoint)
-        let featureTag = endpoint.featureTag.rawValue
+        let baseRequest = try makeURLRequest(url: url, endpoint: endpoint)
+        var context = RequestContext(endpoint: endpoint, request: baseRequest)
+
+        // Adapt: 모든 interceptor에게 요청 수정 기회 제공
+        for interceptor in interceptors {
+            context = try await interceptor.adapt(context)
+        }
+
+        var attemptCount = 0
+
+        while attemptCount < maxAttempts {
+            attemptCount += 1
+
+            do {
+                return try await performRequest(context: context)
+            } catch {
+                // Retry: interceptor에게 재시도 결정 요청
+                var shouldRetry = false
+
+                for interceptor in interceptors {
+                    let decision = await interceptor.retry(context, dueTo: error, attemptCount: attemptCount)
+
+                    if case .retry(let newRequest) = decision {
+                        context.request = newRequest
+                        shouldRetry = true
+                        break
+                    }
+                }
+
+                if !shouldRetry {
+                    throw error
+                }
+            }
+        }
+
+        // maxAttempts 초과 시 마지막 요청 수행
+        return try await performRequest(context: context)
+    }
+
+    // MARK: - Private
+
+    private func performRequest<T: Decodable>(context: RequestContext) async throws -> T {
+        let featureTag = context.endpoint.featureTag.rawValue
 
         return try await withCheckedThrowingContinuation { continuation in
             var createdTask: URLSessionDataTask?
-            let task = session.dataTask(with: request) { [interceptors] data, response, error in
+            let task = session.dataTask(with: context.request) { [interceptors] data, response, error in
                 if let task = createdTask {
                     if let data = data {
                         interceptors.forEach { $0.didReceiveData(task, data: data) }
@@ -79,25 +122,17 @@ extension NetworkClient: @retroactive DependencyKey {
         let interceptors: [NetworkInterceptor] = []
         #endif
 
-        return Self(
-            provider: NetworkProvider(interceptors: interceptors),
-            tokenProvider: nil
-        )
+        return Self(provider: NetworkProvider(interceptors: interceptors))
     }()
 
+    /// 커스텀 interceptor를 사용하는 NetworkClient를 생성합니다.
+    ///
+    /// - Parameter interceptors: 적용할 NetworkInterceptor 배열
+    /// - Returns: 구성된 NetworkClient
     public static func live(
-        tokenProvider: @escaping @Sendable () async -> String?
+        interceptors: [NetworkInterceptor]
     ) -> NetworkClient {
-        #if DEBUG
-        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
-        #else
-        let interceptors: [NetworkInterceptor] = []
-        #endif
-
-        return Self(
-            provider: NetworkProvider(interceptors: interceptors),
-            tokenProvider: tokenProvider
-        )
+        Self(provider: NetworkProvider(interceptors: interceptors))
     }
 }
 
