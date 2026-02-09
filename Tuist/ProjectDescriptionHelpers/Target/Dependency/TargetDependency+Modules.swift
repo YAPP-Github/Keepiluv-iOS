@@ -160,6 +160,17 @@ public extension TargetDependency {
     static func core(testing module: Module.Core) -> Self {
         return .project(target: Module.Core.name + module.rawValue + "Testing", path: .core(implementation: module))
     }
+
+    /// Debug 전용 CoreLogging (Pulse 포함)에 대한 의존성입니다.
+    ///
+    /// Debug 빌드에서만 사용되며, Pulse 로깅 기능을 포함합니다.
+    /// - Returns: CoreLoggingDebug 타겟을 가리키는 `TargetDependency`
+    static var coreLoggingDebug: Self {
+        return .project(
+            target: "CoreLoggingDebug",
+            path: .core(implementation: .logging)
+        )
+    }
 }
 
 public extension TargetDependency {
