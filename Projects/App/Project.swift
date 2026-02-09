@@ -44,6 +44,7 @@ private let commonBuildSettings: SettingsDictionary = [
     "TARGETED_DEVICE_FAMILY": "1",
     "SUPPORTS_MACCATALYST": "NO",
     "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
     "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"],
     "KAKAO_APP_KEY": "d62cbf5d1d7fbc9246c0d33998fce8cd",
     "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
