@@ -141,6 +141,7 @@ public struct SettingsReducer {
             case navigateBack
             case logoutCompleted
             case withdrawCompleted
+            case sessionExpired
         }
     }
 

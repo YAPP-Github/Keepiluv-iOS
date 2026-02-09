@@ -75,6 +75,7 @@ public struct MainTabReducer {
         public enum Delegate: Equatable {
             case logoutCompleted
             case withdrawCompleted
+            case sessionExpired
         }
     }
 
@@ -119,6 +120,9 @@ public struct MainTabReducer {
 
             case .home(.delegate(.withdrawCompleted)):
                 return .send(.delegate(.withdrawCompleted))
+
+            case .home(.delegate(.sessionExpired)):
+                return .send(.delegate(.sessionExpired))
 
             case .home:
                 if state.selectedTab == .home {
