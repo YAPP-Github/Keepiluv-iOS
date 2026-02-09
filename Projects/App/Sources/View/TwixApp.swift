@@ -3,6 +3,7 @@ import CoreNetwork
 import CoreNetworkInterface
 import CoreStorage
 import CoreStorageInterface
+import DomainAuth
 import DomainAuthInterface
 import GoogleSignIn
 import KakaoSDKAuth
@@ -20,9 +21,7 @@ struct TwixApp: App {
     ) {
         AppCoordinator()
     } withDependencies: {
-        $0.networkClient = .live(tokenProvider: {
-            await TokenManager.shared.accessToken
-        })
+        $0.networkClient = makeNetworkClient()
         $0.tokenStorage = .liveValue
     }
 
@@ -51,6 +50,28 @@ struct TwixApp: App {
                 }
         }
     }
+}
+
+// MARK: - Network Client Factory
+
+private func makeNetworkClient() -> NetworkClient {
+    let authInterceptor = AuthInterceptor(
+        tokenManager: TokenManager.shared,
+        refreshToken: {
+            try await AuthClient.liveValue.refreshToken()
+        }
+    )
+
+    #if DEBUG
+    let interceptors: [NetworkInterceptor] = [
+        authInterceptor,
+        PulseNetworkInterceptor(label: "Network")
+    ]
+    #else
+    let interceptors: [NetworkInterceptor] = [authInterceptor]
+    #endif
+
+    return NetworkClient.live(interceptors: interceptors)
 }
 
 // MARK: - Private Methods
