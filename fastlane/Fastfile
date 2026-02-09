@@ -170,7 +170,10 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    current_build = latest_testflight_build_number(api_key: api_key)
+    current_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID
+    )
     new_build = current_build + 1
 
     sh("cd .. && /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion #{new_build}' Projects/App/Derived/InfoPlists/TwixDebug-Info.plist")
@@ -189,6 +192,7 @@ platform :ios do
 
     upload_to_testflight(
       api_key: api_key,
+      app_identifier: BUNDLE_ID,
       skip_waiting_for_build_processing: true
     )
   end
@@ -205,7 +209,10 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    current_build = latest_testflight_build_number(api_key: api_key)
+    current_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID
+    )
     new_build = current_build + 1
 
     sh("cd .. && /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion #{new_build}' Projects/App/Derived/InfoPlists/Twix-Info.plist")
@@ -224,6 +231,7 @@ platform :ios do
 
     upload_to_testflight(
       api_key: api_key,
+      app_identifier: BUNDLE_ID,
       skip_waiting_for_build_processing: true
     )
   end
