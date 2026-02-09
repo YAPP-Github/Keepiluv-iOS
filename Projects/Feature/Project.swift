@@ -12,6 +12,7 @@ let project = Project.makeModule(
                     .core(implements: .logging),
                     .domain(implements: .goal),
                     .domain(implements: .onboarding),
+                    .domain(implements: .photoLog)
                 ] + Module.Feature.allCases.flatMap { [
                     .feature(interface: $0),
                     .feature(implements: $0)

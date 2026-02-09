@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import DomainGoalInterface
+
 /// 홈에서 사용되는 목표 카테고리를 정의합니다.
 ///
 /// ## 사용 예시
@@ -23,32 +25,9 @@ public enum GoalCategory: CaseIterable, Equatable {
     case cleaning
     case call
 
-    /// 목표 반복 주기를 표현하는 타입입니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// let cycle = RepeatCycle.weekly(count: 3)
-    /// print(cycle.count)
-    /// ```
-    public enum RepeatCycle: Equatable {
-        case daily
-        case weekly(count: Int)
-        case monthly(count: Int)
-    }
 }
 
 extension GoalCategory {
-    public static let images: [Image] = [
-        .Icon.Illustration.default,
-        .Icon.Illustration.clean,
-        .Icon.Illustration.exercise,
-        .Icon.Illustration.book,
-        .Icon.Illustration.pencil,
-        .Icon.Illustration.health,
-        .Icon.Illustration.heartDouble,
-        .Icon.Illustration.laptop
-    ]
-    
     public var title: String {
         switch self {
         case .custom: "직접 만들기"
@@ -73,15 +52,27 @@ extension GoalCategory {
         }
     }
     
-    public var repeatCycle: RepeatCycle {
+    public var repeatCycle: Goal.RepeatCycle {
         switch self {
         case .custom: .daily
-        case .health: .weekly(count: 3)
+        case .health: .weekly
         case .vitamin: .daily
-        case .walk: .monthly(count: 2)
-        case .book: .monthly(count: 4)
-        case .cleaning: .weekly(count: 1)
+        case .walk: .monthly
+        case .book: .monthly
+        case .cleaning: .weekly
         case .call: .daily
+        }
+    }
+    
+    public var repeatCount: Int {
+        switch self {
+        case .custom: 0
+        case .health: 3
+        case .vitamin: 0
+        case .walk: 2
+        case .book: 4
+        case .cleaning: 1
+        case .call: 0
         }
     }
     
@@ -94,39 +85,6 @@ extension GoalCategory {
         case .book: 3
         case .cleaning: 1
         case .call: 6
-        }
-    }
-}
-
-extension GoalCategory.RepeatCycle {
-    public var isDaily: Bool {
-        if case .daily = self { return true }
-        return false
-    }
-
-    public var isWeekly: Bool {
-        if case .weekly = self { return true }
-        return false
-    }
-
-    public var isMonthly: Bool {
-        if case .monthly = self { return true }
-        return false
-    }
-
-    public var count: Int {
-        switch self {
-        case .daily: return 0
-        case let .weekly(count): return count
-        case let .monthly(count): return count
-        }
-    }
-    
-    public var text: String {
-        switch self {
-        case .daily: return "매일"
-        case .weekly: return "매주"
-        case .monthly: return "매월"
         }
     }
 }

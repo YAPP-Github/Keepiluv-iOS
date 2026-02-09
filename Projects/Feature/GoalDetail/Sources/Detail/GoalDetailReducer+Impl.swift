@@ -13,6 +13,7 @@ import DomainGoalInterface
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedUtil
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
@@ -29,15 +30,22 @@ extension GoalDetailReducer {
     ) {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.goalClient) var goalClient
+        let timeFormatter = RelativeTimeFormatter()
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
+                let goalId = state.goalId
+
                 return .run { send in
-                    let item = try await goalClient.fetchGoalDetail()
-                    await send(.fethedGoalDetailItem(item))
+                    do {
+                        let item = try await goalClient.fetchGoalDetail(goalId)
+                        await send(.fethedGoalDetailItem(item))
+                    } catch {
+                        await send(.fetchGoalDetailFailed)
+                    }
                 }
                 
             case .onDisappear:
@@ -59,14 +67,13 @@ extension GoalDetailReducer {
                     return .send(.delegate(.navigateBack))
                 } else if case .rightTapped = action {
                     if state.isEditing {
-                        // TODO: - post api
                         state.isEditing = false
                         state.isCommentFocused = false
-                        var newItem = state.item?.completedGoal[0]
-                        newItem?.comment = state.commentText
-                        
-                        guard let newItem else { return .none }
-                        state.item?.completedGoal[0] = newItem 
+                        if var current = state.item?.completedGoal.first(where: { $0.owner == .mySelf }) {
+                            current.comment = state.commentText
+                            return .send(.updateCompletedGoal(current))
+                        }
+                        return .none
                     } else {
                         state.isEditing = true
                         state.commentText = state.comment
@@ -82,7 +89,7 @@ extension GoalDetailReducer {
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.isCommentFocused = false
-                return .none
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
@@ -95,7 +102,18 @@ extension GoalDetailReducer {
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
-                state.commentText = item.completedGoal.first?.comment ?? ""
+                state.commentText = state.comment
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+
+            case .fetchGoalDetailFailed:
+                return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
+
+            case let .showToast(toast):
+                state.toast = toast
+                return .none
+                
+            case let .setCreatedAt(text):
+                state.createdAt = text
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -104,7 +122,13 @@ extension GoalDetailReducer {
                     return .none
                 }
                 state.isPresentedProofPhoto = true
-                state.proofPhoto = ProofPhotoReducer.State(comment: state.comment)
+                guard let goalId = state.item?.id else { return .none }
+                
+                state.proofPhoto = ProofPhotoReducer.State(
+                    goalId: goalId,
+                    comment: state.comment,
+                    verificationDate: state.verificationDate
+                )
                 
                 return .none
                 
@@ -118,13 +142,23 @@ extension GoalDetailReducer {
                 return .none
                 
             case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
-                state.item?.completedGoal[0] = completedGoal
-                state.commentText = completedGoal.comment
                 state.isPresentedProofPhoto = false
-                return .none
+                return .send(.updateCompletedGoal(completedGoal))
                 
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
+                return .none
+
+            case let .updateCompletedGoal(completedGoal):
+                guard let index = state.item?.completedGoal.firstIndex(
+                    where: { _ in completedGoal.owner == .mySelf }
+                ) else { return .none }
+                
+                state.item?.completedGoal[index] = completedGoal
+                if state.currentUser == completedGoal.owner {
+                    state.commentText = completedGoal.comment ?? ""
+                    return .send(.setCreatedAt(timeFormatter.displayText(from: completedGoal.createdAt)))
+                }
                 return .none
                 
             case .proofPhoto:

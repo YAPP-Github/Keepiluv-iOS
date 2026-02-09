@@ -21,6 +21,7 @@ struct EditGoalListView: View {
             weekCalendar
             cardScrollView
                 .padding(.top, 16)
+                .padding(.bottom, 1)
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -90,9 +91,10 @@ private extension EditGoalListView {
                 }
             }
             .padding(.horizontal, 20)
+            .padding(.top, 1)
         }
     }
-    
+
     var dropdown: some View {
         TXDropdown(config: .goal) { action in
             store.send(.cardMenuItemSelected(action))

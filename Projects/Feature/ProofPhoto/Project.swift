@@ -9,6 +9,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .domain(interface: .goal),
+                    .domain(interface: .photoLog),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
@@ -20,6 +21,7 @@ let project = Project.makeModule(
                     .feature(interface: .proofPhoto),
                     .core(interface: .captureSession),
                     .domain(interface: .goal),
+                    .domain(interface: .photoLog),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]

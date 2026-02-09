@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import Kingfisher
+
 /// 목표 카드 UI를 구성하는 뷰입니다.
 ///
 /// ## 사용 예시
@@ -33,6 +35,7 @@ public struct GoalCardView: View {
         struct Placeholder {
             let image: Image
             let text: String
+            let isButton: Bool
         }
         
         let headerConfig: CardHeaderView.Configuration
@@ -63,11 +66,13 @@ public struct GoalCardView: View {
             emojiPadding: CGFloat,
             myPlaceholder: Placeholder = .init(
                 image: Image.Illustration.keepiluv,
-                text: "킵잇럽!"
+                text: "KEEP IT UP!",
+                isButton: false
             ),
             yourPlaceholder: Placeholder = .init(
                 image: Image.Illustration.poke,
-                text: "찌르기~"
+                text: "찌르기!",
+                isButton: true
             )
         ) {
             self.headerConfig = headerConfig
@@ -135,13 +140,21 @@ private extension GoalCardView {
         .onTapGesture(perform: actionLeft)
     }
     
+    @ViewBuilder
     var yourContent: some View {
+        let hasImage = config.yourItem.imageURL != nil
+
         contentCell(
             item: config.yourItem,
             placeholder: config.yourPlaceholder,
-            bottomTrailingRadius: config.cornerRadius
+            bottomTrailingRadius: config.cornerRadius,
+            buttonAction: hasImage ? nil : actionRight
         )
-        .onTapGesture(perform: actionRight)
+        .onTapGesture {
+            if hasImage {
+                actionRight()
+            }
+        }
     }
     
     @ViewBuilder
@@ -149,26 +162,30 @@ private extension GoalCardView {
         item: GoalCardItem.Card,
         placeholder: Configuration.Placeholder,
         bottomLeadingRadius: CGFloat = 0,
-        bottomTrailingRadius: CGFloat = 0
+        bottomTrailingRadius: CGFloat = 0,
+        buttonAction: (() -> Void)? = nil
     ) -> some View {
         let unEvenRoundedRect = UnevenRoundedRectangle(
             cornerRadii: .init(
                 bottomLeading: bottomLeadingRadius,
                 bottomTrailing: bottomTrailingRadius
-            ),
-            style: .continuous
+            )
         )
-        
+
         Group {
-            if let image = item.image {
-                image
+            if let imageURL = item.imageURL {
+                KFImage(imageURL)
                     .resizable()
-                    .clipShape(unEvenRoundedRect)
+                    .placeholder { }
+                    .scaledToFill()
             } else {
-                unCompletedView(placeholder: placeholder)
+                unCompletedView(placeholder: placeholder, buttonAction: buttonAction)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: config.imageHeight)
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .frame(height: config.imageHeight)
+        .clipShape(unEvenRoundedRect)
+        .clipped()
         .insideBorder(
             config.borderColor,
             shape: unEvenRoundedRect,
@@ -181,13 +198,52 @@ private extension GoalCardView {
         }
     }
     
-    func unCompletedView(placeholder: Configuration.Placeholder) -> some View {
+    func unCompletedView(
+        placeholder: Configuration.Placeholder,
+        buttonAction: (() -> Void)? = nil
+    ) -> some View {
         VStack(spacing: 0) {
             placeholder.image
+                .resizable()
+                .frame(width: 80, height: 80)
             
-            Text(placeholder.text)
-                .typography(.b2_14r)
+            if placeholder.isButton {
+                pokeButton(text: placeholder.text, action: buttonAction)
+            } else {
+                Text(placeholder.text)
+                    .typography(.b4_12b)
+                    .foregroundStyle(Color.Gray.gray400)
+            }
         }
+    }
+
+    func pokeButton(text: String, action: (() -> Void)?) -> some View {
+        Button {
+            action?()
+        } label: {
+            // TODO: - DesignSystem Component화 하기
+            ZStack {
+                // Shadow
+                RoundedRectangle(cornerRadius: 999)
+                    .fill(Color.Gray.gray500)
+                    .frame(width: 64, height: 31)
+                    .offset(y: 1)
+
+                // Button
+                Text(text)
+                    .typography(.c2_11b)
+                    .foregroundStyle(Color.Gray.gray500)
+                    .frame(width: 64, height: 28)
+                    .background(Color.Common.white)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.Gray.gray500, lineWidth: 1)
+                    )
+            }
+            .frame(width: 64, height: 32)
+        }
+        .buttonStyle(.plain)
     }
     
     func emojiImage(emoji: Image) -> some View {
@@ -197,71 +253,3 @@ private extension GoalCardView {
             .padding([.bottom, .trailing], config.emojiPadding)
     }
 }
-
-// swiftlint: disable closure_body_length
-#Preview {
-    let items: [GoalCardItem] = [
-        GoalCardItem(
-            id: "1",
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                isSelected: true,
-                emoji: nil
-            ),
-            yourCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                isSelected: true,
-                emoji: nil
-            )
-        ),
-        GoalCardItem(
-            id: "2",
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: nil,
-                isSelected: false,
-                emoji: nil
-            ),
-            yourCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-                isSelected: true,
-                emoji: .Icon.Illustration.fuck
-            )
-        ),
-        GoalCardItem(
-            id: "3",
-            goalName: "목표 이름",
-            goalEmoji: .Icon.Illustration.exercise,
-            myCard: .init(
-                image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-                isSelected: true,
-                emoji: .Icon.Illustration.heart
-            ),
-            yourCard: .init(
-                image: nil,
-                isSelected: false,
-                emoji: nil
-            )
-        )
-    ]
-    
-    VStack {
-        ForEach(items.indices, id: \.self) { index in
-            GoalCardView(
-                config: .goalCheck(
-                    item: items[index],
-                    isMyChecked: items[index].myCard.isSelected,
-                    isCoupleChecked: items[index].yourCard.isSelected,
-                    action: { }
-                ),
-                actionLeft: { },
-                actionRight: { }
-            )
-            .padding(.horizontal, Spacing.spacing8)
-        }
-    }
-}
-// swiftlint: enable closure_body_length

@@ -12,6 +12,8 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 
+import Kingfisher
+
 /// 목표 상세 화면을 렌더링하는 View입니다.
 ///
 /// ## 사용 예시
@@ -38,7 +40,13 @@ public struct GoalDetailView: View {
     /// ## 사용 예시
     /// ```swift
     /// let view = GoalDetailView(
-    ///     store: Store(initialState: GoalDetailReducer.State()) {
+    ///     store: Store(
+    ///         initialState: GoalDetailReducer.State(
+    ///             currentUser: .mySelf,
+    ///             id: 1,
+    ///             verificationDate: "2026-02-07"
+    ///         )
+    ///     ) {
     ///         GoalDetailReducer(proofPhotoReducer: ProofPhotoReducer())
     ///     }
     /// )
@@ -48,41 +56,65 @@ public struct GoalDetailView: View {
     }
     
     public var body: some View {
-        GeometryReader { _ in
-            VStack(spacing: 0) {
-                TXNavigationBar(
-                    style: .subTitle(
-                        title: store.item?.title ?? "",
-                        rightText: store.naviBarRightText
-                    ),
-                    onAction: { action in
-                        store.send(.navigationBarTapped(action))
+        VStack(spacing: 0) {
+            TXNavigationBar(
+                style: .subTitle(
+                    title: store.item?.title ?? "",
+                    rightText: store.naviBarRightText
+                ),
+                onAction: { action in
+                    store.send(.navigationBarTapped(action))
+                }
+            )
+            .overlay(dimmedView)
+
+            ScrollView {
+                ZStack(alignment: .bottom) {
+                    if !store.isCompleted {
+                        VStack {
+                            Spacer()
+                            bottomButton
+                                .frame(maxWidth: .infinity)
+                        }
                     }
-                )
-                .overlay(dimmedView)
-                
-                ZStack {
-                    backgroundRect
-                    
-                    SwipeableCardView(
-                        isEditing: store.isEditing,
-                        onCardAction: { store.send(.cardTapped) }
-                    ) {
-                        currentCardView
+
+                    if !store.isCompleted {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                pokeImage
+                                    .offset(x: -20, y: -20)
+                            }
+                        }
+                    }
+
+                    VStack(spacing: 0) {
+                        ZStack {
+                            backgroundRect
+
+                            SwipeableCardView(
+                                isEditing: store.isEditing,
+                                onCardAction: { store.send(.cardTapped) }
+                            ) {
+                                currentCardView
+                            }
+                        }
+                        .padding(.horizontal, 27)
+                        .padding(.top, 103)
+
+                        if store.isCompleted {
+                            completedBottomContent
+                        } else {
+                            Color.clear
+                                .frame(height: 74)
+                                .padding(.top, 105)
+                        }
                     }
                 }
-                .padding(.horizontal, 27)
-                .padding(.top, 103)
-                
-                if store.isCompleted {
-                    completedBottomContent
-                } else {
-                    pokeImage
-                    bottomButton
-                }
-                
-                Spacer()
+                .padding(.bottom, 40)
             }
+            .scrollIndicators(.hidden)
         }
         .ignoresSafeArea(.keyboard)
         .background(dimmedView)
@@ -140,8 +172,9 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let image = store.currentCard?.image {
-            image
+        if let imageUrl = store.currentCard?.imageUrl,
+           let url = URL(string: imageUrl) {
+            KFImage(url)
                 .resizable()
                 .insideBorder(
                     Color.Gray.gray500,
@@ -205,9 +238,10 @@ private extension GoalDetailView {
                 shape: RoundedRectangle(cornerRadius: 20),
                 lineWidth: 1.6
             )
-            .frame(width: 336, height: 336)
-            .rotationEffect(.degrees(degree(isBackground: false)))
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 20))
+            .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
     var nonCompletedText: some View {
@@ -220,11 +254,10 @@ private extension GoalDetailView {
     var pokeImage: some View {
         Image.Illustration.poke
             .resizable()
-            .frame(width: 136, height: 136)
-            .scaleEffect(x: -1)
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(width: 173, height: 173)
+            .allowsHitTesting(false)
     }
-    
+
     var bottomButton: some View {
         TXShadowButton(
             config: store.isEditing ? .long(text: store.bottomButtonText) : .medium(text: store.bottomButtonText),
@@ -232,7 +265,6 @@ private extension GoalDetailView {
         ) {
             store.send(.bottomButtonTapped)
         }
-        .padding(.top, -28)
     }
     
     @ViewBuilder
@@ -279,7 +311,11 @@ private extension GoalDetailView {
 #Preview {
     GoalDetailView(
         store: Store(
-            initialState: GoalDetailReducer.State(),
+            initialState: GoalDetailReducer.State(
+                currentUser: .mySelf,
+                id: 1,
+                verificationDate: "2026-02-07"
+            ),
             reducer: { }
         )
     )

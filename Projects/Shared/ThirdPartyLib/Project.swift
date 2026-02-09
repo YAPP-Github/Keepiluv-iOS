@@ -9,6 +9,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .external(dependency: .ComposableArchitecture),
+                    .external(dependency: .Kingfisher),
                     .external(dependency: .Pulse),
                     .external(dependency: .PulseUI),
                 ]

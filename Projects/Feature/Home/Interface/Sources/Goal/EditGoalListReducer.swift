@@ -39,6 +39,15 @@ public struct EditGoalListReducer {
         public var cards: [GoalEditCardItem] = []
         public var selectedCardMenu: GoalEditCardItem?
         public var modal: TXModalType?
+        public var toast: TXToastType?
+        public var isLoading: Bool = false
+        public var pendingGoalId: String?
+        public var pendingAction: PendingAction?
+
+        public enum PendingAction: Equatable {
+            case delete
+            case complete
+        }
         
         /// 기본 상태를 생성합니다.
         ///
@@ -77,13 +86,17 @@ public struct EditGoalListReducer {
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
         case fetchGoalsCompleted([GoalEditCardItem])
-        
+        case deleteGoalCompleted(goalId: String)
+        case completeGoalCompleted(goalId: String)
+        case apiError(String)
+        case showToast(TXToastType)
+
         // MARK: - Delegate
         case delegate(Delegate)
         
         public enum Delegate {
             case navigateBack
-            case goToGoalEdit
+            case goToGoalEdit(goalId: Int)
         }
     }
     

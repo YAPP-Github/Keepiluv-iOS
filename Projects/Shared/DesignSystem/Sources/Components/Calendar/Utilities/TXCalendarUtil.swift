@@ -28,4 +28,28 @@ public enum TXCalendarUtil {
         guard let lhsDate = lhs.date, let rhsDate = rhs.date else { return false }
         return lhsDate < rhsDate
     }
+    
+    public static func apiDateString(for component: TXCalendarDate) -> String {
+        let yearString = String(format: "%04d", component.year)
+        let monthString = String(format: "%02d", component.month)
+        let dayString = String(format: "%02d", component.day ?? 1)
+        return "\(yearString)-\(monthString)-\(dayString)"
+    }
+
+    /// API 날짜 문자열(YYYY-MM-DD)을 TXCalendarDate로 변환합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let date = TXCalendarUtil.parseAPIDateString("2026-02-08")
+    /// ```
+    public static func parseAPIDateString(_ dateString: String) -> TXCalendarDate? {
+        let components = dateString.split(separator: "-")
+        guard components.count == 3,
+              let year = Int(components[0]),
+              let month = Int(components[1]),
+              let day = Int(components[2]) else {
+            return nil
+        }
+        return TXCalendarDate(year: year, month: month, day: day)
+    }
 }

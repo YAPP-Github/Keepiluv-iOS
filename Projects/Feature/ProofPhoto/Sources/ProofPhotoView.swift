@@ -11,6 +11,7 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedUtil
 
 /// 인증샷 화면을 렌더링하는 View입니다.
 ///
@@ -18,7 +19,10 @@ import SharedDesignSystem
 /// ```swift
 /// ProofPhotoView(
 ///     store: Store(
-///         initialState: ProofPhotoReducer.State()
+///         initialState: ProofPhotoReducer.State(
+///             goalId: 1,
+///             verificationDate: "2026-02-07"
+///         )
 ///     ) {
 ///         ProofPhotoReducer()
 ///     }
@@ -36,7 +40,12 @@ public struct ProofPhotoView: View {
     /// ## 사용 예시
     /// ```swift
     /// let view = ProofPhotoView(
-    ///     store: Store(initialState: ProofPhotoReducer.State()) { ProofPhotoReducer() }
+    ///     store: Store(
+    ///         initialState: ProofPhotoReducer.State(
+    ///             goalId: 1,
+    ///             verificationDate: "2026-02-07"
+    ///         )
+    ///     ) { ProofPhotoReducer() }
     /// )
     /// ```
     public init(store: StoreOf<ProofPhotoReducer>) {
@@ -49,14 +58,17 @@ public struct ProofPhotoView: View {
             titleText
                 .padding(.top, 25)
             photoPreview
-                .padding(.top, 38)
+                .padding(.top, 40)
+                .padding(.horizontal, 5)
             bottomControls
                 .padding(.top, 52)
+            
+            Spacer()
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .observeKeyboardFrame($keyboardFrame)
-        .background(.black)
+        .background(Color.Gray.gray500)
         .onAppear {
             store.send(.onAppear)
         }
@@ -109,6 +121,7 @@ private extension ProofPhotoView {
             Rectangle()
                 .frame(maxWidth: .infinity)
                 .aspectRatio(1, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 76))
         }
     }
 
@@ -152,6 +165,7 @@ private extension ProofPhotoView {
             }
         }
         .frame(height: 74)
+        .overlay(dimmedView)
     }
     
     var captureControls: some View {
@@ -178,7 +192,7 @@ private extension ProofPhotoView {
             }
             
             TXShadowButton(
-                config: .long(text: "업로드하기"),
+                config: .medium(text: "업로드"),
                 colorStyle: .black
             ) {
                 store.send(.uploadButtonTapped)
@@ -304,7 +318,16 @@ private extension ProofPhotoView {
 #Preview {
     ProofPhotoView(
         store: Store(
-            initialState: ProofPhotoReducer.State(),
+            initialState: ProofPhotoReducer.State(
+                goalId: 2,
+                verificationDate: TXCalendarUtil.apiDateString(
+                    for: TXCalendarDate(
+                        year: CalendarNow().year,
+                        month: CalendarNow().month,
+                        day: CalendarNow().day
+                    )
+                )
+            ),
             reducer: {
                 ProofPhotoReducer()
             }

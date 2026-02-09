@@ -27,7 +27,8 @@ let project = Project(
                     "KAKAO_APP_KEY": "$(KAKAO_APP_KEY)",
                     "GIDClientID": "$(GOOGLE_CLIENT_ID)",
                     "DEEPLINK_HOST": "$(DEEPLINK_HOST)",
-                    "API_BASE_URL": "$(API_BASE_URL)"
+                    "API_BASE_URL": "$(API_BASE_URL)",
+                    "NSCameraUsageDescription": "UseCamera"
                 ], uniquingKeysWith: { current, _ in current })),
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],

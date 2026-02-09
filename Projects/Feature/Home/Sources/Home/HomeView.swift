@@ -43,10 +43,7 @@ public struct HomeView: View {
         VStack(spacing: 0) {
             navigationBar
             calendar
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if store.hasCards {
+            if store.hasCards {
                 content
             } else {
                 goalEmptyView
@@ -56,6 +53,12 @@ public struct HomeView: View {
         .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
             floatingButton
+        }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .onAppear {
             store.send(.onAppear)
@@ -144,6 +147,8 @@ private extension HomeView {
                 cardList
             }
             .padding(.horizontal, 20)
+            .padding(.top, 1)
+            .padding(.bottom, 1)
         }
     }
     
@@ -190,7 +195,7 @@ private extension HomeView {
                 }
             ),
             actionLeft: {
-                store.send(.myCardTapped)
+                store.send(.myCardTapped(card))
             }, actionRight: {
                 
                 store.send(.yourCardTapped(card))

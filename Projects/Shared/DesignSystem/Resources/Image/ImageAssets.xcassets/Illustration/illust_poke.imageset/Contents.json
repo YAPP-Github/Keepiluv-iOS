@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "illust_poke.svg",
+      "filename" : "illust_poke.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "illust_poke@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "illust_poke@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
