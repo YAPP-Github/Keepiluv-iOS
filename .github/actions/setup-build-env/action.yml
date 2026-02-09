@@ -12,6 +12,10 @@ inputs:
     description: "Whether to install SwiftLint"
     required: false
     default: "true"
+  include-pulse:
+    description: "Whether to include Pulse in cache (false for production builds)"
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -56,6 +60,34 @@ runs:
     - name: 🛠 Install tuist dependencies
       shell: bash
       run: tuist install
+
+    - name: 📦 Cache Tuist build artifacts
+      id: tuist-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.tuist/Cache
+        key: tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-${{ hashFiles('Tuist/Package.resolved', 'Tuist/Package.swift') }}
+        restore-keys: |
+          tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-
+
+    - name: 📊 Tuist cache status
+      shell: bash
+      run: |
+        if [ "${{ steps.tuist-cache.outputs.cache-hit }}" == "true" ]; then
+          echo "✅ Tuist cache HIT"
+        else
+          echo "❌ Tuist cache MISS - will build dependencies"
+        fi
+
+    - name: 🏗 Warm up external dependencies (with Pulse)
+      if: ${{ inputs.include-pulse == 'true' }}
+      shell: bash
+      run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
+
+    - name: 🏗 Warm up external dependencies (without Pulse)
+      if: ${{ inputs.include-pulse != 'true' }}
+      shell: bash
+      run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
 
     - name: 📦 Cache SwiftLint
       if: ${{ inputs.install-swiftlint == 'true' }}

@@ -17,6 +17,7 @@ jobs:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
           install-swiftlint: "false"
+          include-pulse: "false"
 
       - name: 🚀 Deploy to App Store Connect (Twix)
         env:
