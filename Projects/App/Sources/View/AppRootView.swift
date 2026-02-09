@@ -10,7 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import Feature
 
-#if DEBUG
+#if canImport(CoreLoggingDebug)
 import CoreLoggingDebug
 #endif
 
@@ -54,13 +54,13 @@ struct AppRootView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        #if DEBUG
+        #if canImport(CoreLoggingDebug)
         .detectShakeForPulse(label: pulseLabel)
         #endif
     }
 }
 
-#if DEBUG
+#if canImport(CoreLoggingDebug)
 private extension AppRootView {
     var pulseLabel: String {
         switch store.route {

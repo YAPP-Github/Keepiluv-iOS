@@ -10,7 +10,7 @@ import KakaoSDKAuth
 import KakaoSDKCommon
 import SwiftUI
 
-#if DEBUG
+#if canImport(CoreLoggingDebug)
 import CoreLoggingDebug
 #endif
 
@@ -62,7 +62,7 @@ private func makeNetworkClient() -> NetworkClient {
         }
     )
 
-    #if DEBUG
+    #if canImport(CoreLoggingDebug)
     let interceptors: [NetworkInterceptor] = [
         authInterceptor,
         PulseNetworkInterceptor(label: "Network")
