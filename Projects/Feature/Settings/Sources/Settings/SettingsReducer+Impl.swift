@@ -238,8 +238,16 @@ private func reduceCore(
         state.toast = toast
         return .none
 
-    case .inquiryTapped,
-         .delegate:
+    case .inquiryTapped:
+        @Dependency(\.openURL) var openURL
+        guard let url = URL(string: "http://pf.kakao.com/_znAzX/chat") else {
+            return .none
+        }
+        return .run { _ in
+            await openURL(url)
+        }
+
+    case .delegate:
         return .none
     }
 }
