@@ -26,6 +26,24 @@ struct TwixApp: App {
     }
 
     init() {
+        #if DEBUG
+        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
+        #else
+        let interceptors: [NetworkInterceptor] = []
+        #endif
+
+        store = Store(
+            initialState: AppCoordinator.State()
+        ) {
+            AppCoordinator()
+        } withDependencies: {
+            $0.networkClient = .live(
+                tokenProvider: { await TokenManager.shared.accessToken },
+                interceptors: interceptors
+            )
+            $0.tokenStorage = .liveValue
+        }
+
         configureKakaoSDK()
     }
 
