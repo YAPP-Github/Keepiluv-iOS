@@ -9,10 +9,6 @@ import ComposableArchitecture
 import CoreNetworkInterface
 import Foundation
 
-#if DEBUG
-import CoreLogging
-#endif
-
 public final class NetworkProvider: NetworkProviderProtocol, Sendable {
     private let session: URLSession
     private let interceptors: [NetworkInterceptor]
@@ -116,13 +112,7 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
 
 extension NetworkClient: @retroactive DependencyKey {
     public static let liveValue: NetworkClient = {
-        #if DEBUG
-        let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
-        #else
-        let interceptors: [NetworkInterceptor] = []
-        #endif
-
-        return Self(provider: NetworkProvider(interceptors: interceptors))
+        return Self(provider: NetworkProvider(interceptors: []))
     }()
 
     /// 커스텀 interceptor를 사용하는 NetworkClient를 생성합니다.
