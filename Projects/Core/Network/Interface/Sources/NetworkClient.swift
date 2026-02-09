@@ -10,6 +10,8 @@ import Foundation
 
 /// TCA Dependency로 주입 가능한 네트워크 클라이언트입니다.
 ///
+/// 인증 처리는 NetworkInterceptor (AuthInterceptor)에서 수행합니다.
+///
 /// ## 사용 예시
 /// ```swift
 /// @Dependency(\.networkClient) var networkClient
@@ -17,56 +19,25 @@ import Foundation
 /// ```
 public struct NetworkClient: Sendable {
     private let provider: any NetworkProviderProtocol
-    private let tokenProvider: (@Sendable () async -> String?)?
 
-    public init(
-        provider: any NetworkProviderProtocol,
-        tokenProvider: (@Sendable () async -> String?)? = nil
-    ) {
+    public init(provider: any NetworkProviderProtocol) {
         self.provider = provider
-        self.tokenProvider = tokenProvider
     }
 
     /// 네트워크 요청을 수행합니다.
     ///
-    /// `endpoint.requiresAuth`가 true인 경우, Authorization 헤더에 Bearer 토큰을 자동으로 추가합니다.
+    /// 인증 헤더 추가 및 401 시 토큰 갱신은 AuthInterceptor에서 자동으로 처리됩니다.
     ///
     /// ## 사용 예시
     /// ```swift
     /// let profile: UserProfile = try await networkClient.request(endpoint: UserEndpoint.profile)
     /// ```
     public func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
-        var finalEndpoint = endpoint
-
-        // 인증이 필요하고 토큰이 있으면 헤더에 추가
-        if endpoint.requiresAuth, let tokenProvider, let token = await tokenProvider() {
-            finalEndpoint = AuthenticatedEndpointWrapper(base: endpoint, token: token)
-        }
-
-        return try await provider.request(endpoint: finalEndpoint)
+        try await provider.request(endpoint: endpoint)
     }
 }
 
-// MARK: - Authenticated Endpoint Wrapper
-
-/// 인증 헤더가 추가된 Endpoint Wrapper
-private struct AuthenticatedEndpointWrapper: Endpoint {
-    let base: Endpoint
-    let token: String
-
-    var baseURL: URL { base.baseURL }
-    var path: String { base.path }
-    var method: HTTPMethod { base.method }
-    var query: [URLQueryItem]? { base.query }
-    var body: Encodable? { base.body }
-    var requiresAuth: Bool { base.requiresAuth }
-
-    var headers: [String: String]? {
-        var headers = base.headers ?? [:]
-        headers["Authorization"] = "Bearer \(token)"
-        return headers
-    }
-}
+// MARK: - Test Support
 
 private struct UnimplementedNetworkProvider: NetworkProviderProtocol {
     func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
