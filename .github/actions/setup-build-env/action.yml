@@ -65,7 +65,7 @@ runs:
       id: tuist-cache
       uses: actions/cache@v4
       with:
-        path: ~/.tuist/Cache
+        path: ~/.cache/tuist
         key: tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-${{ hashFiles('Tuist/Package.resolved', 'Tuist/Package.swift') }}
         restore-keys: |
           tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-
