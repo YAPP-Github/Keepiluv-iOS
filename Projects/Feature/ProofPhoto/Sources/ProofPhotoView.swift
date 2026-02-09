@@ -53,27 +53,22 @@ public struct ProofPhotoView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            let isCompactHeight = geometry.size.height < 700
-
-            VStack(spacing: 0) {
-                topBar
-                titleText
-                    .padding(.top, isCompactHeight ? 12 : 25)
-                photoPreview
-                    .padding(.top, isCompactHeight ? 16 : 38)
-                    .padding(.horizontal, isCompactHeight ? 20 : 0)
-
-                Spacer(minLength: isCompactHeight ? 16 : 52)
-
-                bottomControls
-                    .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 0 : 16)
-            }
+        VStack(spacing: 0) {
+            topBar
+            titleText
+                .padding(.top, 25)
+            photoPreview
+                .padding(.top, 40)
+                .padding(.horizontal, 5)
+            bottomControls
+                .padding(.top, 52)
+            
+            Spacer()
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .observeKeyboardFrame($keyboardFrame)
-        .background(.black)
+        .background(Color.Gray.gray500)
         .onAppear {
             store.send(.onAppear)
         }
@@ -126,6 +121,7 @@ private extension ProofPhotoView {
             Rectangle()
                 .frame(maxWidth: .infinity)
                 .aspectRatio(1, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 76))
         }
     }
 
@@ -169,6 +165,7 @@ private extension ProofPhotoView {
             }
         }
         .frame(height: 74)
+        .overlay(dimmedView)
     }
     
     var captureControls: some View {
@@ -195,7 +192,7 @@ private extension ProofPhotoView {
             }
             
             TXShadowButton(
-                config: .long(text: "업로드하기"),
+                config: .medium(text: "업로드"),
                 colorStyle: .black
             ) {
                 store.send(.uploadButtonTapped)
