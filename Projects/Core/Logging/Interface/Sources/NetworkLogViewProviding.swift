@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-#if DEBUG
-import Pulse
-#endif
-
 /// 네트워크 로그 화면을 제공하는 프로토콜입니다.
 ///
 /// ## 사용 예시
