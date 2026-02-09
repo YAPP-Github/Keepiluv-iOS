@@ -50,8 +50,6 @@ private extension InfoView {
 private extension InfoView {
     var infoList: some View {
         VStack(spacing: 0) {
-            termsItem
-            listDivider
             privacyPolicyItem
             listDivider
             myVersionItem
@@ -63,12 +61,6 @@ private extension InfoView {
             RoundedRectangle(cornerRadius: Radius.s)
                 .stroke(Color.Gray.gray500, lineWidth: LineWidth.m)
         )
-    }
-
-    var termsItem: some View {
-        listItem(title: "이용약관") {
-            store.send(.termsOfServiceTapped)
-        }
     }
 
     var privacyPolicyItem: some View {

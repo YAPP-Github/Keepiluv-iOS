@@ -103,7 +103,6 @@ public struct SettingsReducer {
         case infoTapped
         case inquiryTapped
         case notificationSettingTapped
-        case termsOfServiceTapped
         case privacyPolicyTapped
 
         // MARK: - Lifecycle
