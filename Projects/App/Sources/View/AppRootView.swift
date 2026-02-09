@@ -11,7 +11,7 @@ import ComposableArchitecture
 import Feature
 
 #if DEBUG
-import CoreLogging
+import CoreLoggingDebug
 #endif
 
 struct AppRootView: View {

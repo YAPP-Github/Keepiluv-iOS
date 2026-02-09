@@ -11,7 +11,7 @@ import KakaoSDKCommon
 import SwiftUI
 
 #if DEBUG
-import CoreLogging
+import CoreLoggingDebug
 #endif
 
 @main
