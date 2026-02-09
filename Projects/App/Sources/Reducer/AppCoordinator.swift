@@ -187,7 +187,8 @@ struct AppCoordinator {
                 }
 
             case .route(.mainTab(.delegate(.logoutCompleted))),
-                 .route(.mainTab(.delegate(.withdrawCompleted))):
+                 .route(.mainTab(.delegate(.withdrawCompleted))),
+                 .route(.mainTab(.delegate(.sessionExpired))):
                 state.route = .auth(AuthReducer.State())
                 return .none
 

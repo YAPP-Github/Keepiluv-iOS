@@ -98,6 +98,10 @@ extension HomeCoordinator {
                 state.isSettingsPresented = false
                 return .send(.delegate(.withdrawCompleted))
 
+            case .settings(.delegate(.sessionExpired)):
+                state.isSettingsPresented = false
+                return .send(.delegate(.sessionExpired))
+
             case .settingsDismissed:
                 state.settings = nil
                 return .none

@@ -40,7 +40,10 @@ let project = Project.makeModule(
             tests: .auth,
             config: .init(
                 dependencies: [
-                    .domain(testing: .auth)
+                    .domain(testing: .auth),
+                    .domain(implements: .auth),
+                    .core(interface: .network),
+                    .core(testing: .network)
                 ]
             )
         )
