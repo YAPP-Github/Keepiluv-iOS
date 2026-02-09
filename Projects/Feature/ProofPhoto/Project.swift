@@ -10,6 +10,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .domain(interface: .goal),
                     .domain(interface: .photoLog),
+                    .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )

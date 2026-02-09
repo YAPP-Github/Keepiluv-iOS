@@ -12,6 +12,11 @@ public enum TXTabItem: Int, CaseIterable, Equatable {
     case home
     case statistics
     case couple
+
+    /// 현재 화면에 표시할 탭 목록 (임시: 홈만 활성화)
+    public static var visibleCases: [TXTabItem] {
+        [.home]
+    }
 }
 
 extension TXTabItem {
