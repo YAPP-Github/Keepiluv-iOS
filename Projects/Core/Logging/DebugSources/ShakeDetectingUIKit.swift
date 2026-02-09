@@ -1,11 +1,10 @@
 //
 //  ShakeDetectingUIKit.swift
-//  CoreLogging
+//  CoreLoggingDebug
 //
 //  Created by Jiyong
 //
 
-#if DEBUG
 import Foundation
 import UIKit
 
@@ -83,4 +82,3 @@ class ShakeDetectingViewController: UIViewController {
         }
     }
 }
-#endif
