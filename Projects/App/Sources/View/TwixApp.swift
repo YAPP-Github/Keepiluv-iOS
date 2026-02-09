@@ -26,7 +26,7 @@ struct TwixApp: App {
     }
 
     init() {
-        #if DEBUG
+        #if canImport(CoreLoggingDebug)
         let interceptors: [NetworkInterceptor] = [PulseNetworkInterceptor(label: "Network")]
         #else
         let interceptors: [NetworkInterceptor] = []
