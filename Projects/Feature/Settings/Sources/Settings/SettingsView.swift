@@ -32,6 +32,9 @@ public struct SettingsView: View {
 
                     case .notificationSettings:
                         NotificationSettingsView(store: store)
+
+                    case let .webView(url, title):
+                        SettingsWebView(url: url, title: title, store: store)
                     }
                 }
         }
@@ -195,8 +198,9 @@ private extension SettingsView {
             infoItem
             settingsDivider
             inquiryItem
-            settingsDivider
-            notificationItem
+            // TODO: 알림 설정 기능 구현 후 주석 해제
+            // settingsDivider
+            // notificationItem
         }
         .background(Color.Common.white)
         .clipShape(RoundedRectangle(cornerRadius: Radius.s))

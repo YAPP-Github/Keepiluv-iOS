@@ -172,12 +172,10 @@ private func reduceCore(
         }
         return .none
 
-    case .termsOfServiceTapped:
-        // TODO: 이용약관 URL 열기
-        return .none
-
     case .privacyPolicyTapped:
-        // TODO: 개인정보 처리방침 URL 열기
+        if let url = URL(string: "https://incongruous-sweatshirt-b32.notion.site/Keepliuv-3024eb2e10638051824ef9ac7f9a522f") {
+            state.routes.append(.webView(url: url, title: "개인정보 처리방침"))
+        }
         return .none
 
     case .notificationSettingTapped:
