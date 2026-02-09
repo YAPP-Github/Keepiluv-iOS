@@ -5,42 +5,67 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000324">
+      <testcase classname="fastlane.lanes" name="00: default_platform" time="0.0003">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: Switch to ios generate lane" time="0.00027">
+      <testcase classname="fastlane.lanes" name="01: Switch to ios generate lane" time="0.0001">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: cd .. &amp;&amp; make generate" time="3.189318">
+      <testcase classname="fastlane.lanes" name="02: cd .. &amp;&amp; make generate" time="15.310878">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: xcodebuild -workspace ../Twix.xcworkspace -list" time="2.553961">
+      <testcase classname="fastlane.lanes" name="03: xcodebuild -workspace ../Twix.xcworkspace -list" time="2.67496">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: Switch to ios lint lane" time="0.000253">
+      <testcase classname="fastlane.lanes" name="04: Switch to ios load_signing lane" time="0.000183">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="5: cd .. &amp;&amp; swiftlint lint --config .swiftlint.yml" time="2.024134">
+      <testcase classname="fastlane.lanes" name="05: unlock_keychain" time="7.029098">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="6: Switch to ios build_app_simulator lane" time="0.000141">
+      <testcase classname="fastlane.lanes" name="06: match" time="1.593956">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="7: xcodebuild" time="40.64033">
+      <testcase classname="fastlane.lanes" name="07: match" time="1.481341">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="08: app_store_connect_api_key" time="0.001867">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="09: latest_testflight_build_number" time="1.322343">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="10: cd .. &amp;&amp; /usr/libexec/PlistBuddy -c &apos;Set :CFBundleVersion 11&apos; Projects/App/Derived/InfoPlists/TwixDebug-Info.plist" time="0.014731">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="11: build_app" time="290.87868">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="12: upload_to_testflight" time="41.285404">
         
       </testcase>
     
