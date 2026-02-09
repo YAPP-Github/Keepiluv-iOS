@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import Kingfisher
 
 /// 목표 카드 UI를 구성하는 뷰입니다.
@@ -168,8 +169,7 @@ private extension GoalCardView {
             cornerRadii: .init(
                 bottomLeading: bottomLeadingRadius,
                 bottomTrailing: bottomTrailingRadius
-            ),
-            style: .continuous
+            )
         )
 
         Group {
@@ -177,13 +177,15 @@ private extension GoalCardView {
                 KFImage(imageURL)
                     .resizable()
                     .placeholder { }
-                    .clipShape(unEvenRoundedRect)
+                    .scaledToFill()
             } else {
                 unCompletedView(placeholder: placeholder, buttonAction: buttonAction)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(minWidth: 0, maxWidth: .infinity)
         .frame(height: config.imageHeight)
+        .clipShape(unEvenRoundedRect)
+        .clipped()
         .insideBorder(
             config.borderColor,
             shape: unEvenRoundedRect,
@@ -203,9 +205,8 @@ private extension GoalCardView {
         VStack(spacing: 0) {
             placeholder.image
                 .resizable()
-                .scaledToFit()
                 .frame(width: 80, height: 80)
-
+            
             if placeholder.isButton {
                 pokeButton(text: placeholder.text, action: buttonAction)
             } else {
@@ -214,14 +215,13 @@ private extension GoalCardView {
                     .foregroundStyle(Color.Gray.gray400)
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: config.imageHeight)
     }
 
     func pokeButton(text: String, action: (() -> Void)?) -> some View {
         Button {
             action?()
         } label: {
+            // TODO: - DesignSystem Component화 하기
             ZStack {
                 // Shadow
                 RoundedRectangle(cornerRadius: 999)
