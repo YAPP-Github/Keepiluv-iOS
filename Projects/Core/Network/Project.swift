@@ -34,7 +34,8 @@ let project = Project.makeModule(
             tests: .network,
             config: .init(
                 dependencies: [
-                    .core(testing: .network)
+                    .core(testing: .network),
+                    .core(implements: .network)
                 ]
             )
         )
