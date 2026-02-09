@@ -1,10 +1,10 @@
-name: Fastlane CI (PR)
+name: CD (develop → TestFlight)
 
 on:
-  pull_request:
+  pull_request:  # 테스트용 (테스트 후 push develop으로 원복)
 
 jobs:
-  ci_pr:
+  deploy_develop:
     runs-on: macos-15
     steps:
       - name: 🔄 Checkout source code
@@ -15,9 +15,9 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          install-swiftlint: "true"
+          install-swiftlint: "false"
 
-      - name: 🧪 Run PR Checks (build + test)
+      - name: 🚀 Deploy to TestFlight (TwixDebug)
         env:
           MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -28,7 +28,11 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
           DIST_TEAM_ID: ${{ secrets.DIST_TEAM_ID }}
-        run: bundle exec fastlane ci_pr
+
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: bundle exec fastlane deploy_develop
 
       - name: 🧹 Teardown()
         if: always()
