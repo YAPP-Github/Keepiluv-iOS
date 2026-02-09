@@ -43,10 +43,7 @@ public struct HomeView: View {
         VStack(spacing: 0) {
             navigationBar
             calendar
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if store.hasCards {
+            if store.hasCards {
                 content
             } else {
                 goalEmptyView
@@ -56,6 +53,12 @@ public struct HomeView: View {
         .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
             floatingButton
+        }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .onAppear {
             store.send(.onAppear)

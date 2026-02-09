@@ -37,13 +37,17 @@ extension HomeReducer {
             switch action {
                 // MARK: - Life Cycle
             case .onAppear:
-                let now = state.nowDate
-                let date = TXCalendarDate(
-                    year: now.year,
-                    month: now.month,
-                    day: now.day
-                )
-                return .send(.setCalendarDate(date))
+                if state.calendarDate.day == nil {
+                    let now = state.nowDate
+                    let date = TXCalendarDate(
+                        year: now.year,
+                        month: now.month,
+                        day: now.day
+                    )
+                    return .send(.setCalendarDate(date))
+                }
+                state.isLoading = true
+                return .send(.fetchGoals)
                 
                 // MARK: - User Action
             case let .calendarDateSelected(item):
@@ -71,6 +75,10 @@ extension HomeReducer {
                         month: now.month,
                         day: now.day
                     )
+                    if date == state.calendarDate {
+                        state.isLoading = true
+                        return .send(.fetchGoals)
+                    }
                     return .send(.setCalendarDate(date))
                     
                 case .subTitleTapped:
@@ -134,9 +142,14 @@ extension HomeReducer {
                 return .send(.delegate(.goToEditGoalList))
                 
                 // MARK: - Update State
-            case let .fetchGoalsCompleted(items):
+            case let .fetchGoalsCompleted(items, date):
+                if date != state.calendarDate {
+                    return .none
+                }
                 state.isLoading = false
-                state.cards = items
+                if state.cards != items {
+                    state.cards = items
+                }
                 return .none
 
             case .fetchGoalsFailed:
@@ -145,6 +158,9 @@ extension HomeReducer {
                 
             case let .setCalendarDate(date):
                 let now = state.nowDate
+                if date == state.calendarDate {
+                    return .none
+                }
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월 \(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
@@ -154,6 +170,10 @@ extension HomeReducer {
                     date.day == now.day
                 )
                 state.isLoading = true
+                return .send(.fetchGoals)
+                
+            case .fetchGoals:
+                let date = state.calendarDate
                 return .run { send in
                     do {
                         let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
@@ -176,7 +196,7 @@ extension HomeReducer {
                                 )
                             )
                         }
-                        await send(.fetchGoalsCompleted(items))
+                        await send(.fetchGoalsCompleted(items, date: date))
                     } catch {
                         await send(.fetchGoalsFailed)
                     }

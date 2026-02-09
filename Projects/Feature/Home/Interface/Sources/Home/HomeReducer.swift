@@ -93,7 +93,8 @@ public struct HomeReducer {
         case editButtonTapped
         
         // MARK: - Update State
-        case fetchGoalsCompleted([GoalCardItem])
+        case fetchGoals
+        case fetchGoalsCompleted([GoalCardItem], date: TXCalendarDate)
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
