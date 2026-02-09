@@ -80,6 +80,7 @@ public struct HomeCoordinator {
         public enum Delegate: Equatable {
             case logoutCompleted
             case withdrawCompleted
+            case sessionExpired
         }
     }
 

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreNetworkInterface
 import DomainAuthInterface
 import DomainOnboardingInterface
 import FeatureSettingsInterface
@@ -101,10 +102,14 @@ private func reduceCore(
         state.isEditing = false
         return .none
 
-    case .updateNicknameResponse(.failure):
+    case .updateNicknameResponse(.failure(let error)):
         state.isLoading = false
         state.nickname = state.originalNickname
         state.isEditing = false
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
         return .none
 
     case .languageSettingTapped:
@@ -189,32 +194,46 @@ private func reduceCore(
         state.originalNickname = name
         return .none
 
-    case .fetchMyProfileResponse(.failure):
-        // 프로필 조회 실패 시 기존 닉네임 유지
+    case .fetchMyProfileResponse(.failure(let error)):
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
         return .none
 
     case .fetchCoupleCodeResponse(.success(let coupleCode)):
         state.coupleCode = coupleCode
         return .none
 
-    case .fetchCoupleCodeResponse(.failure):
-        // 커플 코드 조회 실패 시 빈 문자열 유지
+    case .fetchCoupleCodeResponse(.failure(let error)):
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
         return .none
 
     case .logoutResponse(.success):
         state.isLoading = false
         return .send(.delegate(.logoutCompleted))
 
-    case .logoutResponse(.failure):
+    case .logoutResponse(.failure(let error)):
         state.isLoading = false
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
         return .send(.showToast(.warning(message: "로그아웃에 실패했어요")))
 
     case .withdrawResponse(.success):
         state.isLoading = false
         return .send(.delegate(.withdrawCompleted))
 
-    case .withdrawResponse(.failure):
+    case .withdrawResponse(.failure(let error)):
         state.isLoading = false
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
         return .send(.showToast(.warning(message: "회원 탈퇴에 실패했어요")))
 
     case let .showToast(toast):

@@ -19,6 +19,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .feature(interface: .settings),
+                    .core(interface: .network),
                     .domain(interface: .auth),
                     .domain(interface: .onboarding),
                     .shared(implements: .designSystem),
