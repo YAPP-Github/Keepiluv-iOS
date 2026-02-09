@@ -31,7 +31,6 @@ public struct GoalDetailReducer {
         }
         public var isCompleted: Bool { currentCard?.imageUrl != nil }
         public var comment: String { currentCard?.comment ?? "" }
-        public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {
             if case .mySelf = currentUser, isCompleted {
                 return isEditing ? "저장" : "수정"
@@ -51,6 +50,7 @@ public struct GoalDetailReducer {
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
         public var toast: TXToastType?
+        public var createdAt: String = ""
         
         /// 기본 상태를 생성합니다.
         ///
@@ -95,6 +95,7 @@ public struct GoalDetailReducer {
         case fethedGoalDetailItem(GoalDetail)
         case fetchGoalDetailFailed
         case showToast(TXToastType)
+        case setCreatedAt(String)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
         

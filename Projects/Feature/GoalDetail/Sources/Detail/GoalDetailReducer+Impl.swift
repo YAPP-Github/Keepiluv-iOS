@@ -13,6 +13,7 @@ import DomainGoalInterface
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedUtil
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
@@ -29,6 +30,7 @@ extension GoalDetailReducer {
     ) {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.goalClient) var goalClient
+        let timeFormatter = RelativeTimeFormatter()
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<GoalDetailReducer.State, GoalDetailReducer.Action> { state, action in
@@ -87,7 +89,7 @@ extension GoalDetailReducer {
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.isCommentFocused = false
-                return .none
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
@@ -100,13 +102,18 @@ extension GoalDetailReducer {
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
-                return .none
+                state.commentText = state.comment
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
 
             case .fetchGoalDetailFailed:
                 return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
 
             case let .showToast(toast):
                 state.toast = toast
+                return .none
+                
+            case let .setCreatedAt(text):
+                state.createdAt = text
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -150,6 +157,7 @@ extension GoalDetailReducer {
                 state.item?.completedGoal[index] = completedGoal
                 if state.currentUser == completedGoal.owner {
                     state.commentText = completedGoal.comment ?? ""
+                    return .send(.setCreatedAt(timeFormatter.displayText(from: completedGoal.createdAt)))
                 }
                 return .none
                 
