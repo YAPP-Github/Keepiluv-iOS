@@ -4,6 +4,7 @@ import ProjectDescriptionHelpers
 // MARK: - 공통 설정
 
 private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPlist.launchScreen.merging([
+    "CFBundleDisplayName": "Keepiluv",
     "UIUserInterfaceStyle": "Light",
     "LSApplicationQueriesSchemes": [
         "kakaokompassauth",
