@@ -36,6 +36,8 @@ let project = Project.makeModule(
                 ]),
                 dependencies: [
                     .feature(implements: .settings),
+                    .domain(interface: .auth),
+                    .domain(interface: .onboarding),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]

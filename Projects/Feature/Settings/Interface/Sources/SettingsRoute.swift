@@ -12,4 +12,5 @@ public enum SettingsRoute: Hashable {
     case account
     case info
     case notificationSettings
+    case webView(url: URL, title: String)
 }
