@@ -53,10 +53,14 @@ public struct TXTabBarContainer<Content: View>: View {
         self.content = content
     }
 
+    private var shouldShowTabBar: Bool {
+        !isTabBarHidden && !TXTabItem.visibleCases.isEmpty
+    }
+
     public var body: some View {
         content()
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if !isTabBarHidden {
+                if shouldShowTabBar {
                     TXTabBar(selectedItem: $selectedItem)
                 }
             }

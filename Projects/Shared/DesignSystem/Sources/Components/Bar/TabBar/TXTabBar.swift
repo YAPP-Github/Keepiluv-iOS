@@ -19,7 +19,7 @@ struct TXTabBar: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                ForEach(TXTabItem.allCases, id: \.rawValue) { item in
+                ForEach(TXTabItem.visibleCases, id: \.rawValue) { item in
                     tabItemView(item: item)
                 }
             }
