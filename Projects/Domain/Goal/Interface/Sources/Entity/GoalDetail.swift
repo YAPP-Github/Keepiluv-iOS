@@ -20,6 +20,7 @@ import SwiftUI
 public struct GoalDetail: Equatable {
     public let id: Int
     public let title: String
+    public let partnerNickname: String
     public var selectedIndex: Int?
     public var completedGoal: [CompletedGoal]
     
@@ -37,11 +38,13 @@ public struct GoalDetail: Equatable {
     public init(
         id: Int,
         title: String,
+        partnerNickname: String,
         completedGoal: [CompletedGoal],
         selectedIndex: Int? = nil,
     ) {
         self.id = id
         self.title = title
+        self.partnerNickname = partnerNickname
         self.completedGoal = completedGoal
         self.selectedIndex = selectedIndex
     }

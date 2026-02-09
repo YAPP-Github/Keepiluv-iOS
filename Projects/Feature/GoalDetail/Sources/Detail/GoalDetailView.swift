@@ -11,6 +11,7 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+
 import Kingfisher
 
 /// 목표 상세 화면을 렌더링하는 View입니다.

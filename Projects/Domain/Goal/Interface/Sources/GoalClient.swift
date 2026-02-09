@@ -79,7 +79,7 @@ extension GoalClient: TestDependencyKey {
         },
         fetchGoalDetail: { _ in
             assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return .init(id: 1, title: "error", completedGoal: [])
+            return .init(id: 1, title: "error", partnerNickname: "", completedGoal: [])
         },
         fetchGoalById: { _ in
             assertionFailure("GoalClient.fetchGoalById이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")

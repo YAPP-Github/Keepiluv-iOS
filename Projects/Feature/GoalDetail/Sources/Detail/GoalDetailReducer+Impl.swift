@@ -100,7 +100,6 @@ extension GoalDetailReducer {
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
-                state.commentText = state.comment
                 return .none
 
             case .fetchGoalDetailFailed:

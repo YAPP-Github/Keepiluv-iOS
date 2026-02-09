@@ -140,7 +140,8 @@ extension GoalDetailReducer.State {
     public var explainText: String {
         switch currentUser {
         case .you:
-            return "민정\n님은 아직인가봐요!"
+            guard let nickname = item?.partnerNickname else { return "" }
+            return "\(nickname)\n님은 아직인가봐요!"
             
         case .mySelf:
             return "인증샷을\n올려보세요!"

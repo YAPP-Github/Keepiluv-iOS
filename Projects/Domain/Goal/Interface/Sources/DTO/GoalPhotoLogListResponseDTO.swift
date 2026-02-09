@@ -10,8 +10,9 @@ import Foundation
 /// 목표별 인증샷 목록 응답 DTO입니다.
 public struct GoalPhotoLogListResponseDTO: Decodable {
     public let goalId: Int
-    public let myNickname: String
+//    public let myNickname: String
     public let partnerNickname: String
+    public let goalTitle: String
     public let photologs: [PhotoLogResponse]
 
     public struct PhotoLogResponse: Decodable {
@@ -41,7 +42,8 @@ public extension GoalPhotoLogListResponseDTO {
         
         return GoalDetail(
             id: response.goalId,
-            title: "제목",
+            title: response.goalTitle,
+            partnerNickname: response.partnerNickname,
             completedGoal: completedGoals
         )
     }
