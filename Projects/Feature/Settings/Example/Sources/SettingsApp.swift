@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import DomainAuthInterface
+import DomainOnboardingInterface
 import FeatureSettings
 import FeatureSettingsInterface
 import SharedDesignSystem
@@ -21,7 +23,13 @@ struct SettingsApp: App {
                         nickname: "김민정",
                         coupleCode: "JF2342S"
                     ),
-                    reducer: { SettingsReducer() }
+                    reducer: {
+                        SettingsReducer()
+                    },
+                    withDependencies: {
+                        $0.authClient = .previewValue
+                        $0.onboardingClient = .previewValue
+                    }
                 )
             )
         }
