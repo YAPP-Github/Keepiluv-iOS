@@ -13,6 +13,7 @@ public enum FeatureTag: String {
     case onboarding = "Onboarding"
     case home = "Home"
     case goal = "Goal"
+    case proopPhoto = "ProofPhoto"
     case unknown = "Unknown"
 }
 
@@ -45,4 +46,17 @@ public protocol Endpoint {
 public extension Endpoint {
     var requiresAuth: Bool { false }
     var featureTag: FeatureTag { .unknown }
+    
+    var baseURL: URL {
+        let fallbackURL = URL(string: "https://httpbin.org")! // swiftlint:disable:this force_unwrapping
+        
+        let apiBaseURL: String? = ProcessInfo.processInfo.environment["API_BASE_URL"] ??
+        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
+        
+        guard let urlString = apiBaseURL,
+              let url = URL(string: urlString) else {
+            return fallbackURL
+        }
+        return url
+    }
 }

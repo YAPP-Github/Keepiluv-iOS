@@ -6,7 +6,11 @@ let project = Project.makeModule(
     targets: [
         .shared(
             implements: .designSystem,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .shared(implements: .thirdPartyLib)
+                ]
+            )
         )
     ],
     resourceSynthesizers: [

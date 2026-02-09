@@ -9,11 +9,10 @@ import AVFoundation
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import DomainGoalInterface
+import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
 import PhotosUI
-
-// FIXME: - Remove
-import SwiftUI
+import SharedDesignSystem
 
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
@@ -25,6 +24,7 @@ extension ProofPhotoReducer {
     /// ```
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
+        @Dependency(\.photoLogClient) var photoLogClient
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
@@ -43,7 +43,6 @@ extension ProofPhotoReducer {
                 return .send(.delegate(.closeProofPhoto))
 
             case .captureButtonTapped:
-                // TODO: - Error 처리
                 guard !state.isCapturing else { return .none }
                 state.isCapturing = true
                 return .run { send in
@@ -90,22 +89,43 @@ extension ProofPhotoReducer {
                 return .none
                 
             case .uploadButtonTapped:
-                // TODO: - post
-                if state.commentText.count < 5 {
+                // 코멘트는 비워도 되지만, 입력할 경우 5글자여야 함
+                let commentCount = state.commentText.count
+                if commentCount > 0 && commentCount < 5 {
                     return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
                 } else {
-                    guard let imageData = state.imageData,
-                          let uiImage = UIImage(data: imageData) else {
+                    guard let imageData = state.imageData else {
                         return .none
                     }
-                    
-                    let completedGoal = GoalDetail.CompletedGoal(
-                        owner: .mySelf,
-                        image: Image(uiImage: uiImage),
-                        comment: state.commentText,
-                        createdAt: "방금"
-                    )
-                    return .send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+
+                    let goalId = state.goalId
+                    let comment = state.commentText
+                    let verificationDate = state.verificationDate
+
+                    return .run { send in
+                        do {
+                            let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
+                            try await uploadImageData(imageData, to: uploadResponse.uploadUrl)
+
+                            let request = PhotoLogCreateRequestDTO(
+                                goalId: goalId,
+                                fileName: uploadResponse.fileName,
+                                comment: comment,
+                                verificationDate: verificationDate
+                            )
+                            let photoLog = try await photoLogClient.createPhotoLog(request)
+
+                            let completedGoal = GoalDetail.CompletedGoal(
+                                owner: .mySelf,
+                                imageUrl: photoLog.imageUrl,
+                                comment: comment,
+                                createdAt: "방금"
+                            )
+                            await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+                        } catch {
+                            await send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
+                        }
+                    }
                 }
                 
             case .dimmedBackgroundTapped:
@@ -144,7 +164,7 @@ extension ProofPhotoReducer {
                 
             case .captureFailed:
                 state.isCapturing = false
-                return .none
+                return .send(.showToast(.warning(message: "사진 촬영에 실패했어요")))
                 
             case let .showToast(toast):
                 state.toast = toast
@@ -161,4 +181,16 @@ extension ProofPhotoReducer {
         self.init(reducer: reducer)
     }
     // swiftlint: enable function_body_length
+}
+
+private func uploadImageData(_ data: Data, to uploadURLString: String) async throws {
+    guard let url = URL(string: uploadURLString) else {
+        throw URLError(.badURL)
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.setValue("image/png", forHTTPHeaderField: "Content-Type")
+
+    let asdf = try await URLSession.shared.upload(for: request, from: data)
 }

@@ -21,15 +21,16 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
+        public let goalId: Int
         public var item: GoalDetail?
-        public var currentUser: GoalDetail.Owner = .you
+        public var currentUser: GoalDetail.Owner
+        public let verificationDate: String
         public var currentCard: GoalDetail.CompletedGoal? {
-            let index = currentUser == .mySelf ? 0 : 1
-            return item?.completedGoal[index]
+            guard let item else { return nil }
+            return item.completedGoal.first { $0.owner == currentUser }
         }
-        public var isCompleted: Bool { currentCard?.image != nil }
+        public var isCompleted: Bool { currentCard?.imageUrl != nil }
         public var comment: String { currentCard?.comment ?? "" }
-        public var createdAt: String { currentCard?.createdAt ?? "" }
         public var naviBarRightText: String {
             if case .mySelf = currentUser, isCompleted {
                 return isEditing ? "저장" : "수정"
@@ -48,14 +49,28 @@ public struct GoalDetailReducer {
         public var isEditing: Bool = false
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
+        public var toast: TXToastType?
+        public var createdAt: String = ""
         
         /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = GoalDetailReducer.State()
+        /// let state = GoalDetailReducer.State(
+        ///     currentUser: .mySelf,
+        ///     id: 1,
+        ///     verificationDate: "2026-02-07"
+        /// )
         /// ```
-        public init() { }
+        public init(
+            currentUser: GoalDetail.Owner,
+            id: Int,
+            verificationDate: String
+        ) {
+            self.currentUser = currentUser
+            self.goalId = id
+            self.verificationDate = verificationDate
+        }
     }
     
     /// GoalDetail 화면에서 발생하는 액션입니다.
@@ -73,10 +88,14 @@ public struct GoalDetailReducer {
         case cardTapped
         case focusChanged(Bool)
         case dimmedBackgroundTapped
+        case updateCompletedGoal(GoalDetail.CompletedGoal)
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
+        case fetchGoalDetailFailed
+        case showToast(TXToastType)
+        case setCreatedAt(String)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
         
@@ -122,7 +141,8 @@ extension GoalDetailReducer.State {
     public var explainText: String {
         switch currentUser {
         case .you:
-            return "민정\n님은 아직인가봐요!"
+            guard let nickname = item?.partnerNickname else { return "" }
+            return "\(nickname)\n님은 아직인가봐요!"
             
         case .mySelf:
             return "인증샷을\n올려보세요!"

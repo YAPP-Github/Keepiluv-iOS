@@ -52,7 +52,8 @@ struct ReactionBarView: View {
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
-        .frame(maxWidth: .infinity, maxHeight: 68)
+        .frame(maxWidth: .infinity)
+        .frame(height: 67)
         .background(Color.Gray.gray100)
         .clipShape(.capsule)
         .overlay(

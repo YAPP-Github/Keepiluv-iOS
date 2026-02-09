@@ -207,8 +207,7 @@ private func reduceCore(
 
     case .logoutResponse(.failure):
         state.isLoading = false
-        // TODO: 에러 처리 (토스트 등)
-        return .none
+        return .send(.showToast(.warning(message: "로그아웃에 실패했어요")))
 
     case .withdrawResponse(.success):
         state.isLoading = false
@@ -216,7 +215,10 @@ private func reduceCore(
 
     case .withdrawResponse(.failure):
         state.isLoading = false
-        // TODO: 에러 처리 (토스트 등)
+        return .send(.showToast(.warning(message: "회원 탈퇴에 실패했어요")))
+
+    case let .showToast(toast):
+        state.toast = toast
         return .none
 
     case .inquiryTapped,

@@ -19,20 +19,28 @@ struct MakeGoalView: View {
         VStack(spacing: 0) {
             navigationBar
                 .padding(.horizontal, -20)
-            emojiButton
-                .padding(.top, 52)
-            goalTitleField
-                .padding(.top, 44)
-            scheduleSection
-                .padding(.top, 44)
-            
-            Spacer()
-            
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    emojiButton
+                        .padding(.top, 52)
+                    goalTitleField
+                        .padding(.top, 44)
+                    scheduleSection
+                        .padding(.top, 44)
+                }
+                .padding(.bottom, 100)
+            }
+            .scrollIndicators(.hidden)
+
             completeButton
+                .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
+        .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { store.send(.onAppear) }
         .onDisappear { store.send(.onDisappear) }
         .txBottomSheet(
             isPresented: $store.isCalendarSheetPresented
@@ -77,7 +85,7 @@ private extension MakeGoalView {
         Button {
             store.send(.emojiButtonTapped)
         } label: {
-            store.selectedEmoji
+            store.selectedEmoji.image
                 .resizable()
                 .frame(width: 56, height: 56)
                 .padding(26)
@@ -232,7 +240,7 @@ private extension MakeGoalView {
             .padding(.horizontal, 20)
         }
         .padding(.top, 36)
-        .padding(.bottom, TXSafeArea.inset(.bottom))
+        .padding(.bottom, TXSafeArea.inset(.bottom) + 16)
     }
     
     var periodTabButtons: some View {
@@ -240,7 +248,7 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.weeklyPeriodText,
-                    colorStyle: store.selectedPeriod.isWeekly ? .black : .white
+                    colorStyle: store.selectedPeriod == .weekly ? .black : .white
                 )
             ) {
                 store.send(.periodSheetWeeklyTapped)
@@ -249,7 +257,7 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.monthlyPeriodText,
-                    colorStyle: store.selectedPeriod.isMonthly ? .black : .white
+                    colorStyle: store.selectedPeriod == .monthly ? .black : .white
                 )
             ) {
                 store.send(.periodSheetMonthlyTapped)
@@ -317,9 +325,9 @@ private extension MakeGoalView {
                 if newValue == store.dailyPeriodText {
                     store.selectedPeriod = .daily
                 } else if newValue == store.weeklyPeriodText {
-                    store.selectedPeriod = .weekly(count: store.weeklyPeriodCount)
+                    store.selectedPeriod = .weekly
                 } else if newValue == store.monthlyPeriodText {
-                    store.selectedPeriod = .monthly(count: store.monthlyPeriodCount)
+                    store.selectedPeriod = .monthly
                 }
             }
         )

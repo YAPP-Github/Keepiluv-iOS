@@ -49,6 +49,9 @@ public struct SettingsReducer {
         public var appVersion: String
         public var storeVersion: String
 
+        // Toast
+        public var toast: TXToastType?
+
         // Notification Settings
         public var isPokePushEnabled: Bool
         public var isMarketingPushEnabled: Bool
@@ -129,6 +132,7 @@ public struct SettingsReducer {
         case fetchCoupleCodeResponse(Result<String, Error>)
         case logoutResponse(Result<Void, Error>)
         case withdrawResponse(Result<Void, Error>)
+        case showToast(TXToastType)
 
         // MARK: - Delegate
         case delegate(Delegate)

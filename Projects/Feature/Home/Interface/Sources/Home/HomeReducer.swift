@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
@@ -44,7 +45,7 @@ public struct HomeReducer {
         public var calendarSheetDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
-        public var pendingDeleteGoalID: String?
+        public var pendingDeleteGoalID: Int?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
@@ -84,29 +85,31 @@ public struct HomeReducer {
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
-        case goalCheckButtonTapped(id: String, isChecked: Bool)
+        case goalCheckButtonTapped(id: Int, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
-        case myCardTapped
+        case myCardTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
         
         // MARK: - Update State
-        case fetchGoalsCompleted([GoalCardItem])
+        case fetchGoals
+        case fetchGoalsCompleted([GoalCardItem], date: TXCalendarDate)
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
-        case authorizationCompleted(isAuthorized: Bool)
+        case authorizationCompleted(id: Int, isAuthorized: Bool)
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
         case cameraPermissionAlertDismissed
-        
+        case fetchGoalsFailed
+
         // MARK: - Delegate
         case delegate(Delegate)
         
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
-            case goToGoalDetail
+            case goToGoalDetail(id: Int, owner: GoalDetail.Owner, verificationDate: String)
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList
             case goToSettings

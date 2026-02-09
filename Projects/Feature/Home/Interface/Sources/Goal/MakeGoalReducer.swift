@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import DomainGoalInterface
 import SharedDesignSystem
 import SharedUtil
 
@@ -37,15 +38,16 @@ public struct MakeGoalReducer {
         public let minimumPeriodCount = 1
         public let weeklyMaximumPeriodCount = 6
         public let monthlyMaximumPeriodCount = 25
-        public let dailyPeriodText = GoalCategory.RepeatCycle.daily.text
-        public let weeklyPeriodText = GoalCategory.RepeatCycle.weekly(count: 1).text
-        public let monthlyPeriodText = GoalCategory.RepeatCycle.monthly(count: 1).text
-        public let iconImages: [Image] = GoalCategory.images
+        public let icons: [Goal.Icon] = Goal.Icon.allCases
+        public let dailyPeriodText: String = Goal.RepeatCycle.daily.text
+        public let weeklyPeriodText: String = Goal.RepeatCycle.weekly.text
+        public let monthlyPeriodText: String = Goal.RepeatCycle.monthly.text
         
         public var mode: Mode
+        public var editingGoalId: Int?
         public var category: GoalCategory
         public var goalTitle: String
-        public var selectedPeriod: GoalCategory.RepeatCycle
+        public var selectedPeriod: Goal.RepeatCycle
         public var weeklyPeriodCount: Int = 1
         public var monthlyPeriodCount: Int = 1
         public var startDate: TXCalendarDate
@@ -59,13 +61,15 @@ public struct MakeGoalReducer {
         public var startDateText: String
         public var endDateText: String
         
-        public var showPeriodCount: Bool { !selectedPeriod.isDaily }
+        public var showPeriodCount: Bool { selectedPeriod != .daily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
-        public var selectedEmoji: Image { iconImages[selectedEmojiIndex] }
-        public var completeButtonDisabled: Bool { goalTitle.isEmpty }
+        public var selectedEmoji: Goal.Icon { icons[selectedEmojiIndex] }
+        public var completeButtonDisabled: Bool { goalTitle.isEmpty || isLoading }
         
         public var modal: TXModalType?
-        
+        public var toast: TXToastType?
+        public var isLoading: Bool = false
+
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
             case add
@@ -86,6 +90,7 @@ public struct MakeGoalReducer {
         public init(
             category: GoalCategory,
             mode: Mode,
+            editingGoalId: Int? = nil
         ) {
             let now = CalendarNow()
             let today = TXCalendarDate(
@@ -95,11 +100,12 @@ public struct MakeGoalReducer {
             )
 
             self.mode = mode
+            self.editingGoalId = editingGoalId
             self.category = category
             self.goalTitle = category != .custom ? category.title : ""
             self.selectedPeriod = category.repeatCycle
             self.selectedEmojiIndex = category.iconIndex
-            
+
             self.startDate = today
             self.endDate = today
             self.calendarSheetDate = today
@@ -107,8 +113,8 @@ public struct MakeGoalReducer {
             self.endDateText = "\(today.month)월 \(today.day ?? 1)일"
 
             let repeatCycle = category.repeatCycle
-            self.weeklyPeriodCount = repeatCycle.isWeekly ? repeatCycle.count : minimumPeriodCount
-            self.monthlyPeriodCount = repeatCycle.isMonthly ? repeatCycle.count : minimumPeriodCount
+            self.weeklyPeriodCount = repeatCycle == .weekly ? category.repeatCount : minimumPeriodCount
+            self.monthlyPeriodCount = repeatCycle == .monthly ? category.repeatCount : minimumPeriodCount
         }
     }
     
@@ -122,8 +128,15 @@ public struct MakeGoalReducer {
         case binding(BindingAction<State>)
         
         // MARK: - LifeCycle
+        case onAppear
         case onDisappear
-        
+
+        // MARK: - Update State
+        case fetchGoalCompleted(Goal)
+        case fetchGoalFailed
+        case createGoalFailed
+        case updateGoalFailed
+
         // MARK: - User Action
         case emojiButtonTapped
         case periodSelected
@@ -139,7 +152,8 @@ public struct MakeGoalReducer {
         case completeButtonTapped
         case navigationBackButtonTapped
         case modalConfirmTapped(Int)
-        
+        case showToast(TXToastType)
+
         // MARK: - Delegate
         case delegate(Delegate)
         
@@ -169,9 +183,9 @@ public struct MakeGoalReducer {
 public extension MakeGoalReducer.State {
     var periodCount: Int {
         switch selectedPeriod {
-        case .daily: return 0
-        case let .weekly(count): return count
-        case let .monthly(count): return count
+        case .daily: return 1
+        case .weekly: return weeklyPeriodCount
+        case .monthly: return monthlyPeriodCount
         }
     }
 
@@ -194,9 +208,9 @@ public extension MakeGoalReducer.State {
             if newValue == dailyPeriodText {
                 selectedPeriod = .daily
             } else if newValue == weeklyPeriodText {
-                selectedPeriod = .weekly(count: weeklyPeriodCount)
+                selectedPeriod = .weekly
             } else if newValue == monthlyPeriodText {
-                selectedPeriod = .monthly(count: monthlyPeriodCount)
+                selectedPeriod = .monthly
             }
         }
     }

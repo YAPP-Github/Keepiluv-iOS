@@ -8,6 +8,7 @@ let project = Project.makeModule(
             interface: .home,
             config: .init(
                 dependencies: [
+                    .domain(interface: .photoLog),
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
@@ -22,6 +23,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .core(interface: .captureSession),
+                    .domain(interface: .photoLog),
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),

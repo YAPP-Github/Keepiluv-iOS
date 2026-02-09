@@ -68,6 +68,7 @@ public extension Module {
     /// 앱의 핵심 규칙과 정책을 담으며,
     /// Feature에 의존하지 않고 독립적으로 설계되는 것이 원칙입니다.
     enum Domain: String, CaseIterable {
+        case photoLog = "PhotoLog"
         case goal = "Goal"
         case auth = "Auth"
         case onboarding = "Onboarding"
