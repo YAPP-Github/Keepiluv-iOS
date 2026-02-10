@@ -1,10 +1,15 @@
-name: Fastlane CI (PR)
+name: CD (main → App Store Connect)
 
 on:
-  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: cd-main-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci_pr:
+  deploy_main:
     runs-on: macos-15
     steps:
       - name: 🔄 Checkout source code
@@ -15,9 +20,10 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          install-swiftlint: "true"
+          install-swiftlint: "false"
+          include-pulse: "false"
 
-      - name: 🧪 Run PR Checks (build + test)
+      - name: 🚀 Deploy to App Store Connect (Twix)
         env:
           MATCH_REPO_URL: ${{ secrets.MATCH_REPO_URL }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -28,7 +34,11 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID }}
           DIST_TEAM_ID: ${{ secrets.DIST_TEAM_ID }}
-        run: bundle exec fastlane ci_pr
+
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: bundle exec fastlane deploy_main
 
       - name: 🧹 Teardown()
         if: always()
