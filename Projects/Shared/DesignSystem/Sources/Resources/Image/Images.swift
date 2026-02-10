@@ -113,8 +113,8 @@ public extension Image.Illustration {
     static let logo = SharedDesignSystemAsset.ImageAssets.logo.swiftUIImage
 }
 
-public extension Image.Vector {
-    typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Vector
-    
-    static let curveArrow = IllustrationAsset.curveArrow.swiftUIImage
-}
+//public extension Image.Vector {
+//    typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Vector
+//    
+//    static let curveArrow = IllustrationAsset.curveArrow.swiftUIImage
+//}
