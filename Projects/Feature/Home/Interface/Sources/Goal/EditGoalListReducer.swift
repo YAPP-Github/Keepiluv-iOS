@@ -71,6 +71,7 @@ public struct EditGoalListReducer {
         
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         case navigationBackButtonTapped
         case cardMenuButtonTapped(GoalEditCardItem)
         case cardMenuItemSelected(TXDropdownItem)

@@ -90,7 +90,9 @@ extension HomeReducer {
                 case .settingTapped:
                     return .send(.delegate(.goToSettings))
                     
-                case .backTapped, .rightTapped, .closeTapped:
+                case .backTapped,
+                        .rightTapped,
+                        .closeTapped:
                     return .none
                 }
                 
@@ -140,6 +142,27 @@ extension HomeReducer {
                 
             case .editButtonTapped:
                 return .send(.delegate(.goToEditGoalList(date: state.calendarDate)))
+                
+            case let .weekCalendarSwipe(swipe):
+                switch swipe {
+                case .next:
+                    guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: 1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(nextWeekDate))
+                    
+                case .previous:
+                    guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: -1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(previousWeekDate))
+                }
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items, date):

@@ -91,6 +91,7 @@ public struct HomeReducer {
         case myCardTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         
         // MARK: - Update State
         case fetchGoals

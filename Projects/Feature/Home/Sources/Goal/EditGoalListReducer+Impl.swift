@@ -45,6 +45,27 @@ extension EditGoalListReducer {
                 }
                 return .send(.setCalendarDate(.init(year: year, month: month, day: day)))
                 
+            case let .weekCalendarSwipe(swipe):
+                switch swipe {
+                case .next:
+                    guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: 1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(nextWeekDate))
+
+                case .previous:
+                    guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: -1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(previousWeekDate))
+                }
+                
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
                 
