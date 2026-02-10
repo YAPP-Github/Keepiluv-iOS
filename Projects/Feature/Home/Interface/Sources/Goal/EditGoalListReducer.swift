@@ -79,7 +79,8 @@ public struct EditGoalListReducer {
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
-        case fetchGoalsCompleted([GoalEditCardItem])
+        case fetchGoals
+        case fetchGoalsCompleted([GoalEditCardItem], date: TXCalendarDate)
         case deleteGoalCompleted(goalId: Int64)
         case completeGoalCompleted(goalId: Int64)
         case apiError(String)

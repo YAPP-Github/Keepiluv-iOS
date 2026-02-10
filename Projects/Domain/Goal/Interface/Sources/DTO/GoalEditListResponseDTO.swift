@@ -29,6 +29,7 @@ extension GoalEditListResponseDTO {
                 title: $0.name,
                 myVerification: nil,
                 yourVerification: nil,
+                repeatCycle: Goal.RepeatCycle(rawValue: $0.repeatCycle),
                 startDate: $0.startDate,
                 endDate: $0.endDate
             )
