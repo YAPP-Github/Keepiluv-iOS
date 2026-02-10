@@ -78,6 +78,7 @@ private extension CardHeaderView {
             rightContent
         }
         .padding(config.padding)
+        .background(Color.Common.white)
     }
     
     @ViewBuilder var rightContent: some View {
