@@ -96,17 +96,16 @@ private extension SettingsView {
 // MARK: - Profile Section
 
 private extension SettingsView {
+    @ViewBuilder
     var profileSection: some View {
-        HStack(spacing: Spacing.spacing7) {
-            profileIcon
-
-            if store.isEditing {
-                editingProfileContent
-            } else {
+        if store.isEditing {
+            editingProfileContent
+        } else {
+            HStack(spacing: Spacing.spacing7) {
+                profileIcon
                 displayProfileContent
+                Spacer()
             }
-
-            Spacer()
         }
     }
 
@@ -114,11 +113,6 @@ private extension SettingsView {
         Image.Icon.Illustration.profile
             .resizable()
             .frame(width: 52, height: 52)
-            .clipShape(Circle())
-            .overlay(
-                Circle()
-                    .stroke(Color.Gray.gray400, lineWidth: 1.182)
-            )
     }
 
     var displayProfileContent: some View {
@@ -141,17 +135,21 @@ private extension SettingsView {
     }
 
     var editingProfileContent: some View {
-        VStack(alignment: .leading, spacing: Spacing.spacing5) {
+        HStack(alignment: .top, spacing: Spacing.spacing5) {
+            profileIcon
+
             nicknameTextField
-            validationSubText
+                .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
 
     var nicknameTextField: some View {
         TXTextField(
             text: $store.nickname,
-            placeholderText: "닉네임을 입력해 주세요."
+            placeholderText: "닉네임을 입력해 주세요.",
+            submitLabel: .done,
+            tintColor: Color.Gray.gray500,
+            subText: .init(text: "닉네임 2-8자", state: validationState)
         )
         .focused($isTextFieldFocused)
         .onAppear {
@@ -159,30 +157,11 @@ private extension SettingsView {
         }
     }
 
-    var validationSubText: some View {
-        HStack(spacing: Spacing.spacing3) {
-            Image.Icon.Symbol.checkMe
-                .resizable()
-                .renderingMode(.template)
-                .frame(width: 14, height: 14)
-                .foregroundStyle(validationColor)
-
-            Text("닉네임 2-8자")
-                .typography(.c2_11b)
-                .foregroundStyle(validationColor)
-        }
-    }
-
-    var validationColor: Color {
+    var validationState: TXTextField.SubTextConfiguration.State {
         if store.nickname.isEmpty {
-            return Color.Gray.gray300
+            return .empty
         }
-
-        if store.isNicknameValid {
-            return Color.Status.success
-        }
-
-        return Color.Status.warning
+        return store.isNicknameValid ? .valid : .invalid
     }
 }
 
