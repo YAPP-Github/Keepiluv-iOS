@@ -6,6 +6,7 @@ import ProjectDescriptionHelpers
 private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPlist.launchScreen.merging([
     "CFBundleDisplayName": "Keepiluv",
     "UIUserInterfaceStyle": "Light",
+    "ITSAppUsesNonExemptEncryption": false,
     "LSApplicationQueriesSchemes": [
         "kakaokompassauth",
         "kakaolink",
