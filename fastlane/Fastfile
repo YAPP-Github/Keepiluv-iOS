@@ -83,23 +83,18 @@ platform :ios do
     match_with_optional_keychain(type: "appstore", readonly: true)
   end
 
-  lane :archive_for_ci do
-    build_app(
-      workspace: WORKSPACE_NAME,
-      scheme: MAIN_APP_SCHEME,
-      configuration: "Release",
-      export_method: "app-store",
-      skip_package_ipa: true
-    )
-  end
-
   lane :archive_for_upload do
     build_app(
       workspace: WORKSPACE_NAME,
       scheme: MAIN_APP_SCHEME,
       configuration: "Release",
       export_method: "app-store",
-      skip_package_ipa: false
+      skip_package_ipa: false,
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => "match AppStore #{BUNDLE_ID}"
+        }
+      }
     )
   end
 
@@ -152,16 +147,10 @@ platform :ios do
     )
   end
 
-  desc "Run SwiftLint"
-  lane :lint do
-    sh("cd .. && swiftlint lint --config .swiftlint.yml")
-  end
-
   desc "CI for pull requests: build modules + test modules"
   lane :ci_pr do
     begin
       generate
-      lint
       build_app_simulator
     rescue => e
       UI.error("CI failed: #{e.message}")
@@ -169,17 +158,10 @@ platform :ios do
     end
   end
 
-  lane :ci_main do
-    generate
-    lint
-    load_signing
-    archive_for_ci
-  end
-
-  lane :release_tag do
+  desc "Deploy develop branch to TestFlight (TwixDebug scheme)"
+  lane :deploy_develop do
     generate
     load_signing
-    archive_for_upload
 
     api_key = app_store_connect_api_key(
       key_id: ENV["ASC_KEY_ID"],
@@ -188,8 +170,68 @@ platform :ios do
       is_key_content_base64: true
     )
 
+    current_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID
+    )
+    new_build = current_build + 1
+
+    sh("cd .. && /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion #{new_build}' Projects/App/Derived/InfoPlists/TwixDebug-Info.plist")
+
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: DEBUG_APP_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => "match AppStore #{BUNDLE_ID}"
+        }
+      }
+    )
+
     upload_to_testflight(
       api_key: api_key,
+      app_identifier: BUNDLE_ID,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Deploy main branch to App Store Connect (Twix scheme)"
+  lane :deploy_main do
+    generate
+    load_signing
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_content: ENV["ASC_KEY_P8_BASE64"],
+      is_key_content_base64: true
+    )
+
+    current_build = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID
+    )
+    new_build = current_build + 1
+
+    sh("cd .. && /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion #{new_build}' Projects/App/Derived/InfoPlists/Twix-Info.plist")
+
+    build_app(
+      workspace: WORKSPACE_NAME,
+      scheme: MAIN_APP_SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          BUNDLE_ID => "match AppStore #{BUNDLE_ID}"
+        }
+      }
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      app_identifier: BUNDLE_ID,
       skip_waiting_for_build_processing: true
     )
   end

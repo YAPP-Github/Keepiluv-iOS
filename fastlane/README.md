@@ -39,14 +39,6 @@ Show project info
 
 
 
-### ios archive_for_ci
-
-```sh
-[bundle exec] fastlane ios archive_for_ci
-```
-
-
-
 ### ios archive_for_upload
 
 ```sh
@@ -79,14 +71,6 @@ Build all modules (without main app)
 
 
 
-### ios lint
-
-```sh
-[bundle exec] fastlane ios lint
-```
-
-Run SwiftLint
-
 ### ios ci_pr
 
 ```sh
@@ -95,21 +79,21 @@ Run SwiftLint
 
 CI for pull requests: build modules + test modules
 
-### ios ci_main
+### ios deploy_develop
 
 ```sh
-[bundle exec] fastlane ios ci_main
+[bundle exec] fastlane ios deploy_develop
 ```
 
+Deploy develop branch to TestFlight (TwixDebug scheme)
 
-
-### ios release_tag
+### ios deploy_main
 
 ```sh
-[bundle exec] fastlane ios release_tag
+[bundle exec] fastlane ios deploy_main
 ```
 
-
+Deploy main branch to App Store Connect (Twix scheme)
 
 ----
 
