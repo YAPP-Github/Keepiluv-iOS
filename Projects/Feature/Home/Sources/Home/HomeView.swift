@@ -50,7 +50,6 @@ public struct HomeView: View {
             }
             Spacer()
         }
-        .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
             floatingButton
         }
@@ -150,7 +149,7 @@ private extension HomeView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .padding(.bottom, 103)
+            .padding(.bottom, 103 + Constants.tabBarHeight)
         }
     }
     
