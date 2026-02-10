@@ -8,7 +8,7 @@
 import SwiftUI
 
 public struct GoalEditCardItem: Identifiable, Equatable {
-    public let id: String
+    public let id: Int64
     public let goalName: String
     public let iconImage: Image
     public let repeatCycle: String
@@ -16,7 +16,7 @@ public struct GoalEditCardItem: Identifiable, Equatable {
     public let endDate: String
     
     public init(
-        id: String,
+        id: Int64,
         goalName: String,
         iconImage: Image,
         repeatCycle: String,

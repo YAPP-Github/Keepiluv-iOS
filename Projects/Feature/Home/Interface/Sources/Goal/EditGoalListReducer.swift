@@ -41,7 +41,7 @@ public struct EditGoalListReducer {
         public var modal: TXModalType?
         public var toast: TXToastType?
         public var isLoading: Bool = false
-        public var pendingGoalId: String?
+        public var pendingGoalId: Int64?
         public var pendingAction: PendingAction?
 
         public enum PendingAction: Equatable {
@@ -55,15 +55,9 @@ public struct EditGoalListReducer {
         /// ```swift
         /// let state = EditGoalListReducer.State()
         /// ```
-        public init() {
-            let nowDate = CalendarNow()
-            let today = TXCalendarDate(
-                year: nowDate.year,
-                month: nowDate.month,
-                day: nowDate.day
-            )
-            self.calendarDate = today
-            self.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: today)
+        public init(calendarDate: TXCalendarDate) {
+            self.calendarDate = calendarDate
+            self.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: calendarDate)
         }
     }
     
@@ -77,6 +71,7 @@ public struct EditGoalListReducer {
         
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         case navigationBackButtonTapped
         case cardMenuButtonTapped(GoalEditCardItem)
         case cardMenuItemSelected(TXDropdownItem)
@@ -85,9 +80,10 @@ public struct EditGoalListReducer {
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
-        case fetchGoalsCompleted([GoalEditCardItem])
-        case deleteGoalCompleted(goalId: String)
-        case completeGoalCompleted(goalId: String)
+        case fetchGoals
+        case fetchGoalsCompleted([GoalEditCardItem], date: TXCalendarDate)
+        case deleteGoalCompleted(goalId: Int64)
+        case completeGoalCompleted(goalId: Int64)
         case apiError(String)
         case showToast(TXToastType)
 
@@ -96,7 +92,7 @@ public struct EditGoalListReducer {
         
         public enum Delegate {
             case navigateBack
-            case goToGoalEdit(goalId: Int)
+            case goToGoalEdit(goalId: Int64)
         }
     }
     

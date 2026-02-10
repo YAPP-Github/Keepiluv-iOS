@@ -128,13 +128,15 @@ private extension HomeView {
         )
     }
     
-    // FIXME: - Calendar
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
             weeks: store.calendarWeeks,
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
+            },
+            onWeekSwipe: { swipe in
+                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)

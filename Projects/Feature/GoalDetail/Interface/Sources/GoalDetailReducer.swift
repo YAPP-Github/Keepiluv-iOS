@@ -21,7 +21,7 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
-        public let goalId: Int
+        public let goalId: Int64
         public var item: GoalDetail?
         public var currentUser: GoalDetail.Owner
         public let verificationDate: String
@@ -64,7 +64,7 @@ public struct GoalDetailReducer {
         /// ```
         public init(
             currentUser: GoalDetail.Owner,
-            id: Int,
+            id: Int64,
             verificationDate: String
         ) {
             self.currentUser = currentUser

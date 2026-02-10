@@ -9,7 +9,7 @@ import Foundation
 
 /// 목표별 인증샷 목록 응답 DTO입니다.
 public struct GoalPhotoLogListResponseDTO: Decodable {
-    public let goalId: Int
+    public let goalId: Int64
 //    public let myNickname: String
     public let partnerNickname: String
     public let goalTitle: String
@@ -17,7 +17,7 @@ public struct GoalPhotoLogListResponseDTO: Decodable {
 
     public struct PhotoLogResponse: Decodable {
         let photologId: Int
-        let goalId: Int
+        let goalId: Int64
         let imageUrl: String
         let comment: String
         let verificationDate: String

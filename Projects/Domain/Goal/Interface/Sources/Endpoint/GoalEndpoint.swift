@@ -13,11 +13,12 @@ import CoreNetworkInterface
 public enum GoalEndpoint: Endpoint {
     case fetchGoalList(date: String)
     case createGoal(GoalCreateRequestDTO)
-    case fetchGoalDetail(goalId: Int)
-    case fetchGoalById(goalId: Int)
-    case updateGoal(goalId: Int, GoalUpdateRequestDTO)
-    case deleteGoal(goalId: Int)
-    case completeGoal(goalId: Int)
+    case fetchGoalDetail(goalId: Int64)
+    case fetchGoalById(goalId: Int64)
+    case fetchGoalEditList(date: String)
+    case updateGoal(goalId: Int64, GoalUpdateRequestDTO)
+    case deleteGoal(goalId: Int64)
+    case completeGoal(goalId: Int64)
 }
     
 extension GoalEndpoint {
@@ -32,6 +33,9 @@ extension GoalEndpoint {
 
         case let .fetchGoalById(goalId):
             return "/api/v1/goals/\(goalId)"
+            
+        case .fetchGoalEditList:
+            return "/api/v1/goals/detail"
 
         case let .updateGoal(goalId, _):
             return "/api/v1/goals/\(goalId)"
@@ -57,6 +61,9 @@ extension GoalEndpoint {
 
         case .fetchGoalById:
             return .get
+            
+        case .fetchGoalEditList:
+            return .get
 
         case .updateGoal:
             return .put
@@ -76,6 +83,9 @@ extension GoalEndpoint {
     public var query: [URLQueryItem]? {
         switch self {
         case let .fetchGoalList(date):
+            return [URLQueryItem(name: "date", value: date)]
+            
+        case let .fetchGoalEditList(date):
             return [URLQueryItem(name: "date", value: date)]
 
         case .createGoal,
@@ -98,6 +108,7 @@ extension GoalEndpoint {
 
         case .fetchGoalDetail,
              .fetchGoalById,
+             .fetchGoalEditList,
              .deleteGoal,
              .completeGoal:
             return nil

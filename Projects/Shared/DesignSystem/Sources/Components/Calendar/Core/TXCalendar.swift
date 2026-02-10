@@ -25,6 +25,11 @@ public struct TXCalendar: View {
         case monthly
     }
     
+    public enum SwipeGesture {
+        case previous
+        case next
+    }
+    
     /// 캘린더 레이아웃 설정입니다.
     public struct Configuration {
         let weeklyHorizontalPadding: CGFloat
@@ -67,19 +72,22 @@ public struct TXCalendar: View {
     private let weeks: [[TXCalendarDateItem]]
     private let config: Configuration
     private let onSelect: (TXCalendarDateItem) -> Void
+    private let onWeekSwipe: ((SwipeGesture) -> Void)?
     
     public init(
         mode: DisplayMode,
         weeks: [[TXCalendarDateItem]],
         weekdays: [String] = Self.defaultWeekdays,
         config: Configuration = .init(),
-        onSelect: @escaping (TXCalendarDateItem) -> Void = { _ in }
+        onSelect: @escaping (TXCalendarDateItem) -> Void = { _ in },
+        onWeekSwipe: ((SwipeGesture) -> Void)? = nil
     ) {
         self.mode = mode
         self.weeks = weeks
         self.weekdays = Array(weekdays.prefix(TXCalendarLayout.daysInWeek))
         self.config = config
         self.onSelect = onSelect
+        self.onWeekSwipe = onWeekSwipe
     }
     
     public var body: some View {
@@ -100,6 +108,19 @@ public struct TXCalendar: View {
             .background(config.backgroundColor)
         }
         .frame(height: contentHeight)
+        .gesture(
+            DragGesture(minimumDistance: 16)
+                .onEnded { value in
+                    guard mode == .weekly else { return }
+                    
+                    let horizontalDistance = value.translation.width
+                    let verticalDistance = value.translation.height
+                    guard abs(horizontalDistance) > abs(verticalDistance) else { return }
+                    
+                    let swipeGesture: SwipeGesture = horizontalDistance > 0 ? .previous : .next
+                    onWeekSwipe?(swipeGesture)
+                }
+        )
     }
 }
 

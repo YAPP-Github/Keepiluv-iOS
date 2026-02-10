@@ -35,7 +35,7 @@ public enum TXCalendarUtil {
         let dayString = String(format: "%02d", component.day ?? 1)
         return "\(yearString)-\(monthString)-\(dayString)"
     }
-
+    
     /// API 날짜 문자열(YYYY-MM-DD)을 TXCalendarDate로 변환합니다.
     ///
     /// ## 사용 예시
@@ -48,6 +48,35 @@ public enum TXCalendarUtil {
               let year = Int(components[0]),
               let month = Int(components[1]),
               let day = Int(components[2]) else {
+            return nil
+        }
+        return TXCalendarDate(year: year, month: month, day: day)
+    }
+    
+    /// 기준 날짜에서 주 단위 오프셋만큼 이동한 날짜를 반환합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let today = TXCalendarDate(year: 2026, month: 2, day: 10)
+    /// let nextWeek = TXCalendarUtil.dateByAddingWeek(from: today, by: 1)
+    /// let previousWeek = TXCalendarUtil.dateByAddingWeek(from: today, by: -1)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - date: 기준 날짜
+    ///   - offset: 이동할 주 단위 오프셋 (예: 다음 주 `1`, 이전 주 `-1`)
+    /// - Returns: 이동된 날짜. 계산에 실패하면 `nil`을 반환합니다.
+    public static func dateByAddingWeek(from date: TXCalendarDate, by offset: Int) -> TXCalendarDate? {
+        guard let baseDate = date.date else { return nil }
+        let calendar = Calendar(identifier: .gregorian)
+        guard let targetDate = calendar.date(byAdding: .weekOfYear, value: offset, to: baseDate) else {
+            return nil
+        }
+        let components = calendar.dateComponents([.year, .month, .day], from: targetDate)
+        
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day else {
             return nil
         }
         return TXCalendarDate(year: year, month: month, day: day)

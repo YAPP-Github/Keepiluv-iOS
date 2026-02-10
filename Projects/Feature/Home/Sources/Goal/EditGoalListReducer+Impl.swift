@@ -13,10 +13,6 @@ import DomainGoalInterface
 import FeatureHomeInterface
 import SharedDesignSystem
 
-private enum GoalAPIError: Error {
-    case invalidGoalId
-}
-
 extension EditGoalListReducer {
     /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
     ///
@@ -33,63 +29,7 @@ extension EditGoalListReducer {
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                state.isLoading = true
-                return .run { [calendarDate = state.calendarDate] send in
-                    do {
-                        let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: calendarDate))
-
-                        // 각 목표의 상세 정보를 병렬로 가져옴
-                        let items = try await withThrowingTaskGroup(
-                            of: GoalEditCardItem?.self
-                        ) { group in
-                            for goal in goals {
-                                group.addTask {
-                                    do {
-                                        let detail = try await goalClient.fetchGoalById(goal.id)
-                                        let repeatCycleText: String
-                                        if let cycle = detail.repeatCycle, let count = detail.repeatCount {
-                                            repeatCycleText = "\(cycle.text) \(count)번"
-                                        } else {
-                                            repeatCycleText = "미정"
-                                        }
-
-                                        let startDateText = detail.startDate ?? "-"
-                                        let endDateText = detail.endDate ?? "미설정"
-
-                                        return GoalEditCardItem(
-                                            id: String(goal.id),
-                                            goalName: goal.title,
-                                            iconImage: goal.goalIcon.image,
-                                            repeatCycle: repeatCycleText,
-                                            startDate: startDateText,
-                                            endDate: endDateText
-                                        )
-                                    } catch {
-                                        // 상세 조회 실패 시 기본 값으로 카드 생성
-                                        return GoalEditCardItem(
-                                            id: String(goal.id),
-                                            goalName: goal.title,
-                                            iconImage: goal.goalIcon.image,
-                                            repeatCycle: "미정",
-                                            startDate: "-",
-                                            endDate: "미설정"
-                                        )
-                                    }
-                                }
-                            }
-
-                            var results: [GoalEditCardItem] = []
-                            for try await item in group {
-                                if let item { results.append(item) }
-                            }
-                            return results
-                        }
-
-                        await send(.fetchGoalsCompleted(items))
-                    } catch {
-                        await send(.apiError("목표 조회에 실패했어요"))
-                    }
-                }
+                return .send(.fetchGoals)
                 
             case .onDisappear:
                 state.selectedCardMenu = nil
@@ -105,6 +45,27 @@ extension EditGoalListReducer {
                 }
                 return .send(.setCalendarDate(.init(year: year, month: month, day: day)))
                 
+            case let .weekCalendarSwipe(swipe):
+                switch swipe {
+                case .next:
+                    guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: 1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(nextWeekDate))
+
+                case .previous:
+                    guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: -1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(previousWeekDate))
+                }
+                
             case .navigationBackButtonTapped:
                 return .send(.delegate(.navigateBack))
                 
@@ -114,24 +75,23 @@ extension EditGoalListReducer {
                 
             case let .cardMenuItemSelected(item):
                 guard let card = state.selectedCardMenu else { return .none }
-
+                
                 switch item {
                 case .edit:
                     state.selectedCardMenu = nil
-                    guard let goalIdInt = Int(card.id) else { return .none }
-                    return .send(.delegate(.goToGoalEdit(goalId: goalIdInt)))
-
+                    return .send(.delegate(.goToGoalEdit(goalId: card.id)))
+                    
                 case .finish:
                     state.pendingGoalId = card.id
                     state.pendingAction = .complete
                     state.modal = .info(.finishGoal(for: card))
-
+                    
                 case .delete:
                     state.pendingGoalId = card.id
                     state.pendingAction = .delete
                     state.modal = .info(.editDeleteGoal(for: card))
                 }
-
+                
                 state.selectedCardMenu = nil
                 return .none
                 
@@ -144,27 +104,25 @@ extension EditGoalListReducer {
                       let pendingAction = state.pendingAction else {
                     return .none
                 }
-
+                
                 state.isLoading = true
                 state.modal = nil
-
+                
                 switch pendingAction {
                 case .complete:
                     return .run { send in
                         do {
-                            guard let goalIdInt = Int(goalId) else { throw GoalAPIError.invalidGoalId }
-                            _ = try await goalClient.completeGoal(goalIdInt)
+                            _ = try await goalClient.completeGoal(goalId)
                             await send(.completeGoalCompleted(goalId: goalId))
                         } catch {
                             await send(.apiError("목표 완료에 실패했어요"))
                         }
                     }
-
+                    
                 case .delete:
                     return .run { send in
                         do {
-                            guard let goalIdInt = Int(goalId) else { throw GoalAPIError.invalidGoalId }
-                            try await goalClient.deleteGoal(goalIdInt)
+                            try await goalClient.deleteGoal(goalId)
                             await send(.deleteGoalCompleted(goalId: goalId))
                         } catch {
                             await send(.apiError("목표 삭제에 실패했어요"))
@@ -174,13 +132,44 @@ extension EditGoalListReducer {
                 
                 // MARK: - Update State
             case let .setCalendarDate(date):
+                if date == state.calendarDate {
+                    return .none
+                }
                 state.calendarDate = date
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
-                return .none
+                state.isLoading = true
+                return .send(.fetchGoals)
                 
-            case let .fetchGoalsCompleted(items):
+            case .fetchGoals:
+                state.isLoading = true
+                let date = state.calendarDate
+                return .run { send in
+                    do {
+                        let items = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: date))
+                        let editItems = items.map {
+                            GoalEditCardItem(
+                                id: $0.id,
+                                goalName: $0.title,
+                                iconImage: $0.goalIcon.image,
+                                repeatCycle: $0.repeatCycle?.text ?? "",
+                                startDate: $0.startDate ?? "",
+                                endDate: $0.endDate ?? "미설정"
+                            )
+                        }
+                        await send(.fetchGoalsCompleted(editItems, date: date))
+                    } catch {
+                        await send(.apiError("목표 조회에 실패했어요"))
+                    }
+                }
+
+            case let .fetchGoalsCompleted(items, date):
+                if date != state.calendarDate {
+                    return .none
+                }
                 state.isLoading = false
-                state.cards = items
+                if state.cards != items {
+                    state.cards = items
+                }
                 return .none
 
             case let .deleteGoalCompleted(goalId):
