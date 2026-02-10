@@ -29,63 +29,27 @@ extension EditGoalListReducer {
         @Dependency(\.goalClient) var goalClient
         
         // swiftlint:disable:next closure_body_length
-        let reducer = Reduce<State, Action> { state, action in
+        let reducer = Reduce<State, Action> {
+            state,
+            action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
                 state.isLoading = true
                 return .run { [calendarDate = state.calendarDate] send in
                     do {
-                        let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: calendarDate))
-
-                        // 각 목표의 상세 정보를 병렬로 가져옴
-                        let items = try await withThrowingTaskGroup(
-                            of: GoalEditCardItem?.self
-                        ) { group in
-                            for goal in goals {
-                                group.addTask {
-                                    do {
-                                        let detail = try await goalClient.fetchGoalById(goal.id)
-                                        let repeatCycleText: String
-                                        if let cycle = detail.repeatCycle, let count = detail.repeatCount {
-                                            repeatCycleText = "\(cycle.text) \(count)번"
-                                        } else {
-                                            repeatCycleText = "미정"
-                                        }
-
-                                        let startDateText = detail.startDate ?? "-"
-                                        let endDateText = detail.endDate ?? "미설정"
-
-                                        return GoalEditCardItem(
-                                            id: String(goal.id),
-                                            goalName: goal.title,
-                                            iconImage: goal.goalIcon.image,
-                                            repeatCycle: repeatCycleText,
-                                            startDate: startDateText,
-                                            endDate: endDateText
-                                        )
-                                    } catch {
-                                        // 상세 조회 실패 시 기본 값으로 카드 생성
-                                        return GoalEditCardItem(
-                                            id: String(goal.id),
-                                            goalName: goal.title,
-                                            iconImage: goal.goalIcon.image,
-                                            repeatCycle: "미정",
-                                            startDate: "-",
-                                            endDate: "미설정"
-                                        )
-                                    }
-                                }
-                            }
-
-                            var results: [GoalEditCardItem] = []
-                            for try await item in group {
-                                if let item { results.append(item) }
-                            }
-                            return results
+                        let items = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: calendarDate))
+                        let editItems = items.map {
+                            return GoalEditCardItem(
+                                id: $0.id,
+                                goalName: $0.title,
+                                iconImage: $0.goalIcon.image,
+                                repeatCycle: "\($0.repeatCycle?.text ?? "") \($0.repeatCount ?? 0)번",
+                                startDate: $0.startDate ?? "",
+                                endDate: $0.endDate ?? "미설정"
+                            )
                         }
-
-                        await send(.fetchGoalsCompleted(items))
+                        await send(.fetchGoalsCompleted(editItems))
                     } catch {
                         await send(.apiError("목표 조회에 실패했어요"))
                     }
@@ -118,8 +82,7 @@ extension EditGoalListReducer {
                 switch item {
                 case .edit:
                     state.selectedCardMenu = nil
-                    guard let goalIdInt = Int(card.id) else { return .none }
-                    return .send(.delegate(.goToGoalEdit(goalId: goalIdInt)))
+                    return .send(.delegate(.goToGoalEdit(goalId: card.id)))
 
                 case .finish:
                     state.pendingGoalId = card.id
@@ -152,8 +115,7 @@ extension EditGoalListReducer {
                 case .complete:
                     return .run { send in
                         do {
-                            guard let goalIdInt = Int(goalId) else { throw GoalAPIError.invalidGoalId }
-                            _ = try await goalClient.completeGoal(goalIdInt)
+                            _ = try await goalClient.completeGoal(goalId)
                             await send(.completeGoalCompleted(goalId: goalId))
                         } catch {
                             await send(.apiError("목표 완료에 실패했어요"))
@@ -163,8 +125,7 @@ extension EditGoalListReducer {
                 case .delete:
                     return .run { send in
                         do {
-                            guard let goalIdInt = Int(goalId) else { throw GoalAPIError.invalidGoalId }
-                            try await goalClient.deleteGoal(goalIdInt)
+                            try await goalClient.deleteGoal(goalId)
                             await send(.deleteGoalCompleted(goalId: goalId))
                         } catch {
                             await send(.apiError("목표 삭제에 실패했어요"))
