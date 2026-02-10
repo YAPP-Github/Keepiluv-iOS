@@ -62,38 +62,18 @@ private extension OnboardingProfileView {
     }
 
     var textFieldSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.spacing5) {
-            TXTextField(
-                text: $store.nickname,
-                placeholderText: "닉네임을 입력해 주세요."
-            )
-
-            validationSubText
-        }
+        TXTextField(
+            text: $store.nickname,
+            placeholderText: "닉네임을 입력해 주세요.",
+            subText: .init(text: "닉네임 2-8자", state: validationState)
+        )
     }
 
-    var validationSubText: some View {
-        HStack(spacing: Spacing.spacing3) {
-            Image.Icon.Symbol.check
-                .resizable()
-                .renderingMode(.template)
-                .frame(width: 14, height: 14)
-                .foregroundStyle(validationColor)
-
-            Text("닉네임 2-8자")
-                .typography(.c2_11b)
-                .foregroundStyle(validationColor)
-        }
-    }
-
-    var validationColor: Color {
+    var validationState: TXTextField.SubTextConfiguration.State {
         if store.nickname.isEmpty {
-            return Color.Gray.gray300
-        } else if store.isNicknameValid {
-            return Color.Status.success
-        } else {
-            return Color.Status.warning
+            return .empty
         }
+        return store.isNicknameValid ? .valid : .invalid
     }
 
     var bottomButton: some View {
