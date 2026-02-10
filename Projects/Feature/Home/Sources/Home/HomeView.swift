@@ -149,8 +149,8 @@ private extension HomeView {
                 cardList
             }
             .padding(.horizontal, 20)
-            .padding(.top, 1)
-            .padding(.bottom, 1)
+            .padding(.top, 16)
+            .padding(.bottom, 103)
         }
     }
     
