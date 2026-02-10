@@ -205,7 +205,8 @@ private extension GoalCardView {
         VStack(spacing: 0) {
             placeholder.image
                 .resizable()
-                .frame(width: 80, height: 80)
+                .frame(width: 84, height: 80)
+                .padding(.top, 5)
             
             if placeholder.isButton {
                 pokeButton(text: placeholder.text, action: buttonAction)
@@ -215,6 +216,7 @@ private extension GoalCardView {
                     .foregroundStyle(Color.Gray.gray500)
             }
         }
+        .padding(.bottom, 14)
     }
 
     func pokeButton(text: String, action: (() -> Void)?) -> some View {
@@ -222,7 +224,7 @@ private extension GoalCardView {
             action?()
         } label: {
             // TODO: - DesignSystem Component화 하기
-            ZStack {
+            ZStack(alignment: .top) {
                 // Shadow
                 RoundedRectangle(cornerRadius: 999)
                     .fill(Color.Gray.gray500)
