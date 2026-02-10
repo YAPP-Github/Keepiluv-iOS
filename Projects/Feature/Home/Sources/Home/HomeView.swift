@@ -203,10 +203,17 @@ private extension HomeView {
             }
         )
     }
+    
     var floatingButton: some View {
         TXCircleButton(config: .plus()) {
             store.send(.floatingButtonTapped)
         }
+        .insideBorder(
+            Color.Gray.gray300,
+            shape: .circle,
+            lineWidth: LineWidth.m
+        )
+        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
         .padding(.trailing, 16)
         .padding(.bottom, Constants.tabBarHeight + 12)
     }
