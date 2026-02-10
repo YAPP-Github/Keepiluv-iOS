@@ -18,7 +18,7 @@ import SwiftUI
 /// )
 /// ```
 public struct GoalDetail: Equatable {
-    public let id: Int
+    public let id: Int64
     public let title: String
     public let partnerNickname: String
     public var selectedIndex: Int?
@@ -36,7 +36,7 @@ public struct GoalDetail: Equatable {
     /// )
     /// ```
     public init(
-        id: Int,
+        id: Int64,
         title: String,
         partnerNickname: String,
         completedGoal: [CompletedGoal],

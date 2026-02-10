@@ -48,11 +48,11 @@ public struct Goal {
         case monthly = "MONTHLY"
     }
     
-    public let id: Int
+    public let id: Int64
     public let goalIcon: Icon
     public let title: String
-    public let myVerification: Verification
-    public let yourVerification: Verification
+    public let myVerification: Verification?
+    public let yourVerification: Verification?
     public let repeatCycle: RepeatCycle?
     public let repeatCount: Int?
     public let startDate: String?
@@ -107,11 +107,11 @@ public struct Goal {
     /// )
     /// ```
     public init(
-        id: Int,
+        id: Int64,
         goalIcon: Icon,
         title: String,
-        myVerification: Verification,
-        yourVerification: Verification,
+        myVerification: Verification?,
+        yourVerification: Verification?,
         repeatCycle: RepeatCycle? = nil,
         repeatCount: Int? = nil,
         startDate: String? = nil,

@@ -33,7 +33,7 @@ public struct ProofPhotoReducer {
         public var isCapturing: Bool = false
         public var hasImage: Bool { imageData != nil }
         public var toast: TXToastType?
-        public var goalId: Int
+        public var goalId: Int64
         public var verificationDate: String
 
         /// 상태를 생성합니다.
@@ -47,7 +47,7 @@ public struct ProofPhotoReducer {
         /// )
         /// ```
         public init(
-            goalId: Int,
+            goalId: Int64,
             comment: String = "",
             verificationDate: String
         ) {

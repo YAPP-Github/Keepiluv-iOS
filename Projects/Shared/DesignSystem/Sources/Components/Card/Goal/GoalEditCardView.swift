@@ -131,7 +131,7 @@ private extension GoalEditCardView {
     GoalEditCardView(
         config: .goalEdit(
             item: .init(
-                id: "1",
+                id: 1,
                 goalName: "목표 이름",
                 iconImage: .Icon.Illustration.default,
                 repeatCycle: "매일",

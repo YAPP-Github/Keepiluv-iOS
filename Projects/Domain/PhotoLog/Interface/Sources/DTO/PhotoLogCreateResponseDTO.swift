@@ -9,15 +9,15 @@ import Foundation
 
 /// 인증샷 등록 응답 DTO입니다.
 public struct PhotoLogCreateResponseDTO: Decodable {
-    public let photologId: Int
-    public let goalId: Int
+    public let photologId: Int64
+    public let goalId: Int64
     public let imageUrl: String
     public let comment: String
     public let verificationDate: String
 
     public init(
-        photologId: Int,
-        goalId: Int,
+        photologId: Int64,
+        goalId: Int64,
         imageUrl: String,
         comment: String,
         verificationDate: String

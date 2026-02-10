@@ -9,11 +9,11 @@ import ComposableArchitecture
 
 /// 인증샷 업로드/등록을 위한 Client입니다.
 public struct PhotoLogClient {
-    public var fetchUploadURL: (Int) async throws -> PhotoLogUploadURLResponseDTO
+    public var fetchUploadURL: (Int64) async throws -> PhotoLogUploadURLResponseDTO
     public var createPhotoLog: (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
 
     public init(
-        fetchUploadURL: @escaping (Int) async throws -> PhotoLogUploadURLResponseDTO,
+        fetchUploadURL: @escaping (Int64) async throws -> PhotoLogUploadURLResponseDTO,
         createPhotoLog: @escaping (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
     ) {
         self.fetchUploadURL = fetchUploadURL

@@ -58,6 +58,9 @@ private extension EditGoalListView {
             weeks: store.calendarWeeks,
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
+            },
+            onWeekSwipe: { swipe in
+                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
@@ -103,7 +106,14 @@ private extension EditGoalListView {
     }
 }
 #Preview {
-    EditGoalListView(store: Store(initialState: EditGoalListReducer.State(), reducer: {
-        EditGoalListReducer()
-    }))
+    EditGoalListView(
+        store: Store(
+            initialState: EditGoalListReducer.State(
+                calendarDate: .init(year: 2026, month: 02, day: 15)
+            ),
+            reducer: {
+                EditGoalListReducer()
+            }
+        )
+    )
 }

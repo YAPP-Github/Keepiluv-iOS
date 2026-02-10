@@ -1,6 +1,6 @@
 //
 //  GoalClient.swift
-//  DomainGoalInterface
+//  DomainGoalInt64erface
 //
 //  Created by 정지훈 on 1/26/26.
 //
@@ -20,11 +20,12 @@ import CoreNetworkInterface
 public struct GoalClient {
     public var fetchGoals: (String) async throws -> [Goal]
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
-    public var fetchGoalDetail: (Int) async throws -> GoalDetail
-    public var fetchGoalById: (Int) async throws -> Goal
-    public var updateGoal: (Int, GoalUpdateRequestDTO) async throws -> Goal
-    public var deleteGoal: (Int) async throws -> Void
-    public var completeGoal: (Int) async throws -> GoalCompleteResponseDTO
+    public var fetchGoalDetail: (Int64) async throws -> GoalDetail
+    public var fetchGoalById: (Int64) async throws -> Goal
+    public var fetchGoalEditList: (String) async throws -> [Goal]
+    public var updateGoal: (Int64, GoalUpdateRequestDTO) async throws -> Goal
+    public var deleteGoal: (Int64) async throws -> Void
+    public var completeGoal: (Int64) async throws -> GoalCompleteResponseDTO
     
     /// 목표 조회 클로저를 주입하여 GoalClient를 생성합니다.
     ///
@@ -39,16 +40,18 @@ public struct GoalClient {
     public init(
         fetchGoals: @escaping (String) async throws -> [Goal],
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
-        fetchGoalDetail: @escaping (Int) async throws -> GoalDetail,
-        fetchGoalById: @escaping (Int) async throws -> Goal,
-        updateGoal: @escaping (Int, GoalUpdateRequestDTO) async throws -> Goal,
-        deleteGoal: @escaping (Int) async throws -> Void,
-        completeGoal: @escaping (Int) async throws -> GoalCompleteResponseDTO
+        fetchGoalDetail: @escaping (Int64) async throws -> GoalDetail,
+        fetchGoalById: @escaping (Int64) async throws -> Goal,
+        fetchGoalEditList: @escaping (String) async throws -> [Goal],
+        updateGoal: @escaping (Int64, GoalUpdateRequestDTO) async throws -> Goal,
+        deleteGoal: @escaping (Int64) async throws -> Void,
+        completeGoal: @escaping (Int64) async throws -> GoalCompleteResponseDTO
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
         self.fetchGoalDetail = fetchGoalDetail
         self.fetchGoalById = fetchGoalById
+        self.fetchGoalEditList = fetchGoalEditList
         self.updateGoal = updateGoal
         self.deleteGoal = deleteGoal
         self.completeGoal = completeGoal
@@ -96,6 +99,10 @@ extension GoalClient: TestDependencyKey {
                 myVerification: trashVerification,
                 yourVerification: trashVerification
             )
+        },
+        fetchGoalEditList: { _ in
+            
+            return []
         },
         updateGoal: { _, _ in
             assertionFailure("GoalClient.updateGoal이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")

@@ -90,7 +90,9 @@ extension HomeReducer {
                 case .settingTapped:
                     return .send(.delegate(.goToSettings))
                     
-                case .backTapped, .rightTapped, .closeTapped:
+                case .backTapped,
+                        .rightTapped,
+                        .closeTapped:
                     return .none
                 }
                 
@@ -139,7 +141,28 @@ extension HomeReducer {
                 return .send(.delegate(.goToMakeGoal(category)))
                 
             case .editButtonTapped:
-                return .send(.delegate(.goToEditGoalList))
+                return .send(.delegate(.goToEditGoalList(date: state.calendarDate)))
+                
+            case let .weekCalendarSwipe(swipe):
+                switch swipe {
+                case .next:
+                    guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: 1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(nextWeekDate))
+                    
+                case .previous:
+                    guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
+                        from: state.calendarDate,
+                        by: -1
+                    ) else {
+                        return .none
+                    }
+                    return .send(.setCalendarDate(previousWeekDate))
+                }
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items, date):
@@ -178,21 +201,21 @@ extension HomeReducer {
                     do {
                         let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
                         let items: [GoalCardItem] = goals.map { goal in
-                            let myImageURL = goal.myVerification.imageURL.flatMap(URL.init(string:))
-                            let yourImageURL = goal.yourVerification.imageURL.flatMap(URL.init(string:))
+                            let myImageURL = goal.myVerification?.imageURL.flatMap(URL.init(string:))
+                            let yourImageURL = goal.yourVerification?.imageURL.flatMap(URL.init(string:))
                             return GoalCardItem(
                                 id: goal.id,
                                 goalName: goal.title,
                                 goalEmoji: goal.goalIcon.image,
                                 myCard: .init(
                                     imageURL: myImageURL,
-                                    isSelected: goal.myVerification.isCompleted,
-                                    emoji: goal.myVerification.emoji?.image
+                                    isSelected: goal.myVerification?.isCompleted ?? false,
+                                    emoji: goal.myVerification?.emoji?.image
                                 ),
                                 yourCard: .init(
                                     imageURL: yourImageURL,
-                                    isSelected: goal.yourVerification.isCompleted,
-                                    emoji: goal.yourVerification.emoji?.image
+                                    isSelected: goal.yourVerification?.isCompleted ?? false,
+                                    emoji: goal.yourVerification?.emoji?.image
                                 )
                             )
                         }

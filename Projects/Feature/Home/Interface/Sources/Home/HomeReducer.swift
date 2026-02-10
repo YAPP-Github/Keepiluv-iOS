@@ -45,7 +45,7 @@ public struct HomeReducer {
         public var calendarSheetDate: TXCalendarDate = .init()
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
-        public var pendingDeleteGoalID: Int?
+        public var pendingDeleteGoalID: Int64?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
@@ -85,12 +85,13 @@ public struct HomeReducer {
         case calendarDateSelected(TXCalendarDateItem)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
-        case goalCheckButtonTapped(id: Int, isChecked: Bool)
+        case goalCheckButtonTapped(id: Int64, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
         case myCardTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         
         // MARK: - Update State
         case fetchGoals
@@ -98,7 +99,7 @@ public struct HomeReducer {
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
-        case authorizationCompleted(id: Int, isAuthorized: Bool)
+        case authorizationCompleted(id: Int64, isAuthorized: Bool)
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
         case cameraPermissionAlertDismissed
@@ -109,9 +110,9 @@ public struct HomeReducer {
         
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
-            case goToGoalDetail(id: Int, owner: GoalDetail.Owner, verificationDate: String)
+            case goToGoalDetail(id: Int64, owner: GoalDetail.Owner, verificationDate: String)
             case goToMakeGoal(GoalCategory)
-            case goToEditGoalList
+            case goToEditGoalList(date: TXCalendarDate)
             case goToSettings
         }
     }
