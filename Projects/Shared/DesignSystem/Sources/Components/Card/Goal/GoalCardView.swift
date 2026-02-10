@@ -212,7 +212,7 @@ private extension GoalCardView {
             } else {
                 Text(placeholder.text)
                     .typography(.b4_12b)
-                    .foregroundStyle(Color.Gray.gray400)
+                    .foregroundStyle(Color.Gray.gray500)
             }
         }
     }
