@@ -55,15 +55,9 @@ public struct EditGoalListReducer {
         /// ```swift
         /// let state = EditGoalListReducer.State()
         /// ```
-        public init() {
-            let nowDate = CalendarNow()
-            let today = TXCalendarDate(
-                year: nowDate.year,
-                month: nowDate.month,
-                day: nowDate.day
-            )
-            self.calendarDate = today
-            self.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: today)
+        public init(calendarDate: TXCalendarDate) {
+            self.calendarDate = calendarDate
+            self.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: calendarDate)
         }
     }
     

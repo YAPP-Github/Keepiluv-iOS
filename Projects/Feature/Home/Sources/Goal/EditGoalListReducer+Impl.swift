@@ -29,9 +29,7 @@ extension EditGoalListReducer {
         @Dependency(\.goalClient) var goalClient
         
         // swiftlint:disable:next closure_body_length
-        let reducer = Reduce<State, Action> {
-            state,
-            action in
+        let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
@@ -40,7 +38,7 @@ extension EditGoalListReducer {
                     do {
                         let items = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: calendarDate))
                         let editItems = items.map {
-                            return GoalEditCardItem(
+                            GoalEditCardItem(
                                 id: $0.id,
                                 goalName: $0.title,
                                 iconImage: $0.goalIcon.image,

@@ -103,7 +103,14 @@ private extension EditGoalListView {
     }
 }
 #Preview {
-    EditGoalListView(store: Store(initialState: EditGoalListReducer.State(), reducer: {
-        EditGoalListReducer()
-    }))
+    EditGoalListView(
+        store: Store(
+            initialState: EditGoalListReducer.State(
+                calendarDate: .init(year: 2026, month: 02, day: 15)
+            ),
+            reducer: {
+                EditGoalListReducer()
+            }
+        )
+    )
 }

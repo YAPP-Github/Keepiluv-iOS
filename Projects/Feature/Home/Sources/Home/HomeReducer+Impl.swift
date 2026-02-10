@@ -139,7 +139,7 @@ extension HomeReducer {
                 return .send(.delegate(.goToMakeGoal(category)))
                 
             case .editButtonTapped:
-                return .send(.delegate(.goToEditGoalList))
+                return .send(.delegate(.goToEditGoalList(date: state.calendarDate)))
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items, date):

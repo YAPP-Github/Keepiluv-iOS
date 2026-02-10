@@ -111,7 +111,7 @@ public struct HomeReducer {
         public enum Delegate {
             case goToGoalDetail(id: Int64, owner: GoalDetail.Owner, verificationDate: String)
             case goToMakeGoal(GoalCategory)
-            case goToEditGoalList
+            case goToEditGoalList(date: TXCalendarDate)
             case goToSettings
         }
     }
