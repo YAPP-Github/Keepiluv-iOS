@@ -29,7 +29,7 @@ import Kingfisher
 /// )
 /// ```
 public struct GoalCardView: View {
-    
+    // FIXME: - Border 리팩터링
     /// GoalCardView에 필요한 스타일/데이터를 묶는 설정 값입니다.
     public struct Configuration {
         struct Placeholder {
@@ -108,13 +108,18 @@ public struct GoalCardView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            CardHeaderView(
-                config: config.headerConfig
-            )
+            CardHeaderView(config: config.headerConfig)
             
             if config.showsContent {
+                config.borderColor
+                    .frame(height: config.borderWidth)
+                    .frame(maxWidth: .infinity)
+                
                 HStack(spacing: 0) {
                     myContent
+                    config.borderColor
+                        .frame(width: config.borderWidth)
+                        .frame(maxHeight: .infinity)
                     yourContent
                 }
                 .background(config.contentBackgroundColor)
@@ -186,11 +191,6 @@ private extension GoalCardView {
         .frame(height: config.imageHeight)
         .clipShape(unEvenRoundedRect)
         .clipped()
-        .insideBorder(
-            config.borderColor,
-            shape: unEvenRoundedRect,
-            lineWidth: config.borderWidth
-        )
         .overlay(alignment: .bottomTrailing) {
             if let emoji = item.emoji {
                 emojiImage(emoji: emoji)
