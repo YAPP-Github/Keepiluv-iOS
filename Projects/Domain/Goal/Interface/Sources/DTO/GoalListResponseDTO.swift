@@ -20,7 +20,7 @@ public struct GoalListResponseDTO: Decodable {
     public let goals: [GoalResponse]
 
     public struct GoalResponse: Decodable {
-        let goalId: Int
+        let goalId: Int64
         let name: String
         let icon: String
         let repeatCycle: String?
@@ -34,7 +34,7 @@ public struct GoalListResponseDTO: Decodable {
     }
 
     public struct Verification: Decodable {
-//        let photologId: Int
+//        let photologId: Int64
         let imageUrl: String?
         // let comment: String
         let reaction: String?

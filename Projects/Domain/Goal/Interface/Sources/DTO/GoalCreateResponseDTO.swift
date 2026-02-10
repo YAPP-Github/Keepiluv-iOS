@@ -9,7 +9,7 @@ import Foundation
 
 /// 목표 생성 응답 DTO입니다.
 public struct GoalCreateResponseDTO: Decodable {
-    public let goalId: Int
+    public let goalId: Int64
     public let name: String
     public let icon: String
     public let repeatCycle: String

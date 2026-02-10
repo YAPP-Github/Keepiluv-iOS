@@ -11,7 +11,7 @@ import CoreNetworkInterface
 
 /// 인증샷 관련 API 엔드포인트 정의입니다.
 public enum PhotoLogEndpoint: Endpoint {
-    case fetchUploadURL(goalId: Int)
+    case fetchUploadURL(goalId: Int64)
     case createPhotoLog(PhotoLogCreateRequestDTO)
 }
 

@@ -9,13 +9,13 @@ import Foundation
 
 /// 인증샷 등록 요청 DTO입니다.
 public struct PhotoLogCreateRequestDTO: Encodable {
-    public let goalId: Int
+    public let goalId: Int64
     public let fileName: String
     public let comment: String
     public let verificationDate: String
 
     public init(
-        goalId: Int,
+        goalId: Int64,
         fileName: String,
         comment: String,
         verificationDate: String

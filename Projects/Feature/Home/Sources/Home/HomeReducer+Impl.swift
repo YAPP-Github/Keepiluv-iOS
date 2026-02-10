@@ -178,21 +178,21 @@ extension HomeReducer {
                     do {
                         let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
                         let items: [GoalCardItem] = goals.map { goal in
-                            let myImageURL = goal.myVerification.imageURL.flatMap(URL.init(string:))
-                            let yourImageURL = goal.yourVerification.imageURL.flatMap(URL.init(string:))
+                            let myImageURL = goal.myVerification?.imageURL.flatMap(URL.init(string:))
+                            let yourImageURL = goal.yourVerification?.imageURL.flatMap(URL.init(string:))
                             return GoalCardItem(
                                 id: goal.id,
                                 goalName: goal.title,
                                 goalEmoji: goal.goalIcon.image,
                                 myCard: .init(
                                     imageURL: myImageURL,
-                                    isSelected: goal.myVerification.isCompleted,
-                                    emoji: goal.myVerification.emoji?.image
+                                    isSelected: goal.myVerification?.isCompleted ?? false,
+                                    emoji: goal.myVerification?.emoji?.image
                                 ),
                                 yourCard: .init(
                                     imageURL: yourImageURL,
-                                    isSelected: goal.yourVerification.isCompleted,
-                                    emoji: goal.yourVerification.emoji?.image
+                                    isSelected: goal.yourVerification?.isCompleted ?? false,
+                                    emoji: goal.yourVerification?.emoji?.image
                                 )
                             )
                         }

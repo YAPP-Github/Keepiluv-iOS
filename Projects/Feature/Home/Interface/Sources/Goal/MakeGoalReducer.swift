@@ -44,7 +44,7 @@ public struct MakeGoalReducer {
         public let monthlyPeriodText: String = Goal.RepeatCycle.monthly.text
         
         public var mode: Mode
-        public var editingGoalId: Int?
+        public var editingGoalId: Int64?
         public var category: GoalCategory
         public var goalTitle: String
         public var selectedPeriod: Goal.RepeatCycle
@@ -90,7 +90,7 @@ public struct MakeGoalReducer {
         public init(
             category: GoalCategory,
             mode: Mode,
-            editingGoalId: Int? = nil
+            editingGoalId: Int64? = nil
         ) {
             let now = CalendarNow()
             let today = TXCalendarDate(
