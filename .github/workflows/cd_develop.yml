@@ -1,7 +1,12 @@
 name: CD (develop → TestFlight)
 
 on:
-  pull_request:  # 테스트용 (테스트 후 push develop으로 원복)
+  push:
+    branches: [develop]
+
+concurrency:
+  group: cd-develop-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy_develop:

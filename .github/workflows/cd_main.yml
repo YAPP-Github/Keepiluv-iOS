@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: cd-main-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy_main:
     runs-on: macos-15
