@@ -160,8 +160,8 @@ private extension TXSelectionModalView {
             confirmButton
         }
         .padding(.horizontal, Spacing.spacing8)
-        .padding(.top, Spacing.spacing9)
-        .padding(.bottom, Spacing.spacing6)
+        .padding(.top, Spacing.spacing11)
+        .padding(.bottom, Spacing.spacing8)
     }
 
     var cancelButton: some View {
