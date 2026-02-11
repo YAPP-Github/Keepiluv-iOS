@@ -12,7 +12,7 @@ public struct GoalEditListResponseDTO: Decodable {
     
     public struct GoalEditResponseDTO: Decodable {
         public let goalId: Int64
-        public let name: String
+        public let goalName: String
         public let icon: String
         public let repeatCycle: String
         public let startDate: String
@@ -26,7 +26,7 @@ extension GoalEditListResponseDTO {
             Goal(
                 id: $0.goalId,
                 goalIcon: Goal.Icon.init(rawValue: $0.icon) ?? .default,
-                title: $0.name,
+                title: $0.goalName,
                 myVerification: nil,
                 yourVerification: nil,
                 repeatCycle: Goal.RepeatCycle(rawValue: $0.repeatCycle),

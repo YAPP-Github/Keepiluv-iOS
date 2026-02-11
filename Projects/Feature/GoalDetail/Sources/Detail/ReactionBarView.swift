@@ -10,41 +10,34 @@ import SwiftUI
 import SharedDesignSystem
 
 struct ReactionBarView: View {
-    let selectedIndex: Int?
-    let onTap: (Int) -> Void
+    let selectedEmoji: ReactionEmoji?
+    let onSelect: (ReactionEmoji) -> Void
     
     @State private var flyingReactions: [FloatingReaction] = []
-    private let emojis: [Image] = [
-        Image.Icon.Illustration.happy,
-        Image.Icon.Illustration.trouble,
-        Image.Icon.Illustration.love,
-        Image.Icon.Illustration.doubt,
-        Image.Icon.Illustration.fuck
-    ]
     
     init(
-        selectedIndex: Int?,
-        onTap: @escaping (Int) -> Void,
+        selectedEmoji: ReactionEmoji?,
+        onSelect: @escaping (ReactionEmoji) -> Void
     ) {
-        self.selectedIndex = selectedIndex
-        self.onTap = onTap
+        self.selectedEmoji = selectedEmoji
+        self.onSelect = onSelect
     }
     
     var body: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
-                ForEach(emojis.indices, id: \.self) { index in
+                ForEach(ReactionEmoji.allCases, id: \.self) { emoji in
                     Button {
-                        onTap(index)
-                        emitFlyingReactions(for: index, width: proxy.size.width)
+                        onSelect(emoji)
+                        emitFlyingReactions(for: emoji, width: proxy.size.width)
                     } label: {
-                        emojis[index]
+                        emoji.image
                             .padding(.horizontal, 8)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(selectedIndex == index ? Color.Gray.gray300 : Color.clear)
+                    .background(selectedEmoji == emoji ? Color.Gray.gray300 : Color.clear)
                     
-                    if index != emojis.count - 1 {
+                    if emoji != ReactionEmoji.allCases.last {
                         Rectangle()
                             .frame(width: 1)
                     }
@@ -69,7 +62,7 @@ struct ReactionBarView: View {
 private extension ReactionBarView {
     struct FloatingReaction: Identifiable {
         let id = UUID()
-        let emojiIndex: Int
+        let emoji: ReactionEmoji
         let startX: CGFloat
         let startY: CGFloat
         let startDate: Date
@@ -122,15 +115,15 @@ private extension ReactionBarView {
     @ViewBuilder
     func flyingReactionView(_ reaction: FloatingReaction, now: Date) -> some View {
         let progress = reaction.progress(at: now)
-        if progress > 0, progress <= 1, reaction.emojiIndex < emojis.count {
-            emojis[reaction.emojiIndex]
+        if progress > 0, progress <= 1 {
+            reaction.emoji.image
                 .offset(x: reaction.xOffset(at: progress), y: reaction.yOffset(at: progress))
                 .opacity(reaction.opacity(at: progress))
                 .scaleEffect(reaction.scale)
         }
     }
     
-    func emitFlyingReactions(for index: Int, width: CGFloat) {
+    func emitFlyingReactions(for emoji: ReactionEmoji, width: CGFloat) {
         let minX: CGFloat = 8
         let maxXInset: CGFloat = 32
         let startY: CGFloat = -12
@@ -139,7 +132,7 @@ private extension ReactionBarView {
         
         let newReactions = (0..<emojiCount).map { order in
             FloatingReaction(
-                emojiIndex: index,
+                emoji: emoji,
                 startX: .random(in: minX...maxX),
                 startY: startY,
                 startDate: Date(),

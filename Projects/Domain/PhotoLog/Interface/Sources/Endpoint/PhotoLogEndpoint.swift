@@ -10,24 +10,24 @@ import Foundation
 import CoreNetworkInterface
 
 /// 인증샷 관련 API 엔드포인트 정의입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// let request = PhotoLogUpdateReactionRequestDTO(reaction: "EMOJI_HAPPY")
+/// let endpoint = PhotoLogEndpoint.updateReaction(photoLogId: 1, request: request)
+/// ```
 public enum PhotoLogEndpoint: Endpoint {
     case fetchUploadURL(goalId: Int64)
     case createPhotoLog(PhotoLogCreateRequestDTO)
+    case updateReaction(photoLogId: Int64, request: PhotoLogUpdateReactionRequestDTO)
 }
 
 extension PhotoLogEndpoint {
-    public var baseURL: URL {
-        guard let urlString = Configuration.apiBaseURL,
-              let url = URL(string: urlString) else {
-            return Configuration.fallbackURL
-        }
-        return url
-    }
-
     public var path: String {
         switch self {
         case .fetchUploadURL: return "/api/v1/photologs/upload-url"
         case .createPhotoLog: return "/api/v1/photologs"
+        case let .updateReaction(photoLogId, _): return "/api/v1/photologs/\(photoLogId)/reaction"
         }
     }
 
@@ -35,6 +35,7 @@ extension PhotoLogEndpoint {
         switch self {
         case .fetchUploadURL: return .get
         case .createPhotoLog: return .post
+        case .updateReaction: return .put
         }
     }
 
@@ -46,7 +47,8 @@ extension PhotoLogEndpoint {
         switch self {
         case let .fetchUploadURL(goalId):
             return [URLQueryItem(name: "goalId", value: String(goalId))]
-        case .createPhotoLog:
+            
+        case .createPhotoLog, .updateReaction:
             return nil
         }
     }
@@ -55,22 +57,15 @@ extension PhotoLogEndpoint {
         switch self {
         case .fetchUploadURL:
             return nil
+            
         case let .createPhotoLog(request):
+            return request
+            
+        case let .updateReaction(_, request):
             return request
         }
     }
 
     public var requiresAuth: Bool { true }
     public var featureTag: FeatureTag { .proopPhoto }
-}
-
-// MARK: - Configuration
-
-private enum Configuration {
-    static let fallbackURL = URL(string: "https://httpbin.org")! // swiftlint:disable:this force_unwrapping
-
-    static var apiBaseURL: String? {
-        ProcessInfo.processInfo.environment["API_BASE_URL"] ??
-        Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String
-    }
 }

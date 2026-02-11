@@ -20,7 +20,7 @@ import CoreNetworkInterface
 public struct GoalClient {
     public var fetchGoals: (String) async throws -> [Goal]
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
-    public var fetchGoalDetail: (Int64) async throws -> GoalDetail
+    public var fetchGoalDetailList: (String) async throws -> GoalDetail
     public var fetchGoalById: (Int64) async throws -> Goal
     public var fetchGoalEditList: (String) async throws -> [Goal]
     public var updateGoal: (Int64, GoalUpdateRequestDTO) async throws -> Goal
@@ -40,7 +40,7 @@ public struct GoalClient {
     public init(
         fetchGoals: @escaping (String) async throws -> [Goal],
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
-        fetchGoalDetail: @escaping (Int64) async throws -> GoalDetail,
+        fetchGoalDetailList: @escaping (String) async throws -> GoalDetail,
         fetchGoalById: @escaping (Int64) async throws -> Goal,
         fetchGoalEditList: @escaping (String) async throws -> [Goal],
         updateGoal: @escaping (Int64, GoalUpdateRequestDTO) async throws -> Goal,
@@ -49,7 +49,7 @@ public struct GoalClient {
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
-        self.fetchGoalDetail = fetchGoalDetail
+        self.fetchGoalDetailList = fetchGoalDetailList
         self.fetchGoalById = fetchGoalById
         self.fetchGoalEditList = fetchGoalEditList
         self.updateGoal = updateGoal
@@ -80,9 +80,9 @@ extension GoalClient: TestDependencyKey {
                 yourVerification: trashVerification
             )
         },
-        fetchGoalDetail: { _ in
-            assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return .init(id: 1, title: "error", partnerNickname: "", completedGoal: [])
+        fetchGoalDetailList: { _ in
+            assertionFailure("GoalClient.fetchGoalDetailList이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            return .init(partnerNickname: "", completedGoals: [])
         },
         fetchGoalById: { _ in
             assertionFailure("GoalClient.fetchGoalById이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
@@ -127,7 +127,7 @@ extension GoalClient: TestDependencyKey {
             assertionFailure("GoalClient.completeGoal이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return GoalCompleteResponseDTO(
                 goalId: 1,
-                name: "",
+                goalName: "",
                 goalStatus: "COMPLETED",
                 completedAt: ""
             )
@@ -167,7 +167,7 @@ extension GoalClient: TestDependencyKey {
 //                )
 //            ]
 //        },
-//        fetchGoalDetail: {
+//        fetchGoalDetailList: {
 //            return
 //                .init(
 //                    id: "1",

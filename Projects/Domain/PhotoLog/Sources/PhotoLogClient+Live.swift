@@ -28,6 +28,12 @@ extension PhotoLogClient: @retroactive DependencyKey {
                     endpoint: PhotoLogEndpoint.createPhotoLog(request)
                 )
                 return response
+            },
+            updateReaction: { photoLogId, request in
+                let response: PhotoLogUpdateReactionResponseDTO = try await networkClient.request(
+                    endpoint: PhotoLogEndpoint.updateReaction(photoLogId: photoLogId, request: request)
+                )
+                return response
             }
         )
     }
