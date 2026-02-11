@@ -108,6 +108,23 @@ extension GoalDetailReducer {
                 state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
+            case .cardSwipedUp:
+                let nextIndex = state.currentGoalIndex + 1
+                guard nextIndex < state.completedGoalItems.count else { return .none }
+                state.currentGoalIndex = nextIndex
+                state.commentText = state.comment
+                state.isCommentFocused = false
+                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                
+            case .cardSwipedDown:
+                guard state.currentGoalIndex > 0 else { return .none }
+                state.currentGoalIndex -= 1
+                state.commentText = state.comment
+                state.isCommentFocused = false
+                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
                 return .none
@@ -119,6 +136,13 @@ extension GoalDetailReducer {
                 // MARK: - State Update
             case let .fethedGoalDetailItem(item):
                 state.item = item
+                if let goalIndex = state.completedGoalItems.firstIndex(where: {
+                    $0.myPhotoLog?.goalId == state.goalId || $0.yourPhotoLog?.goalId == state.goalId
+                }) {
+                    state.currentGoalIndex = goalIndex
+                } else {
+                    state.currentGoalIndex = 0
+                }
                 state.commentText = state.comment
                 state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
@@ -141,7 +165,7 @@ extension GoalDetailReducer {
                 }
                 state.isPresentedProofPhoto = true
                 state.proofPhoto = ProofPhotoReducer.State(
-                    goalId: state.goalId,
+                    goalId: state.currentGoalId,
                     comment: state.comment,
                     verificationDate: state.verificationDate
                 )
@@ -171,7 +195,7 @@ extension GoalDetailReducer {
                 let myPhotoLog = completedGoal.myPhotoLog
                 let yourPhotoLog = completedGoal.yourPhotoLog
                 
-                let targetGoalId = myPhotoLog?.goalId ?? yourPhotoLog?.goalId ?? state.goalId
+                let targetGoalId = myPhotoLog?.goalId ?? yourPhotoLog?.goalId ?? state.currentGoalId
                 var updatedCompletedGoals = item.completedGoals
                 
                 if let index = updatedCompletedGoals.firstIndex(where: { card in

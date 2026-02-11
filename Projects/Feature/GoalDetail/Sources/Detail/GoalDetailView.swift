@@ -92,10 +92,14 @@ public struct GoalDetailView: View {
                     VStack(spacing: 0) {
                         ZStack {
                             backgroundRect
-
+                            
                             SwipeableCardView(
                                 isEditing: store.isEditing,
-                                onCardAction: { store.send(.cardTapped) }
+                                canSwipeUp: store.canSwipeUp,
+                                canSwipeDown: store.canSwipeDown,
+                                onCardTap: { store.send(.cardTapped) },
+                                onSwipeUp: { store.send(.cardSwipedUp) },
+                                onSwipeDown: { store.send(.cardSwipedDown) }
                             ) {
                                 currentCardView
                             }
