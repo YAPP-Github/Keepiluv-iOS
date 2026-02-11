@@ -219,17 +219,25 @@ private extension HomeView {
     }
     
     var goalEmptyView: some View {
-        VStack(spacing: 10) {
-            Image.Icon.Illustration.goalEmpty
+        VStack(alignment: .center, spacing: 0) {
+            Image.Illustration.emptyPoke
             
             Text("첫 목표를 세워볼까요?")
                 .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray200)
+                .foregroundStyle(Color.Gray.gray400)
             
-            Image.Vector.curveArrow
-                .padding(.leading, 74)
+            Text("+ 버튼을 눌러 목표를 추가해보세요")
+                .typography(.c1_12r)
+                .foregroundStyle(Color.Gray.gray300)
+                .padding(.top, 5)
         }
-        .padding(.top, 136)
+        .padding(.bottom, Constants.tabBarHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottomTrailing) {
+            Image.Illustration.arrow
+                .padding(.bottom, 63 + Constants.tabBarHeight)
+                .padding(.trailing, 86)
+        }
     }
 }
 
