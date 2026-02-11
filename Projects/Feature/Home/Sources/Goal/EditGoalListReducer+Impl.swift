@@ -107,11 +107,12 @@ extension EditGoalListReducer {
                 return .none
                 
             case .modalConfirmTapped:
-                guard let goalId = state.pendingGoalId,
+                guard !state.isLoading,
+                      let goalId = state.pendingGoalId,
                       let pendingAction = state.pendingAction else {
                     return .none
                 }
-                
+
                 state.isLoading = true
                 state.modal = nil
                 

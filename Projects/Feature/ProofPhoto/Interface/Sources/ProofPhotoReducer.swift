@@ -31,6 +31,7 @@ public struct ProofPhotoReducer {
         public var isFront: Bool = false
         public var isFlashOn: Bool = false
         public var isCapturing: Bool = false
+        public var isUploading: Bool = false
         public var hasImage: Bool { imageData != nil }
         public var toast: TXToastType?
         public var goalId: Int64
@@ -82,6 +83,7 @@ public struct ProofPhotoReducer {
         case galleryPhotoLoaded(imageData: Data)
         case cameraSwitched
         case showToast(TXToastType)
+        case uploadFailed
 
         // MARK: - Delegate
         case delegate(Delegate)
