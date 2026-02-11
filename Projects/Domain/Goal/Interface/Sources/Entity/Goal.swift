@@ -34,12 +34,12 @@ public struct Goal {
     
     /// 목표 인증 리액션 종류입니다.
     public enum Reaction: String, Equatable {
-        case happy = "EMOJI_HAPPY"
-        case trouble = "EMOJI_TROUBLE"
-        case love = "EMOJI_LOVE"
-        case doubt = "EMOJI_DOUBT"
-        case fuck = "EMOJI_FUCK"
-        case heart = "EMOJI_HEART"
+        case happy = "ICON_HAPPY"
+        case trouble = "ICON_TROUBLE"
+        case love = "ICON_LOVE"
+        case doubt = "ICON_DOUBT"
+        case fuck = "ICON_FUCK"
+        case heart = "ICON_HEART"
     }
     
     public enum RepeatCycle: String, Equatable {

@@ -16,7 +16,7 @@ public struct GoalPhotoLogListResponseDTO: Decodable {
     public let photologs: [PhotoLogResponse]
 
     public struct PhotoLogResponse: Decodable {
-        let photologId: Int
+        let photologId: Int64
         let goalId: Int64
         let imageUrl: String
         let comment: String
@@ -29,10 +29,17 @@ public struct GoalPhotoLogListResponseDTO: Decodable {
 
 public extension GoalPhotoLogListResponseDTO {
     /// 응답 DTO를 도메인 모델로 변환합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let detail = response.toEntity(response)
+    /// ```
     func toEntity(_ response: GoalPhotoLogListResponseDTO) -> GoalDetail {
         let completedGoals = response.photologs.map {
             GoalDetail
                 .CompletedGoal(
+                    goalId: $0.goalId,
+                    photologId: $0.photologId,
                     owner: $0.isMine ? .mySelf : .you,
                     imageUrl: $0.imageUrl,
                     comment: $0.comment,

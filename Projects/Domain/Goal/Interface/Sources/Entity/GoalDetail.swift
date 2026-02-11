@@ -12,8 +12,9 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// let detail = GoalDetail(
-///     id: "1",
+///     id: 1,
 ///     title: "아이스크림 먹기",
+///     partnerNickname: "twix",
 ///     completedGoal: []
 /// )
 /// ```
@@ -29,8 +30,9 @@ public struct GoalDetail: Equatable {
     /// ## 사용 예시
     /// ```swift
     /// let detail = GoalDetail(
-    ///     id: "1",
+    ///     id: 1,
     ///     title: "아이스크림 먹기",
+    ///     partnerNickname: "twix",
     ///     selectedIndex: 0,
     ///     completedGoal: []
     /// )
@@ -54,12 +56,17 @@ public struct GoalDetail: Equatable {
     /// ## 사용 예시
     /// ```swift
     /// let completed = GoalDetail.CompletedGoal(
+    ///     goalId: 1,
+    ///     photologId: 10,
     ///     owner: .mySelf,
+    ///     imageUrl: "https://image.example.com",
     ///     comment: "오늘 목표 달성!",
     ///     createdAt: "방금 전"
     /// )
     /// ```
     public struct CompletedGoal: Equatable {
+        public let goalId: Int64
+        public let photologId: Int64?
         public let owner: Owner
         public var imageUrl: String?
         public var comment: String?
@@ -70,6 +77,8 @@ public struct GoalDetail: Equatable {
         /// ## 사용 예시
         /// ```swift
         /// let completed = GoalDetail.CompletedGoal(
+        ///     goalId: 1,
+        ///     photologId: nil,
         ///     owner: .you,
         ///     imageUrl: nil,
         ///     comment: "응원할게요!",
@@ -77,11 +86,15 @@ public struct GoalDetail: Equatable {
         /// )
         /// ```
         public init(
+            goalId: Int64,
+            photologId: Int64?,
             owner: Owner,
             imageUrl: String?,
             comment: String?,
             createdAt: String?
         ) {
+            self.goalId = goalId
+            self.photologId = photologId
             self.owner = owner
             self.imageUrl = imageUrl
             self.comment = comment
