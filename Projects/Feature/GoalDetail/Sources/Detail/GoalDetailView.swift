@@ -223,9 +223,9 @@ private extension GoalDetailView {
     
     @ViewBuilder var reactionBar: some View {
         ReactionBarView(
-            selectedIndex: store.selectedReactionIndex,
-            onTap: { index in
-                store.send(.reactionEmojiTapped(index))
+            selectedEmoji: store.selectedReactionEmoji,
+            onSelect: { emoji in
+                store.send(.reactionEmojiTapped(emoji))
             }
         )
     }
