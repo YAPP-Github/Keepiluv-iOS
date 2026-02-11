@@ -42,6 +42,7 @@ struct EditGoalListView: View {
                 }
             }
         )
+        .txToast(item: $store.toast)
     }
 }
 

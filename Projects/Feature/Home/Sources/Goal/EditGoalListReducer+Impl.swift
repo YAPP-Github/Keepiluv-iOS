@@ -79,7 +79,14 @@ extension EditGoalListReducer {
                 switch item {
                 case .edit:
                     state.selectedCardMenu = nil
-                    return .send(.delegate(.goToGoalEdit(goalId: card.id)))
+                    
+                    // FIXME: - 통계 나오기 전까지 토스트 띄움
+                    let isPast = TXCalendarUtil.isEarlier(state.calendarDate, than: TXCalendarDate())
+                    if isPast {
+                        state.toast = .warning(message: "과거의 것은 수정 불가능합니다.")
+                    } else {
+                        return .send(.delegate(.goToGoalEdit(goalId: card.id)))
+                    }
                     
                 case .finish:
                     state.pendingGoalId = card.id
@@ -115,7 +122,7 @@ extension EditGoalListReducer {
                             _ = try await goalClient.completeGoal(goalId)
                             await send(.completeGoalCompleted(goalId: goalId))
                         } catch {
-                            await send(.apiError("목표 완료에 실패했어요"))
+                            await send(.apiError("이미 끝났습니다."))
                         }
                     }
                     
@@ -125,6 +132,7 @@ extension EditGoalListReducer {
                             try await goalClient.deleteGoal(goalId)
                             await send(.deleteGoalCompleted(goalId: goalId))
                         } catch {
+                            // FIXME: - 통계 나오기 전까지 토스트 띄움
                             await send(.apiError("목표 삭제에 실패했어요"))
                         }
                     }
