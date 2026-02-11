@@ -23,12 +23,45 @@ public struct GoalDetailReducer {
     public struct State: Equatable {
         public let goalId: Int64
         public var item: GoalDetail?
+        public var currentGoalIndex: Int = 0
         public var currentUser: GoalDetail.Owner
         public let verificationDate: String
-        public var currentCard: GoalDetail.CompletedGoal? {
-            guard let item else { return nil }
-            return item.completedGoal.first { $0.owner == currentUser }
+        
+        public var completedGoalItems: [GoalDetail.CompletedGoal] {
+            item?.completedGoals.compactMap { $0 } ?? []
         }
+        
+        public var currentCompletedGoal: GoalDetail.CompletedGoal? {
+            guard completedGoalItems.indices.contains(currentGoalIndex) else { return nil }
+            return completedGoalItems[currentGoalIndex]
+        }
+        
+        public var currentCard: GoalDetail.CompletedGoal.PhotoLog? {
+            switch currentUser {
+            case .mySelf:
+                return currentCompletedGoal?.myPhotoLog
+                
+            case .you:
+                return currentCompletedGoal?.yourPhotoLog
+            }
+        }
+        
+        public var goalName: String {
+            let myPhotoLog = currentCompletedGoal?.myPhotoLog
+            let yourPhotoLog = currentCompletedGoal?.yourPhotoLog
+            
+            return myPhotoLog?.goalName ?? yourPhotoLog?.goalName ?? ""
+        }
+        
+        public var currentGoalId: Int64 {
+            currentCompletedGoal?.myPhotoLog?.goalId
+            ?? currentCompletedGoal?.yourPhotoLog?.goalId
+            ?? goalId
+        }
+        
+        public var canSwipeUp: Bool { currentGoalIndex + 1 < completedGoalItems.count }
+        public var canSwipeDown: Bool { currentGoalIndex > 0 }
+        
         public var isCompleted: Bool { currentCard?.imageUrl != nil }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
@@ -43,7 +76,7 @@ public struct GoalDetailReducer {
         public var isPresentedProofPhoto: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
         
-        public var selectedReactionIndex: Int?
+        public var selectedReactionEmoji: ReactionEmoji?
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
@@ -84,8 +117,10 @@ public struct GoalDetailReducer {
         // MARK: - Action
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
-        case reactionEmojiTapped(Int)
+        case reactionEmojiTapped(ReactionEmoji)
         case cardTapped
+        case cardSwipedUp
+        case cardSwipedDown
         case focusChanged(Bool)
         case dimmedBackgroundTapped
         case updateCompletedGoal(GoalDetail.CompletedGoal)

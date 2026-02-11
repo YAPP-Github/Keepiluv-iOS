@@ -59,7 +59,7 @@ public struct GoalDetailView: View {
         VStack(spacing: 0) {
             TXNavigationBar(
                 style: .subTitle(
-                    title: store.item?.title ?? "",
+                    title: store.goalName,
                     rightText: store.naviBarRightText
                 ),
                 onAction: { action in
@@ -92,10 +92,14 @@ public struct GoalDetailView: View {
                     VStack(spacing: 0) {
                         ZStack {
                             backgroundRect
-
+                            
                             SwipeableCardView(
                                 isEditing: store.isEditing,
-                                onCardAction: { store.send(.cardTapped) }
+                                canSwipeUp: store.canSwipeUp,
+                                canSwipeDown: store.canSwipeDown,
+                                onCardTap: { store.send(.cardTapped) },
+                                onSwipeUp: { store.send(.cardSwipedUp) },
+                                onSwipeDown: { store.send(.cardSwipedDown) }
                             ) {
                                 currentCardView
                             }
@@ -223,9 +227,9 @@ private extension GoalDetailView {
     
     @ViewBuilder var reactionBar: some View {
         ReactionBarView(
-            selectedIndex: store.selectedReactionIndex,
-            onTap: { index in
-                store.send(.reactionEmojiTapped(index))
+            selectedEmoji: store.selectedReactionEmoji,
+            onSelect: { emoji in
+                store.send(.reactionEmojiTapped(emoji))
             }
         )
     }

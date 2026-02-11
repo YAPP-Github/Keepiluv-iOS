@@ -21,7 +21,7 @@ public struct GoalListResponseDTO: Decodable {
 
     public struct GoalResponse: Decodable {
         let goalId: Int64
-        let name: String
+        let goalName: String
         let icon: String
         let repeatCycle: String?
         let repeatCount: Int?
@@ -54,7 +54,7 @@ public extension GoalListResponseDTO {
             Goal(
                 id: $0.goalId,
                 goalIcon: Goal.Icon(rawValue: $0.icon) ?? .default,
-                title: $0.name,
+                title: $0.goalName,
                 myVerification: .init(
                     isCompleted: $0.myCompleted,
                     imageURL: $0.myVerification?.imageUrl,
