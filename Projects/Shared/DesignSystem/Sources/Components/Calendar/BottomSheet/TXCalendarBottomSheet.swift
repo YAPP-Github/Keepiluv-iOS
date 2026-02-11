@@ -105,12 +105,11 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                     }
                 }
             }
-            .padding(.top, 28)
             .padding(.bottom, 40)
-            
+
             // 버튼 영역
             buttonArea
-                .padding(.bottom, TXSafeArea.inset(.bottom) + 16)
+                .padding(.bottom, Spacing.spacing5)
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)
