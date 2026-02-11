@@ -32,7 +32,8 @@ extension ProofPhotoReducer {
                 
             // MARK: - Life Cycle
             case .onAppear:
-                return .run { send in
+                return .run { [isFlashOn = state.isFlashOn] send in
+                    captureSessionClient.setFlashEnabled(isFlashOn)
                     let session = await captureSessionClient.setUpCaptureSession(.back)
                     
                     await send(.setupCaptureSessionCompleted(session: session))
@@ -44,6 +45,7 @@ extension ProofPhotoReducer {
 
             case .captureButtonTapped:
                 guard !state.isCapturing else { return .none }
+                captureSessionClient.setFlashEnabled(state.isFlashOn)
                 state.isCapturing = true
                 return .run { send in
                     do {
@@ -57,9 +59,10 @@ extension ProofPhotoReducer {
                 }
                 
             case .switchButtonTapped:
-                return .run { [isFront = state.isFront] send in
+                return .run { [isFront = state.isFront, isFlashOn = state.isFlashOn] send in
                     let isFront = !isFront
                     await captureSessionClient.switchCamera(isFront)
+                    captureSessionClient.setFlashEnabled(isFlashOn)
                     
                     await send(.cameraSwitched)
                 }
@@ -79,8 +82,9 @@ extension ProofPhotoReducer {
                 state.isCapturing = false
                 let position: AVCaptureDevice.Position = state.isFront ? .front : .back
                 
-                return .run { send in
+                return .run { [isFlashOn = state.isFlashOn] send in
                     let session = await captureSessionClient.setUpCaptureSession(position)
+                    captureSessionClient.setFlashEnabled(isFlashOn)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
