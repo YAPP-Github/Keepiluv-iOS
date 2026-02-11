@@ -116,6 +116,8 @@ extension ProofPhotoReducer {
                             let photoLog = try await photoLogClient.createPhotoLog(request)
 
                             let completedGoal = GoalDetail.CompletedGoal(
+                                goalId: goalId,
+                                photologId: photoLog.photologId,
                                 owner: .mySelf,
                                 imageUrl: photoLog.imageUrl,
                                 comment: comment,
