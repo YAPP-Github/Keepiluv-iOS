@@ -201,6 +201,10 @@ public extension View {
     /// VStack { }
     ///     .txToast(item: $toast)
     ///
+    /// // 위치 오버라이드
+    /// VStack { }
+    ///     .txToast(item: $toast, position: .bottom, customPadding: 76)
+    ///
     /// // 표시
     /// toast = .success(message: "목표를 달성했어요")
     /// ```
@@ -208,9 +212,12 @@ public extension View {
     /// - Parameters:
     ///   - item: 토스트 타입을 제어하는 Binding입니다. nil이 아닐 때 토스트가 표시됩니다.
     ///   - onButtonTap: 버튼 탭 시 실행될 클로저입니다.
+    ///   - position: 토스트 위치를 오버라이드합니다. nil이면 TXToastType의 기본값을 사용합니다.
+    ///   - customPadding: 토스트 edge padding을 오버라이드합니다.
     func txToast(
         item: Binding<TXToastType?>,
         onButtonTap: (() -> Void)? = nil,
+        position: TXToastPosition? = nil,
         customPadding: CGFloat? = nil
     ) -> some View {
         let isPresented = Binding<Bool>(
@@ -228,7 +235,7 @@ public extension View {
                 message: item.wrappedValue?.message ?? "",
                 showButton: item.wrappedValue?.showButton ?? false,
                 onButtonTap: onButtonTap,
-                position: item.wrappedValue?.position ?? .bottom,
+                position: position ?? item.wrappedValue?.position ?? .bottom,
                 duration: item.wrappedValue?.duration ?? 3.0,
                 customPadding: customPadding
             )
