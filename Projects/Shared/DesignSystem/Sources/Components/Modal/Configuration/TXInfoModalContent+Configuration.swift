@@ -8,19 +8,19 @@
 import Foundation
 
 public extension TXInfoModalContent.Configuration {
-    /// 목표 삭제 확인용 정보 모달 설정입니다.
+    /// 체크 해제 확인용 정보 모달 설정입니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// TXInfoModalContent(config: .deleteGoal)
+    /// TXInfoModalContent(config: .uncheckGoal)
     /// ```
-    static var deleteGoal: Self {
+    static var uncheckGoal: Self {
         return .init(
-            image: .Icon.Illustration.trouble,
-            title: "목표를 이루셨나요?",
-            subtitle: "목표를 완료해도 사진은 사라지지 않아요",
+            image: .Icon.Illustration.modalWarning,
+            title: "체크를 해제할까요?",
+            subtitle: "해제하면 등록한 사진은 사라집니다.",
             leftButtonText: "취소",
-            rightButtonText: "삭제"
+            rightButtonText: "해제"
         )
     }
     

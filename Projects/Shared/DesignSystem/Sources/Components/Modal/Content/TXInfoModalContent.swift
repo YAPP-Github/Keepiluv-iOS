@@ -53,7 +53,7 @@ public struct TXInfoModalContent: View {
     ///
     /// ## 사용 예시
     /// ```swift
-    /// TXInfoModalContent(config: .deleteGoal)
+    /// TXInfoModalContent(config: .uncheckGoal)
     /// ```
     public init(config: Configuration) {
         self.config = config

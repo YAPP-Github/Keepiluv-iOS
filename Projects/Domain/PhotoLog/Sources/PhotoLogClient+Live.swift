@@ -34,6 +34,11 @@ extension PhotoLogClient: @retroactive DependencyKey {
                     endpoint: PhotoLogEndpoint.updateReaction(photoLogId: photoLogId, request: request)
                 )
                 return response
+            },
+            deletePhotoLog: { photoLogId in
+                try await networkClient.requestWithoutResponse(
+                    endpoint: PhotoLogEndpoint.deletePhotoLog(photoLogId: photoLogId)
+                )
             }
         )
     }

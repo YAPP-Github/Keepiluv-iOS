@@ -46,6 +46,7 @@ public struct HomeReducer {
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
         public var pendingDeleteGoalID: Int64?
+        public var pendingDeletePhotologID: Int64?
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
@@ -116,6 +117,8 @@ public struct HomeReducer {
         case addGoalButtonTapped(GoalCategory)
         case cameraPermissionAlertDismissed
         case fetchGoalsFailed
+        case deletePhotoLogCompleted(goalId: Int64)
+        case deletePhotoLogFailed
 
         // MARK: - Delegate
         case delegate(Delegate)

@@ -19,6 +19,7 @@ public struct PhotoLogClient {
     public var fetchUploadURL: (Int64) async throws -> PhotoLogUploadURLResponseDTO
     public var createPhotoLog: (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
     public var updateReaction: (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO
+    public var deletePhotoLog: (Int64) async throws -> Void
 
     /// PhotoLogClient를 생성합니다.
     ///
@@ -27,17 +28,20 @@ public struct PhotoLogClient {
     /// let client = PhotoLogClient(
     ///     fetchUploadURL: { _ in .init(uploadUrl: "", fileName: "") },
     ///     createPhotoLog: { _ in .init(photologId: 0, goalId: 0, imageUrl: "", comment: "", verificationDate: "") },
-    ///     updateReaction: { _, _ in .init(photologId: 0, reaction: "EMOJI_HAPPY") }
+    ///     updateReaction: { _, _ in .init(photologId: 0, reaction: "EMOJI_HAPPY") },
+    ///     deletePhotoLog: { _ in }
     /// )
     /// ```
     public init(
         fetchUploadURL: @escaping (Int64) async throws -> PhotoLogUploadURLResponseDTO,
         createPhotoLog: @escaping (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO,
-        updateReaction: @escaping (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO
+        updateReaction: @escaping (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO,
+        deletePhotoLog: @escaping (Int64) async throws -> Void
     ) {
         self.fetchUploadURL = fetchUploadURL
         self.createPhotoLog = createPhotoLog
         self.updateReaction = updateReaction
+        self.deletePhotoLog = deletePhotoLog
     }
 }
 
@@ -54,6 +58,9 @@ extension PhotoLogClient: TestDependencyKey {
         updateReaction: { _, _ in
             assertionFailure("PhotoLogClient.updateReaction이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return .init(photologId: 0, reaction: "")
+        },
+        deletePhotoLog: { _ in
+            assertionFailure("PhotoLogClient.deletePhotoLog이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
         }
     )
 }

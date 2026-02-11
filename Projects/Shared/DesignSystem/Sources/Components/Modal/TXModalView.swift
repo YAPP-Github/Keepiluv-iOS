@@ -18,9 +18,9 @@ public struct TXModalView<Content: View>: View {
     /// ## 사용 예시
     /// ```swift
     /// TXModalView(
-    ///     type: .info(.deleteGoal),
+    ///     type: .info(.uncheckGoal),
     ///     content: {
-    ///         TXInfoModalContent(config: .deleteGoal)
+    ///         TXInfoModalContent(config: .uncheckGoal)
     ///     },
     ///     onAction: { action in
     ///         if action == .confirm {
@@ -101,8 +101,8 @@ private extension TXModalView {
 
 #Preview {
     VStack {
-        TXModalView(type: .info(.deleteGoal)) {
-            TXInfoModalContent(config: .deleteGoal)
+        TXModalView(type: .info(.uncheckGoal)) {
+            TXInfoModalContent(config: .uncheckGoal)
         } onAction: { _ in }
     }
 }
