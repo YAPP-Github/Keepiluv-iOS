@@ -155,7 +155,7 @@ private extension HomeView {
     
     var headerRow: some View {
         HStack(spacing: 0) {
-            Text("오늘 우리 목표")
+            Text(store.goalSectionTitle)
                 .typography(.b1_14b)
             
             Spacer()
