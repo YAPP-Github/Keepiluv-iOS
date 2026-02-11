@@ -82,6 +82,10 @@ public struct GoalEditCardView: View {
             CardHeaderView(
                 config: config.headerConfig
             )
+            
+            Color.Gray.gray500
+                .frame(height: 1)
+                .frame(maxWidth: .infinity)
          
             VStack(alignment: .leading, spacing: config.rowSpacing) {
                 rowView(title: "반복 주기", value: config.item.repeatCycle)
@@ -92,17 +96,6 @@ public struct GoalEditCardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .clipShape(RoundedRectangle(cornerRadius: config.cardCornerRadius))
             .background(config.contentBackgroundColor)
-            .insideBorder(
-                config.borderColor,
-                shape: UnevenRoundedRectangle(
-                    cornerRadii: .init(
-                        bottomLeading: config.cardCornerRadius,
-                        bottomTrailing: config.cardCornerRadius
-                    ),
-                    style: .continuous
-                ),
-                lineWidth: config.borderWidth
-            )
         }
         .clipShape(RoundedRectangle(cornerRadius: config.cardCornerRadius))
         .outsideBorder(
