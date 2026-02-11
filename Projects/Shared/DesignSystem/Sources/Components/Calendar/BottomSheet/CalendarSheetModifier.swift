@@ -32,6 +32,7 @@ struct CalendarSheetModifier<ButtonContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var selectedDate: TXCalendarDate
     let buttonConfiguration: CalendarSheetButtonConfiguration<ButtonContent>
+    let isDateEnabled: ((TXCalendarDateItem) -> Bool)?
 
     @State private var dragOffset: CGFloat = 0
     @State private var isVisible = false
@@ -103,11 +104,13 @@ struct CalendarSheetModifier<ButtonContent: View>: ViewModifier {
             TXCalendarBottomSheet(
                 selectedDate: $selectedDate,
                 completeButtonText: text,
-                onComplete: onComplete
+                onComplete: onComplete,
+                isDateEnabled: isDateEnabled
             )
         case let .custom(content):
             TXCalendarBottomSheet(
                 selectedDate: $selectedDate,
+                isDateEnabled: isDateEnabled,
                 buttonContent: content
             )
         }

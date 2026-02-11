@@ -48,7 +48,14 @@ public struct OnboardingDdayView: View {
         .calendarSheet(
             isPresented: $store.showCalendarSheet,
             selectedDate: $store.selectedDate,
-            onComplete: { store.send(.calendarCompleted) }
+            onComplete: { store.send(.calendarCompleted) },
+            isDateEnabled: { item in
+                guard let components = item.dateComponents,
+                      let date = Calendar.current.date(from: components) else {
+                    return true
+                }
+                return date <= Date()
+            }
         )
     }
 }
@@ -58,7 +65,7 @@ public struct OnboardingDdayView: View {
 private extension OnboardingDdayView {
     var titleSection: some View {
         HStack {
-            Text("우리 커플의 기념일은?")
+            Text("우리의 기념일을 등록해 주세요")
                 .typography(.h3_22eb)
                 .foregroundStyle(Color.Gray.gray500)
             Spacer()
@@ -83,7 +90,6 @@ private extension OnboardingDdayView {
                 Spacer()
 
                 calendarIcon
-                    .padding(.horizontal, 10)
             }
             .padding(.vertical, Spacing.spacing3)
 
