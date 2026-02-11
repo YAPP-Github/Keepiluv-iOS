@@ -10,7 +10,7 @@ import Foundation
 /// 목표 생성 응답 DTO입니다.
 public struct GoalCreateResponseDTO: Decodable {
     public let goalId: Int64
-    public let name: String
+    public let goalName: String
     public let icon: String
     public let repeatCycle: String
     public let repeatCount: Int
@@ -31,7 +31,7 @@ public extension GoalCreateResponseDTO {
         Goal(
             id: response.goalId,
             goalIcon: .init(rawValue: response.icon) ?? .`default`,
-            title: response.name,
+            title: response.goalName,
             myVerification: .init(
                 isCompleted: false,
                 imageURL: nil,
