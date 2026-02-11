@@ -35,6 +35,7 @@ public struct TXCalendar: View {
         let weeklyHorizontalPadding: CGFloat
         let monthlyHorizontalPadding: CGFloat
         let weeklyHeaderSpacing: CGFloat
+        let weeklyBottomPadding: CGFloat
         let monthlyHeaderSpacing: CGFloat
         let monthlyRowSpacing: CGFloat
         let weekdayTypography: TypographyToken
@@ -46,6 +47,7 @@ public struct TXCalendar: View {
             weeklyHorizontalPadding: CGFloat = Spacing.spacing6,
             monthlyHorizontalPadding: CGFloat = Spacing.spacing7,
             weeklyHeaderSpacing: CGFloat = Spacing.spacing4,
+            weeklyBottomPadding: CGFloat = Spacing.spacing5,
             monthlyHeaderSpacing: CGFloat = Spacing.spacing8,
             monthlyRowSpacing: CGFloat = Spacing.spacing6,
             weekdayTypography: TypographyToken = .c1_12r,
@@ -56,6 +58,7 @@ public struct TXCalendar: View {
             self.weeklyHorizontalPadding = weeklyHorizontalPadding
             self.monthlyHorizontalPadding = monthlyHorizontalPadding
             self.weeklyHeaderSpacing = weeklyHeaderSpacing
+            self.weeklyBottomPadding = weeklyBottomPadding
             self.monthlyHeaderSpacing = monthlyHeaderSpacing
             self.monthlyRowSpacing = monthlyRowSpacing
             self.weekdayTypography = weekdayTypography
@@ -139,11 +142,22 @@ private extension TXCalendar {
 
     func weekdayRow(spacing: CGFloat) -> some View {
         HStack(spacing: spacing) {
-            ForEach(weekdays, id: \.self) { weekday in
-                Text(weekday)
-                    .typography(config.weekdayTypography)
-                    .foregroundStyle(config.weekdayColor)
-                    .frame(width: config.dateStyle.size)
+            switch mode {
+            case .weekly:
+                ForEach(Array(weekDateItems.enumerated()), id: \.offset) { index, item in
+                    Text(weeklyHeaderTitle(index: index, item: item))
+                        .typography(config.weekdayTypography)
+                        .foregroundStyle(config.weekdayColor)
+                        .frame(width: config.dateStyle.size)
+                }
+
+            case .monthly:
+                ForEach(weekdays, id: \.self) { weekday in
+                    Text(weekday)
+                        .typography(config.weekdayTypography)
+                        .foregroundStyle(config.weekdayColor)
+                        .frame(width: config.dateStyle.size)
+                }
             }
         }
     }
@@ -202,7 +216,7 @@ private extension TXCalendar {
         let headerSectionHeight = headerHeight + headerSpacing
 
         switch mode {
-        case .weekly: return headerSectionHeight + config.dateStyle.size
+        case .weekly: return headerSectionHeight + config.dateStyle.size + config.weeklyBottomPadding
         case .monthly: return headerSectionHeight + monthGridHeight
         }
     }
@@ -221,5 +235,21 @@ private extension TXCalendar {
 
     var monthDateItems: [TXCalendarDateItem] {
         weeks.flatMap { $0 }
+    }
+}
+
+// MARK: - Private Methods
+private extension TXCalendar {
+    func weeklyHeaderTitle(index: Int, item: TXCalendarDateItem) -> String {
+        guard let components = item.dateComponents,
+              let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            return ""
+        }
+        let today = Calendar(identifier: .gregorian).dateComponents([.year, .month, .day], from: Date())
+        let isToday = today.year == year && today.month == month && today.day == day
+        
+        return isToday ? "오늘" : weekdays[index]
     }
 }
