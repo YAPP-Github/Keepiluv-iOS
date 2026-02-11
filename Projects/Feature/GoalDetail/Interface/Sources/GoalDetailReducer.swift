@@ -43,7 +43,7 @@ public struct GoalDetailReducer {
         public var isPresentedProofPhoto: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
         
-        public var selectedReactionIndex: Int?
+        public var selectedReactionEmoji: ReactionEmoji?
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
@@ -84,7 +84,7 @@ public struct GoalDetailReducer {
         // MARK: - Action
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
-        case reactionEmojiTapped(Int)
+        case reactionEmojiTapped(ReactionEmoji)
         case cardTapped
         case focusChanged(Bool)
         case dimmedBackgroundTapped

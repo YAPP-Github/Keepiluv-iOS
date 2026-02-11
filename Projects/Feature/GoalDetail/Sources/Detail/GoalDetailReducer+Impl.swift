@@ -9,7 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreCaptureSessionInterface
-import DomainGoalInterface
+import DomainPhotoLogInterface
 import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
@@ -30,6 +30,7 @@ extension GoalDetailReducer {
     ) {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.goalClient) var goalClient
+        @Dependency(\.photoLogClient) var photoLogClient
         let timeFormatter = RelativeTimeFormatter()
         
         // swiftlint: disable closure_body_length
@@ -81,9 +82,18 @@ extension GoalDetailReducer {
                 }
                 return .none
                 
-            case let .reactionEmojiTapped(index):
-                state.selectedReactionIndex = index
-                return .none
+            case let .reactionEmojiTapped(reactionEmoji):
+                guard state.selectedReactionEmoji != reactionEmoji else { return .none }
+                guard let photoLogId = state.currentCard?.photologId else { return .none }
+                state.selectedReactionEmoji = reactionEmoji
+                return .run { send in
+                    do {
+                        let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.iconString)
+                        _ = try await photoLogClient.updateReaction(photoLogId, request)
+                    } catch {
+                        await send(.showToast(.warning(message: "리액션 전송에 실패했어요")))
+                    }
+                }
                 
             case .cardTapped:
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
