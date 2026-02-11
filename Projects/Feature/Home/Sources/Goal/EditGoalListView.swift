@@ -19,9 +19,25 @@ struct EditGoalListView: View {
         VStack(spacing: 0) {
             navigationBar
             weekCalendar
-            cardScrollView
-                .padding(.top, 16)
-                .padding(.bottom, 1)
+            if store.hasCards {
+                cardScrollView
+                    .padding(.top, 16)
+                    .padding(.bottom, 1)
+            }
+            
+            Spacer()
+        }
+        .ignoresSafeArea(.container, edges: .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            
+            if !store.hasCards {
+                emptyContent
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -42,6 +58,7 @@ struct EditGoalListView: View {
                 }
             }
         )
+        .txToast(item: $store.toast)
     }
 }
 
@@ -103,6 +120,17 @@ private extension EditGoalListView {
             store.send(.cardMenuItemSelected(action))
         }
         .offset(x: -16, y: 48)
+    }
+    
+    var emptyContent: some View {
+        VStack(spacing: 16) {
+            Image.Illustration.emptyPoke
+            
+            Text("아직 목표가 없어요!")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Gray.gray400)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 #Preview {

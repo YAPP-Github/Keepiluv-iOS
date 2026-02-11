@@ -53,17 +53,17 @@ public struct ProofPhotoView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            topBar
-            titleText
-                .padding(.top, 25)
-            photoPreview
-                .padding(.top, 40)
-                .padding(.horizontal, 5)
-            bottomControls
-                .padding(.top, 52)
-            
-            Spacer()
+        ZStack {
+            mainContent
+
+            if store.isCommentFocused {
+                dimmedView
+                    .ignoresSafeArea()
+            }
+
+            if shouldShowCommentOverlay {
+                floatingCommentOverlay
+            }
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -78,6 +78,25 @@ public struct ProofPhotoView: View {
 
 // MARK: - SubViews
 private extension ProofPhotoView {
+    var mainContent: some View {
+        VStack(spacing: 0) {
+            topBar
+            titleText
+                .padding(.top, 25)
+            photoPreview
+                .padding(.top, 40)
+                .padding(.horizontal, 5)
+            bottomControls
+                .padding(.top, 52)
+            
+            Spacer()
+        }
+    }
+
+    var shouldShowCommentOverlay: Bool {
+        (store.captureSession != nil || store.hasImage) && rectFrame != .zero
+    }
+
     var topBar: some View {
         HStack(spacing: 0) {
             Spacer()
@@ -91,7 +110,6 @@ private extension ProofPhotoView {
                     .frame(width: 44, height: 44)
             }
         }
-        .overlay(dimmedView)
         .frame(height: 72)
     }
     
@@ -100,7 +118,6 @@ private extension ProofPhotoView {
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
             .frame(maxWidth: .infinity)
-            .overlay(dimmedView)
     }
     
     @ViewBuilder
@@ -165,7 +182,6 @@ private extension ProofPhotoView {
             }
         }
         .frame(height: 74)
-        .overlay(dimmedView)
     }
     
     var captureControls: some View {
@@ -245,7 +261,6 @@ private extension ProofPhotoView {
             .opacity(store.isCommentFocused ? 1 : 0)
             .transition(.opacity)
             .animation(.easeInOut, value: store.isCommentFocused)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onTapGesture {
                 store.send(.dimmedBackgroundTapped)
             }
@@ -271,24 +286,34 @@ private extension ProofPhotoView {
             }
             .clipShape(shape)
             .overlay(alignment: .top) {
-                previewTopControls
-            }
-            .overlay(dimmedView)
-            .overlay(alignment: .bottom) {
-                VStack(spacing: 8) {
-                    if store.isCommentFocused {
-                        commentExpalinText
-                    }
-                    commentCircle
+                if !store.hasImage {
+                    previewTopControls
                 }
-                .padding(.bottom, 26)
-                .animation(.easeOut(duration: 0.25), value: keyboardInset)
             }
             .insideBorder(
                 .white.opacity(0.2),
                 shape: shape,
                 lineWidth: 2
             )
+    }
+
+    var floatingCommentOverlay: some View {
+        GeometryReader { rootGeo in
+            let rootFrame = rootGeo.frame(in: .global)
+            let posX = rectFrame.minX - rootFrame.minX
+            let posY = rectFrame.minY - rootFrame.minY
+
+            VStack(spacing: 8) {
+                if store.isCommentFocused {
+                    commentExpalinText
+                }
+                commentCircle
+            }
+            .padding(.bottom, 26)
+            .frame(width: rectFrame.width, height: rectFrame.height, alignment: .bottom)
+            .offset(x: posX, y: posY)
+            .animation(.easeOut(duration: 0.25), value: keyboardInset)
+        }
     }
     
     var commentExpalinText: some View {
