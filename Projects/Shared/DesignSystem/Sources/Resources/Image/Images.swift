@@ -111,10 +111,6 @@ public extension Image.Illustration {
     static let invite = IllustrationAsset.illustInvite.swiftUIImage
     static let singing = IllustrationAsset.illustSinging.swiftUIImage
     static let logo = SharedDesignSystemAsset.ImageAssets.logo.swiftUIImage
-}
-
-public extension Image.Vector {
-    typealias IllustrationAsset = SharedDesignSystemAsset.ImageAssets.Vector
-    
-    static let curveArrow = IllustrationAsset.curveArrow.swiftUIImage
+    static let emptyPoke = IllustrationAsset.illustEmptyPoke.swiftUIImage
+    static let arrow = IllustrationAsset.illustArrow.swiftUIImage
 }
