@@ -253,7 +253,7 @@ extension HomeReducer {
                 state.isProofPhotoPresented = false
                 guard let goalId = state.proofPhoto?.goalId else { return .none }
                 guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
-                let imageURL = completedGoal.imageUrl.flatMap(URL.init(string:))
+                let imageURL = completedGoal.myPhotoLog?.imageUrl.flatMap(URL.init(string:))
                 state.cards[index].myCard = .init(
                     imageURL: imageURL,
                     isSelected: true,
