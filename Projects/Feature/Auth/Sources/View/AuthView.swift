@@ -103,7 +103,8 @@ private extension AuthView {
 
     var loginButtonsSection: some View {
         VStack(spacing: Spacing.spacing6) {
-            kakaoLoginButton
+            // FIXME: 카카오 지원 이후 해제
+//            kakaoLoginButton
             googleLoginButton
             appleLoginButton
             loadingView
@@ -135,6 +136,7 @@ private extension AuthView {
             .background(Color(red: 254/255, green: 229/255, blue: 0/255))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
+        .buttonStyle(.plain)
         .disabled(store.isLoading)
     }
 
@@ -161,6 +163,7 @@ private extension AuthView {
                     .stroke(Color.Gray.gray200, lineWidth: 1)
             )
         }
+        .buttonStyle(.plain)
         .disabled(store.isLoading)
     }
 
@@ -183,6 +186,7 @@ private extension AuthView {
             .background(Color.Gray.gray500)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
+        .buttonStyle(.plain)
         .disabled(store.isLoading)
     }
 
