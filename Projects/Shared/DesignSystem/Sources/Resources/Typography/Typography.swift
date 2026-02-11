@@ -100,8 +100,17 @@ extension TypographyToken {
         }
     }
     
+    /// Figma에서 지정한 목표 line height (fontSize * multiplier)
+    var lineHeight: CGFloat {
+        size * lineHeightMultiplier
+    }
+
+    /// Figma의 lineHeight를 SwiftUI lineSpacing으로 변환합니다.
+    /// SwiftUI의 lineSpacing은 "줄 사이 추가 간격"이므로,
+    /// targetLineHeight에서 폰트의 실제 lineHeight를 빼야 합니다.
     var lineSpacing: CGFloat {
-        return (size * lineHeightMultiplier - size) / 2
+        let fontLineHeight = font.font(size: size).lineHeight
+        return max(0, lineHeight - fontLineHeight)
     }
 
     var kerning: CGFloat {

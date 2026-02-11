@@ -13,7 +13,7 @@ public extension View {
     /// - Returns: Typography가 적용된 `View`
     func typography(_ token: TypographyToken) -> some View {
         self
-            .padding(.vertical, token.lineSpacing)
+            .padding(.vertical, token.lineSpacing / 2)
             .font(token.font.swiftUIFont(size: token.size))
             .lineSpacing(token.lineSpacing)
             .kerning(token.kerning)

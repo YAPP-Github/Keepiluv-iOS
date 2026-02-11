@@ -40,6 +40,6 @@ enum TXCalendarLayout {
     }
     
     static func weekdayLabelHeight(_ token: TypographyToken) -> CGFloat {
-        token.size + (token.lineSpacing * 2)
+        token.lineHeight
     }
 }
