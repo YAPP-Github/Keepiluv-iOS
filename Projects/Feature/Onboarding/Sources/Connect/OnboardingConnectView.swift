@@ -18,25 +18,9 @@ public struct OnboardingConnectView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            topAppBar
-
-            ScrollView {
-                VStack(spacing: 0) {
-                    titleSection
-                        .padding(.top, Spacing.spacing8)
-
-                    illustrationSection
-                        .padding(.top, 40)
-                        .padding(.bottom, 47)
-
-                    buttonSection
-                        .padding(.horizontal, Spacing.spacing12)
-
-                    restoreCoupleButton
-                        .padding(.top, Spacing.spacing8)
-                }
-            }
+        ZStack {
+            backgroundIllustration
+            foregroundContent
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
@@ -49,6 +33,47 @@ public struct OnboardingConnectView: View {
         }
         .txBottomSheet(isPresented: $store.isRestoreCoupleSheetPresented) {
             restoreCoupleSheetContent
+        }
+    }
+}
+
+// MARK: - Background
+
+private extension OnboardingConnectView {
+    var backgroundIllustration: some View {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(height: geometry.size.height * 0.22)
+
+                illustrationSection
+                    .frame(maxWidth: .infinity)
+
+                Spacer()
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+// MARK: - Foreground
+
+private extension OnboardingConnectView {
+    var foregroundContent: some View {
+        VStack(spacing: 0) {
+            topAppBar
+
+            titleSection
+                .padding(.top, Spacing.spacing8)
+
+            Spacer()
+
+            buttonSection
+                .padding(.horizontal, Spacing.spacing12)
+
+            restoreCoupleButton
+                .padding(.top, Spacing.spacing8)
+                .padding(.bottom, 32)
         }
     }
 }
@@ -128,11 +153,12 @@ private extension OnboardingConnectView {
                     Text("짝꿍에게 코드를 받았다면?")
                         .typography(.c1_12r)
                         .foregroundStyle(Color.Gray.gray400)
-
-                    HStack(spacing: 0) {
-                        Text("직접 ").typography(.t2_16eb)
-                        Text("연결하기").typography(.t2_16b)
-                    }.foregroundStyle(Color.Gray.gray500)
+                    
+                    Text("직접 연결하기").typography(.t2_16b)
+//                    HStack(spacing: 0) {
+//                        Text("직접 ").typography(.t2_16eb)
+//                        Text("연결하기").typography(.t2_16b)
+//                    }.foregroundStyle(Color.Gray.gray500)
                 }
 
                 Spacer()
@@ -209,7 +235,8 @@ private extension OnboardingConnectView {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Spacing.spacing7)
-            .padding(.vertical, Spacing.spacing4)
+            .padding(.vertical, Spacing.spacing6)
+            .frame(height: 78)
             .background(Color.Gray.gray50)
             .clipShape(RoundedRectangle(cornerRadius: Radius.s))
             .padding(.horizontal, 30)

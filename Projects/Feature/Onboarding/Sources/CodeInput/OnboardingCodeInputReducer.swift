@@ -55,6 +55,7 @@ public struct OnboardingCodeInputReducer {
         case backButtonTapped
         case codeInputChanged(String)
         case copyMyCodeButtonTapped
+        case pasteCodeButtonTapped
         case completeButtonTapped
         case codeFieldTapped
 
@@ -96,7 +97,19 @@ public struct OnboardingCodeInputReducer {
 
             case .copyMyCodeButtonTapped:
                 UIPasteboard.general.string = state.myInviteCode
-                state.toast = .success(message: "초대 코드가 복사되었어요")
+                state.toast = .check(message: "초대 코드가 복사되었어요")
+                return .none
+
+            case .pasteCodeButtonTapped:
+                guard let pastedString = UIPasteboard.general.string else { return .none }
+                let filtered = pastedString.filter { $0.isNumber || $0.isLetter }
+                let uppercased = String(filtered.prefix(State.codeLength)).uppercased()
+                state.receivedCode = uppercased
+                if uppercased.count < State.codeLength {
+                    state.focusedIndex = uppercased.count
+                } else {
+                    state.focusedIndex = nil
+                }
                 return .none
 
             case .completeButtonTapped:
