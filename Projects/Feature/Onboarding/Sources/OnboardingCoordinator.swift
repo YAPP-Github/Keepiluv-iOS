@@ -79,6 +79,7 @@ public struct OnboardingCoordinator {
 
         // MARK: - API Response
         case fetchInviteCodeResponse(Result<String, Error>)
+        case fetchStatusResponse(Result<OnboardingStatus, Error>)
 
         // MARK: - Navigation
         case navigateToCodeInputWithCode(myInviteCode: String, receivedCode: String)
@@ -223,11 +224,44 @@ public struct OnboardingCoordinator {
                 return .none
 
             case .profile(.delegate(.profileCompleted)):
-                state.dday = OnboardingDdayReducer.State()
-                state.routes.append(.dday)
-                return .none
+                // Profile 완료 후 status 체크하여 다음 화면 결정
+                return .run { send in
+                    do {
+                        let status = try await onboardingClient.fetchStatus()
+                        await send(.fetchStatusResponse(.success(status)))
+                    } catch {
+                        await send(.fetchStatusResponse(.failure(error)))
+                    }
+                }
 
             case .profile:
+                return .none
+
+            // MARK: - Status Response (Profile 완료 후)
+            case let .fetchStatusResponse(.success(status)):
+                switch status {
+                case .completed:
+                    // 이미 온보딩 완료 → MainTab으로 이동
+                    return .send(.delegate(.onboardingCompleted))
+                case .anniversarySetup:
+                    // 기념일 설정 필요 → Dday로 이동
+                    state.dday = OnboardingDdayReducer.State()
+                    state.routes.append(.dday)
+                    return .none
+                default:
+                    // profileSetup, coupleConnection 등 예상치 못한 상태
+                    // 프로필 등록 API 성공 후 이 상태가 나오면 서버 이슈이므로 에러 로그만 남김
+                    // 일단 Dday로 진행 (사용자 경험 우선)
+                    state.dday = OnboardingDdayReducer.State()
+                    state.routes.append(.dday)
+                    return .none
+                }
+
+            case .fetchStatusResponse(.failure):
+                // Status 조회 실패 시에도 Dday로 진행
+                // 프로필 등록은 이미 성공했으므로 다음 단계로 진행하는 것이 UX에 유리
+                state.dday = OnboardingDdayReducer.State()
+                state.routes.append(.dday)
                 return .none
 
             // MARK: - Dday Delegate
