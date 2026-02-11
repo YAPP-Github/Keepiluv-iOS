@@ -59,7 +59,7 @@ public struct GoalDetailView: View {
         VStack(spacing: 0) {
             TXNavigationBar(
                 style: .subTitle(
-                    title: store.item?.title ?? "",
+                    title: store.goalName,
                     rightText: store.naviBarRightText
                 ),
                 onAction: { action in

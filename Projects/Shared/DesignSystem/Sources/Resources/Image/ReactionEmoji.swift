@@ -14,12 +14,12 @@ import SwiftUI
 /// let emoji: ReactionEmoji = .happy
 /// let image = emoji.image
 /// ```
-public enum ReactionEmoji: CaseIterable, Equatable {
-    case happy
-    case trouble
-    case love
-    case doubt
-    case fuck
+public enum ReactionEmoji: String, CaseIterable, Equatable {
+    case happy = "ICON_HAPPY"
+    case trouble = "ICON_TROUBLE"
+    case love = "ICON_LOVE"
+    case doubt = "ICON_DOUBT"
+    case fuck = "ICON_FUCK"
 }
 
 public extension ReactionEmoji {
@@ -30,16 +30,6 @@ public extension ReactionEmoji {
         case .love: Image.Icon.Illustration.love
         case .doubt: Image.Icon.Illustration.doubt
         case .fuck: Image.Icon.Illustration.fuck
-        }
-    }
-    
-    var iconString: String {
-        switch self {
-        case .happy: "ICON_HAPPY"
-        case .trouble: "ICON_TROUBLE"
-        case .love: "ICON_LOVE"
-        case .doubt: "ICON_DOUBT"
-        case .fuck: "ICON_FUCK"
         }
     }
 }
