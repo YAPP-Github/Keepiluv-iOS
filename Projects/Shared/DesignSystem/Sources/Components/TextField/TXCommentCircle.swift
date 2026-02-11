@@ -45,6 +45,11 @@ public struct TXCommentCircle: View {
             fillCircles
             textCircles
         }
+        .onTapGesture {
+            if isEditable {
+                isFocused = isEditable
+            }
+        }
         .onChange(of: commentText) {
             if commentText.count > Constants.maxCount {
                 commentText = String(commentText.prefix(Constants.maxCount))
@@ -98,11 +103,6 @@ private extension TXCommentCircle {
                         commentText.isEmpty ? Color.Gray.gray200 : Color.Gray.gray500
                     )
                     .frame(width: Constants.circleSize, height: Constants.circleSize)
-            }
-        }
-        .onTapGesture {
-            if isEditable {
-                isFocused = isEditable
             }
         }
         .background {
