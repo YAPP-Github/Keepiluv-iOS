@@ -25,9 +25,31 @@ public struct GoalDetailReducer {
         public var item: GoalDetail?
         public var currentUser: GoalDetail.Owner
         public let verificationDate: String
-        public var currentCard: GoalDetail.CompletedGoal? {
+        
+        public var currentCompletedGoal: GoalDetail.CompletedGoal? {
             guard let item else { return nil }
-            return item.completedGoal.first { $0.owner == currentUser }
+            return item.completedGoals
+                .compactMap { $0 }
+                .first {
+                    $0.myPhotoLog?.goalId == goalId || $0.yourPhotoLog?.goalId == goalId
+                }
+        }
+        
+        public var currentCard: GoalDetail.CompletedGoal.PhotoLog? {
+            switch currentUser {
+            case .mySelf:
+                return currentCompletedGoal?.myPhotoLog
+                
+            case .you:
+                return currentCompletedGoal?.yourPhotoLog
+            }
+        }
+        
+        public var goalName: String {
+            let myPhotoLog = currentCompletedGoal?.myPhotoLog
+            let yourPhotoLog = currentCompletedGoal?.yourPhotoLog
+            
+            return myPhotoLog?.goalName ?? yourPhotoLog?.goalName ?? ""
         }
         public var isCompleted: Bool { currentCard?.imageUrl != nil }
         public var comment: String { currentCard?.comment ?? "" }
