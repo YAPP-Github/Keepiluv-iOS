@@ -20,6 +20,8 @@ public enum TXToastType: Equatable {
     case warning(message: String)
     /// 아이콘 없이 텍스트만 표시하는 fit 스타일 토스트
     case fit(message: String)
+    /// 성공 아이콘 + 텍스트만 표시 (버튼 없음)
+    case check(message: String)
 }
 
 public extension TXToastType {
@@ -29,14 +31,15 @@ public extension TXToastType {
              let .delete(message),
              let .poke(message),
              let .warning(message),
-             let .fit(message):
+             let .fit(message),
+             let .check(message):
             return message
         }
     }
 
     var icon: Image? {
         switch self {
-        case .success:
+        case .success, .check:
             return Image.Icon.Illustration.success
 
         case .delete:
@@ -66,7 +69,7 @@ public extension TXToastType {
         switch self {
         case .success:
             return true
-        case .delete, .poke, .warning, .fit:
+        case .delete, .poke, .warning, .fit, .check:
             return false
         }
     }
@@ -75,7 +78,7 @@ public extension TXToastType {
         switch self {
         case .fit:
             return .top
-        case .delete, .poke, .success, .warning:
+        case .delete, .poke, .success, .warning, .check:
             return .bottom
         }
     }
