@@ -69,6 +69,10 @@ public struct MainTabReducer {
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
 
+        // MARK: - Temporary Settings Access
+        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+        case showSettings
+
         // MARK: - Delegate
         case delegate(Delegate)
 
@@ -109,9 +113,15 @@ public struct MainTabReducer {
                 case .home:
                     state.isTabBarHidden = !state.home.routes.isEmpty
 
-                case .statistics, .couple:
+                case .statistics, .couple, .settings:
                     state.isTabBarHidden = false
                 }
+                return .none
+
+            // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+            case .showSettings:
+                state.home.settings = SettingsReducer.State()
+                state.home.isSettingsPresented = true
                 return .none
 
                 // MARK: - Child Action
@@ -123,6 +133,14 @@ public struct MainTabReducer {
 
             case .home(.delegate(.sessionExpired)):
                 return .send(.delegate(.sessionExpired))
+
+            // FIXME: 삭제 예정 - 설정 탭 제거 시 함께 제거
+            case .home(.settingsDismissed):
+                // 설정 화면이 닫히면 홈 탭으로 복귀
+                if state.selectedTab == .settings {
+                    state.selectedTab = .home
+                }
+                return .none
 
             case .home:
                 if state.selectedTab == .home {
