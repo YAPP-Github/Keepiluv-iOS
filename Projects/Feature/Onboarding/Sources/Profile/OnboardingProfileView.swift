@@ -12,7 +12,8 @@ import SwiftUI
 /// 프로필 설정(닉네임 입력) 화면입니다.
 public struct OnboardingProfileView: View {
     @Bindable var store: StoreOf<OnboardingProfileReducer>
-    
+    @FocusState private var isTextFieldFocused: Bool
+
     public init(store: StoreOf<OnboardingProfileReducer>) {
         self.store = store
     }
@@ -36,11 +37,12 @@ public struct OnboardingProfileView: View {
 
             bottomButton
                 .padding(.horizontal, Spacing.spacing8)
-                .padding(.vertical, Spacing.spacing5)
+                .padding(.top, Spacing.spacing5)
+                .padding(.bottom, Spacing.spacing5 + (isTextFieldFocused ? Spacing.spacing6 : 0))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
-        .txToast(item: $store.toast)
+        .txToast(item: $store.toast, customPadding: 76)
     }
 }
 
@@ -52,7 +54,7 @@ private extension OnboardingProfileView {
             VStack(alignment: .leading, spacing: 0) {
                 Text("""
                     짝꿍에게 보일
-                    내 이름을 등록하세요!
+                    내 이름을 입력해 주세요
                     """)
                     .typography(.h3_22eb)
                     .foregroundStyle(Color.Gray.gray500)
@@ -65,6 +67,7 @@ private extension OnboardingProfileView {
         TXTextField(
             text: $store.nickname,
             placeholderText: "닉네임을 입력해 주세요.",
+            isFocused: $isTextFieldFocused,
             subText: .init(text: "닉네임 2-8자", state: validationState)
         )
     }
