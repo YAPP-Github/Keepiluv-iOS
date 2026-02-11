@@ -55,6 +55,7 @@ private extension CardHeaderView {
     
     var borderCard: some View {
         baseContent
+            .clipShape(RoundedRectangle(cornerRadius: config.radius))
             .outsideBorder(
                 config.borderColor,
                 shape: RoundedRectangle(cornerRadius: config.radius),
