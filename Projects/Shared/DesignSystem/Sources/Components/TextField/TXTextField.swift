@@ -44,7 +44,7 @@ public struct TXTextField: View {
             case .valid:
                 return Color.Status.success
             case .invalid:
-                return Color.Status.warning
+                return Color.Gray.gray300
             case .empty:
                 return Color.Gray.gray300
             }
