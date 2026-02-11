@@ -108,18 +108,19 @@ private extension TXNavigationBar {
 // MARK: - Home Style
 private extension TXNavigationBar {
     func homeContent(_ homeStyle: Style.Home) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                subTitleRow(subTitle: homeStyle.subTitle)
+        VStack(alignment: .leading, spacing: 0) {
+            subTitleRow(subTitle: homeStyle.subTitle)
+            
+            HStack(spacing: 0) {
                 mainTitleRow(homeStyle)
+                
+                Spacer()
+                
+                homeActionButtons(isRemained: homeStyle.isRemainedAlarm)
             }
-            .padding(.vertical, 12)
-
-            Spacer()
-
-            homeActionButtons(isRemained: homeStyle.isRemainedAlarm)
         }
         .padding(style.horizontalPadding)
+        .padding(.vertical, 7)
     }
 
     func subTitleRow(subTitle: String) -> some View {
@@ -143,9 +144,7 @@ private extension TXNavigationBar {
 
     func mainTitleRow(_ homeStyle: Style.Home) -> some View {
         HStack(spacing: 4) {
-            Text(homeStyle.mainTitle)
-                .typography(style.titleFont)
-                .foregroundStyle(style.foregroundColor)
+            Image.Illustration.logo
 
             if !homeStyle.isHiddenRefresh {
                 Button {
@@ -155,12 +154,14 @@ private extension TXNavigationBar {
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: 24, height: 24)
-                        .foregroundStyle(style.iconForegroundColor)
+                        .foregroundStyle(Color.Gray.gray300)
                 }
+                .padding(.top, 2)
                 .buttonStyle(.plain)
-                .padding(.bottom, 4)
             }
         }
+        .padding(.bottom, 1)
+        .frame(height: 27)
     }
 
     func homeActionButtons(isRemained: Bool) -> some View {

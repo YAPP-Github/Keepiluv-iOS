@@ -50,7 +50,6 @@ public struct HomeView: View {
             }
             Spacer()
         }
-        .padding(.bottom, Constants.tabBarHeight)
         .overlay(alignment: .bottomTrailing) {
             floatingButton
         }
@@ -149,14 +148,14 @@ private extension HomeView {
                 cardList
             }
             .padding(.horizontal, 20)
-            .padding(.top, 1)
-            .padding(.bottom, 1)
+            .padding(.top, 16)
+            .padding(.bottom, 103 + Constants.tabBarHeight)
         }
     }
     
     var headerRow: some View {
         HStack(spacing: 0) {
-            Text("오늘 우리 목표")
+            Text(store.goalSectionTitle)
                 .typography(.b1_14b)
             
             Spacer()
@@ -204,26 +203,41 @@ private extension HomeView {
             }
         )
     }
+    
     var floatingButton: some View {
         TXCircleButton(config: .plus()) {
             store.send(.floatingButtonTapped)
         }
+        .insideBorder(
+            Color.Gray.gray300,
+            shape: .circle,
+            lineWidth: LineWidth.m
+        )
+        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
         .padding(.trailing, 16)
         .padding(.bottom, Constants.tabBarHeight + 12)
     }
     
     var goalEmptyView: some View {
-        VStack(spacing: 10) {
-            Image.Icon.Illustration.goalEmpty
+        VStack(alignment: .center, spacing: 0) {
+            Image.Illustration.emptyPoke
             
             Text("첫 목표를 세워볼까요?")
                 .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray200)
+                .foregroundStyle(Color.Gray.gray400)
             
-            Image.Vector.curveArrow
-                .padding(.leading, 74)
+            Text("+ 버튼을 눌러 목표를 추가해보세요")
+                .typography(.c1_12r)
+                .foregroundStyle(Color.Gray.gray300)
+                .padding(.top, 5)
         }
-        .padding(.top, 136)
+        .padding(.bottom, Constants.tabBarHeight)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottomTrailing) {
+            Image.Illustration.arrow
+                .padding(.bottom, 63 + Constants.tabBarHeight)
+                .padding(.trailing, 86)
+        }
     }
 }
 
