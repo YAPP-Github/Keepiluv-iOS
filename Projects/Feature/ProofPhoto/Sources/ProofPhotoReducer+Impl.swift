@@ -114,14 +114,18 @@ extension ProofPhotoReducer {
                                 verificationDate: verificationDate
                             )
                             let photoLog = try await photoLogClient.createPhotoLog(request)
-
                             let completedGoal = GoalDetail.CompletedGoal(
-                                goalId: goalId,
-                                photologId: photoLog.photologId,
-                                owner: .mySelf,
-                                imageUrl: photoLog.imageUrl,
-                                comment: comment,
-                                createdAt: "방금"
+                                myPhotoLog: .init(
+                                    goalId: goalId,
+                                    photologId: photoLog.photologId,
+                                    goalName: nil,
+                                    owner: .mySelf,
+                                    imageUrl: photoLog.imageUrl,
+                                    comment: comment,
+                                    reaction: nil,
+                                    createdAt: "방금"
+                                ),
+                                yourPhotoLog: nil
                             )
                             await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
                         } catch {
