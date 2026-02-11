@@ -45,10 +45,10 @@ extension GoalClient: @retroactive DependencyKey {
                     throw error
                 }
             },
-            fetchGoalDetail: { goalId in
+            fetchGoalDetailList: { date in
                 do {
-                    let response: GoalPhotoLogListResponseDTO = try await networkClient.request(
-                        endpoint: GoalEndpoint.fetchGoalDetail(goalId: goalId)
+                    let response: DetailGoalListResponseDTO = try await networkClient.request(
+                        endpoint: GoalEndpoint.fetchGoalDetailList(date: date)
                     )
                     return response.toEntity(response)
                 } catch {
