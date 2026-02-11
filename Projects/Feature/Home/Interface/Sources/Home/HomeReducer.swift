@@ -54,6 +54,18 @@ public struct HomeReducer {
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
         
+        public var goalSectionTitle: String {
+            let now = CalendarNow()
+            let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
+            if TXCalendarUtil.isEarlier(calendarDate, than: today) {
+                return "지난 우리의 목표"
+            }
+            if TXCalendarUtil.isEarlier(today, than: calendarDate) {
+                return "다음 우리의 목표"
+            }
+            return "오늘 우리의 목표"
+        }
+        
         public var proofPhoto: ProofPhotoReducer.State?
 
         /// 기본 상태를 생성합니다.
