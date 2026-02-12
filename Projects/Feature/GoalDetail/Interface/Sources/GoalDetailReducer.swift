@@ -62,7 +62,9 @@ public struct GoalDetailReducer {
         public var canSwipeUp: Bool { currentGoalIndex + 1 < completedGoalItems.count }
         public var canSwipeDown: Bool { currentGoalIndex > 0 }
         
-        public var isCompleted: Bool { currentCard?.imageUrl != nil }
+        public var isCompleted: Bool {
+            pendingEditedImageData != nil || currentCard?.imageUrl != nil
+        }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
             if case .mySelf = currentUser, isCompleted {
@@ -80,6 +82,7 @@ public struct GoalDetailReducer {
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
+        public var pendingEditedImageData: Data?
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
         public var toast: TXToastType?
@@ -123,7 +126,7 @@ public struct GoalDetailReducer {
         case cardSwipedDown
         case focusChanged(Bool)
         case dimmedBackgroundTapped
-        case updateCompletedGoal(GoalDetail.CompletedGoal)
+        case updateMyPhotoLog(GoalDetail.CompletedGoal.PhotoLog)
         
         // MARK: - State Update
         case authorizationCompleted(isAuthorized: Bool)
@@ -133,6 +136,7 @@ public struct GoalDetailReducer {
         case setCreatedAt(String)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
+        case updatePhotoLog
         
         // MARK: - Child Action
         case proofPhoto(ProofPhotoReducer.Action)

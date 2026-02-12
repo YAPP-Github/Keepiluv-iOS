@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
@@ -176,8 +177,26 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let imageUrl = store.currentCard?.imageUrl,
-           let url = URL(string: imageUrl) {
+        if let editImageData = store.pendingEditedImageData,
+           let editedImage = UIImage(data: editImageData) {
+            Image(uiImage: editedImage)
+                .resizable()
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
+                .frame(width: 336, height: 336)
+                .readSize { rectFrame = $0 }
+                .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(alignment: .bottom) {
+                    commentCircle
+                        .padding(.bottom, 26)
+                }
+                .rotationEffect(.degrees(degree(isBackground: false)))
+        } else if let imageUrl = store.currentCard?.imageUrl,
+                  let url = URL(string: imageUrl) {
             KFImage(url)
                 .resizable()
                 .insideBorder(

@@ -69,18 +69,7 @@ extension GoalDetailReducer {
                     return .send(.delegate(.navigateBack))
                 } else if case .rightTapped = action {
                     if state.isEditing {
-                        state.isEditing = false
-                        state.isCommentFocused = false
-                        
-                        if var current = state.currentCard, state.currentUser == .mySelf {
-                            current.comment = state.commentText
-                            let completedGoal = GoalDetail.CompletedGoal(
-                                myPhotoLog: current,
-                                yourPhotoLog: state.currentCompletedGoal?.yourPhotoLog
-                            )
-                            return .send(.updateCompletedGoal(completedGoal))
-                        }
-                        return .none
+                        return .send(.updatePhotoLog)
                     } else {
                         state.isEditing = true
                         state.commentText = state.comment
@@ -166,8 +155,9 @@ extension GoalDetailReducer {
                 state.isPresentedProofPhoto = true
                 state.proofPhoto = ProofPhotoReducer.State(
                     goalId: state.currentGoalId,
-                    comment: state.comment,
-                    verificationDate: state.verificationDate
+                    comment: state.isEditing ? state.commentText : state.comment,
+                    verificationDate: state.verificationDate,
+                    isEditing: state.isEditing
                 )
                 
                 return .none
@@ -176,26 +166,61 @@ extension GoalDetailReducer {
                 state.isCameraPermissionAlertPresented = false
                 return .none
                 
+            case .updatePhotoLog:
+                if let current = state.currentCard, state.currentUser == .mySelf {
+                    guard let photologId = current.photologId else { return .none }
+                    let pendingEditedImageData = state.pendingEditedImageData
+                    let comment = state.commentText
+                    let goalId = state.currentGoalId
+                    
+                    return .run { send in
+                        do {
+                            var fileName: String
+                            if let pendingEditedImageData {
+                                let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
+                                try await uploadImageDataForUpdate(pendingEditedImageData, to: uploadResponse.uploadUrl)
+                                fileName = uploadResponse.fileName
+                            } else {
+                                let imageURLString = current.imageUrl ?? ""
+                                fileName = URL(string: imageURLString)?.lastPathComponent ?? imageURLString
+                            }
+
+                            let request = PhotoLogUpdateRequestDTO(
+                                fileName: fileName,
+                                comment: comment
+                            )
+                            try await photoLogClient.updatePhotoLog(photologId, request)
+                            await send(.binding(.set(\.isEditing, false)))
+                        } catch {
+                            await send(.showToast(.warning(message: "인증샷 수정에 실패했어요")))
+                        }
+                    }
+                }
+                
+                return .none
+                
                 // MARK: - Child Action
             case .proofPhoto(.delegate(.closeProofPhoto)):
                 state.isPresentedProofPhoto = false
                 return .none
                 
-            case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
+            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, editedImageData: editedImageData))):
                 state.isPresentedProofPhoto = false
-                return .send(.updateCompletedGoal(completedGoal))
+                state.pendingEditedImageData = editedImageData
+                var myPhotoLog = myPhotoLog
+                myPhotoLog.goalName = state.goalName
+                myPhotoLog.photologId = state.currentCard?.photologId
+                
+                return .none
                 
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
                 return .none
 
-            case let .updateCompletedGoal(completedGoal):
+            case let .updateMyPhotoLog(myPhotoLog):
                 guard let item = state.item else { return .none }
-                
-                let myPhotoLog = completedGoal.myPhotoLog
-                let yourPhotoLog = completedGoal.yourPhotoLog
-                
-                let targetGoalId = myPhotoLog?.goalId ?? yourPhotoLog?.goalId ?? state.currentGoalId
+
+                let targetGoalId = myPhotoLog.goalId
                 var updatedCompletedGoals = item.completedGoals
                 
                 if let index = updatedCompletedGoals.firstIndex(where: { card in
@@ -204,11 +229,16 @@ extension GoalDetailReducer {
                 }) {
                     let existing = updatedCompletedGoals[index]
                     updatedCompletedGoals[index] = GoalDetail.CompletedGoal(
-                        myPhotoLog: completedGoal.myPhotoLog ?? existing?.myPhotoLog,
-                        yourPhotoLog: completedGoal.yourPhotoLog ?? existing?.yourPhotoLog
+                        myPhotoLog: myPhotoLog,
+                        yourPhotoLog: existing?.yourPhotoLog
                     )
                 } else {
-                    updatedCompletedGoals.append(completedGoal)
+                    updatedCompletedGoals.append(
+                        GoalDetail.CompletedGoal(
+                            myPhotoLog: myPhotoLog,
+                            yourPhotoLog: nil
+                        )
+                    )
                 }
                 
                 state.item = GoalDetail(
@@ -237,4 +267,22 @@ extension GoalDetailReducer {
         )
     }
     // swiftlint: enable function_body_length
+}
+
+private func uploadImageDataForUpdate(_ data: Data, to uploadURLString: String) async throws {
+    guard let url = URL(string: uploadURLString) else {
+        throw URLError(.badURL)
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.setValue("image/png", forHTTPHeaderField: "Content-Type")
+
+    _ = try await URLSession.shared.upload(for: request, from: data)
+}
+
+private func removeQueryFromUploadURL(_ urlString: String) -> String {
+    guard var components = URLComponents(string: urlString) else { return urlString }
+    components.query = nil
+    return components.string ?? urlString
 }
