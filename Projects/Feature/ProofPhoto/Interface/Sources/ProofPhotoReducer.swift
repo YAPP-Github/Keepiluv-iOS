@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Foundation
 import PhotosUI
 import SwiftUI
 
@@ -36,6 +37,7 @@ public struct ProofPhotoReducer {
         public var toast: TXToastType?
         public var goalId: Int64
         public var verificationDate: String
+        public var isEditing: Bool
 
         /// 상태를 생성합니다.
         ///
@@ -50,11 +52,13 @@ public struct ProofPhotoReducer {
         public init(
             goalId: Int64,
             comment: String = "",
-            verificationDate: String
+            verificationDate: String,
+            isEditing: Bool = false
         ) {
             self.goalId = goalId
             self.commentText = comment
             self.verificationDate = verificationDate
+            self.isEditing = isEditing
         }
     }
 
@@ -91,7 +95,10 @@ public struct ProofPhotoReducer {
         /// ProofPhoto 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case closeProofPhoto
-            case completedUploadPhoto(completedGoal: GoalDetail.CompletedGoal)
+            case completedUploadPhoto(
+                myPhotoLog: GoalDetail.CompletedGoal.PhotoLog,
+                editedImageData: Data?
+            )
         }
     }
 

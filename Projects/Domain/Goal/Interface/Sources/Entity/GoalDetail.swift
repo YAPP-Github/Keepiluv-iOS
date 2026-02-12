@@ -66,7 +66,7 @@ public struct GoalDetail: Equatable {
         
         public struct PhotoLog: Equatable {
             public let goalId: Int64
-            public let photologId: Int64?
+            public var photologId: Int64?
             public var goalName: String?
             public let owner: Owner
             public var imageUrl: String?

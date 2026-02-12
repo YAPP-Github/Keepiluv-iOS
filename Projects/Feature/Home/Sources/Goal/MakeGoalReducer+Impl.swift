@@ -76,7 +76,7 @@ extension MakeGoalReducer {
 
             case .updateGoalFailed:
                 state.isLoading = false
-                return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
+                return .send(.showToast(.warning(message: "이미 완료한 목표입니다!")))
 
                 // MARK: - User Action
             case .emojiButtonTapped:

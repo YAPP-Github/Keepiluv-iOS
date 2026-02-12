@@ -83,7 +83,7 @@ extension EditGoalListReducer {
                     // FIXME: - 통계 나오기 전까지 토스트 띄움
                     let isPast = TXCalendarUtil.isEarlier(state.calendarDate, than: TXCalendarDate())
                     if isPast {
-                        state.toast = .warning(message: "과거의 것은 수정 불가능합니다.")
+                        state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {
                         return .send(.delegate(.goToGoalEdit(goalId: card.id)))
                     }
