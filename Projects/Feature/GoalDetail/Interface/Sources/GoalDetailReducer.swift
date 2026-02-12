@@ -47,6 +47,9 @@ public struct GoalDetailReducer {
         }
         
         public var goalName: String {
+            if let goalName = currentCompletedGoal?.goalName, !goalName.isEmpty {
+                return goalName
+            }
             let myPhotoLog = currentCompletedGoal?.myPhotoLog
             let yourPhotoLog = currentCompletedGoal?.yourPhotoLog
             
@@ -133,6 +136,8 @@ public struct GoalDetailReducer {
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
         case fetchGoalDetailFailed
+        case updateCurrentCardReaction(Goal.Reaction?)
+        case reactionUpdateFailed(previousReaction: Goal.Reaction?)
         case showToast(TXToastType)
         case setCreatedAt(String)
         case proofPhotoDismissed
