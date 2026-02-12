@@ -135,6 +135,7 @@ private func reduceCore(
         return .none
 
     case .logoutTapped:
+        guard !state.isLoading else { return .none }
         @Dependency(\.authClient) var authClient
 
         state.isLoading = true
@@ -156,6 +157,7 @@ private func reduceCore(
         return .none
 
     case .modalConfirmTapped:
+        guard !state.isLoading else { return .none }
         @Dependency(\.authClient) var authClient
 
         switch state.modal {

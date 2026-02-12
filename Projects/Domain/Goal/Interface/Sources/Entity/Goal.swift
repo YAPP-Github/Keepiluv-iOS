@@ -63,31 +63,36 @@ public struct Goal {
     /// ## 사용 예시
     /// ```swift
     /// let verification = Goal.Verification(
+    ///     photologId: 123,
     ///     isCompleted: true,
     ///     imageURL: "https://example.com/image.png",
     ///     emoji: .love
     /// )
     /// ```
     public struct Verification {
+        public let photologId: Int64?
         public let isCompleted: Bool
         public let imageURL: String?
         public let emoji: Reaction?
-        
+
         /// 목표 인증 정보를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
         /// let verification = Goal.Verification(
+        ///     photologId: nil,
         ///     isCompleted: false,
         ///     imageURL: nil,
         ///     emoji: nil
         /// )
         /// ```
         public init(
+            photologId: Int64? = nil,
             isCompleted: Bool,
             imageURL: String?,
             emoji: Reaction?
         ) {
+            self.photologId = photologId
             self.isCompleted = isCompleted
             self.imageURL = imageURL
             self.emoji = emoji

@@ -59,7 +59,8 @@ public struct SettingsReducer {
 
         public static let minLength = 2
         public static let maxLength = 8
-        public static let languageOptions = ["한국어", "English", "日本語"]
+        // FIXME: 로컬라이징 지원 이후 해제
+        public static let languageOptions = ["한국어"/*, "English", "日本語"*/]
 
         /// 상태를 생성합니다.
         ///

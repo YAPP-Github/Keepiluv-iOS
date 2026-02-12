@@ -33,7 +33,8 @@ public struct GoalCreateRequestDTO: Encodable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case name, icon, repeatCycle, repeatCount, startDate, endDate
+        case name = "goalName"
+        case icon, repeatCycle, repeatCount, startDate, endDate
     }
 
     public func encode(to encoder: Encoder) throws {
