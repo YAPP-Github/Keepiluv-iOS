@@ -42,16 +42,13 @@ struct MakeGoalView: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { store.send(.onAppear) }
         .onDisappear { store.send(.onDisappear) }
-        .txBottomSheet(
-            isPresented: $store.isCalendarSheetPresented
-        ) {
-            TXCalendarBottomSheet(
-                selectedDate: $store.calendarSheetDate,
-                completeButtonText: "완료",
-                onComplete: { store.send(.monthCalendarConfirmTapped) },
-                isDateEnabled: store.isCalendarDateEnabled
-            )
-        }
+        .calendarSheet(
+            isPresented: $store.isCalendarSheetPresented,
+            selectedDate: $store.calendarSheetDate,
+            completeButtonText: "완료",
+            onComplete: { store.send(.monthCalendarConfirmTapped) },
+            isDateEnabled: store.isCalendarDateEnabled
+        )
         .txBottomSheet(
             isPresented: $store.isPeriodSheetPresented
         ) {

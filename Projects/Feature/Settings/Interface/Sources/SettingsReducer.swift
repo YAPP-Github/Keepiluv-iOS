@@ -57,6 +57,9 @@ public struct SettingsReducer {
         public var isMarketingPushEnabled: Bool
         public var isNightMarketingPushEnabled: Bool
 
+        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+        public var showBackButton: Bool
+
         public static let minLength = 2
         public static let maxLength = 8
         // FIXME: 로컬라이징 지원 이후 해제
@@ -77,7 +80,8 @@ public struct SettingsReducer {
             storeVersion: String = "",
             isPokePushEnabled: Bool = true,
             isMarketingPushEnabled: Bool = false,
-            isNightMarketingPushEnabled: Bool = false
+            isNightMarketingPushEnabled: Bool = false,
+            showBackButton: Bool = true
         ) {
             self.nickname = nickname
             self.originalNickname = nickname
@@ -91,6 +95,7 @@ public struct SettingsReducer {
             self.isPokePushEnabled = isPokePushEnabled
             self.isMarketingPushEnabled = isMarketingPushEnabled
             self.isNightMarketingPushEnabled = isNightMarketingPushEnabled
+            self.showBackButton = showBackButton
         }
     }
 

@@ -70,15 +70,12 @@ public struct HomeView: View {
         .transaction { transaction in
             transaction.disablesAnimations = false
         }
-        .txBottomSheet(
-            isPresented: $store.isCalendarSheetPresented
-        ) {
-            TXCalendarBottomSheet(
-                selectedDate: $store.calendarSheetDate,
-                completeButtonText: "완료",
-                onComplete: { store.send(.monthCalendarConfirmTapped) }
-            )
-        }
+        .calendarSheet(
+            isPresented: $store.isCalendarSheetPresented,
+            selectedDate: $store.calendarSheetDate,
+            completeButtonText: "완료",
+            onComplete: { store.send(.monthCalendarConfirmTapped) }
+        )
         .txModal(
             item: $store.modal,
             onAction: { action in
