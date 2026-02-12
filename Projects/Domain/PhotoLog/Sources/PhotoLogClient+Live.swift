@@ -50,6 +50,10 @@ extension PhotoLogClient: @retroactive DependencyKey {
             updatePhotoLog: { photoLogId, request in
                 let _: EmptyResponse = try await networkClient.request(
                     endpoint: PhotoLogEndpoint.updatePhotoLog(photoLogId: photoLogId, request: request)
+            },
+            deletePhotoLog: { photoLogId in
+                try await networkClient.requestWithoutResponse(
+                    endpoint: PhotoLogEndpoint.deletePhotoLog(photoLogId: photoLogId)
                 )
             }
         )

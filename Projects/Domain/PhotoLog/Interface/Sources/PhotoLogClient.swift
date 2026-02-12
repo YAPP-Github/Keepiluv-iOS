@@ -21,7 +21,8 @@ public struct PhotoLogClient {
     public var uploadImageData: (Data, String) async throws -> Void
     public var createPhotoLog: (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
     public var updateReaction: (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO
-    public var updatePhotoLog: (Int64, PhotoLogUpdateRequestDTO) async throws -> Void
+    public var updatePhotoLog: (Int64, PhotoLogUpdateRequestDTO) async throws -> Void,
+    public var deletePhotoLog: (Int64) async throws -> Void
 
     /// PhotoLogClient를 생성합니다.
     ///
@@ -30,7 +31,8 @@ public struct PhotoLogClient {
     /// let client = PhotoLogClient(
     ///     fetchUploadURL: { _ in .init(uploadUrl: "", fileName: "") },
     ///     createPhotoLog: { _ in .init(photologId: 0, goalId: 0, imageUrl: "", comment: "", verificationDate: "") },
-    ///     updateReaction: { _, _ in .init(photologId: 0, reaction: "EMOJI_HAPPY") }
+    ///     updateReaction: { _, _ in .init(photologId: 0, reaction: "EMOJI_HAPPY") },
+    ///     deletePhotoLog: { _ in }
     /// )
     /// ```
     public init(
@@ -38,13 +40,15 @@ public struct PhotoLogClient {
         uploadImageData: @escaping (Data, String) async throws -> Void,
         createPhotoLog: @escaping (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO,
         updateReaction: @escaping (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO,
-        updatePhotoLog: @escaping (Int64, PhotoLogUpdateRequestDTO) async throws -> Void
+        updatePhotoLog: @escaping (Int64, PhotoLogUpdateRequestDTO) async throws -> Void,
+        deletePhotoLog: @escaping (Int64) async throws -> Void
     ) {
         self.fetchUploadURL = fetchUploadURL
         self.uploadImageData = uploadImageData
         self.createPhotoLog = createPhotoLog
         self.updateReaction = updateReaction
         self.updatePhotoLog = updatePhotoLog
+        self.deletePhotoLog = deletePhotoLog
     }
 }
 
@@ -67,6 +71,9 @@ extension PhotoLogClient: TestDependencyKey {
         },
         updatePhotoLog: { _, _ in
             assertionFailure("PhotoLogClient.updatePhotoLog이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+        },
+        deletePhotoLog: { _ in
+            assertionFailure("PhotoLogClient.deletePhotoLog이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
         }
     )
 }

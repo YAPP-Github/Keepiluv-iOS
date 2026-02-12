@@ -93,6 +93,7 @@ extension ProofPhotoReducer {
                 return .none
                 
             case .uploadButtonTapped:
+                guard !state.isUploading else { return .none }
                 // 코멘트는 비워도 되지만, 입력할 경우 5글자여야 함
                 let commentCount = state.commentText.count
                 if commentCount > 0 && commentCount < 5 {
@@ -101,6 +102,7 @@ extension ProofPhotoReducer {
                     guard let imageData = state.imageData else {
                         return .none
                     }
+                    state.isUploading = true
 
                     let goalId = state.goalId
                     let comment = state.commentText
@@ -157,7 +159,7 @@ extension ProofPhotoReducer {
                                 )
                             )
                         } catch {
-                            await send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
+                            await send(.uploadFailed)
                         }
                     }
                 }
@@ -199,7 +201,11 @@ extension ProofPhotoReducer {
             case .captureFailed:
                 state.isCapturing = false
                 return .send(.showToast(.warning(message: "사진 촬영에 실패했어요")))
-                
+
+            case .uploadFailed:
+                state.isUploading = false
+                return .send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
+
             case let .showToast(toast):
                 state.toast = toast
                 return .none

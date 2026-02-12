@@ -67,6 +67,51 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
         return try await performRequest(context: context)
     }
 
+    public func requestWithoutResponse(endpoint: Endpoint) async throws {
+        guard let url = makeURL(endpoint: endpoint) else {
+            throw NetworkError.invalidURLError
+        }
+
+        let baseRequest = try makeURLRequest(url: url, endpoint: endpoint)
+        var context = RequestContext(endpoint: endpoint, request: baseRequest)
+
+        // Adapt: 모든 interceptor에게 요청 수정 기회 제공
+        for interceptor in interceptors {
+            context = try await interceptor.adapt(context)
+        }
+
+        var attemptCount = 0
+
+        while attemptCount < maxAttempts {
+            attemptCount += 1
+
+            do {
+                try await performRequestWithoutResponse(context: context)
+                return
+            } catch {
+                // Retry: interceptor에게 재시도 결정 요청
+                var shouldRetry = false
+
+                for interceptor in interceptors {
+                    let decision = await interceptor.retry(context, dueTo: error, attemptCount: attemptCount)
+
+                    if case .retry(let newRequest) = decision {
+                        context.request = newRequest
+                        shouldRetry = true
+                        break
+                    }
+                }
+
+                if !shouldRetry {
+                    throw error
+                }
+            }
+        }
+
+        // maxAttempts 초과 시 마지막 요청 수행
+        try await performRequestWithoutResponse(context: context)
+    }
+
     // MARK: - Private
 
     private func performRequest<T: Decodable>(context: RequestContext) async throws -> T {
@@ -95,6 +140,46 @@ public final class NetworkProvider: NetworkProviderProtocol, Sendable {
                 do {
                     let result: T = try self.processResponse(data: data, response: response)
                     continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            task.taskDescription = featureTag
+            createdTask = task
+
+            interceptors.forEach { $0.didCreateTask(task) }
+
+            task.resume()
+        }
+    }
+
+    private func performRequestWithoutResponse(context: RequestContext) async throws {
+        let featureTag = context.endpoint.featureTag.rawValue
+
+        return try await withCheckedThrowingContinuation { continuation in
+            var createdTask: URLSessionDataTask?
+            let task = session.dataTask(with: context.request) { [interceptors] data, response, error in
+                if let task = createdTask {
+                    if let data = data {
+                        interceptors.forEach { $0.didReceiveData(task, data: data) }
+                    }
+                    interceptors.forEach { $0.didCompleteTask(task, error: error) }
+                }
+
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                guard let response = response else {
+                    continuation.resume(throwing: NetworkError.invalidResponseError)
+                    return
+                }
+
+                do {
+                    try self.processResponseWithoutBody(data: data ?? Data(), response: response)
+                    continuation.resume(returning: ())
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -170,7 +255,7 @@ private extension NetworkProvider {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponseError
         }
-        
+
         switch httpResponse.statusCode {
         case HTTPStatusCode.success:
             let jsonData = data.isEmpty ? Data("{}".utf8) : data
@@ -179,20 +264,47 @@ private extension NetworkProvider {
                 throw NetworkError.decodingError
             }
             return decodedResponse
-            
+
         case HTTPStatusCode.unauthorized:
             throw NetworkError.authorizationError
-            
+
         case HTTPStatusCode.notFound:
             throw NetworkError.notFoundError
 
         case HTTPStatusCode.badRequest:
             let errorCode = parseErrorCode(from: data)
             throw NetworkError.badRequestError(code: errorCode)
-            
+
         case HTTPStatusCode.serverError:
             throw NetworkError.serverError
-            
+
+        default:
+            throw NetworkError.unknownError
+        }
+    }
+
+    func processResponseWithoutBody(data: Data, response: URLResponse) throws {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponseError
+        }
+
+        switch httpResponse.statusCode {
+        case HTTPStatusCode.success:
+            return
+
+        case HTTPStatusCode.unauthorized:
+            throw NetworkError.authorizationError
+
+        case HTTPStatusCode.notFound:
+            throw NetworkError.notFoundError
+
+        case HTTPStatusCode.badRequest:
+            let errorCode = parseErrorCode(from: data)
+            throw NetworkError.badRequestError(code: errorCode)
+
+        case HTTPStatusCode.serverError:
+            throw NetworkError.serverError
+
         default:
             throw NetworkError.unknownError
         }

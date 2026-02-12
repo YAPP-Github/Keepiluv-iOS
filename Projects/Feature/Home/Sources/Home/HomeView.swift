@@ -151,6 +151,9 @@ private extension HomeView {
             .padding(.top, 16)
             .padding(.bottom, 103 + Constants.tabBarHeight)
         }
+        .refreshable {
+            store.send(.fetchGoals)
+        }
     }
     
     var headerRow: some View {
@@ -219,25 +222,32 @@ private extension HomeView {
     }
     
     var goalEmptyView: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Image.Illustration.emptyPoke
-            
-            Text("첫 목표를 세워볼까요?")
-                .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray400)
-            
-            Text("+ 버튼을 눌러 목표를 추가해보세요")
-                .typography(.c1_12r)
-                .foregroundStyle(Color.Gray.gray300)
-                .padding(.top, 5)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .center, spacing: 0) {
+                    Image.Illustration.emptyPoke
+
+                    Text("첫 목표를 세워볼까요?")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+
+                    Text("+ 버튼을 눌러 목표를 추가해보세요")
+                        .typography(.c1_12r)
+                        .foregroundStyle(Color.Gray.gray300)
+                        .padding(.top, 5)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .overlay(alignment: .bottomTrailing) {
+                    Image.Illustration.arrow
+                        .padding(.bottom, 63 + Constants.tabBarHeight)
+                        .padding(.trailing, 86)
+                }
+            }
+            .refreshable {
+                store.send(.fetchGoals)
+            }
         }
         .padding(.bottom, Constants.tabBarHeight)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottomTrailing) {
-            Image.Illustration.arrow
-                .padding(.bottom, 63 + Constants.tabBarHeight)
-                .padding(.trailing, 86)
-        }
     }
 }
 

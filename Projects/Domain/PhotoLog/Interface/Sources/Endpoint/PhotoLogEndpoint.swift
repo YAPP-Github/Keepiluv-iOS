@@ -21,6 +21,7 @@ public enum PhotoLogEndpoint: Endpoint {
     case createPhotoLog(PhotoLogCreateRequestDTO)
     case updateReaction(photoLogId: Int64, request: PhotoLogUpdateReactionRequestDTO)
     case updatePhotoLog(photoLogId: Int64, request: PhotoLogUpdateRequestDTO)
+    case deletePhotoLog(photoLogId: Int64)
 }
 
 extension PhotoLogEndpoint {
@@ -30,6 +31,7 @@ extension PhotoLogEndpoint {
         case .createPhotoLog: return "/api/v1/photologs"
         case let .updateReaction(photoLogId, _): return "/api/v1/photologs/\(photoLogId)/reaction"
         case let .updatePhotoLog(photoLogId, _): return "/api/v1/photologs/\(photoLogId)"
+        case let .deletePhotoLog(photoLogId): return "/api/v1/photologs/\(photoLogId)"
         }
     }
 
@@ -39,6 +41,7 @@ extension PhotoLogEndpoint {
         case .createPhotoLog: return .post
         case .updateReaction: return .put
         case .updatePhotoLog: return .put
+        case .deletePhotoLog: return .delete
         }
     }
 
@@ -50,8 +53,8 @@ extension PhotoLogEndpoint {
         switch self {
         case let .fetchUploadURL(goalId):
             return [URLQueryItem(name: "goalId", value: String(goalId))]
-            
-        case .createPhotoLog, .updateReaction, .updatePhotoLog:
+
+        case .createPhotoLog, .updateReaction, .deletePhotoLog, .updatePhotoLog:
             return nil
         }
     }
@@ -60,15 +63,18 @@ extension PhotoLogEndpoint {
         switch self {
         case .fetchUploadURL:
             return nil
-            
+
         case let .createPhotoLog(request):
             return request
-            
+
         case let .updateReaction(_, request):
             return request
 
         case let .updatePhotoLog(_, request):
             return request
+          
+        case .deletePhotoLog:
+            return nil
         }
     }
 

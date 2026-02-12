@@ -11,6 +11,7 @@ import SwiftUI
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import DomainGoalInterface
+import DomainPhotoLogInterface
 import FeatureHomeInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
@@ -30,6 +31,7 @@ extension HomeReducer {
     ) {
         @Dependency(\.goalClient) var goalClient
         @Dependency(\.captureSessionClient) var captureSessionClient
+        @Dependency(\.photoLogClient) var photoLogClient
         
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
@@ -102,8 +104,13 @@ extension HomeReducer {
                 
             case let .goalCheckButtonTapped(id, isChecked):
                 if isChecked {
+                    guard let card = state.cards.first(where: { $0.id == id }),
+                          let photologId = card.myCard.photologId else {
+                        return .none
+                    }
                     state.pendingDeleteGoalID = id
-                    state.modal = .info(.deleteGoal)
+                    state.pendingDeletePhotologID = photologId
+                    state.modal = .info(.uncheckGoal)
                     return .none
                 } else {
                     return .run { send in
@@ -113,12 +120,20 @@ extension HomeReducer {
                 }
                 
             case .modalConfirmTapped:
-                if let pendingID = state.pendingDeleteGoalID {
-                    state.pendingDeleteGoalID = nil
-                    state.cards.removeAll { $0.id == pendingID }
-                    return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
+                guard let pendingGoalID = state.pendingDeleteGoalID,
+                      let pendingPhotologID = state.pendingDeletePhotologID else {
+                    return .none
                 }
-                return .none
+                state.pendingDeleteGoalID = nil
+                state.pendingDeletePhotologID = nil
+                return .run { send in
+                    do {
+                        try await photoLogClient.deletePhotoLog(pendingPhotologID)
+                        await send(.deletePhotoLogCompleted(goalId: pendingGoalID))
+                    } catch {
+                        await send(.deletePhotoLogFailed)
+                    }
+                }
                 
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
@@ -208,11 +223,13 @@ extension HomeReducer {
                                 goalName: goal.title,
                                 goalEmoji: goal.goalIcon.image,
                                 myCard: .init(
+                                    photologId: goal.myVerification?.photologId,
                                     imageURL: myImageURL,
                                     isSelected: goal.myVerification?.isCompleted ?? false,
                                     emoji: goal.myVerification?.emoji?.image
                                 ),
                                 yourCard: .init(
+                                    photologId: goal.yourVerification?.photologId,
                                     imageURL: yourImageURL,
                                     isSelected: goal.yourVerification?.isCompleted ?? false,
                                     emoji: goal.yourVerification?.emoji?.image
@@ -255,6 +272,7 @@ extension HomeReducer {
                 guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
                 let imageURL = myPhotoLog.imageUrl.flatMap(URL.init(string:))
                 state.cards[index].myCard = .init(
+                    photologId: completedGoal.myPhotoLog?.photologId,
                     imageURL: imageURL,
                     isSelected: true,
                     emoji: state.cards[index].myCard.emoji
@@ -268,9 +286,24 @@ extension HomeReducer {
             case .proofPhoto:
                 return .none
 
+            case let .deletePhotoLogCompleted(goalId):
+                guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else {
+                    return .none
+                }
+                state.cards[index].myCard = .init(
+                    photologId: nil,
+                    imageURL: nil,
+                    isSelected: false,
+                    emoji: state.cards[index].myCard.emoji
+                )
+                return .send(.showToast(.delete(message: "인증이 해제되었어요")))
+
+            case .deletePhotoLogFailed:
+                return .send(.showToast(.warning(message: "해제에 실패했어요")))
+
             case .binding:
                 return .none
-                
+
             case .delegate:
                 return .none
             }
