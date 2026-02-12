@@ -44,7 +44,9 @@ public struct MainTabReducer {
         public var home = HomeCoordinator.State()
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
-        
+        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+        public var settings = SettingsReducer.State(showBackButton: false)
+
         /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
@@ -65,13 +67,11 @@ public struct MainTabReducer {
 
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
+        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+        case settings(SettingsReducer.Action)
 
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
-
-        // MARK: - Temporary Settings Access
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        case showSettings
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -93,7 +93,7 @@ public struct MainTabReducer {
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
-        
+
         Scope(state: \.home, action: \.home) {
             let proofPhotoReducer = ProofPhotoReducer()
             HomeCoordinator(
@@ -105,6 +105,11 @@ public struct MainTabReducer {
             )
         }
 
+        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+        Scope(state: \.settings, action: \.settings) {
+            SettingsReducer()
+        }
+
         Reduce { state, action in
             switch action {
                 // MARK: - User Action
@@ -112,19 +117,14 @@ public struct MainTabReducer {
                 switch state.selectedTab {
                 case .home:
                     state.isTabBarHidden = !state.home.routes.isEmpty
+                        || state.home.home.isCalendarSheetPresented
 
                 case .statistics, .couple, .settings:
                     state.isTabBarHidden = false
                 }
                 return .none
 
-            // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-            case .showSettings:
-                state.home.settings = SettingsReducer.State()
-                state.home.isSettingsPresented = true
-                return .none
-
-                // MARK: - Child Action
+                // MARK: - Child Action (Home)
             case .home(.delegate(.logoutCompleted)):
                 return .send(.delegate(.logoutCompleted))
 
@@ -134,18 +134,29 @@ public struct MainTabReducer {
             case .home(.delegate(.sessionExpired)):
                 return .send(.delegate(.sessionExpired))
 
-            // FIXME: 삭제 예정 - 설정 탭 제거 시 함께 제거
-            case .home(.settingsDismissed):
-                // 설정 화면이 닫히면 홈 탭으로 복귀
-                if state.selectedTab == .settings {
-                    state.selectedTab = .home
-                }
-                return .none
-
             case .home:
                 if state.selectedTab == .home {
                     state.isTabBarHidden = !state.home.routes.isEmpty
+                        || state.home.home.isCalendarSheetPresented
                 }
+                return .none
+
+                // MARK: - Child Action (Settings)
+                // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+            case .settings(.delegate(.logoutCompleted)):
+                return .send(.delegate(.logoutCompleted))
+
+            case .settings(.delegate(.withdrawCompleted)):
+                return .send(.delegate(.withdrawCompleted))
+
+            case .settings(.delegate(.sessionExpired)):
+                return .send(.delegate(.sessionExpired))
+
+            case .settings(.delegate(.navigateBack)):
+                // 탭에서는 백버튼 동작 무시
+                return .none
+
+            case .settings:
                 return .none
 
             case .delegate:
