@@ -178,6 +178,7 @@ extension GoalDetailReducer {
                         state.isEditing = false
                         return .none
                     }
+                    state.isSavingPhotoLog = true
                     
                     return .run { send in
                         do {
@@ -197,7 +198,9 @@ extension GoalDetailReducer {
                             )
                             try await photoLogClient.updatePhotoLog(photologId, request)
                             await send(.binding(.set(\.isEditing, false)))
+                            await send(.binding(.set(\.isSavingPhotoLog, false)))
                         } catch {
+                            await send(.binding(.set(\.isSavingPhotoLog, false)))
                             await send(.showToast(.warning(message: "인증샷 수정에 실패했어요")))
                         }
                     }

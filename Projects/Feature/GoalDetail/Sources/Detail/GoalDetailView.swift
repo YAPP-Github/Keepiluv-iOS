@@ -144,6 +144,11 @@ public struct GoalDetailView: View {
             isPresented: $store.isCameraPermissionAlertPresented,
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
+        .overlay {
+            if store.isSavingPhotoLog {
+                ProgressView()
+            }
+        }
     }
 }
 

@@ -82,6 +82,7 @@ public struct GoalDetailReducer {
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
+        public var isSavingPhotoLog: Bool = false
         public var pendingEditedImageData: Data?
         public var commentText: String = ""
         public var isCommentFocused: Bool = false
