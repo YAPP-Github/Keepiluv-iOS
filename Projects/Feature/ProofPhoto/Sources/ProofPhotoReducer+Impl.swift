@@ -129,7 +129,7 @@ extension ProofPhotoReducer {
                     return .run { send in
                         do {
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                            try await uploadImageData(imageData, to: uploadResponse.uploadUrl)
+                            try await photoLogClient.uploadImageData(imageData, uploadResponse.uploadUrl)
                             
                             let createRequest = PhotoLogCreateRequestDTO(
                                 goalId: goalId,
@@ -215,16 +215,4 @@ extension ProofPhotoReducer {
         self.init(reducer: reducer)
     }
     // swiftlint: enable function_body_length
-}
-
-private func uploadImageData(_ data: Data, to uploadURLString: String) async throws {
-    guard let url = URL(string: uploadURLString) else {
-        throw URLError(.badURL)
-    }
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "PUT"
-    request.setValue("image/png", forHTTPHeaderField: "Content-Type")
-
-    _ = try await URLSession.shared.upload(for: request, from: data)
 }

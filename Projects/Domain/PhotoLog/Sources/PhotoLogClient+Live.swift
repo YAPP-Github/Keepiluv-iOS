@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import CoreNetworkInterface
 import DomainPhotoLogInterface
+import Foundation
 
 extension PhotoLogClient: @retroactive DependencyKey {
     public static let liveValue: PhotoLogClient = .live()
@@ -22,6 +23,17 @@ extension PhotoLogClient: @retroactive DependencyKey {
                     endpoint: PhotoLogEndpoint.fetchUploadURL(goalId: goalId)
                 )
                 return response
+            },
+            uploadImageData: { data, uploadURLString in
+                guard let url = URL(string: uploadURLString) else {
+                    throw URLError(.badURL)
+                }
+
+                var request = URLRequest(url: url)
+                request.httpMethod = "PUT"
+                request.setValue("image/png", forHTTPHeaderField: "Content-Type")
+
+                _ = try await URLSession.shared.upload(for: request, from: data)
             },
             createPhotoLog: { request in
                 let response: PhotoLogCreateResponseDTO = try await networkClient.request(

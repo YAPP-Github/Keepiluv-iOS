@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 /// 인증샷 업로드/등록/리액션 수정을 위한 Client입니다.
 ///
@@ -17,6 +18,7 @@ import ComposableArchitecture
 /// ```
 public struct PhotoLogClient {
     public var fetchUploadURL: (Int64) async throws -> PhotoLogUploadURLResponseDTO
+    public var uploadImageData: (Data, String) async throws -> Void
     public var createPhotoLog: (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
     public var updateReaction: (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO
     public var updatePhotoLog: (Int64, PhotoLogUpdateRequestDTO) async throws -> Void
@@ -33,11 +35,13 @@ public struct PhotoLogClient {
     /// ```
     public init(
         fetchUploadURL: @escaping (Int64) async throws -> PhotoLogUploadURLResponseDTO,
+        uploadImageData: @escaping (Data, String) async throws -> Void,
         createPhotoLog: @escaping (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO,
         updateReaction: @escaping (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO,
         updatePhotoLog: @escaping (Int64, PhotoLogUpdateRequestDTO) async throws -> Void
     ) {
         self.fetchUploadURL = fetchUploadURL
+        self.uploadImageData = uploadImageData
         self.createPhotoLog = createPhotoLog
         self.updateReaction = updateReaction
         self.updatePhotoLog = updatePhotoLog
@@ -49,6 +53,9 @@ extension PhotoLogClient: TestDependencyKey {
         fetchUploadURL: { _ in
             assertionFailure("PhotoLogClient.fetchUploadURL이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return .init(uploadUrl: "", fileName: "")
+        },
+        uploadImageData: { _, _ in
+            assertionFailure("PhotoLogClient.uploadImageData가 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
         },
         createPhotoLog: { _ in
             assertionFailure("PhotoLogClient.createPhotoLog이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")

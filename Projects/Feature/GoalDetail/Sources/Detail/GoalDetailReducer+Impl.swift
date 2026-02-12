@@ -178,7 +178,7 @@ extension GoalDetailReducer {
                             var fileName: String
                             if let pendingEditedImageData {
                                 let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                                try await uploadImageDataForUpdate(pendingEditedImageData, to: uploadResponse.uploadUrl)
+                                try await photoLogClient.uploadImageData(pendingEditedImageData, uploadResponse.uploadUrl)
                                 fileName = uploadResponse.fileName
                             } else {
                                 let imageURLString = current.imageUrl ?? ""
@@ -267,22 +267,4 @@ extension GoalDetailReducer {
         )
     }
     // swiftlint: enable function_body_length
-}
-
-private func uploadImageDataForUpdate(_ data: Data, to uploadURLString: String) async throws {
-    guard let url = URL(string: uploadURLString) else {
-        throw URLError(.badURL)
-    }
-
-    var request = URLRequest(url: url)
-    request.httpMethod = "PUT"
-    request.setValue("image/png", forHTTPHeaderField: "Content-Type")
-
-    _ = try await URLSession.shared.upload(for: request, from: data)
-}
-
-private func removeQueryFromUploadURL(_ urlString: String) -> String {
-    guard var components = URLComponents(string: urlString) else { return urlString }
-    components.query = nil
-    return components.string ?? urlString
 }
