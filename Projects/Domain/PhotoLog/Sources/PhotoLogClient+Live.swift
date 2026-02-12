@@ -34,7 +34,14 @@ extension PhotoLogClient: @retroactive DependencyKey {
                     endpoint: PhotoLogEndpoint.updateReaction(photoLogId: photoLogId, request: request)
                 )
                 return response
+            },
+            updatePhotoLog: { photoLogId, request in
+                let _: EmptyResponse = try await networkClient.request(
+                    endpoint: PhotoLogEndpoint.updatePhotoLog(photoLogId: photoLogId, request: request)
+                )
             }
         )
     }
 }
+
+private struct EmptyResponse: Decodable {}
