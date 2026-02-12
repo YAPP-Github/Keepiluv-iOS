@@ -65,6 +65,7 @@ struct MakeGoalView: View {
                 }
             }
         )
+        .txToast(item: $store.toast)
     }
 }
 
