@@ -137,7 +137,7 @@ extension HomeReducer {
                 
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
-                    return .send(.showToast(.poke(message: "님을 찔렀어요!")))
+                    return .send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                 } else {
                     let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
                     return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
@@ -266,13 +266,13 @@ extension HomeReducer {
                 state.isProofPhotoPresented = false
                 return .none
                 
-            case let .proofPhoto(.delegate(.completedUploadPhoto(completedGoal))):
+            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, _))):
                 state.isProofPhotoPresented = false
                 guard let goalId = state.proofPhoto?.goalId else { return .none }
                 guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
-                let imageURL = completedGoal.myPhotoLog?.imageUrl.flatMap(URL.init(string:))
+                let imageURL = myPhotoLog.imageUrl.flatMap(URL.init(string:))
                 state.cards[index].myCard = .init(
-                    photologId: completedGoal.myPhotoLog?.photologId,
+                    photologId: myPhotoLog.photologId,
                     imageURL: imageURL,
                     isSelected: true,
                     emoji: state.cards[index].myCard.emoji
