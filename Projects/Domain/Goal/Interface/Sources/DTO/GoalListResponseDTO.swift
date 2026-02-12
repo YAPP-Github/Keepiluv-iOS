@@ -34,11 +34,9 @@ public struct GoalListResponseDTO: Decodable {
     }
 
     public struct Verification: Decodable {
-//        let photologId: Int64
+        let photologId: Int64?
         let imageUrl: String?
-        // let comment: String
         let reaction: String?
-        // let uploadedAt: String
     }
 }
 
@@ -56,11 +54,13 @@ public extension GoalListResponseDTO {
                 goalIcon: Goal.Icon(rawValue: $0.icon) ?? .default,
                 title: $0.goalName,
                 myVerification: .init(
+                    photologId: $0.myVerification?.photologId,
                     isCompleted: $0.myCompleted,
                     imageURL: $0.myVerification?.imageUrl,
                     emoji: Goal.Reaction(rawValue: $0.myVerification?.reaction ?? "")
                 ),
                 yourVerification: .init(
+                    photologId: $0.partnerVerification?.photologId,
                     isCompleted: $0.partnerCompleted,
                     imageURL: $0.partnerVerification?.imageUrl,
                     emoji: Goal.Reaction(rawValue: $0.partnerVerification?.reaction ?? "")

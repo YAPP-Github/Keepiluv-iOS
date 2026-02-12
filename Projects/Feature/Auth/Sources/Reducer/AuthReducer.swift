@@ -91,6 +91,7 @@ private extension AuthReducer {
         provider: AuthProvider,
         state: inout State
     ) -> Effect<Action> {
+        guard !state.isLoading else { return .none }
         state.isLoading = true
         state.errorMessage = nil
 
@@ -121,6 +122,12 @@ private extension AuthReducer {
         error: Error
     ) -> Effect<Action> {
         state.isLoading = false
+
+        // 사용자가 직접 취소한 경우 알림 표시하지 않음
+        if case .userCanceled = error as? AuthLoginError {
+            return .none
+        }
+
         state.errorMessage = errorMessage(for: error)
         #if DEBUG
         logger.error("로그인 실패 - \(error.localizedDescription)")

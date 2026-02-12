@@ -35,6 +35,18 @@ public struct NetworkClient: Sendable {
     public func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
         try await provider.request(endpoint: endpoint)
     }
+
+    /// 응답 본문 없이 네트워크 요청을 수행합니다.
+    ///
+    /// DELETE 등 응답 본문이 없는 요청에 사용합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// try await networkClient.requestWithoutResponse(endpoint: PhotoLogEndpoint.deletePhotoLog(photoLogId: 1))
+    /// ```
+    public func requestWithoutResponse(endpoint: Endpoint) async throws {
+        try await provider.requestWithoutResponse(endpoint: endpoint)
+    }
 }
 
 // MARK: - Test Support
@@ -42,6 +54,11 @@ public struct NetworkClient: Sendable {
 private struct UnimplementedNetworkProvider: NetworkProviderProtocol {
     func request<T: Decodable>(endpoint: Endpoint) async throws -> T {
         assertionFailure("NetworkClient.request is unimplemented. Use withDependencies to override.")
+        throw NetworkError.unknownError
+    }
+
+    func requestWithoutResponse(endpoint: Endpoint) async throws {
+        assertionFailure("NetworkClient.requestWithoutResponse is unimplemented. Use withDependencies to override.")
         throw NetworkError.unknownError
     }
 }

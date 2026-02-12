@@ -22,4 +22,14 @@ public protocol NetworkProviderProtocol: Sendable {
     /// let profile: UserProfile = try await provider.request(endpoint: UserEndpoint.profile)
     /// ```
     func request<T: Decodable>(endpoint: Endpoint) async throws -> T
+
+    /// 응답 본문 없이 네트워크 요청을 수행합니다.
+    ///
+    /// DELETE 등 응답 본문이 없는 요청에 사용합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// try await provider.requestWithoutResponse(endpoint: PhotoLogEndpoint.deletePhotoLog(photoLogId: 1))
+    /// ```
+    func requestWithoutResponse(endpoint: Endpoint) async throws
 }

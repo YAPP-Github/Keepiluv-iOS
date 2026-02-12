@@ -48,7 +48,7 @@ public struct MainTabView: View {
             switch store.selectedTab {
             case .home:
                 HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-                
+
             case .statistics:
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -56,6 +56,16 @@ public struct MainTabView: View {
             case .couple:
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
+            case .settings:
+                HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
+            }
+        }
+        .onChange(of: store.selectedTab) { _, newValue in
+            // FIXME: 삭제 예정 - 설정 탭에서 설정 화면 표시
+            if newValue == .settings {
+                store.send(.showSettings)
             }
         }
     }
