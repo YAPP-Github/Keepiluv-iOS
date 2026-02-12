@@ -172,6 +172,12 @@ extension GoalDetailReducer {
                     let pendingEditedImageData = state.pendingEditedImageData
                     let comment = state.commentText
                     let goalId = state.currentGoalId
+                    let isCommentChanged = comment != current.comment
+                    let isImageChanged = pendingEditedImageData != nil
+                    if !isCommentChanged && !isImageChanged {
+                        state.isEditing = false
+                        return .none
+                    }
                     
                     return .run { send in
                         do {
