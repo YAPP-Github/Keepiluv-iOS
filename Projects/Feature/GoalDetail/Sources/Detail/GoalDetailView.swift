@@ -196,8 +196,10 @@ private extension GoalDetailView {
                 .overlay(dimmedView)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .overlay(alignment: .bottom) {
-                    commentCircle
-                        .padding(.bottom, 26)
+                    if let comment = store.currentCard?.comment, !comment.isEmpty {
+                        commentCircle
+                            .padding(.bottom, 26)
+                    }
                 }
                 .rotationEffect(.degrees(degree(isBackground: false)))
         } else if let imageUrl = store.currentCard?.imageUrl,
@@ -214,8 +216,10 @@ private extension GoalDetailView {
                 .overlay(dimmedView)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .overlay(alignment: .bottom) {
-                    commentCircle
-                        .padding(.bottom, 26)
+                    if let comment = store.currentCard?.comment, !comment.isEmpty {
+                        commentCircle
+                            .padding(.bottom, 26)
+                    }
                 }
                 .rotationEffect(.degrees(degree(isBackground: false)))
         } else {

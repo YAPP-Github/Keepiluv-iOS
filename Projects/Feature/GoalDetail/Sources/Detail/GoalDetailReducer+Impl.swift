@@ -40,7 +40,7 @@ extension GoalDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 let date = state.verificationDate
-
+                
                 return .run { send in
                     do {
                         let item = try await goalClient.fetchGoalDetailList(date)
@@ -78,17 +78,22 @@ extension GoalDetailReducer {
                 return .none
                 
             case let .reactionEmojiTapped(reactionEmoji):
+                guard state.currentUser == .you else { return .none }
                 guard state.selectedReactionEmoji != reactionEmoji else { return .none }
                 guard let photoLogId = state.currentCard?.photologId else { return .none }
+                let previousReaction = state.currentCard?.reaction
                 state.selectedReactionEmoji = reactionEmoji
-                return .run { send in
-                    do {
-                        let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.rawValue)
-                        _ = try await photoLogClient.updateReaction(photoLogId, request)
-                    } catch {
-                        await send(.showToast(.warning(message: "리액션 전송에 실패했어요")))
+                return .concatenate(
+                    .send(.updateCurrentCardReaction(Goal.Reaction(rawValue: reactionEmoji.rawValue))),
+                    .run { send in
+                        do {
+                            let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.rawValue)
+                            _ = try await photoLogClient.updateReaction(photoLogId, request)
+                        } catch {
+                            await send(.reactionUpdateFailed(previousReaction: previousReaction))
+                        }
                     }
-                }
+                )
                 
             case .cardTapped:
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
@@ -135,9 +140,39 @@ extension GoalDetailReducer {
                 state.commentText = state.comment
                 state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-
+                
             case .fetchGoalDetailFailed:
                 return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
+                
+            case let .updateCurrentCardReaction(reaction):
+                guard state.currentUser == .you else { return .none }
+                guard let item = state.item else { return .none }
+                let targetGoalId = state.currentGoalId
+                var updatedCompletedGoals = item.completedGoals
+                
+                guard let index = updatedCompletedGoals.firstIndex(where: { goal in
+                    guard let goal else { return false }
+                    return goal.myPhotoLog?.goalId == targetGoalId || goal.yourPhotoLog?.goalId == targetGoalId
+                }) else { return .none }
+                guard let currentGoal = updatedCompletedGoals[index] else { return .none }
+                
+                guard var yourPhotoLog = currentGoal.yourPhotoLog else { return .none }
+                yourPhotoLog.reaction = reaction
+                updatedCompletedGoals[index] = GoalDetail.CompletedGoal(
+                    goalName: currentGoal.goalName,
+                    myPhotoLog: currentGoal.myPhotoLog,
+                    yourPhotoLog: yourPhotoLog
+                )
+                
+                state.item = GoalDetail(
+                    partnerNickname: item.partnerNickname,
+                    completedGoals: updatedCompletedGoals
+                )
+                return .none
+                
+            case let .reactionUpdateFailed(previousReaction):
+                state.selectedReactionEmoji = previousReaction.flatMap { ReactionEmoji(rawValue: $0.rawValue) }
+                return .send(.showToast(.warning(message: "리액션 전송에 실패했어요")))
 
             case let .showToast(toast):
                 state.toast = toast
@@ -238,12 +273,14 @@ extension GoalDetailReducer {
                 }) {
                     let existing = updatedCompletedGoals[index]
                     updatedCompletedGoals[index] = GoalDetail.CompletedGoal(
+                        goalName: existing?.goalName ?? myPhotoLog.goalName ?? "",
                         myPhotoLog: myPhotoLog,
                         yourPhotoLog: existing?.yourPhotoLog
                     )
                 } else {
                     updatedCompletedGoals.append(
                         GoalDetail.CompletedGoal(
+                            goalName: myPhotoLog.goalName ?? "",
                             myPhotoLog: myPhotoLog,
                             yourPhotoLog: nil
                         )
