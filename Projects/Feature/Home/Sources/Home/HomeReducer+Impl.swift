@@ -272,7 +272,7 @@ extension HomeReducer {
                 guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
                 let imageURL = myPhotoLog.imageUrl.flatMap(URL.init(string:))
                 state.cards[index].myCard = .init(
-                    photologId: completedGoal.myPhotoLog?.photologId,
+                    photologId: myPhotoLog.photologId,
                     imageURL: imageURL,
                     isSelected: true,
                     emoji: state.cards[index].myCard.emoji

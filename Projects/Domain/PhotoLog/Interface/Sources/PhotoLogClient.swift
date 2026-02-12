@@ -21,7 +21,7 @@ public struct PhotoLogClient {
     public var uploadImageData: (Data, String) async throws -> Void
     public var createPhotoLog: (PhotoLogCreateRequestDTO) async throws -> PhotoLogCreateResponseDTO
     public var updateReaction: (Int64, PhotoLogUpdateReactionRequestDTO) async throws -> PhotoLogUpdateReactionResponseDTO
-    public var updatePhotoLog: (Int64, PhotoLogUpdateRequestDTO) async throws -> Void,
+    public var updatePhotoLog: (Int64, PhotoLogUpdateRequestDTO) async throws -> Void
     public var deletePhotoLog: (Int64) async throws -> Void
 
     /// PhotoLogClient를 생성합니다.
