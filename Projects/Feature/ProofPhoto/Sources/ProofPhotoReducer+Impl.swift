@@ -105,33 +105,57 @@ extension ProofPhotoReducer {
                     let goalId = state.goalId
                     let comment = state.commentText
                     let verificationDate = state.verificationDate
-
+                    
+                    if state.isEditing {
+                        let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
+                            goalId: goalId,
+                            photologId: nil,
+                            goalName: nil,
+                            owner: .mySelf,
+                            imageUrl: nil,
+                            comment: comment,
+                            reaction: nil,
+                            createdAt: "방금"
+                        )
+                        return .send(
+                            .delegate(
+                                .completedUploadPhoto(
+                                    myPhotoLog: myPhotoLog,
+                                    editedImageData: imageData
+                                )
+                            )
+                        )
+                    }
                     return .run { send in
                         do {
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
                             try await uploadImageData(imageData, to: uploadResponse.uploadUrl)
-
-                            let request = PhotoLogCreateRequestDTO(
+                            
+                            let createRequest = PhotoLogCreateRequestDTO(
                                 goalId: goalId,
                                 fileName: uploadResponse.fileName,
                                 comment: comment,
                                 verificationDate: verificationDate
                             )
-                            let photoLog = try await photoLogClient.createPhotoLog(request)
-                            let completedGoal = GoalDetail.CompletedGoal(
-                                myPhotoLog: .init(
-                                    goalId: goalId,
-                                    photologId: photoLog.photologId,
-                                    goalName: nil,
-                                    owner: .mySelf,
-                                    imageUrl: photoLog.imageUrl,
-                                    comment: comment,
-                                    reaction: nil,
-                                    createdAt: "방금"
-                                ),
-                                yourPhotoLog: nil
+                            let photoLog = try await photoLogClient.createPhotoLog(createRequest)
+                            let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
+                                goalId: goalId,
+                                photologId: photoLog.photologId,
+                                goalName: nil,
+                                owner: .mySelf,
+                                imageUrl: photoLog.imageUrl,
+                                comment: comment,
+                                reaction: nil,
+                                createdAt: "방금"
                             )
-                            await send(.delegate(.completedUploadPhoto(completedGoal: completedGoal)))
+                            await send(
+                                .delegate(
+                                    .completedUploadPhoto(
+                                        myPhotoLog: myPhotoLog,
+                                        editedImageData: nil
+                                    )
+                                )
+                            )
                         } catch {
                             await send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
                         }
@@ -202,5 +226,5 @@ private func uploadImageData(_ data: Data, to uploadURLString: String) async thr
     request.httpMethod = "PUT"
     request.setValue("image/png", forHTTPHeaderField: "Content-Type")
 
-    let asdf = try await URLSession.shared.upload(for: request, from: data)
+    _ = try await URLSession.shared.upload(for: request, from: data)
 }
