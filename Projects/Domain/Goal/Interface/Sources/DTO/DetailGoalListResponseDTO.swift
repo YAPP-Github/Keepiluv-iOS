@@ -41,6 +41,7 @@ public extension DetailGoalListResponseDTO {
             partnerNickname: response.partnerNickname,
             completedGoals: response.photologs.map { photolog in
                 GoalDetail.CompletedGoal(
+                    goalName: photolog.goalName,
                     myPhotoLog: photolog.myPhotolog.map {
                         GoalDetail.CompletedGoal.PhotoLog(
                             goalId: $0.goalId,

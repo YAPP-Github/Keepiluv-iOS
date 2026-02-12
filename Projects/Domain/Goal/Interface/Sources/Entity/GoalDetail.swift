@@ -56,10 +56,12 @@ public struct GoalDetail: Equatable {
     /// )
     /// ```
     public struct CompletedGoal: Equatable {
+        public let goalName: String
         public let myPhotoLog: PhotoLog?
         public let yourPhotoLog: PhotoLog?
         
-        public init(myPhotoLog: PhotoLog?, yourPhotoLog: PhotoLog?) {
+        public init(goalName: String, myPhotoLog: PhotoLog?, yourPhotoLog: PhotoLog?) {
+            self.goalName = goalName
             self.myPhotoLog = myPhotoLog
             self.yourPhotoLog = yourPhotoLog
         }
