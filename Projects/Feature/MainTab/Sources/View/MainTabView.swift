@@ -12,6 +12,7 @@ import FeatureHome
 import FeatureHomeInterface
 import FeatureGoalDetail
 import FeatureProofPhoto
+import FeatureSettings
 import SharedDesignSystem
 
 /// 메인 탭 화면을 표시하는 View입니다.
@@ -59,13 +60,7 @@ public struct MainTabView: View {
 
             // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
             case .settings:
-                HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-            }
-        }
-        .onChange(of: store.selectedTab) { _, newValue in
-            // FIXME: 삭제 예정 - 설정 탭에서 설정 화면 표시
-            if newValue == .settings {
-                store.send(.showSettings)
+                SettingsView(store: store.scope(state: \.settings, action: \.settings))
             }
         }
     }
