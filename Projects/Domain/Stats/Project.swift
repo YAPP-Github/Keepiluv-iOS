@@ -6,13 +6,20 @@ let project = Project.makeModule(
     targets: [
         .domain(
             interface: .stats,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .core(interface: .network),
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .domain(
             implements: .stats,
             config: .init(
                 dependencies: [
-                    .domain(interface: .stats)
+                    .domain(interface: .stats),
+                    .core(interface: .network),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
