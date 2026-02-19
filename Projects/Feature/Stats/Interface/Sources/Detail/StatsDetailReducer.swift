@@ -26,13 +26,17 @@ public struct StatsDetailReducer {
     /// 통계 상세 화면에서 사용하는 상태입니다.
     @ObservableState
     public struct State: Equatable {
+        public let goalId: Int64
+        
         /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = StatsDetailReducer.State()
+        /// let state = StatsDetailReducer.State(goalId: 1)
         /// ```
-        public init() { }
+        public init(goalId: Int64) {
+            self.goalId = goalId
+        }
     }
 
     /// 통계 상세 화면에서 발생 가능한 액션입니다.

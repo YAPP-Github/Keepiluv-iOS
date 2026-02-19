@@ -22,7 +22,7 @@ struct StatsDetailView: View {
 #Preview {
     StatsDetailView(
         store: Store(
-            initialState: StatsDetailReducer.State(),
+            initialState: StatsDetailReducer.State(goalId: 1),
             reducer: { StatsDetailReducer() }
         )
     )
