@@ -12,6 +12,7 @@ public extension Color {
     enum Dimmed { }
     enum Gray { }
     enum Status { }
+    enum Chromatic { }
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Common형식의 Color 입니다.
@@ -47,4 +48,18 @@ public extension Color.Status {
     
     static let success = StatusAsset.statusSuccess.swiftUIColor
     static let warning = StatusAsset.statusWarning.swiftUIColor
+}
+
+/// 모듈 전반에서 공통으로 사용하는 Status형식의 Color 입니다.
+public extension Color.Chromatic {
+    typealias ChromaticAsset = SharedDesignSystemAsset.ColorAssets.Chromatic
+    
+    static let green400 = ChromaticAsset.green400.swiftUIColor
+    static let blue400 = ChromaticAsset.blue400.swiftUIColor
+    static let yellow400 = ChromaticAsset.yellow400.swiftUIColor
+    static let pink400 = ChromaticAsset.pink400.swiftUIColor
+    static let pink300 = ChromaticAsset.pink300.swiftUIColor
+    static let pink200 = ChromaticAsset.pink200.swiftUIColor
+    static let orange400 = ChromaticAsset.orange400.swiftUIColor
+    static let purple400 = ChromaticAsset.purple400.swiftUIColor
 }
