@@ -19,7 +19,7 @@ import Foundation
 ///     stats: []
 /// )
 /// ```
-public struct Stats {
+public struct Stats: Equatable {
     public let myNickname: String
     public let partnerNickname: String
     public let stats: [StatsItem]
@@ -68,7 +68,7 @@ public struct Stats {
     ///     partnerCompletedCount: 2
     /// )
     /// ```
-    public struct StatsItem {
+    public struct StatsItem: Equatable {
         public let goalId: Int64
         public let icon: String
         public let goalName: String
