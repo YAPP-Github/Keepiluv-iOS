@@ -8,7 +8,5 @@
 import SwiftUI
 
 public extension TXTopTabBar.Configuration {
-    static func goal(items: [String] = ["진행중", "종료"]) -> Self {
-        .init(items: items)
-    }
+    static var stats: Self { .init(items: [.ongoing, .completed]) }
 }
