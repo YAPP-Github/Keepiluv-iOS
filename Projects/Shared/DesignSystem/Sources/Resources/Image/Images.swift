@@ -113,4 +113,6 @@ public extension Image.Illustration {
     static let logo = SharedDesignSystemAsset.ImageAssets.logo.swiftUIImage
     static let emptyPoke = IllustrationAsset.illustEmptyPoke.swiftUIImage
     static let arrow = IllustrationAsset.illustArrow.swiftUIImage
+    static let hug = IllustrationAsset.illustHug.swiftUIImage
+    static let plane = IllustrationAsset.illustPlane.swiftUIImage
 }
