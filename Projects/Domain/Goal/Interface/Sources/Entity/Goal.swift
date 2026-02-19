@@ -20,16 +20,6 @@ import Foundation
 /// )
 /// ```
 public struct Goal {
-    /// 목표 인증 리액션 종류입니다.
-    public enum Reaction: String, Equatable {
-        case happy = "ICON_HAPPY"
-        case trouble = "ICON_TROUBLE"
-        case love = "ICON_LOVE"
-        case doubt = "ICON_DOUBT"
-        case fuck = "ICON_FUCK"
-        case heart = "ICON_HEART"
-    }
-    
     public enum RepeatCycle: String, Equatable {
         case daily = "DAILY"
         case weekly = "WEEKLY"
@@ -61,7 +51,7 @@ public struct Goal {
         public let photologId: Int64?
         public let isCompleted: Bool
         public let imageURL: String?
-        public let emoji: Reaction?
+        public let emoji: String?
 
         /// 목표 인증 정보를 생성합니다.
         ///
@@ -78,7 +68,7 @@ public struct Goal {
             photologId: Int64? = nil,
             isCompleted: Bool,
             imageURL: String?,
-            emoji: Reaction?
+            emoji: String?
         ) {
             self.photologId = photologId
             self.isCompleted = isCompleted

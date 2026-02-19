@@ -84,7 +84,7 @@ extension GoalDetailReducer {
                 let previousReaction = state.currentCard?.reaction
                 state.selectedReactionEmoji = reactionEmoji
                 return .concatenate(
-                    .send(.updateCurrentCardReaction(Goal.Reaction(rawValue: reactionEmoji.rawValue))),
+                    .send(.updateCurrentCardReaction(reactionEmoji.rawValue)),
                     .run { send in
                         do {
                             let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.rawValue)
@@ -99,7 +99,7 @@ extension GoalDetailReducer {
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .cardSwipedUp:
@@ -108,7 +108,7 @@ extension GoalDetailReducer {
                 state.currentGoalIndex = nextIndex
                 state.commentText = state.comment
                 state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .cardSwipedDown:
@@ -116,7 +116,7 @@ extension GoalDetailReducer {
                 state.currentGoalIndex -= 1
                 state.commentText = state.comment
                 state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case let .focusChanged(isFocused):
@@ -138,7 +138,7 @@ extension GoalDetailReducer {
                     state.currentGoalIndex = 0
                 }
                 state.commentText = state.comment
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .fetchGoalDetailFailed:
@@ -171,7 +171,7 @@ extension GoalDetailReducer {
                 return .none
                 
             case let .reactionUpdateFailed(previousReaction):
-                state.selectedReactionEmoji = previousReaction.flatMap { ReactionEmoji(rawValue: $0.rawValue) }
+                state.selectedReactionEmoji = previousReaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.showToast(.warning(message: "리액션 전송에 실패했어요")))
 
             case let .showToast(toast):
@@ -293,7 +293,7 @@ extension GoalDetailReducer {
                 )
                 
                 state.commentText = state.comment
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .proofPhoto:

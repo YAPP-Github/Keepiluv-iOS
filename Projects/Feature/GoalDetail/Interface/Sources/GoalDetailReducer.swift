@@ -136,8 +136,8 @@ public struct GoalDetailReducer {
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
         case fetchGoalDetailFailed
-        case updateCurrentCardReaction(Goal.Reaction?)
-        case reactionUpdateFailed(previousReaction: Goal.Reaction?)
+        case updateCurrentCardReaction(String?)
+        case reactionUpdateFailed(previousReaction: String?)
         case showToast(TXToastType)
         case setCreatedAt(String)
         case proofPhotoDismissed

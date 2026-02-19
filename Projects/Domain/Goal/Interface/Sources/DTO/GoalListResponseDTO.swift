@@ -57,13 +57,13 @@ public extension GoalListResponseDTO {
                     photologId: $0.myVerification?.photologId,
                     isCompleted: $0.myCompleted,
                     imageURL: $0.myVerification?.imageUrl,
-                    emoji: Goal.Reaction(rawValue: $0.myVerification?.reaction ?? "")
+                    emoji: $0.myVerification?.reaction
                 ),
                 yourVerification: .init(
                     photologId: $0.partnerVerification?.photologId,
                     isCompleted: $0.partnerCompleted,
                     imageURL: $0.partnerVerification?.imageUrl,
-                    emoji: Goal.Reaction(rawValue: $0.partnerVerification?.reaction ?? "")
+                    emoji: $0.partnerVerification?.reaction
                 ),
                 repeatCycle: $0.repeatCycle.flatMap { Goal.RepeatCycle(rawValue: $0) },
                 repeatCount: $0.repeatCount,
