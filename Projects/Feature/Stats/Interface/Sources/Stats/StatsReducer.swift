@@ -55,10 +55,19 @@ public struct StatsReducer {
         
         // MARK: - User Action
         case topTabBarSelected(TXTopTabBar.Item)
+        case statsCardTapped(goalId: Int64)
         
         // MARK: - Network
         case fetchStats
         case fetchedStats(Stats)
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        /// StatsReducer가 상위 Coordinator로 전달하는 이벤트입니다.
+        public enum Delegate {
+            case goToStatsDetail(goalId: Int64)
+        }
     }
     
     /// 외부에서 주입된 Reduce로 StatsReducer를 구성합니다.

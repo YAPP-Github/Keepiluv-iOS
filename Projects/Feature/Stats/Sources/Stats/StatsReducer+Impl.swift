@@ -33,6 +33,9 @@ extension StatsReducer {
                 state.isOngoing = item == .ongoing
                 return .send(.fetchStats)
                 
+            case let .statsCardTapped(goalId):
+                return .send(.delegate(.goToStatsDetail(goalId: goalId)))
+                
                 // MARK: - Network
             case .fetchStats:
                 let isOngoing = state.isOngoing
@@ -69,6 +72,9 @@ extension StatsReducer {
                     state.completedItems = items
                 }
                 
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }
