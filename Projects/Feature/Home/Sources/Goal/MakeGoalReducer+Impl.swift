@@ -40,7 +40,9 @@ extension MakeGoalReducer {
             case let .fetchGoalCompleted(goal):
                 state.isLoading = false
                 state.goalTitle = goal.title
-                state.selectedEmojiIndex = Goal.Icon.allCases.firstIndex(of: goal.goalIcon) ?? 0
+                state.selectedEmojiIndex = state.icons.firstIndex(
+                    of: GoalIcon(from: goal.goalIcon)
+                ) ?? 0
                 if let repeatCycle = goal.repeatCycle {
                     state.selectedPeriod = repeatCycle
                 }

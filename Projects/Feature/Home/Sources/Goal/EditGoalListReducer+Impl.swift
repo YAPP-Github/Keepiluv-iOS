@@ -159,7 +159,7 @@ extension EditGoalListReducer {
                             GoalEditCardItem(
                                 id: $0.id,
                                 goalName: $0.title,
-                                iconImage: $0.goalIcon.image,
+                                iconImage: GoalIcon(from: $0.goalIcon).image,
                                 repeatCycle: $0.repeatCycle?.text ?? "",
                                 startDate: $0.startDate ?? "",
                                 endDate: $0.endDate ?? "미설정"

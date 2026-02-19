@@ -163,8 +163,7 @@ private extension StatsCardView {
                 ]
             ),
             isOngoing: false
-        )
-        
+        )  
     }
     .padding(.horizontal, 20)
 }

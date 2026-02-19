@@ -40,7 +40,7 @@ extension StatsReducer {
                     return StatsCardItem(
                         goalId: $0.goalId,
                         goalName: $0.goalName,
-                        iconImage: GoalIcon(rawValue: $0.icon)?.image ?? GoalIcon.default.image,
+                        iconImage: GoalIcon(from: $0.icon).image,
                         goalCount: goalCount,
                         completionInfos: [
                             .init(name: stats.myNickname, count: $0.myCompletedCount),

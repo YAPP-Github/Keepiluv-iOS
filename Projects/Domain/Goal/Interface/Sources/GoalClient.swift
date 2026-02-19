@@ -74,7 +74,7 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification
@@ -94,7 +94,7 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification
@@ -114,7 +114,7 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification

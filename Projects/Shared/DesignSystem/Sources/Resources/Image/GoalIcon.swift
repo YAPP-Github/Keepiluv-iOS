@@ -1,17 +1,29 @@
 //
-//  GoalIcon+Image.swift
-//  FeatureHome
+//  GoalIcon.swift
+//  SharedDesignSystem
 //
-//  Created by Jihun on 2/6/26.
+//  Created by 정지훈 on 2/19/26.
 //
 
 import SwiftUI
 
-import DomainGoalInterface
-import SharedDesignSystem
+public enum GoalIcon: String, Equatable, CaseIterable {
+    case `default` = "ICON_DEFAULT"
+    case clean = "ICON_CLEAN"
+    case exercise = "ICON_EXERCISE"
+    case book = "ICON_BOOK"
+    case pencil = "ICON_PENCIL"
+    case health = "ICON_HEALTH"
+    case heartDouble = "ICON_HEART"
+    case laptop = "ICON_LAPTOP"
+}
 
-extension Goal.Icon {
-    public var image: Image {
+public extension GoalIcon {
+    init(from value: String) {
+        self = GoalIcon(rawValue: value) ?? .default
+    }
+    
+    var image: Image {
         switch self {
         case .default:
             return .Icon.Illustration.default

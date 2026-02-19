@@ -51,7 +51,7 @@ public extension GoalListResponseDTO {
         return response.goals.map {
             Goal(
                 id: $0.goalId,
-                goalIcon: Goal.Icon(rawValue: $0.icon) ?? .default,
+                goalIcon: $0.icon,
                 title: $0.goalName,
                 myVerification: .init(
                     photologId: $0.myVerification?.photologId,

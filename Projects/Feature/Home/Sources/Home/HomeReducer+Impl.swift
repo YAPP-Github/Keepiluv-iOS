@@ -221,7 +221,7 @@ extension HomeReducer {
                             return GoalCardItem(
                                 id: goal.id,
                                 goalName: goal.title,
-                                goalEmoji: goal.goalIcon.image,
+                                goalEmoji: GoalIcon(from: goal.goalIcon).image,
                                 myCard: .init(
                                     photologId: goal.myVerification?.photologId,
                                     imageURL: myImageURL,
