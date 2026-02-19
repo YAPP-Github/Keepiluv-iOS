@@ -11,11 +11,22 @@ import ComposableArchitecture
 import SharedDesignSystem
 import DomainStatsInterface
 
+/// 통계 메인 화면의 상태와 액션을 관리하는 Reducer입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// let store = Store(
+///     initialState: StatsReducer.State()
+/// ) {
+///     StatsReducer(reducer: Reduce { _, _ in .none })
+/// }
+/// ```
 @Reducer
 public struct StatsReducer {
     
     let reducer: Reduce<State, Action>
     
+    /// 통계 메인 화면에서 사용하는 상태입니다.
     @ObservableState
     public struct State: Equatable {
         public var monthTitle: String = "2026.02"
@@ -28,9 +39,16 @@ public struct StatsReducer {
         public var ongoingItems: [StatsCardItem] = []
         public var completedItems: [StatsCardItem] = []
         
+        /// 기본 상태를 생성합니다.
+        ///
+        /// ## 사용 예시
+        /// ```swift
+        /// let state = StatsReducer.State()
+        /// ```
         public init() { }
     }
     
+    /// 통계 메인 화면에서 발생 가능한 액션입니다.
     public enum Action {
         // MARK: - LifeCycle
         case onAppear
@@ -43,6 +61,14 @@ public struct StatsReducer {
         case fetchedStats(Stats)
     }
     
+    /// 외부에서 주입된 Reduce로 StatsReducer를 구성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = StatsReducer(
+    ///     reducer: Reduce { _, _ in .none }
+    /// )
+    /// ```
     public init(reducer: Reduce<State, Action>) {
         self.reducer = reducer
     }

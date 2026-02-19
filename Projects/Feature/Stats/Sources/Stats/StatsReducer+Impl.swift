@@ -13,6 +13,12 @@ import FeatureStatsInterface
 import SharedDesignSystem
 
 extension StatsReducer {
+    /// 실제 로직을 포함한 기본 구성의 StatsReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = StatsReducer()
+    /// ```
     public init() {
         @Dependency(\.statsClient) var statsClient
         
