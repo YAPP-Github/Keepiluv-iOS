@@ -59,6 +59,7 @@ public struct TXTopTabBar: View {
                 .frame(maxWidth: .infinity)
             }
         }
+        .padding(.horizontal, 20)
     }
 }
 
