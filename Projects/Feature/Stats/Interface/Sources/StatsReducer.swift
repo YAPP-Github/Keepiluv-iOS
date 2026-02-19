@@ -19,7 +19,14 @@ public struct StatsReducer {
     @ObservableState
     public struct State: Equatable {
         public var monthTitle: String = "2026.02"
-        public var items: [StatsCardItem] = []
+        public var isOngoing: Bool = true
+        
+        public var items: [StatsCardItem] {
+            return isOngoing ? ongoingItems : completedItems
+        }
+        
+        public var ongoingItems: [StatsCardItem] = []
+        public var completedItems: [StatsCardItem] = []
         
         public init() { }
     }
@@ -27,6 +34,9 @@ public struct StatsReducer {
     public enum Action {
         // MARK: - LifeCycle
         case onAppear
+        
+        // MARK: - User Action
+        case topTabBarSelected(TXTopTabBar.Item)
         
         // MARK: - Network
         case fetchStats

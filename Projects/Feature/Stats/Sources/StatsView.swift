@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-import FeatureStatsInterface
 import ComposableArchitecture
+import FeatureStatsInterface
 import SharedDesignSystem
 
 struct StatsView: View {
@@ -19,10 +19,8 @@ struct StatsView: View {
             navigationBar
             topTabBar
             monthNavigation
-                .padding(.top, 16)
+                .padding(.top, store.isOngoing ? 16 : 20)
             cardList
-                .padding(.top, 12)
-                .padding(.horizontal, 20)
             
             Spacer()
         }
@@ -37,16 +35,24 @@ private extension StatsView {
     }
     
     var topTabBar: some View {
-        TXTopTabBar(config: .goal())
+        TXTopTabBar(
+            config: .stats,
+            onSelect: { item in
+                store.send(.topTabBarSelected(item))
+            }
+        )
     }
     
+    @ViewBuilder
     var monthNavigation: some View {
-        TXCalendarMonthNavigation(
-            title: store.monthTitle,
-            onTitleTap: { },
-            onPrevious: { },
-            onNext: { }
-        )
+        if store.isOngoing {
+            TXCalendarMonthNavigation(
+                title: store.monthTitle,
+                onTitleTap: { },
+                onPrevious: { },
+                onNext: { }
+            )
+        } else { EmptyView() }
     }
     
     var cardList: some View {
@@ -55,10 +61,12 @@ private extension StatsView {
                 ForEach(store.items, id: \.self.goalId) { item in
                     StatsCardView(
                         item: item,
-                        isOngoing: true
+                        isOngoing: store.isOngoing
                     )
                 }
             }
+            .padding(.top, 12)
+            .padding(.horizontal, 20)
         }
     }
 }

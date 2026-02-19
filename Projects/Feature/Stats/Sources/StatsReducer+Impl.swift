@@ -8,27 +8,35 @@
 import Foundation
 
 import ComposableArchitecture
-import FeatureStatsInterface
 import DomainStatsInterface
+import FeatureStatsInterface
 import SharedDesignSystem
 
 extension StatsReducer {
     public init() {
         @Dependency(\.statsClient) var statsClient
         
-        let reducer = Reduce<State, Action> {
-            state,
-            action in
+        let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
                 return .send(.fetchStats)
                 
-                // MARK: - Network
+                // MARK: - UserAction
+            case let .topTabBarSelected(item):
+                state.isOngoing = item == .ongoing
+                return .send(.fetchStats)
                 
+                // MARK: - Network
             case .fetchStats:
+                let isOngoing = state.isOngoing
                 return .run { send in
-                    let stats = try await statsClient.fetchOngoingStats("")
+                    let stats: Stats
+                    if isOngoing {
+                        stats = try await statsClient.fetchOngoingStats("")
+                    } else {
+                        stats = try await statsClient.fetchCompletedStats("")
+                    }
                     
                     await send(.fetchedStats(stats))
                 }
@@ -44,12 +52,16 @@ extension StatsReducer {
                         goalCount: goalCount,
                         completionInfos: [
                             .init(name: stats.myNickname, count: $0.myCompletedCount),
-                            .init(name: stats.partnerNickname, count: $0.partnerCompletedCount),
+                            .init(name: stats.partnerNickname, count: $0.partnerCompletedCount)
                         ]
                     )
                 }
                 
-                state.items = items
+                if state.isOngoing {
+                    state.ongoingItems = items
+                } else {
+                    state.completedItems = items
+                }
                 
                 return .none
             }

@@ -99,7 +99,7 @@ public extension TXTopTabBar.Item {
 
 #Preview {
     VStack {
-        TXTopTabBar(config: .stats())
+        TXTopTabBar(config: .stats)
         
         Spacer()
     }
