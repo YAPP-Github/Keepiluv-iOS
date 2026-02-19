@@ -6,13 +6,21 @@ let project = Project.makeModule(
     targets: [
         .feature(
             interface: .stats,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .domain(interface: .stats),
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .feature(
             implements: .stats,
             config: .init(
                 dependencies: [
-                    .feature(interface: .stats)
+                    .feature(interface: .stats),
+                    .domain(interface: .stats),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
@@ -39,7 +47,10 @@ let project = Project.makeModule(
                     "UIUserInterfaceStyle": "Light"
                 ]),
                 dependencies: [
-                    .feature(interface: .stats)
+                    .feature(interface: .stats),
+                    .feature(implements: .stats),
+                    .domain(interface: .stats),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         )
