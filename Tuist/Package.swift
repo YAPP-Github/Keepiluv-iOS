@@ -7,7 +7,7 @@ import PackageDescription
     let packageSettings = PackageSettings(
         productTypes: [
             "ComposableArchitecture": .framework,
-            "Kingfisher": .staticLibrary,
+            "Kingfisher": .framework,
             "Pulse": .framework,
             "KakaoSDK": .staticLibrary,
             "GoogleSignIn": .staticLibrary,

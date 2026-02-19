@@ -8,7 +8,8 @@ let project = Project.makeModule(
             implements: .designSystem,
             config: .init(
                 dependencies: [
-                    .shared(implements: .thirdPartyLib)
+                    .shared(implements: .thirdPartyLib),
+                    .external(dependency: .Kingfisher)
                 ]
             )
         )
