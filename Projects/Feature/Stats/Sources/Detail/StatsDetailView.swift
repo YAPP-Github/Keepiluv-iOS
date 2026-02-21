@@ -30,6 +30,11 @@ struct StatsDetailView: View {
             }
             .padding(.horizontal, 20)
         }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)

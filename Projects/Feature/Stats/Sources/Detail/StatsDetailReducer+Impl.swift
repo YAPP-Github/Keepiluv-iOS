@@ -52,8 +52,14 @@ extension StatsDetailReducer {
                 
                 // MARK: - Network
             case .fetchStatsDetail:
-                let goalId = state.goalId
                 let month = state.currentMonth.formattedYearDashMonth
+                if let completedDate = state.completedDateCache[month] {
+                    state.isLoading = false
+                } else {
+                    state.isLoading = true
+                }
+                
+                let goalId = state.goalId
                 
                 return .run { send in
                     do {
@@ -65,6 +71,7 @@ extension StatsDetailReducer {
                 }
             
             case let .fetchedStatsDetail(statsDetail, month):
+                state.isLoading = false
                 state.statsDetail = statsDetail
                 state.completedDateCache[month] = statsDetail.completedDate.filter { $0.date.hasPrefix(month) }
                 
@@ -79,6 +86,7 @@ extension StatsDetailReducer {
                 )
                 
             case .fetchStatsDetailFailed:
+                state.isLoading = false
                 return .none
                 
                 // MARK: - Update State

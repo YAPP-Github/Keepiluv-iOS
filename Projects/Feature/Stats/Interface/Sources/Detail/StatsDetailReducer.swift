@@ -30,6 +30,7 @@ public struct StatsDetailReducer {
     public struct State: Equatable {
         public let goalId: Int64
         
+        public var isLoading: Bool = false
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
