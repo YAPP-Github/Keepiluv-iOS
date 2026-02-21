@@ -39,8 +39,7 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                guard let completedDate = state.statsDetail?.completedDate else { return .none }
-                return .send(.updateMonthlyDate(completedDate))
+                return .send(.fetchStatsDetail)
                 
             case .nextMonthTapped:
                 guard !state.nextMonthDisabled else { return .none }
@@ -49,34 +48,50 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                guard let completedDate = state.statsDetail?.completedDate else { return .none }
-                return .send(.updateMonthlyDate(completedDate))
+                return .send(.fetchStatsDetail)
                 
                 // MARK: - Network
             case .fetchStatsDetail:
                 let goalId = state.goalId
+                let month = state.currentMonth.formattedYearDashMonth
+                
                 return .run { send in
-                    let statsDetail = try await statsClient.fetchStatsDetail(String(goalId))
-                    await send(.updateStatsDetail(statsDetail))
+                    do {
+                        let statsDetail = try await statsClient.fetchStatsDetail(String(goalId))
+                        await send(.fetchedStatsDetail(statsDetail, month: month))
+                    } catch {
+                        await send(.fetchStatsDetailFailed)
+                    }
                 }
+            
+            case let .fetchedStatsDetail(statsDetail, month):
+                state.statsDetail = statsDetail
+                state.completedDateCache[month] = statsDetail.completedDate.filter { $0.date.hasPrefix(month) }
+                
+                let currentMonth = state.currentMonth.formattedYearDashMonth
+                guard currentMonth == month else {
+                    return .none
+                }
+                
+                return .merge(
+                    .send(.updateStatsSummary(statsDetail.summary)),
+                    .send(.updateMonthlyDate(state.completedDateCache[month] ?? []))
+                )
+                
+            case .fetchStatsDetailFailed:
+                return .none
                 
                 // MARK: - Update State
             case let .updateStatsDetail(statsDetail):
                 state.statsDetail = statsDetail
-                
-                return .merge([
-                    .send(.updateMonthlyDate(statsDetail.completedDate)),
-                    .send(.updateStatsSummary(statsDetail.summary))
-                ])
+                return .send(.updateStatsSummary(statsDetail.summary))
                 
             case let .updateStatsSummary(summary):
                 let myCountString = "\(summary.myNickname) - \(summary.myCompletedCount)/\(summary.totalCount)"
                 let partnerCountString = "\(summary.partnerNickname) - \(summary.partnerCompltedCount)/\(summary.totalCount)"
                  
                 let summaryInfo: [State.StatsSummaryInfo] = [
-                    .init(
-                        title: "달성 횟수", content: [myCountString, partnerCountString]
-                    ),
+                    .init(title: "달성 횟수", content: [myCountString, partnerCountString]),
                     .init(title: "반복 주기", content: [summary.repeatCycle.text]),
                     .init(title: "시작일", content: [summary.startDate]),
                     .init(title: "종료일", content: [summary.endDate ?? "미설정"]),

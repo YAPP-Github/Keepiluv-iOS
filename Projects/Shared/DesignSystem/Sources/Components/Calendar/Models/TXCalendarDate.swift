@@ -71,6 +71,11 @@ public struct TXCalendarDate: Equatable, Hashable, Comparable {
         String(format: "%d.%02d", year, month)
     }
     
+    /// 포맷된 문자열을 반환합니다. (예: "2026-12")
+    public var formattedYearDashMonth: String {
+        String(format: "%d-%02d", year, month)
+    }
+    
     /// 포맷된 문자열을 반환합니다. (예: "2026-12-25")
     public func formattedAPIDateString() -> String {
         let day = self.day ?? 1

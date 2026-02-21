@@ -34,6 +34,7 @@ public struct StatsDetailReducer {
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
+        public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
@@ -94,6 +95,8 @@ public struct StatsDetailReducer {
         
         // MARK: - Network
         case fetchStatsDetail
+        case fetchedStatsDetail(StatsDetail, month: String)
+        case fetchStatsDetailFailed
         
         // MARK: - Update State
         case updateStatsDetail(StatsDetail)
