@@ -40,6 +40,7 @@ public struct StatsReducer {
         
         public var ongoingItems: [StatsCardItem] = []
         public var completedItems: [StatsCardItem] = []
+        public var ongoingItemsCache: [String: [StatsCardItem]] = [:]
         
         public var toast: TXToastType?
         
@@ -67,7 +68,7 @@ public struct StatsReducer {
         
         // MARK: - Network
         case fetchStats
-        case fetchedStats(Stats)
+        case fetchedStats(stats: Stats, month: String)
         case fetchStatsFailed
         
         // MARK: - Update State

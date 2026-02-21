@@ -53,9 +53,17 @@ extension StatsReducer {
                 
                 // MARK: - Network
             case .fetchStats:
-                state.isLoading = true
                 let isOngoing = state.isOngoing
                 let month = state.currentMonth.formattedAPIDateString()
+                
+                if isOngoing,
+                   let cachedItems = state.ongoingItemsCache[month] {
+                    state.ongoingItems = cachedItems
+                    state.isLoading = false
+                } else {
+                    state.isLoading = true
+                }
+                
                 return .run { send in
                     do {
                         let stats: Stats
@@ -65,13 +73,13 @@ extension StatsReducer {
                             stats = try await statsClient.fetchCompletedStats(month)
                         }
                         
-                        await send(.fetchedStats(stats))
+                        await send(.fetchedStats(stats: stats, month: month))
                     } catch {
                         await send(.fetchStatsFailed)
                     }
                 }
                 
-            case let .fetchedStats(stats):
+            case let .fetchedStats(stats, month):
                 state.isLoading = false
                 let items = stats.stats.map {
                     let goalCount = $0.monthlyCount ?? $0.totalCount ?? 0
@@ -88,6 +96,15 @@ extension StatsReducer {
                     )
                 }
                 
+                if state.isOngoing {
+                    state.ongoingItemsCache[month] = items
+                }
+
+                // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
+                guard month == state.currentMonth.formattedAPIDateString() else {
+                    return .none
+                }
+
                 if state.isOngoing {
                     state.ongoingItems = items
                 } else {
