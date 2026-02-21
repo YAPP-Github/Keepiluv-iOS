@@ -7,11 +7,29 @@
 
 import SwiftUI
 
+import ComposableArchitecture
+import DomainStatsInterface
+import FeatureStats
+import FeatureStatsInterface
+
 @main
 struct StatsApp: App {
     var body: some Scene {
         WindowGroup {
-            Text("Hello Twix")
+            StatsCoordinatorView(
+                store: Store(
+                    initialState: StatsCoordinator.State(),
+                    reducer: {
+                        StatsCoordinator(
+                            statsReducer: StatsReducer(),
+                            statsDetailReducer: StatsDetailReducer()
+                        )
+                    },
+                    withDependencies: {
+                        $0.statsClient = .testValue
+                    }
+                )
+            )
         }
     }
 }
