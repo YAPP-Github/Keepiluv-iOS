@@ -29,7 +29,8 @@ public struct StatsReducer {
     /// 통계 메인 화면에서 사용하는 상태입니다.
     @ObservableState
     public struct State: Equatable {
-        public var monthTitle: String = "2026.02"
+        public var currentMonth: TXCalendarDate = .init()
+        public var monthTitle: String { currentMonth.formattedYearMonth }
         public var isOngoing: Bool = true
         
         public var items: [StatsCardItem] {
@@ -56,6 +57,8 @@ public struct StatsReducer {
         // MARK: - User Action
         case topTabBarSelected(TXTopTabBar.Item)
         case statsCardTapped(goalId: Int64)
+        case previousMonthTapped
+        case nextMonthTapped
         
         // MARK: - Network
         case fetchStats

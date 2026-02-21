@@ -35,18 +35,27 @@ extension StatsReducer {
                 state.isOngoing = item == .ongoing
                 return .send(.fetchStats)
                 
+            case .previousMonthTapped:
+                state.currentMonth.goToPreviousMonth()
+                return .send(.fetchStats)
+                
+            case .nextMonthTapped:
+                state.currentMonth.goToNextMonth()
+                return .send(.fetchStats)
+                
             case let .statsCardTapped(goalId):
                 return .send(.delegate(.goToStatsDetail(goalId: goalId)))
                 
                 // MARK: - Network
             case .fetchStats:
                 let isOngoing = state.isOngoing
+                let month = state.currentMonth.formattedAPIDateString()
                 return .run { send in
                     let stats: Stats
                     if isOngoing {
-                        stats = try await statsClient.fetchOngoingStats("")
+                        stats = try await statsClient.fetchOngoingStats(month)
                     } else {
-                        stats = try await statsClient.fetchCompletedStats("")
+                        stats = try await statsClient.fetchCompletedStats(month)
                     }
                     
                     await send(.fetchedStats(stats))
