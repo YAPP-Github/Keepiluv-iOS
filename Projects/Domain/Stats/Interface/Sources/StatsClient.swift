@@ -21,8 +21,12 @@ import CoreNetworkInterface
 /// let completed = try await statsClient.fetchCompletedStats("2026-02")
 /// ```
 public struct StatsClient {
+    /// 진행 중 목표 통계를 조회합니다.
     public var fetchOngoingStats: (String) async throws -> Stats
+    /// 완료된 목표 통계를 조회합니다.
     public var fetchCompletedStats: (String) async throws -> Stats
+    /// 단일 목표의 상세 통계를 조회합니다.
+    public var fetchStatsDetail: (String) async throws -> StatsDetail
     
     /// 통계 조회 동작을 주입해 `StatsClient`를 생성합니다.
     ///
@@ -30,15 +34,35 @@ public struct StatsClient {
     /// ```swift
     /// let client = StatsClient(
     ///     fetchOngoingStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) },
-    ///     fetchCompletedStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) }
+    ///     fetchCompletedStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) },
+    ///     fetchStatsDetail: { _ in
+    ///         StatsDetail(
+    ///             goalId: 1,
+    ///             goalName: "목표",
+    ///             isCompleted: false,
+    ///             completedDate: [],
+    ///             summary: .init(
+    ///                 myNickname: "",
+    ///                 partnerNickname: "",
+    ///                 totalCount: 0,
+    ///                 myCompletedCount: 0,
+    ///                 partnerCompltedCount: 0,
+    ///                 repeatCycle: .daily,
+    ///                 startDate: "",
+    ///                 endDate: nil
+    ///             )
+    ///         )
+    ///     }
     /// )
     /// ```
     public init(
         fetchOngoingStats: @escaping (String) async throws -> Stats,
-        fetchCompletedStats: @escaping (String) async throws -> Stats
+        fetchCompletedStats: @escaping (String) async throws -> Stats,
+        fetchStatsDetail: @escaping (String) async throws -> StatsDetail,
     ) {
         self.fetchOngoingStats = fetchOngoingStats
         self.fetchCompletedStats = fetchCompletedStats
+        self.fetchStatsDetail = fetchStatsDetail
     }
 }
 
@@ -136,11 +160,48 @@ extension StatsClient: TestDependencyKey {
                     ),
                 ]
             )
+        },
+        fetchStatsDetail: { _ in
+            //             assertionFailure("StatsClient.fetchStatsDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            //
+            return .init(
+                goalId: 1,
+                goalName: "밥 잘 챙겨먹기",
+                isCompleted: true,
+                completedDate: [
+                    .init(
+                        date: "2026-02-01",
+                        myImageUrl: "",
+                        partnerImageUrl: nil
+                    ),
+                    .init(
+                        date: "2026-02-07",
+                        myImageUrl: nil,
+                        partnerImageUrl: ""
+                    ),
+                    .init(
+                        date: "2026-02-14",
+                        myImageUrl: "",
+                        partnerImageUrl: ""
+                    )
+                ],
+                summary: .init(
+                    myNickname: "현수",
+                    partnerNickname: "민정",
+                    totalCount: 322,
+                    myCompletedCount: 82,
+                    partnerCompltedCount: 211,
+                    repeatCycle: .daily,
+                    startDate: "2026년 1월 7일",
+                    endDate: "2027년 1월 7일"
+                )
+            )
         }
     )
 }
 
 extension DependencyValues {
+    /// 통계 조회 클라이언트 의존성입니다.
     public var statsClient: StatsClient {
         get { self[StatsClient.self] }
         set { self[StatsClient.self] = newValue }
