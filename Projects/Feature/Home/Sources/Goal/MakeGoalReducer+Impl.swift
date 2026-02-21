@@ -150,7 +150,7 @@ extension MakeGoalReducer {
                 
             case .endDateTapped:
                 state.calendarTarget = .endDate
-                if TXCalendarUtil.isEarlier(state.endDate, than: state.startDate) {
+                if state.endDate < state.startDate {
                     state.endDate = state.startDate
                 }
                 state.calendarSheetDate = state.endDate
@@ -166,7 +166,7 @@ extension MakeGoalReducer {
                 switch target {
                 case .startDate:
                     state.startDate = state.calendarSheetDate
-                    if TXCalendarUtil.isEarlier(state.endDate, than: state.startDate) {
+                    if state.endDate < state.startDate {
                         state.endDate = state.startDate
                     }
                     

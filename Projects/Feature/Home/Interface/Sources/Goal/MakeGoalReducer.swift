@@ -238,7 +238,7 @@ public extension MakeGoalReducer.State {
                 return true
             }
             let itemDate = TXCalendarDate(year: year, month: month, day: day)
-            return !TXCalendarUtil.isEarlier(itemDate, than: minimumDate)
+            return itemDate >= minimumDate
         }
     }
 }
