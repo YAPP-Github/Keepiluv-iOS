@@ -49,6 +49,7 @@ public extension Module {
     /// 화면 단위 또는 사용자 플로우 단위로 구성되며,
     /// UI와 사용자 상호작용 로직을 중심으로 설계됩니다.
     enum Feature: String, CaseIterable {
+        case notification = "Notification"
         case stats = "Stats"
         case settings = "Settings"
         case home = "Home"
