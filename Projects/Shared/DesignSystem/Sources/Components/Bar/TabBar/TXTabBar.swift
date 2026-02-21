@@ -37,17 +37,13 @@ struct TXTabBar: View {
 // MARK: - SubViews
 private extension TXTabBar {
     func tabItemView(item: TXTabItem) -> some View {
-        let isSelected = selectedItem == item
-
-        return Button {
+        Button {
             selectedItem = item
         } label: {
             VStack(spacing: Constants.iconLabelSpacing) {
-                item.icon(isSelected: isSelected)
+                item.icon(isSelected: selectedItem == item)
                     .resizable()
                     .frame(width: Constants.iconSize, height: Constants.iconSize)
-                    // FIXME: 삭제 예정 - 설정 탭 선택/비선택 아이콘 추가 후 제거
-                    .opacity(item == .settings && !isSelected ? 0.4 : 1.0)
 
                 Text(item.title)
                     .typography(Constants.labelFont)

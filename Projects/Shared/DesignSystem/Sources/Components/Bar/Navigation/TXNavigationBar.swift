@@ -249,31 +249,29 @@ private extension TXNavigationBar {
 
     func homeActionButtons(isRemained: Bool) -> some View {
         HStack(spacing: 0) {
-            // FIXME: 알림 기능 구현 시 주석 해제
-//            Button {
-//                onAction?(.alertTapped)
-//            } label: {
-//                alertImage(isRemained: isRemained)
-//                    .resizable()
-//                    .renderingMode(.template)
-//                    .frame(width: style.iconSize.width, height: style.iconSize.height)
-//                    .foregroundStyle(style.iconForegroundColor)
-//                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
-//            }
-//            .buttonStyle(.plain)
+            Button {
+                onAction?(.alertTapped)
+            } label: {
+                alertImage(isRemained: isRemained)
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: style.iconSize.width, height: style.iconSize.height)
+                    .foregroundStyle(style.iconForegroundColor)
+                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+            }
+            .buttonStyle(.plain)
 
-            // FIXME: 설정 버튼 MainTab으로 이전 후 주석 해제
-//            Button {
-//                onAction?(.settingTapped)
-//            } label: {
-//                Image.Icon.Symbol.setting
-//                    .resizable()
-//                    .renderingMode(.template)
-//                    .frame(width: style.iconSize.width, height: style.iconSize.height)
-//                    .foregroundStyle(style.iconForegroundColor)
-//                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
-//            }
-//            .buttonStyle(.plain)
+            Button {
+                onAction?(.settingTapped)
+            } label: {
+                Image.Icon.Symbol.setting
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: style.iconSize.width, height: style.iconSize.height)
+                    .foregroundStyle(style.iconForegroundColor)
+                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+            }
+            .buttonStyle(.plain)
         }
     }
 

@@ -12,7 +12,6 @@ import FeatureHome
 import FeatureHomeInterface
 import FeatureGoalDetail
 import FeatureProofPhoto
-import FeatureSettings
 import SharedDesignSystem
 
 /// 메인 탭 화면을 표시하는 View입니다.
@@ -57,10 +56,6 @@ public struct MainTabView: View {
             case .couple:
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-            case .settings:
-                SettingsView(store: store.scope(state: \.settings, action: \.settings))
             }
         }
     }
