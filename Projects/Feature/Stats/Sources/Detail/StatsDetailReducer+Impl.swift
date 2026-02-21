@@ -20,9 +20,11 @@ extension StatsDetailReducer {
     /// ```swift
     /// let reducer = StatsDetailReducer()
     /// ```
+    // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.statsClient) var statsClient
         
+        // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
