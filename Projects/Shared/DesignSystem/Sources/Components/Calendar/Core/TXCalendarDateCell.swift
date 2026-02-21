@@ -10,6 +10,7 @@ import SwiftUI
 struct TXCalendarDateCell: View {
     let item: TXCalendarDateItem
     let style: TXCalendarDateStyle
+    let customBackground: AnyView?
 
     var body: some View {
         Text(item.text)
@@ -31,6 +32,7 @@ private extension TXCalendarDateCell {
         case .selectedFilled: style.selectedFilledTextColor
         case .selectedLine: style.selectedLineTextColor
         case .lastDate: style.lastDateTextColor
+        case .completed: style.completedTextColor
         case .default: style.defaultTextColor
         }
     }
@@ -47,6 +49,9 @@ private extension TXCalendarDateCell {
                 .overlay {
                     shape.stroke(style.selectedLineBorderColor, lineWidth: style.borderWidth)
                 }
+            
+        case .completed:
+            customBackground
 
         case .default, .lastDate:
             EmptyView()

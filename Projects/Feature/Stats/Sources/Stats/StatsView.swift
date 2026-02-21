@@ -61,7 +61,10 @@ private extension StatsView {
                 ForEach(store.items, id: \.self.goalId) { item in
                     StatsCardView(
                         item: item,
-                        isOngoing: store.isOngoing
+                        isOngoing: store.isOngoing,
+                        onTap: { goalId in
+                            store.send(.statsCardTapped(goalId: goalId))
+                        }
                     )
                 }
             }

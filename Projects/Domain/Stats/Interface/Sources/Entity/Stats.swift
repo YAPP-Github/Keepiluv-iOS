@@ -20,6 +20,13 @@ import Foundation
 /// )
 /// ```
 public struct Stats: Equatable {
+    /// 목표 반복 주기 타입입니다.
+    public enum RepeatCycle: String, Equatable {
+        case daily = "DAILY"
+        case weekly = "WEEKLY"
+        case monthly = "MONTHLY"
+    }
+
     public let myNickname: String
     public let partnerNickname: String
     public let stats: [StatsItem]

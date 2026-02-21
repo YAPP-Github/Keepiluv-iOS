@@ -73,6 +73,9 @@ public struct TXNavigationBar: View {
             case let .mainTitle(title):
                 mainTitleContent(title: title)
 
+            case let .subContent(content):
+                subContent(content)
+
             case let .home(homeStyle):
                 homeContent(homeStyle)
 
@@ -102,6 +105,86 @@ private extension TXNavigationBar {
             Spacer()
         }
         .padding(style.horizontalPadding)
+    }
+
+    @ViewBuilder
+    func subContent(_ subContent: Style.SubContent) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                TXRectangleButton(
+                    config: .blankLeftBack(),
+                    action: { onAction?(.backTapped) }
+                )
+
+                Spacer()
+
+                Text(subContent.title)
+                    .typography(style.titleFont)
+                    .foregroundStyle(style.foregroundColor)
+
+                Spacer()
+
+                subContentRightArea(subContent.rightContent)
+            }
+            .frame(height: 60)
+            .insideRectEdgeBorder(
+                width: style.borderWidth,
+                edges: [.top, .bottom],
+                color: style.borderColor
+            )
+        }
+        .padding(.vertical, 20)
+    }
+
+    @ViewBuilder
+    func subContentRightArea(_ content: Style.SubContent.RightContent?) -> some View {
+        if let content {
+            Button {
+                onAction?(.rightTapped)
+            } label: {
+                rightContentView(content)
+                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                    .insideRectEdgeBorder(
+                        width: style.borderWidth,
+                        edges: [.top, .bottom, .leading],
+                        color: style.borderColor
+                    )
+            }
+            .buttonStyle(.plain)
+        } else {
+            Color.Common.white
+                .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                .insideRectEdgeBorder(
+                    width: style.borderWidth,
+                    edges: [.top, .bottom, .leading],
+                    color: style.borderColor
+                )
+        }
+    }
+
+    @ViewBuilder
+    func rightContentView(_ content: Style.SubContent.RightContent) -> some View {
+        switch content {
+        case let .text(text):
+            Text(text)
+                .typography(.t2_16b)
+                .foregroundStyle(style.foregroundColor)
+
+        case let .image(image):
+            image
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: style.iconSize.width, height: style.iconSize.height)
+                .foregroundStyle(style.iconForegroundColor)
+
+        case let .rotatedImage(image, angle):
+            image
+                .resizable()
+                .renderingMode(.template)
+                .rotationEffect(angle)
+                .frame(width: style.iconSize.width, height: style.iconSize.height)
+                .foregroundStyle(style.iconForegroundColor)
+        }
     }
 }
 
@@ -275,6 +358,17 @@ private extension TXNavigationBar {
 
 #Preview("MainTitle") {
     TXNavigationBar(style: .mainTitle(title: "스탬프 통계"))
+}
+
+#Preview("subContent - Image") {
+    TXNavigationBar(
+        style: .subContent(
+            .init(
+                title: "스탬프 통계",
+                rightContent: .image(.Icon.Symbol.meatball)
+            )
+        )
+    )
 }
 
 #Preview("Home") {

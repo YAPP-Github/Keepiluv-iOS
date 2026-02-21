@@ -13,9 +13,17 @@ import FeatureStatsInterface
 import SharedDesignSystem
 
 extension StatsReducer {
+    /// 실제 로직을 포함한 기본 구성의 StatsReducer를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let reducer = StatsReducer()
+    /// ```
+    // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.statsClient) var statsClient
         
+        // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
@@ -26,6 +34,9 @@ extension StatsReducer {
             case let .topTabBarSelected(item):
                 state.isOngoing = item == .ongoing
                 return .send(.fetchStats)
+                
+            case let .statsCardTapped(goalId):
+                return .send(.delegate(.goToStatsDetail(goalId: goalId)))
                 
                 // MARK: - Network
             case .fetchStats:
@@ -63,6 +74,9 @@ extension StatsReducer {
                     state.completedItems = items
                 }
                 
+                return .none
+                
+            case .delegate:
                 return .none
             }
         }

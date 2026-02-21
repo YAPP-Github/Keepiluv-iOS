@@ -25,6 +25,7 @@ public struct TXCalendar: View {
         case monthly
     }
     
+    /// 주간 모드에서의 스와이프 방향입니다.
     public enum SwipeGesture {
         case previous
         case next
@@ -42,7 +43,9 @@ public struct TXCalendar: View {
         let weekdayColor: Color
         let backgroundColor: Color
         let dateStyle: TXCalendarDateStyle
+        let dateCellBackground: ((TXCalendarDateItem) -> AnyView?)?
         
+        /// 캘린더 레이아웃 설정을 생성합니다.
         public init(
             weeklyHorizontalPadding: CGFloat = Spacing.spacing6,
             monthlyHorizontalPadding: CGFloat = Spacing.spacing7,
@@ -53,7 +56,8 @@ public struct TXCalendar: View {
             weekdayTypography: TypographyToken = .c1_12r,
             weekdayColor: Color = Color.Gray.gray300,
             backgroundColor: Color = Color.Common.white,
-            dateStyle: TXCalendarDateStyle = .init()
+            dateStyle: TXCalendarDateStyle = .init(),
+            dateCellBackground: ((TXCalendarDateItem) -> AnyView?)? = nil
         ) {
             self.weeklyHorizontalPadding = weeklyHorizontalPadding
             self.monthlyHorizontalPadding = monthlyHorizontalPadding
@@ -65,6 +69,7 @@ public struct TXCalendar: View {
             self.weekdayColor = weekdayColor
             self.backgroundColor = backgroundColor
             self.dateStyle = dateStyle
+            self.dateCellBackground = dateCellBackground
         }
     }
     
@@ -77,6 +82,7 @@ public struct TXCalendar: View {
     private let onSelect: (TXCalendarDateItem) -> Void
     private let onWeekSwipe: ((SwipeGesture) -> Void)?
     
+    /// 캘린더 컴포넌트를 생성합니다.
     public init(
         mode: DisplayMode,
         weeks: [[TXCalendarDateItem]],
@@ -185,11 +191,17 @@ private extension TXCalendar {
         }
     }
 
+    @ViewBuilder
     func dateButton(for item: TXCalendarDateItem) -> some View {
+        let customBackground = config.dateCellBackground?(item)
         Button {
             onSelect(item)
         } label: {
-            TXCalendarDateCell(item: item, style: config.dateStyle)
+            TXCalendarDateCell(
+                item: item,
+                style: config.dateStyle,
+                customBackground: customBackground
+            )
         }
         .buttonStyle(.plain)
     }

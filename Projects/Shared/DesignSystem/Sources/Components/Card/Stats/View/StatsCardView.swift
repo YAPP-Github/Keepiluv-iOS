@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+/// 목표별 스탬프 통계 정보를 카드 형태로 보여주는 컴포넌트입니다.
+///
+/// ## 사용 예시
+/// ```swift
+/// StatsCardView(
+///     item: item,
+///     isOngoing: true,
+///     onTap: { goalId in
+///         print(goalId)
+///     }
+/// )
+/// ```
 public struct StatsCardView: View {
     
     private let item: StatsCardItem
@@ -17,12 +29,26 @@ public struct StatsCardView: View {
     )
     private let icon = TXVector.Icon.allCases.randomElement() ?? .clover
     
+    private var onTap: (Int64) -> Void
+    
+    /// 통계 카드 구성값과 탭 액션을 받아 컴포넌트를 생성합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let view = StatsCardView(
+    ///     item: item,
+    ///     isOngoing: false,
+    ///     onTap: { _ in }
+    /// )
+    /// ```
     public init(
         item: StatsCardItem,
-        isOngoing: Bool
+        isOngoing: Bool,
+        onTap: @escaping (Int64) -> Void
     ) {
         self.item = item
         self.isOngoing = isOngoing
+        self.onTap = onTap
     }
     
     public var body: some View {
@@ -37,6 +63,7 @@ public struct StatsCardView: View {
             shape: RoundedRectangle(cornerRadius: Constants.cardCornerRadius),
             lineWidth: Constants.borderLineWidth
         )
+        .onTapGesture { onTap(item.goalId) }
     }
 }
 
@@ -148,7 +175,8 @@ private extension StatsCardView {
                     .init(name: "현수", count: 20)
                 ]
             ),
-            isOngoing: true
+            isOngoing: true,
+            onTap: { _ in }
         )
         
         StatsCardView(
@@ -162,8 +190,9 @@ private extension StatsCardView {
                     .init(name: "현수", count: 10)
                 ]
             ),
-            isOngoing: false
-        )  
+            isOngoing: false,
+            onTap: { _ in }
+        )
     }
     .padding(.horizontal, 20)
 }
