@@ -20,6 +20,10 @@ public enum ReactionEmoji: String, CaseIterable, Equatable {
     case love = "ICON_LOVE"
     case doubt = "ICON_DOUBT"
     case fuck = "ICON_FUCK"
+    
+    public init?(from value: String) {
+        self.init(rawValue: value)
+    }
 }
 
 public extension ReactionEmoji {

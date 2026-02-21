@@ -38,7 +38,7 @@ public struct MakeGoalReducer {
         public let minimumPeriodCount = 1
         public let weeklyMaximumPeriodCount = 6
         public let monthlyMaximumPeriodCount = 25
-        public let icons: [Goal.Icon] = Goal.Icon.allCases
+        public let icons: [GoalIcon] = GoalIcon.allCases
         public let dailyPeriodText: String = Goal.RepeatCycle.daily.text
         public let weeklyPeriodText: String = Goal.RepeatCycle.weekly.text
         public let monthlyPeriodText: String = Goal.RepeatCycle.monthly.text
@@ -63,7 +63,7 @@ public struct MakeGoalReducer {
         
         public var showPeriodCount: Bool { selectedPeriod != .daily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
-        public var selectedEmoji: Goal.Icon { icons[selectedEmojiIndex] }
+        public var selectedEmoji: GoalIcon { icons[selectedEmojiIndex] }
         public var completeButtonDisabled: Bool { goalTitle.isEmpty || isLoading }
         
         public var modal: TXModalType?

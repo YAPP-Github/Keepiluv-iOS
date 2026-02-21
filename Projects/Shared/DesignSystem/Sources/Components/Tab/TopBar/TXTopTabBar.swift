@@ -16,8 +16,13 @@ import SwiftUI
 /// }
 /// ```
 public struct TXTopTabBar: View {
+    public enum Item: CaseIterable, Equatable, Hashable {
+        case ongoing
+        case completed
+    }
+    
     public struct Configuration {
-        let items: [String]
+        let items: [Item]
         let font: TypographyToken = .t2_16b
         let selectedColor: Color = Color.Gray.gray500
         let unselectedColor: Color = Color.Gray.gray200
@@ -26,14 +31,12 @@ public struct TXTopTabBar: View {
         let underlineHeight: CGFloat = LineWidth.l
         let underlineBottomPadding: CGFloat = Spacing.spacing2
         
-        public init(items: [String]) {
+        public init(items: [Item]) {
             self.items = items
         }
     }
-
-    public typealias Item = String
     
-    @State private var selectedItem: Item = ""
+    @State private var selectedItem: Item = .ongoing
     private let config: Configuration
     private let onSelect: (Item) -> Void
     
@@ -43,7 +46,7 @@ public struct TXTopTabBar: View {
     ) {
         self.config = config
         self.onSelect = onSelect
-        self._selectedItem = State(initialValue: config.items.first ?? "")
+        self._selectedItem = State(initialValue: config.items.first ?? .ongoing)
     }
     
     public var body: some View {
@@ -53,21 +56,22 @@ public struct TXTopTabBar: View {
                     selectedItem = item
                     onSelect(item)
                 } label: {
-                    tabItem(title: item, isSelected: selectedItem == item)
+                    tabItem(item: item, isSelected: selectedItem == item)
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: .infinity)
             }
         }
+        .padding(.horizontal, 20)
     }
 }
 
 // MARK: - SubViews
 private extension TXTopTabBar {
-    func tabItem(title: String, isSelected: Bool) -> some View {
+    func tabItem(item: Item, isSelected: Bool) -> some View {
         let color = isSelected ? config.selectedColor : config.unselectedColor
         
-        return Text(title)
+        return Text(item.title)
             .typography(config.font)
             .foregroundStyle(color)
             .frame(maxWidth: .infinity, maxHeight: config.height)
@@ -82,9 +86,20 @@ private extension TXTopTabBar {
     }
 }
 
+public extension TXTopTabBar.Item {
+    var title: String {
+        switch self {
+        case .ongoing:
+            return "진행중"
+        case .completed:
+            return "종료"
+        }
+    }
+}
+
 #Preview {
     VStack {
-        TXTopTabBar(config: .goal())
+        TXTopTabBar(config: .stats)
         
         Spacer()
     }

@@ -221,18 +221,18 @@ extension HomeReducer {
                             return GoalCardItem(
                                 id: goal.id,
                                 goalName: goal.title,
-                                goalEmoji: goal.goalIcon.image,
+                                goalEmoji: GoalIcon(from: goal.goalIcon).image,
                                 myCard: .init(
                                     photologId: goal.myVerification?.photologId,
                                     imageURL: myImageURL,
                                     isSelected: goal.myVerification?.isCompleted ?? false,
-                                    emoji: goal.myVerification?.emoji?.image
+                                    emoji: goal.myVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
                                 ),
                                 yourCard: .init(
                                     photologId: goal.yourVerification?.photologId,
                                     imageURL: yourImageURL,
                                     isSelected: goal.yourVerification?.isCompleted ?? false,
-                                    emoji: goal.yourVerification?.emoji?.image
+                                    emoji: goal.yourVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
                                 )
                             )
                         }
