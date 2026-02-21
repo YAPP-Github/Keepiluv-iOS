@@ -53,15 +53,16 @@ extension StatsDetailReducer {
                 // MARK: - Network
             case .fetchStatsDetail:
                 let month = state.currentMonth.formattedYearDashMonth
-                if let completedDate = state.completedDateCache[month] {
+                let goalId = state.goalId
+                var applyCached: Effect<Action> = .none
+                if let cached = state.completedDateCache[month] {
                     state.isLoading = false
+                    applyCached = .send(.updateMonthlyDate(cached))
                 } else {
                     state.isLoading = true
                 }
                 
-                let goalId = state.goalId
-                
-                return .run { send in
+                let fetchRemote: Effect<Action> = .run { send in
                     do {
                         let statsDetail = try await statsClient.fetchStatsDetail(String(goalId))
                         await send(.fetchedStatsDetail(statsDetail, month: month))
@@ -69,6 +70,8 @@ extension StatsDetailReducer {
                         await send(.fetchStatsDetailFailed)
                     }
                 }
+                
+                return .merge(applyCached, fetchRemote)            
             
             case let .fetchedStatsDetail(statsDetail, month):
                 state.isLoading = false
