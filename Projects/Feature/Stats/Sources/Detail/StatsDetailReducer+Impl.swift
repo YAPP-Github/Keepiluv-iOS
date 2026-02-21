@@ -31,6 +31,27 @@ extension StatsDetailReducer {
             case .onAppear:
                 return .send(.fetchStatsDetail)
                 
+                // MARK: - User Action
+                
+            case .previousMonthTapped:
+                state.currentMonth.goToPreviousMonth()
+                state.monthlyData = TXCalendarDataGenerator.generateMonthData(
+                    for: state.currentMonth,
+                    hideAdjacentDates: true
+                )
+                guard let completedDate = state.statsDetail?.completedDate else { return .none }
+                return .send(.updateMonthlyDate(completedDate))
+                
+            case .nextMonthTapped:
+                guard !state.nextMonthDisabled else { return .none }
+                state.currentMonth.goToNextMonth()
+                state.monthlyData = TXCalendarDataGenerator.generateMonthData(
+                    for: state.currentMonth,
+                    hideAdjacentDates: true
+                )
+                guard let completedDate = state.statsDetail?.completedDate else { return .none }
+                return .send(.updateMonthlyDate(completedDate))
+                
                 // MARK: - Network
             case .fetchStatsDetail:
                 let goalId = state.goalId

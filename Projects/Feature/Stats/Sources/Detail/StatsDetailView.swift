@@ -53,7 +53,13 @@ private extension StatsDetailView {
     }
     
     var monthNavigation: some View {
-        TXCalendarMonthNavigation(title: store.currentMonthTitle)
+        TXCalendarMonthNavigation(
+            title: store.currentMonthTitle,
+            isPreviousDisabled: store.previousMonthDisabled,
+            isNextDisabled: store.nextMonthDisabled,
+            onPrevious: { store.send(.previousMonthTapped)},
+            onNext: { store.send(.nextMonthTapped)}
+        )
     }
     
     var calendar: some View {

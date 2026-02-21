@@ -37,6 +37,15 @@ public struct StatsDetailReducer {
         public var statsSummaryInfo: [StatsSummaryInfo] = []
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
+        public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
+        public var previousMonthDisabled: Bool {
+            guard let startDateString = statsDetail?.summary.startDate,
+                let startDate = TXCalendarUtil.parseAPIDateString(startDateString) else {
+                return false
+            }
+            
+            return currentMonth <= startDate
+        }
         public var naviBarTitle: String { statsDetail?.goalName ?? "" }
         public var isCompleted: Bool { statsDetail?.isCompleted == true }
         
@@ -78,6 +87,10 @@ public struct StatsDetailReducer {
     public enum Action {
         // MARK: - LifeCycle
         case onAppear
+        
+        // MARK: - User Action
+        case previousMonthTapped
+        case nextMonthTapped
         
         // MARK: - Network
         case fetchStatsDetail
