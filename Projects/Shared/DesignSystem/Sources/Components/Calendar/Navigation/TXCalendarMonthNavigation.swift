@@ -54,6 +54,8 @@ public struct TXCalendarMonthNavigation: View {
     private let title: String
     private let config: Configuration
     private let onTitleTap: (() -> Void)?
+    private let isPreviousDisabled: Bool
+    private let isNextDisabled: Bool
     private let onPrevious: () -> Void
     private let onNext: () -> Void
 
@@ -61,21 +63,33 @@ public struct TXCalendarMonthNavigation: View {
         title: String,
         config: Configuration = .init(),
         onTitleTap: (() -> Void)? = nil,
+        isPreviousDisabled: Bool = false,
+        isNextDisabled: Bool = false,
         onPrevious: @escaping () -> Void = { },
         onNext: @escaping () -> Void = { }
     ) {
         self.title = title
         self.config = config
         self.onTitleTap = onTitleTap
+        self.isPreviousDisabled = isPreviousDisabled
+        self.isNextDisabled = isNextDisabled
         self.onPrevious = onPrevious
         self.onNext = onNext
     }
     
     public var body: some View {
         HStack(spacing: config.itemSpacing) {
-            navigationButton(icon: .Icon.Symbol.arrow1MLeft, action: onPrevious)
+            navigationButton(
+                icon: .Icon.Symbol.arrow1MLeft,
+                isDisabled: isPreviousDisabled,
+                action: onPrevious
+            )
             titleView
-            navigationButton(icon: .Icon.Symbol.arrow1MRight, action: onNext)
+            navigationButton(
+                icon: .Icon.Symbol.arrow1MRight,
+                isDisabled: isNextDisabled,
+                action: onNext
+            )
         }
         .padding(.horizontal, config.horizontalPadding)
         .frame(maxWidth: .infinity)
@@ -106,15 +120,20 @@ private extension TXCalendarMonthNavigation {
 
 // MARK: - SubViews
 private extension TXCalendarMonthNavigation {
-    func navigationButton(icon: Image, action: @escaping () -> Void) -> some View {
+    func navigationButton(
+        icon: Image,
+        isDisabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             icon
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(config.iconColor)
+                .foregroundStyle(isDisabled ? Color.Gray.gray200 : config.iconColor)
                 .frame(width: config.iconSize, height: config.iconSize)
         }
         .buttonStyle(.plain)
+        .disabled(isDisabled)
         .frame(width: config.buttonSize, height: config.buttonSize)
     }
 }

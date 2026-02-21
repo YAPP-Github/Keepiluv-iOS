@@ -55,6 +55,7 @@ private extension StatsView {
             TXCalendarMonthNavigation(
                 title: store.monthTitle,
                 onTitleTap: { },
+                isNextDisabled: store.isNextMonthDisabled,
                 onPrevious: { store.send(.previousMonthTapped)},
                 onNext: { store.send(.nextMonthTapped)}
             )

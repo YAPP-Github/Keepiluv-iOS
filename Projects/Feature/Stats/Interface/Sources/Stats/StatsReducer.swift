@@ -33,6 +33,10 @@ public struct StatsReducer {
         public var monthTitle: String { currentMonth.formattedYearMonth }
         public var isLoading: Bool = false
         public var isOngoing: Bool = true
+        public var isNextMonthDisabled: Bool {
+            let now = TXCalendarDate()
+            return (currentMonth.year, currentMonth.month) >= (now.year, now.month)
+        }
 
         public var items: [StatsCardItem] {
             return isOngoing ? ongoingItems : completedItems
