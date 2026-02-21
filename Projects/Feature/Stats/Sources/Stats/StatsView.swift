@@ -12,7 +12,7 @@ import FeatureStatsInterface
 import SharedDesignSystem
 
 struct StatsView: View {
-    let store: StoreOf<StatsReducer>
+    @Bindable public var store: StoreOf<StatsReducer>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,6 +30,7 @@ struct StatsView: View {
             }
         }
         .onAppear { store.send(.onAppear) }
+        .txToast(item: $store.toast)
     }
 }
 

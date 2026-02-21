@@ -46,6 +46,11 @@ extension StatsReducer {
             case let .statsCardTapped(goalId):
                 return .send(.delegate(.goToStatsDetail(goalId: goalId)))
                 
+                // MARK: - Update State
+            case let .showToast(toast):
+                state.toast = toast
+                return .none
+                
                 // MARK: - Network
             case .fetchStats:
                 state.isLoading = true
@@ -93,9 +98,12 @@ extension StatsReducer {
 
             case .fetchStatsFailed:
                 state.isLoading = false
-                return .none
+                return .send(.showToast(.warning(message: "통계 조회에 실패했어요")))
                 
             case .delegate:
+                return .none
+                
+            case .binding:
                 return .none
             }
         }

@@ -33,13 +33,15 @@ public struct StatsReducer {
         public var monthTitle: String { currentMonth.formattedYearMonth }
         public var isLoading: Bool = false
         public var isOngoing: Bool = true
-        
+
         public var items: [StatsCardItem] {
             return isOngoing ? ongoingItems : completedItems
         }
         
         public var ongoingItems: [StatsCardItem] = []
         public var completedItems: [StatsCardItem] = []
+        
+        public var toast: TXToastType?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -51,7 +53,9 @@ public struct StatsReducer {
     }
     
     /// 통계 메인 화면에서 발생 가능한 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         
@@ -65,6 +69,9 @@ public struct StatsReducer {
         case fetchStats
         case fetchedStats(Stats)
         case fetchStatsFailed
+        
+        // MARK: - Update State
+        case showToast(TXToastType)
         
         // MARK: - Delegate
         case delegate(Delegate)
@@ -88,6 +95,7 @@ public struct StatsReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }
