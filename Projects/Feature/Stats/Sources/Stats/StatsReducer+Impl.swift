@@ -48,20 +48,26 @@ extension StatsReducer {
                 
                 // MARK: - Network
             case .fetchStats:
+                state.isLoading = true
                 let isOngoing = state.isOngoing
                 let month = state.currentMonth.formattedAPIDateString()
                 return .run { send in
-                    let stats: Stats
-                    if isOngoing {
-                        stats = try await statsClient.fetchOngoingStats(month)
-                    } else {
-                        stats = try await statsClient.fetchCompletedStats(month)
+                    do {
+                        let stats: Stats
+                        if isOngoing {
+                            stats = try await statsClient.fetchOngoingStats(month)
+                        } else {
+                            stats = try await statsClient.fetchCompletedStats(month)
+                        }
+                        
+                        await send(.fetchedStats(stats))
+                    } catch {
+                        await send(.fetchStatsFailed)
                     }
-                    
-                    await send(.fetchedStats(stats))
                 }
                 
             case let .fetchedStats(stats):
+                state.isLoading = false
                 let items = stats.stats.map {
                     let goalCount = $0.monthlyCount ?? $0.totalCount ?? 0
                     
@@ -83,6 +89,10 @@ extension StatsReducer {
                     state.completedItems = items
                 }
                 
+                return .none
+
+            case .fetchStatsFailed:
+                state.isLoading = false
                 return .none
                 
             case .delegate:

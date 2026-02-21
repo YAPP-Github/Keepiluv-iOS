@@ -24,6 +24,11 @@ struct StatsView: View {
             
             Spacer()
         }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
+        }
         .onAppear { store.send(.onAppear) }
     }
 }

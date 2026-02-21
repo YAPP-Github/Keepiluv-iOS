@@ -31,6 +31,7 @@ public struct StatsReducer {
     public struct State: Equatable {
         public var currentMonth: TXCalendarDate = .init()
         public var monthTitle: String { currentMonth.formattedYearMonth }
+        public var isLoading: Bool = false
         public var isOngoing: Bool = true
         
         public var items: [StatsCardItem] {
@@ -63,6 +64,7 @@ public struct StatsReducer {
         // MARK: - Network
         case fetchStats
         case fetchedStats(Stats)
+        case fetchStatsFailed
         
         // MARK: - Delegate
         case delegate(Delegate)
