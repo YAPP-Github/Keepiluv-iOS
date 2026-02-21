@@ -20,7 +20,13 @@ struct StatsView: View {
             topTabBar
             monthNavigation
                 .padding(.top, store.isOngoing ? 16 : 20)
-            cardList
+            
+            if store.hasItems {
+                cardList
+            } else {
+                // TODO: - 디자인 확정되면 구현
+                EmptyView()
+            }
             
             Spacer()
         }

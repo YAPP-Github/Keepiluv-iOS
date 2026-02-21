@@ -42,6 +42,10 @@ public struct StatsReducer {
             return isOngoing ? ongoingItems : completedItems
         }
         
+        public var hasItems: Bool {
+            !isLoading && items.isEmpty
+        }
+        
         public var ongoingItems: [StatsCardItem] = []
         public var completedItems: [StatsCardItem] = []
         public var ongoingItemsCache: [String: [StatsCardItem]] = [:]
