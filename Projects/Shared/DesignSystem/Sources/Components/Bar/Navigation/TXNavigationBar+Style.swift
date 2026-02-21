@@ -11,10 +11,37 @@ extension TXNavigationBar {
     /// NavigationBar의 스타일을 정의합니다.
     public enum Style {
         case mainTitle(title: String)
+        case subContent(SubContent)
         case home(Home)
         case subTitle(title: String, rightText: String?)
         case iconOnly(IconStyle)
         case noTitle
+
+        /// 좌측 뒤로가기 + 중앙 타이틀 + 우측 액션 영역을 사용하는 스타일 설정입니다.
+        public struct SubContent {
+            /// `subContent` 스타일 우측 액션의 표현 타입입니다.
+            public enum RightContent {
+                case text(String)
+                case image(Image)
+                case rotatedImage(Image, angle: Angle)
+            }
+
+            public let title: String
+            public let rightContent: RightContent?
+
+            /// `subContent` 스타일 설정을 생성합니다.
+            ///
+            /// - Parameters:
+            ///   - title: 중앙에 표시할 타이틀
+            ///   - rightContent: 우측 액션 콘텐츠
+            public init(
+                title: String,
+                rightContent: RightContent? = nil
+            ) {
+                self.title = title
+                self.rightContent = rightContent
+            }
+        }
 
         /// 홈 스타일에서 사용하는 설정 값입니다.
         ///
@@ -69,14 +96,14 @@ extension TXNavigationBar {
 extension TXNavigationBar.Style {
     var backgroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
+        case .mainTitle, .subContent, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Common.white
         }
     }
 
     var foregroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
+        case .mainTitle, .subContent, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Gray.gray500
         }
     }
@@ -87,7 +114,7 @@ extension TXNavigationBar.Style {
 
     var iconForegroundColor: Color {
         switch self {
-        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
+        case .mainTitle, .subContent, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Gray.gray400
         }
     }
@@ -95,6 +122,9 @@ extension TXNavigationBar.Style {
     var height: CGFloat {
         switch self {
         case .mainTitle:
+            return 80
+
+        case .subContent:
             return 80
 
         case .home:
@@ -113,7 +143,7 @@ extension TXNavigationBar.Style {
         case .mainTitle, .home:
             return .h3_22b
 
-        case .subTitle, .iconOnly, .noTitle:
+        case .subContent, .subTitle, .iconOnly, .noTitle:
             return .h4_20b
         }
     }
@@ -124,7 +154,7 @@ extension TXNavigationBar.Style {
 
     var horizontalPadding: EdgeInsets {
         switch self {
-        case .mainTitle, .home:
+        case .mainTitle, .subContent, .home:
             return EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 10)
 
         case .subTitle:
@@ -148,7 +178,7 @@ extension TXNavigationBar.Style {
         case .mainTitle, .home, .iconOnly, .noTitle:
             return CGSize(width: 44, height: 44)
 
-        case .subTitle:
+        case .subContent, .subTitle:
             return CGSize(width: 60, height: 60)
         }
     }
