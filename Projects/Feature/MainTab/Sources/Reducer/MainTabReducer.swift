@@ -44,8 +44,6 @@ public struct MainTabReducer {
         public var home = HomeCoordinator.State()
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        public var settings = SettingsReducer.State(showBackButton: false)
 
         /// 기본 상태를 생성합니다.
         ///
@@ -67,8 +65,6 @@ public struct MainTabReducer {
 
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        case settings(SettingsReducer.Action)
 
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
@@ -105,11 +101,6 @@ public struct MainTabReducer {
             )
         }
 
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        Scope(state: \.settings, action: \.settings) {
-            SettingsReducer()
-        }
-
         Reduce { state, action in
             switch action {
                 // MARK: - User Action
@@ -119,7 +110,7 @@ public struct MainTabReducer {
                     state.isTabBarHidden = !state.home.routes.isEmpty
                         || state.home.home.isCalendarSheetPresented
 
-                case .statistics, .couple, .settings:
+                case .statistics, .couple:
                     state.isTabBarHidden = false
                 }
                 return .none
@@ -139,24 +130,6 @@ public struct MainTabReducer {
                     state.isTabBarHidden = !state.home.routes.isEmpty
                         || state.home.home.isCalendarSheetPresented
                 }
-                return .none
-
-                // MARK: - Child Action (Settings)
-                // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-            case .settings(.delegate(.logoutCompleted)):
-                return .send(.delegate(.logoutCompleted))
-
-            case .settings(.delegate(.withdrawCompleted)):
-                return .send(.delegate(.withdrawCompleted))
-
-            case .settings(.delegate(.sessionExpired)):
-                return .send(.delegate(.sessionExpired))
-
-            case .settings(.delegate(.navigateBack)):
-                // 탭에서는 백버튼 동작 무시
-                return .none
-
-            case .settings:
                 return .none
 
             case .delegate:
