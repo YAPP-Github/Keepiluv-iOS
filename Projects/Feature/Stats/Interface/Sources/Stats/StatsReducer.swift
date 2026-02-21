@@ -29,15 +29,28 @@ public struct StatsReducer {
     /// 통계 메인 화면에서 사용하는 상태입니다.
     @ObservableState
     public struct State: Equatable {
-        public var monthTitle: String = "2026.02"
+        public var currentMonth: TXCalendarDate = .init()
+        public var monthTitle: String { currentMonth.formattedYearMonth }
+        public var isLoading: Bool = false
         public var isOngoing: Bool = true
-        
+        public var isNextMonthDisabled: Bool {
+            let now = TXCalendarDate()
+            return (currentMonth.year, currentMonth.month) >= (now.year, now.month)
+        }
+
         public var items: [StatsCardItem] {
             return isOngoing ? ongoingItems : completedItems
         }
         
+        public var hasItems: Bool {
+            !isLoading && items.isEmpty
+        }
+        
         public var ongoingItems: [StatsCardItem] = []
         public var completedItems: [StatsCardItem] = []
+        public var ongoingItemsCache: [String: [StatsCardItem]] = [:]
+        
+        public var toast: TXToastType?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -49,17 +62,25 @@ public struct StatsReducer {
     }
     
     /// 통계 메인 화면에서 발생 가능한 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         
         // MARK: - User Action
         case topTabBarSelected(TXTopTabBar.Item)
         case statsCardTapped(goalId: Int64)
+        case previousMonthTapped
+        case nextMonthTapped
         
         // MARK: - Network
         case fetchStats
-        case fetchedStats(Stats)
+        case fetchedStats(stats: Stats, month: String)
+        case fetchStatsFailed
+        
+        // MARK: - Update State
+        case showToast(TXToastType)
         
         // MARK: - Delegate
         case delegate(Delegate)
@@ -83,6 +104,7 @@ public struct StatsReducer {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
         reducer
     }
 }

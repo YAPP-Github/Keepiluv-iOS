@@ -12,7 +12,7 @@ import FeatureStatsInterface
 import SharedDesignSystem
 
 struct StatsView: View {
-    let store: StoreOf<StatsReducer>
+    @Bindable public var store: StoreOf<StatsReducer>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -20,11 +20,23 @@ struct StatsView: View {
             topTabBar
             monthNavigation
                 .padding(.top, store.isOngoing ? 16 : 20)
-            cardList
+            
+            if store.hasItems {
+                cardList
+            } else {
+                // TODO: - 디자인 확정되면 구현
+                EmptyView()
+            }
             
             Spacer()
         }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
+        }
         .onAppear { store.send(.onAppear) }
+        .txToast(item: $store.toast)
     }
 }
 
@@ -49,8 +61,9 @@ private extension StatsView {
             TXCalendarMonthNavigation(
                 title: store.monthTitle,
                 onTitleTap: { },
-                onPrevious: { },
-                onNext: { }
+                isNextDisabled: store.isNextMonthDisabled,
+                onPrevious: { store.send(.previousMonthTapped)},
+                onNext: { store.send(.nextMonthTapped)}
             )
         } else { EmptyView() }
     }

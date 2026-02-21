@@ -35,24 +35,52 @@ extension StatsReducer {
                 state.isOngoing = item == .ongoing
                 return .send(.fetchStats)
                 
+            case .previousMonthTapped:
+                state.currentMonth.goToPreviousMonth()
+                return .send(.fetchStats)
+                
+            case .nextMonthTapped:
+                state.currentMonth.goToNextMonth()
+                return .send(.fetchStats)
+                
             case let .statsCardTapped(goalId):
                 return .send(.delegate(.goToStatsDetail(goalId: goalId)))
+                
+                // MARK: - Update State
+            case let .showToast(toast):
+                state.toast = toast
+                return .none
                 
                 // MARK: - Network
             case .fetchStats:
                 let isOngoing = state.isOngoing
-                return .run { send in
-                    let stats: Stats
-                    if isOngoing {
-                        stats = try await statsClient.fetchOngoingStats("")
-                    } else {
-                        stats = try await statsClient.fetchCompletedStats("")
-                    }
-                    
-                    await send(.fetchedStats(stats))
+                let month = state.currentMonth.formattedAPIDateString()
+                
+                if isOngoing,
+                   let cachedItems = state.ongoingItemsCache[month] {
+                    state.ongoingItems = cachedItems
+                    state.isLoading = false
+                } else {
+                    state.isLoading = true
                 }
                 
-            case let .fetchedStats(stats):
+                return .run { send in
+                    do {
+                        let stats: Stats
+                        if isOngoing {
+                            stats = try await statsClient.fetchOngoingStats(month)
+                        } else {
+                            stats = try await statsClient.fetchCompletedStats(month)
+                        }
+                        
+                        await send(.fetchedStats(stats: stats, month: month))
+                    } catch {
+                        await send(.fetchStatsFailed)
+                    }
+                }
+                
+            case let .fetchedStats(stats, month):
+                state.isLoading = false
                 let items = stats.stats.map {
                     let goalCount = $0.monthlyCount ?? $0.totalCount ?? 0
                     
@@ -69,14 +97,30 @@ extension StatsReducer {
                 }
                 
                 if state.isOngoing {
+                    state.ongoingItemsCache[month] = items
+                }
+
+                // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
+                guard month == state.currentMonth.formattedAPIDateString() else {
+                    return .none
+                }
+
+                if state.isOngoing {
                     state.ongoingItems = items
                 } else {
                     state.completedItems = items
                 }
                 
                 return .none
+
+            case .fetchStatsFailed:
+                state.isLoading = false
+                return .send(.showToast(.warning(message: "통계 조회에 실패했어요")))
                 
             case .delegate:
+                return .none
+                
+            case .binding:
                 return .none
             }
         }
