@@ -29,11 +29,9 @@ public enum TXCalendarUtil {
         return lhsDate < rhsDate
     }
     
+    /// TXCalendarDate를 API 요청용 문자열(YYYY-MM-DD)로 변환합니다.
     public static func apiDateString(for component: TXCalendarDate) -> String {
-        let yearString = String(format: "%04d", component.year)
-        let monthString = String(format: "%02d", component.month)
-        let dayString = String(format: "%02d", component.day ?? 1)
-        return "\(yearString)-\(monthString)-\(dayString)"
+        component.formattedAPIDateString()
     }
     
     /// API 날짜 문자열(YYYY-MM-DD)을 TXCalendarDate로 변환합니다.

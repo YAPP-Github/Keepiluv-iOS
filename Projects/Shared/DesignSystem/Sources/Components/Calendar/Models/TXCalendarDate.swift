@@ -33,6 +33,16 @@ public struct TXCalendarDate: Equatable, Hashable {
         self.day = day
     }
 
+    /// DateComponents로 초기화합니다. year/month/day가 모두 있어야 합니다.
+    public init?(components: DateComponents) {
+        guard let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            return nil
+        }
+        self.init(year: year, month: month, day: day)
+    }
+
     /// 현재 날짜로 초기화합니다.
     public init() {
         let now = Date()
@@ -59,6 +69,12 @@ public struct TXCalendarDate: Equatable, Hashable {
     /// 포맷된 문자열을 반환합니다. (예: "2026.12")
     public var formattedYearMonth: String {
         String(format: "%d.%02d", year, month)
+    }
+
+    /// 포맷된 문자열을 반환합니다. (예: "2026-12-25")
+    public func formattedAPIDateString() -> String {
+        let day = self.day ?? 1
+        return String(format: "%04d-%02d-%02d", year, month, day)
     }
 
     /// 다음 달로 이동합니다.
