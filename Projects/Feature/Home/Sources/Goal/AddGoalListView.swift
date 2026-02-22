@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureHomeInterface
+import FeatureMakeGoalInterface
 import SharedDesignSystem
 
 struct AddGoalListView: View {

@@ -1,6 +1,6 @@
 //
 //  MakeGoalReducer+Impl.swift
-//  FeatureHomeInterface
+//  FeatureMakeGoalInterface
 //
 //  Created by 정지훈 on 2/1/26.
 //
@@ -9,7 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainGoalInterface
-import FeatureHomeInterface
+import FeatureMakeGoalInterface
 import SharedDesignSystem
 
 extension MakeGoalReducer {

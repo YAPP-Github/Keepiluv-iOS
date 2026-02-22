@@ -8,14 +8,18 @@
 import SwiftUI
 
 import ComposableArchitecture
-import FeatureHomeInterface
+import FeatureMakeGoalInterface
 import SharedDesignSystem
 
-struct MakeGoalView: View {
+public struct MakeGoalView: View {
     
-    @Bindable var store: StoreOf<MakeGoalReducer>
+    @Bindable public var store: StoreOf<MakeGoalReducer>
+
+    public init(store: StoreOf<MakeGoalReducer>) {
+        self.store = store
+    }
     
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 0) {
             navigationBar
                 .padding(.horizontal, -20)

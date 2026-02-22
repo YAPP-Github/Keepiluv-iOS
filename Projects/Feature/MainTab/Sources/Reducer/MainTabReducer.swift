@@ -13,6 +13,8 @@ import FeatureGoalDetail
 import FeatureGoalDetailInterface
 import FeatureHome
 import FeatureHomeInterface
+import FeatureMakeGoal
+import FeatureMakeGoalInterface
 import FeatureProofPhoto
 import FeatureProofPhotoInterface
 import FeatureSettings

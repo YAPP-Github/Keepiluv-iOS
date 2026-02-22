@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainGoalInterface
+import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil

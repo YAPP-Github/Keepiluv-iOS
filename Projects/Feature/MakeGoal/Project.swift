@@ -6,13 +6,23 @@ let project = Project.makeModule(
     targets: [
         .feature(
             interface: .makeGoal,
-            config: .init()
+            config: .init(
+                dependencies: [
+                    .domain(interface: .goal),
+                    .shared(implements: .designSystem),
+                    .shared(implements: .util),
+                    .external(dependency: .ComposableArchitecture)
+                ]
+            )
         ),
         .feature(
             implements: .makeGoal,
             config: .init(
                 dependencies: [
-                    .feature(interface: .makeGoal)
+                    .feature(interface: .makeGoal),
+                    .domain(interface: .goal),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
@@ -39,7 +49,11 @@ let project = Project.makeModule(
                     "UIUserInterfaceStyle": "Light"
                 ]),
                 dependencies: [
-                    .feature(interface: .makeGoal)
+                    .feature(interface: .makeGoal),
+                    .feature(implements: .makeGoal),
+                    .domain(interface: .goal),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         )
