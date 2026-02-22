@@ -40,6 +40,13 @@ extension StatsDetailReducer {
             case let .navigationBarTapped(action):
                 if case .backTapped = action {
                     return .send(.delegate(.navigateBack))
+                } else if case .rightTapped = action {
+                    if state.isCompleted {
+                        return .none
+                    } else {
+                        state.isDropdownPresented = true
+                        return .none
+                    }
                 }
                 return .none
                 

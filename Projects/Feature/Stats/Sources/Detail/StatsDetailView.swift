@@ -35,6 +35,17 @@ struct StatsDetailView: View {
                 ProgressView()
             }
         }
+        .overlay(alignment: .topTrailing) {
+            if store.isDropdownPresented {
+                TXDropdown(
+                    config: .goal,
+                    onSelect: { item in
+                        
+                    }
+                )
+                .offset(x: -12, y: 65)
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
@@ -53,8 +64,8 @@ private extension StatsDetailView {
                 .init(
                     title: store.naviBarTitle,
                     rightContent: store.isCompleted
-                        ? .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
-                        : .text("삭제")
+                        ? .text("삭제")
+                        : .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
                 )
             ),
             onAction: { action in
@@ -68,8 +79,8 @@ private extension StatsDetailView {
             title: store.currentMonthTitle,
             isPreviousDisabled: store.previousMonthDisabled,
             isNextDisabled: store.nextMonthDisabled,
-            onPrevious: { store.send(.previousMonthTapped)},
-            onNext: { store.send(.nextMonthTapped)}
+            onPrevious: { store.send(.previousMonthTapped) },
+            onNext: { store.send(.nextMonthTapped) }
         )
     }
     

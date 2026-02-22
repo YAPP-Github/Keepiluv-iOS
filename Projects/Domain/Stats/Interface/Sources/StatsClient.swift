@@ -167,7 +167,7 @@ extension StatsClient: TestDependencyKey {
             return .init(
                 goalId: 1,
                 goalName: "밥 잘 챙겨먹기",
-                isCompleted: true,
+                isCompleted: false,
                 completedDate: [
                     .init(
                         date: "2026-02-01",
