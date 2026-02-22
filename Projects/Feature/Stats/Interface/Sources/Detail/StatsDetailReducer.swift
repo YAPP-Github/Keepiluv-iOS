@@ -89,8 +89,10 @@ public struct StatsDetailReducer {
     public enum Action {
         // MARK: - LifeCycle
         case onAppear
+        case onDisappear
         
         // MARK: - User Action
+        case navigationBarTapped(TXNavigationBar.Action)
         case previousMonthTapped
         case nextMonthTapped
         
@@ -103,6 +105,13 @@ public struct StatsDetailReducer {
         case updateStatsDetail(StatsDetail)
         case updateStatsSummary(StatsDetail.Summary)
         case updateMonthlyDate(([StatsDetail.CompletedDate]))
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        public enum Delegate {
+            case navigateBack
+        }
     }
 
     /// 외부에서 주입된 Reduce로 StatsDetailReducer를 구성합니다.

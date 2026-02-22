@@ -30,8 +30,16 @@ extension StatsDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 return .send(.fetchStatsDetail)
+
+            case .onDisappear:
+                return .none
                 
                 // MARK: - User Action
+            case let .navigationBarTapped(action):
+                if case .backTapped = action {
+                    return .send(.delegate(.navigateBack))
+                }
+                return .none
                 
             case .previousMonthTapped:
                 state.currentMonth.goToPreviousMonth()
@@ -135,6 +143,9 @@ extension StatsDetailReducer {
                         )
                     }
                 }
+                return .none
+             
+            case .delegate:
                 return .none
             }
         }

@@ -39,6 +39,9 @@ struct StatsDetailView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .onDisappear {
+            store.send(.onDisappear)
+        }
     }
 }
 
@@ -53,7 +56,10 @@ private extension StatsDetailView {
                         ? .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
                         : .text("삭제")
                 )
-            )
+            ),
+            onAction: { action in
+                store.send(.navigationBarTapped(action))
+            }
         )
     }
     

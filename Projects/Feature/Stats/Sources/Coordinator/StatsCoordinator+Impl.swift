@@ -31,6 +31,16 @@ extension StatsCoordinator {
                 state.routes.append(.detail)
                 state.detail = .init(goalId: goalId)
                 return .none
+
+            case .detail(.delegate(.navigateBack)):
+                if !state.routes.isEmpty {
+                    state.routes.removeLast()
+                }
+                return .none
+
+            case .detail(.onDisappear):
+                state.detail = nil
+                return .none
                 
             case .stats:
                 return .none
