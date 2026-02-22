@@ -38,6 +38,7 @@ public struct StatsDetailReducer {
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
         public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
+        public var modal: TXModalType?
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
         public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
@@ -87,7 +88,9 @@ public struct StatsDetailReducer {
     }
 
     /// 통계 상세 화면에서 발생 가능한 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
         case onDisappear
@@ -97,6 +100,8 @@ public struct StatsDetailReducer {
         case previousMonthTapped
         case nextMonthTapped
         case calendarCellTapped(TXCalendarDateItem)
+        case dropDownSelected(TXDropdownItem)
+        case backgroundTapped
         
         // MARK: - Network
         case fetchStatsDetail
@@ -130,6 +135,8 @@ public struct StatsDetailReducer {
     }
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         reducer
     }
 }

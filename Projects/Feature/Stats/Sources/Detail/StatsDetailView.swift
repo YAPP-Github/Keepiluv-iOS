@@ -13,7 +13,7 @@ import SharedDesignSystem
 
 struct StatsDetailView: View {
     
-    let store: StoreOf<StatsDetailReducer>
+    @Bindable var store: StoreOf<StatsDetailReducer>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -40,7 +40,7 @@ struct StatsDetailView: View {
                 TXDropdown(
                     config: .goal,
                     onSelect: { item in
-                        
+                        store.send(.dropDownSelected(item))
                     }
                 )
                 .offset(x: -12, y: 65)
@@ -52,6 +52,13 @@ struct StatsDetailView: View {
         }
         .onDisappear {
             store.send(.onDisappear)
+        }
+        .onTapGesture {
+            guard store.isDropdownPresented else { return }
+            store.send(.backgroundTapped)
+        }
+        .txModal(item: $store.modal) { action in
+            
         }
     }
 }

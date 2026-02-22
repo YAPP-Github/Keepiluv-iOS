@@ -42,7 +42,7 @@ extension StatsDetailReducer {
                     return .send(.delegate(.navigateBack))
                 } else if case .rightTapped = action {
                     if state.isCompleted {
-                        return .none
+                        return .send(.dropDownSelected(.delete))
                     } else {
                         state.isDropdownPresented = true
                         return .none
@@ -86,6 +86,35 @@ extension StatsDetailReducer {
                     )
                 )
                 
+            case let .dropDownSelected(item):
+                guard let detail = state.statsDetail else { return .none }
+                let goalItem = GoalEditCardItem(
+                    id: detail.goalId,
+                    goalName: detail.goalName,
+                    // FIXME: - image 연결
+                    iconImage: .Icon.Illustration.default,
+                    repeatCycle: detail.summary.repeatCycle.text,
+                    startDate: detail.summary.startDate,
+                    endDate: detail.summary.endDate ?? ""
+                )
+                state.isDropdownPresented = false
+                
+                switch item {
+                case .edit:
+                    return .none
+                    
+                case .finish:
+                    state.modal = .info(.finishGoal(for: goalItem))
+                    
+                case .delete:
+                    state.modal = .info(.editDeleteGoal(for: goalItem))
+                }
+                return .none
+                
+            case .backgroundTapped:
+                state.isDropdownPresented = false
+                return .none
+                
                 // MARK: - Network
             case .fetchStatsDetail:
                 let month = state.currentMonth.formattedYearDashMonth
@@ -107,7 +136,7 @@ extension StatsDetailReducer {
                     }
                 }
                 
-                return .merge(applyCached, fetchRemote)            
+                return .merge(applyCached, fetchRemote)
             
             case let .fetchedStatsDetail(statsDetail, month):
                 state.isLoading = false
@@ -174,6 +203,9 @@ extension StatsDetailReducer {
                 return .none
              
             case .delegate:
+                return .none
+                
+            case .binding:
                 return .none
             }
         }
