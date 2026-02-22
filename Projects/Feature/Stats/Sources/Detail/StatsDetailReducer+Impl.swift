@@ -25,9 +25,7 @@ extension StatsDetailReducer {
         @Dependency(\.statsClient) var statsClient
         
         // swiftlint:disable:next closure_body_length
-        let reducer = Reduce<State, Action> {
-            state,
-            action in
+        let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
@@ -101,7 +99,7 @@ extension StatsDetailReducer {
                 
                 switch item {
                 case .edit:
-                    return .none
+                    return .send(.delegate(.goToGoalEdit(goalId: state.goalId)))
                     
                 case .finish:
                     state.modal = .info(.finishGoal(for: goalItem))

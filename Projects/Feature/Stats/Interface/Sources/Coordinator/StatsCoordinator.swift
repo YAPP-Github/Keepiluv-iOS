@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureMakeGoalInterface
 
 /// Stats Feature의 NavigationStack 흐름을 관리하는 Coordinator Reducer입니다.
 ///
@@ -29,6 +30,7 @@ public struct StatsCoordinator {
     private let statsReducer: StatsReducer
     private let statsDetailReducer: StatsDetailReducer
     private let goalDetialReducer: GoalDetailReducer
+    private let makeGoalReducer: MakeGoalReducer
     
     private let reducer: Reduce<State, Action>
     
@@ -39,6 +41,7 @@ public struct StatsCoordinator {
         public var stats = StatsReducer.State()
         public var statsDetail: StatsDetailReducer.State?
         public var goalDetail: GoalDetailReducer.State?
+        public var makeGoal: MakeGoalReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -56,6 +59,7 @@ public struct StatsCoordinator {
         case stats(StatsReducer.Action)
         case statsDetail(StatsDetailReducer.Action)
         case goalDetail(GoalDetailReducer.Action)
+        case makeGoal(MakeGoalReducer.Action)
     }
     
     /// 외부에서 주입된 Reduce와 하위 Reducer로 StatsCoordinator를 구성합니다.
@@ -72,11 +76,13 @@ public struct StatsCoordinator {
         statsReducer: StatsReducer,
         statsDetailReducer: StatsDetailReducer,
         goalDetailReducer: GoalDetailReducer,
+        makeGoalReducer: MakeGoalReducer,
         reducer: Reduce<State, Action>
     ) {
         self.statsReducer = statsReducer
         self.statsDetailReducer = statsDetailReducer
         self.goalDetialReducer = goalDetailReducer
+        self.makeGoalReducer = makeGoalReducer
         self.reducer = reducer
     }
     
@@ -93,6 +99,9 @@ public struct StatsCoordinator {
             }
             .ifLet(\.goalDetail, action: \.goalDetail) {
                 goalDetialReducer
+            }
+            .ifLet(\.makeGoal, action: \.makeGoal) {
+                makeGoalReducer
             }
     }
 }

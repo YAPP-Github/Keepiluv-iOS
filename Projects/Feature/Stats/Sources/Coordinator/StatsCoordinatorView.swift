@@ -9,11 +9,13 @@ import SwiftUI
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureMakeGoalInterface
 import FeatureStatsInterface
 
 /// Stats Feature의 루트 화면을 렌더링하는 Coordinator View입니다.
 public struct StatsCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
+    @Dependency(\.makeGoalFactory) var makeGoalFactory
     @Bindable var store: StoreOf<StatsCoordinator>
     
     /// StatsCoordinator Store를 주입받아 뷰를 생성합니다.
@@ -48,6 +50,11 @@ public struct StatsCoordinatorView: View {
                     case .goalDetail:
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
+                        }
+
+                    case .makeGoal:
+                        IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
+                            makeGoalFactory.makeView(store)
                         }
                     }
                 }

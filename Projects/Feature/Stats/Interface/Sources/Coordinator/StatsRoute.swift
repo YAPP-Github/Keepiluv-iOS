@@ -17,4 +17,5 @@ import Foundation
 public enum StatsRoute: Equatable, Hashable {
     case statsDetail
     case goalDetail
+    case makeGoal
 }

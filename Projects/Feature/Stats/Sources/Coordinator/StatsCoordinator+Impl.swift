@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureMakeGoalInterface
 import FeatureStatsInterface
 
 extension StatsCoordinator {
@@ -21,14 +22,15 @@ extension StatsCoordinator {
     ///     statsDetailReducer: .init()
     /// )
     /// ```
+    //swiftlint:disable:next function_body_length
     public init(
         statsReducer: StatsReducer,
         statsDetailReducer: StatsDetailReducer,
-        goalDetailReducer: GoalDetailReducer
+        goalDetailReducer: GoalDetailReducer,
+        makeGoalReducer: MakeGoalReducer
     ) {
-        let reducer = Reduce<State, Action> {
-            state,
-            action in
+        //swiftlint:disable:next closure_body_length
+        let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - Child Action
             case let .stats(.delegate(.goToStatsDetail(goalId))):
@@ -43,6 +45,15 @@ extension StatsCoordinator {
                     currentUser: isCompletedPartner ? .you : .mySelf,
                     id: goalId,
                     verificationDate: date
+                )
+                return .none
+
+            case let .statsDetail(.delegate(.goToGoalEdit(goalId))):
+                state.routes.append(.makeGoal)
+                state.makeGoal = .init(
+                    category: .custom,
+                    mode: .edit,
+                    editingGoalId: goalId
                 )
                 return .none
                 
@@ -65,6 +76,16 @@ extension StatsCoordinator {
                     state.goalDetail = nil
                 }
                 return .none
+
+            case .makeGoal(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+
+            case .makeGoal(.onDisappear):
+                if !state.routes.contains(.makeGoal) {
+                    state.makeGoal = nil
+                }
+                return .none
                 
             case .stats:
                 return .none
@@ -73,6 +94,9 @@ extension StatsCoordinator {
                 return .none
                 
             case .goalDetail:
+                return .none
+
+            case .makeGoal:
                 return .none
 
                 // MARK: - Binding
@@ -85,6 +109,7 @@ extension StatsCoordinator {
             statsReducer: statsReducer,
             statsDetailReducer: statsDetailReducer,
             goalDetailReducer: goalDetailReducer,
+            makeGoalReducer: makeGoalReducer,
             reducer: reducer
         )
     }
