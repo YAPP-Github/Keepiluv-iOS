@@ -88,7 +88,12 @@ private extension StatsDetailView {
                         )
                     )
                 }
-            )
+            ),
+            onSelect: { item in
+                if item.status == .completed {
+                    store.send(.calendarCellTapped(item))
+                }
+            }
         )
             .padding(.vertical, 24)
             .background(Color.Common.white)

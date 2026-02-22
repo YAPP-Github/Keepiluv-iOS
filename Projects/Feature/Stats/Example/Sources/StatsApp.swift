@@ -9,8 +9,12 @@ import SwiftUI
 
 import ComposableArchitecture
 import DomainStatsInterface
+import FeatureGoalDetail
+import FeatureGoalDetailInterface
 import FeatureStats
 import FeatureStatsInterface
+import FeatureProofPhoto
+import FeatureProofPhotoInterface
 
 @main
 struct StatsApp: App {
@@ -22,11 +26,16 @@ struct StatsApp: App {
                     reducer: {
                         StatsCoordinator(
                             statsReducer: StatsReducer(),
-                            statsDetailReducer: StatsDetailReducer()
+                            statsDetailReducer: StatsDetailReducer(),
+                            goalDetailReducer: GoalDetailReducer(
+                                proofPhotoReducer: ProofPhotoReducer()
+                            )
                         )
                     },
                     withDependencies: {
                         $0.statsClient = .testValue
+                        $0.goalDetailFactory = .liveValue
+                        $0.goalClient = .previewValue
                     }
                 )
             )

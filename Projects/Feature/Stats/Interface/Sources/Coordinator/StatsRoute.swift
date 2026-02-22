@@ -15,5 +15,6 @@ import Foundation
 /// routes.append(.detail)
 /// ```
 public enum StatsRoute: Equatable, Hashable {
-    case detail
+    case statsDetail
+    case goalDetail
 }

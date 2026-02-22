@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
 
 /// Stats Feature의 NavigationStack 흐름을 관리하는 Coordinator Reducer입니다.
 ///
@@ -27,6 +28,7 @@ import ComposableArchitecture
 public struct StatsCoordinator {
     private let statsReducer: StatsReducer
     private let statsDetailReducer: StatsDetailReducer
+    private let goalDetialReducer: GoalDetailReducer
     
     private let reducer: Reduce<State, Action>
     
@@ -35,7 +37,8 @@ public struct StatsCoordinator {
     public struct State: Equatable {
         public var routes: [StatsRoute] = []
         public var stats = StatsReducer.State()
-        public var detail: StatsDetailReducer.State?
+        public var statsDetail: StatsDetailReducer.State?
+        public var goalDetail: GoalDetailReducer.State?
         
         /// 기본 상태를 생성합니다.
         ///
@@ -51,7 +54,8 @@ public struct StatsCoordinator {
         case binding(BindingAction<State>)
         
         case stats(StatsReducer.Action)
-        case detail(StatsDetailReducer.Action)
+        case statsDetail(StatsDetailReducer.Action)
+        case goalDetail(GoalDetailReducer.Action)
     }
     
     /// 외부에서 주입된 Reduce와 하위 Reducer로 StatsCoordinator를 구성합니다.
@@ -67,10 +71,12 @@ public struct StatsCoordinator {
     public init(
         statsReducer: StatsReducer,
         statsDetailReducer: StatsDetailReducer,
+        goalDetailReducer: GoalDetailReducer,
         reducer: Reduce<State, Action>
     ) {
         self.statsReducer = statsReducer
         self.statsDetailReducer = statsDetailReducer
+        self.goalDetialReducer = goalDetailReducer
         self.reducer = reducer
     }
     
@@ -82,8 +88,11 @@ public struct StatsCoordinator {
         }
         
         reducer
-            .ifLet(\.detail, action: \.detail) {
+            .ifLet(\.statsDetail, action: \.statsDetail) {
                 statsDetailReducer
+            }
+            .ifLet(\.goalDetail, action: \.goalDetail) {
+                goalDetialReducer
             }
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
 import FeatureStatsInterface
 
 extension StatsCoordinator {
@@ -22,30 +23,56 @@ extension StatsCoordinator {
     /// ```
     public init(
         statsReducer: StatsReducer,
-        statsDetailReducer: StatsDetailReducer
+        statsDetailReducer: StatsDetailReducer,
+        goalDetailReducer: GoalDetailReducer
     ) {
-        let reducer = Reduce<State, Action> { state, action in
+        let reducer = Reduce<State, Action> {
+            state,
+            action in
             switch action {
                 // MARK: - Child Action
             case let .stats(.delegate(.goToStatsDetail(goalId))):
-                state.routes.append(.detail)
-                state.detail = .init(goalId: goalId)
+                state.routes.append(.statsDetail)
+                state.statsDetail = .init(goalId: goalId)
+                return .none
+                
+                
+            case let .statsDetail(.delegate(.goToGoalDetail(goalId, isCompletedPartner, date))):
+                state.routes.append(.goalDetail)
+                state.goalDetail = .init(
+                    currentUser: isCompletedPartner ? .you : .mySelf,
+                    id: goalId,
+                    verificationDate: date
+                )
+                return .none
+                
+            case .statsDetail(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+                
+            case .goalDetail(.delegate(.navigateBack)):
+                state.routes.removeLast()
                 return .none
 
-            case .detail(.delegate(.navigateBack)):
-                if !state.routes.isEmpty {
-                    state.routes.removeLast()
+            case .statsDetail(.onDisappear):
+                if !state.routes.contains(.statsDetail) {
+                    state.statsDetail = nil
                 }
                 return .none
-
-            case .detail(.onDisappear):
-                state.detail = nil
+                
+            case .goalDetail(.onDisappear):
+                if !state.routes.contains(.goalDetail) {
+                    state.goalDetail = nil
+                }
                 return .none
                 
             case .stats:
                 return .none
 
-            case .detail:
+            case .statsDetail:
+                return .none
+                
+            case .goalDetail:
                 return .none
 
                 // MARK: - Binding
@@ -57,6 +84,7 @@ extension StatsCoordinator {
         self.init(
             statsReducer: statsReducer,
             statsDetailReducer: statsDetailReducer,
+            goalDetailReducer: goalDetailReducer,
             reducer: reducer
         )
     }

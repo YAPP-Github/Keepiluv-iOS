@@ -95,6 +95,7 @@ public struct StatsDetailReducer {
         case navigationBarTapped(TXNavigationBar.Action)
         case previousMonthTapped
         case nextMonthTapped
+        case calendarCellTapped(TXCalendarDateItem)
         
         // MARK: - Network
         case fetchStatsDetail
@@ -111,6 +112,7 @@ public struct StatsDetailReducer {
         
         public enum Delegate {
             case navigateBack
+            case goToGoalDetail(goalId: Int64, isCompletedPartner: Bool, date: String)
         }
     }
 

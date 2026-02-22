@@ -25,12 +25,14 @@ extension StatsDetailReducer {
         @Dependency(\.statsClient) var statsClient
         
         // swiftlint:disable:next closure_body_length
-        let reducer = Reduce<State, Action> { state, action in
+        let reducer = Reduce<State, Action> {
+            state,
+            action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
                 return .send(.fetchStatsDetail)
-
+                
             case .onDisappear:
                 return .none
                 
@@ -57,6 +59,25 @@ extension StatsDetailReducer {
                     hideAdjacentDates: true
                 )
                 return .send(.fetchStatsDetail)
+                
+                
+            case let .calendarCellTapped(item):
+                guard let dateComponents = item.dateComponents,
+                      let txDate = TXCalendarDate(components: dateComponents)
+                else { return .none }
+                let dateString = txDate.formattedAPIDateString()
+                let completedItem = state.completedDateByKey[dateString]
+                let isCompletedPartner = completedItem?.partnerImageUrl != nil
+                
+                return .send(
+                    .delegate(
+                        .goToGoalDetail(
+                            goalId: state.goalId,
+                            isCompletedPartner: isCompletedPartner,
+                            date: dateString
+                        )
+                    )
+                )
                 
                 // MARK: - Network
             case .fetchStatsDetail:

@@ -8,11 +8,12 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
 import FeatureStatsInterface
 
 /// Stats Feature의 루트 화면을 렌더링하는 Coordinator View입니다.
 public struct StatsCoordinatorView: View {
-    
+    @Dependency(\.goalDetailFactory) var goalDetailFactory
     @Bindable var store: StoreOf<StatsCoordinator>
     
     /// StatsCoordinator Store를 주입받아 뷰를 생성합니다.
@@ -39,9 +40,14 @@ public struct StatsCoordinatorView: View {
             StatsView(store: store.scope(state: \.stats, action: \.stats))
                 .navigationDestination(for: StatsRoute.self) { route in
                     switch route {
-                    case .detail:
-                        IfLetStore(store.scope(state: \.detail, action: \.detail)) { store in
+                    case .statsDetail:
+                        IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
                             StatsDetailView(store: store)
+                        }
+                        
+                    case .goalDetail:
+                        IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
+                            goalDetailFactory.makeView(store)
                         }
                     }
                 }
@@ -49,18 +55,19 @@ public struct StatsCoordinatorView: View {
     }
 }
 
-#Preview {
-    StatsCoordinatorView(
-        store: Store(
-            initialState: StatsCoordinator.State(),
-            reducer: {
-                StatsCoordinator(
-                    statsReducer: .init(),
-                    statsDetailReducer: .init()
-                )
-            }, withDependencies: {
-                $0.statsClient = .testValue
-            }
-        )
-    )
-}
+//#Preview {
+//    StatsCoordinatorView(
+//        store: Store(
+//            initialState: StatsCoordinator.State(),
+//            reducer: {
+//                StatsCoordinator(
+//                    statsReducer: .init(),
+//                    statsDetailReducer: .init(),
+//                    goalDetailReducer: <#T##GoalDetailReducer#>
+//                )
+//            }, withDependencies: {
+//                $0.statsClient = .testValue
+//            }
+//        )
+//    )
+//}
