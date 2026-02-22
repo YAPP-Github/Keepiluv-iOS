@@ -167,7 +167,7 @@ extension StatsClient: TestDependencyKey {
             return .init(
                 goalId: 1,
                 goalName: "밥 잘 챙겨먹기",
-                isCompleted: true,
+                isCompleted: false,
                 completedDate: [
                     .init(
                         date: "2026-02-01",
@@ -192,8 +192,8 @@ extension StatsClient: TestDependencyKey {
                     myCompletedCount: 82,
                     partnerCompltedCount: 211,
                     repeatCycle: .daily,
-                    startDate: "2026년 1월 7일",
-                    endDate: "2027년 1월 7일"
+                    startDate: "2026-01-07",
+                    endDate: "2027-01-07"
                 )
             )
         }

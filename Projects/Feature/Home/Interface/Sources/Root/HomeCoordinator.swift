@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import FeatureGoalDetailInterface
+import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import FeatureSettingsInterface
 

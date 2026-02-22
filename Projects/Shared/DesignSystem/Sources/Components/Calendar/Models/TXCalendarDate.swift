@@ -22,17 +22,17 @@ import Foundation
 /// // 날짜 선택
 /// date.day = 14
 /// ```
-public struct TXCalendarDate: Equatable, Hashable {
+public struct TXCalendarDate: Equatable, Hashable, Comparable {
     public var year: Int
     public var month: Int
     public var day: Int?
-
+    
     public init(year: Int, month: Int, day: Int? = nil) {
         self.year = year
         self.month = month
         self.day = day
     }
-
+    
     /// DateComponents로 초기화합니다. year/month/day가 모두 있어야 합니다.
     public init?(components: DateComponents) {
         guard let year = components.year,
@@ -42,7 +42,7 @@ public struct TXCalendarDate: Equatable, Hashable {
         }
         self.init(year: year, month: month, day: day)
     }
-
+    
     /// 현재 날짜로 초기화합니다.
     public init() {
         let now = Date()
@@ -51,12 +51,12 @@ public struct TXCalendarDate: Equatable, Hashable {
         self.month = calendar.component(.month, from: now)
         self.day = nil
     }
-
+    
     /// DateComponents로 변환합니다.
     public var dateComponents: DateComponents {
         DateComponents(year: year, month: month, day: day)
     }
-
+    
     /// Date로 변환합니다. day가 nil이면 해당 월의 1일을 반환합니다.
     public var date: Date? {
         var components = DateComponents()
@@ -65,18 +65,23 @@ public struct TXCalendarDate: Equatable, Hashable {
         components.day = day ?? 1
         return Calendar(identifier: .gregorian).date(from: components)
     }
-
+    
     /// 포맷된 문자열을 반환합니다. (예: "2026.12")
     public var formattedYearMonth: String {
         String(format: "%d.%02d", year, month)
     }
-
+    
+    /// 포맷된 문자열을 반환합니다. (예: "2026-12")
+    public var formattedYearDashMonth: String {
+        String(format: "%d-%02d", year, month)
+    }
+    
     /// 포맷된 문자열을 반환합니다. (예: "2026-12-25")
     public func formattedAPIDateString() -> String {
         let day = self.day ?? 1
         return String(format: "%04d-%02d-%02d", year, month, day)
     }
-
+    
     /// 다음 달로 이동합니다.
     public mutating func goToNextMonth() {
         if month == 12 {
@@ -87,7 +92,7 @@ public struct TXCalendarDate: Equatable, Hashable {
         }
         day = nil
     }
-
+    
     /// 이전 달로 이동합니다.
     public mutating func goToPreviousMonth() {
         if month == 1 {
@@ -98,9 +103,35 @@ public struct TXCalendarDate: Equatable, Hashable {
         }
         day = nil
     }
-
+    
     /// 특정 날짜를 선택합니다.
     public mutating func selectDay(_ day: Int?) {
         self.day = day
+    }
+    
+    public static func < (lhs: TXCalendarDate, rhs: TXCalendarDate) -> Bool {
+        guard let lhs = lhs.date, let rhs = rhs.date else { return false }
+        return lhs < rhs
+    }
+
+    public static func > (lhs: TXCalendarDate, rhs: TXCalendarDate) -> Bool {
+        guard let lhs = lhs.date, let rhs = rhs.date else { return false }
+        return lhs > rhs
+    }
+
+    public static func <= (lhs: TXCalendarDate, rhs: TXCalendarDate) -> Bool {
+        guard let lhs = lhs.date, let rhs = rhs.date else { return false }
+        return lhs <= rhs
+    }
+
+    public static func >= (lhs: TXCalendarDate, rhs: TXCalendarDate) -> Bool {
+        guard let lhs = lhs.date, let rhs = rhs.date else { return false }
+        return lhs >= rhs
+    }
+
+    public static func == (lhs: TXCalendarDate, rhs: TXCalendarDate) -> Bool {
+        lhs.year == rhs.year &&
+        lhs.month == rhs.month &&
+        lhs.day == rhs.day
     }
 }

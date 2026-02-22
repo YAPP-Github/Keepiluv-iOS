@@ -8,6 +8,7 @@
 import SwiftUI
 
 import DomainGoalInterface
+import SharedDesignSystem
 
 /// 홈에서 사용되는 목표 카테고리를 정의합니다.
 ///
@@ -24,7 +25,6 @@ public enum GoalCategory: CaseIterable, Equatable {
     case book
     case cleaning
     case call
-
 }
 
 extension GoalCategory {

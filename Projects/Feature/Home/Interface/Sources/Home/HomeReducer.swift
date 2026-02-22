@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainGoalInterface
+import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
@@ -58,10 +59,10 @@ public struct HomeReducer {
         public var goalSectionTitle: String {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
-            if TXCalendarUtil.isEarlier(calendarDate, than: today) {
+            if calendarDate < today {
                 return "지난 우리의 목표"
             }
-            if TXCalendarUtil.isEarlier(today, than: calendarDate) {
+            if today < calendarDate {
                 return "다음 우리의 목표"
             }
             return "오늘 우리의 목표"

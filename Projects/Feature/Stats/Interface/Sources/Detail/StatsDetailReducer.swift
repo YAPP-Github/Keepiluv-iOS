@@ -30,13 +30,26 @@ public struct StatsDetailReducer {
     public struct State: Equatable {
         public let goalId: Int64
         
+        public var isLoading: Bool = false
+        public var isDropdownPresented: Bool = false
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
+        public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
+        public var modal: TXModalType?
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
+        public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
+        public var previousMonthDisabled: Bool {
+            guard let startDateString = statsDetail?.summary.startDate,
+                let startDate = TXCalendarUtil.parseAPIDateString(startDateString) else {
+                return false
+            }
+            
+            return currentMonth <= startDate
+        }
         public var naviBarTitle: String { statsDetail?.goalName ?? "" }
         public var isCompleted: Bool { statsDetail?.isCompleted == true }
         
@@ -75,17 +88,39 @@ public struct StatsDetailReducer {
     }
 
     /// 통계 상세 화면에서 발생 가능한 액션입니다.
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         // MARK: - LifeCycle
         case onAppear
+        case onDisappear
+        
+        // MARK: - User Action
+        case navigationBarTapped(TXNavigationBar.Action)
+        case previousMonthTapped
+        case nextMonthTapped
+        case calendarCellTapped(TXCalendarDateItem)
+        case dropDownSelected(TXDropdownItem)
+        case backgroundTapped
         
         // MARK: - Network
         case fetchStatsDetail
+        case fetchedStatsDetail(StatsDetail, month: String)
+        case fetchStatsDetailFailed
         
         // MARK: - Update State
         case updateStatsDetail(StatsDetail)
         case updateStatsSummary(StatsDetail.Summary)
         case updateMonthlyDate(([StatsDetail.CompletedDate]))
+        
+        // MARK: - Delegate
+        case delegate(Delegate)
+        
+        public enum Delegate {
+            case navigateBack
+            case goToGoalDetail(goalId: Int64, isCompletedPartner: Bool, date: String)
+            case goToGoalEdit(goalId: Int64)
+        }
     }
 
     /// 외부에서 주입된 Reduce로 StatsDetailReducer를 구성합니다.
@@ -101,6 +136,8 @@ public struct StatsDetailReducer {
     }
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         reducer
     }
 }

@@ -8,6 +8,8 @@
 import Foundation
 
 import ComposableArchitecture
+import FeatureGoalDetailInterface
+import FeatureMakeGoalInterface
 import FeatureStatsInterface
 
 extension StatsCoordinator {
@@ -20,22 +22,81 @@ extension StatsCoordinator {
     ///     statsDetailReducer: .init()
     /// )
     /// ```
+    //swiftlint:disable:next function_body_length
     public init(
         statsReducer: StatsReducer,
-        statsDetailReducer: StatsDetailReducer
+        statsDetailReducer: StatsDetailReducer,
+        goalDetailReducer: GoalDetailReducer,
+        makeGoalReducer: MakeGoalReducer
     ) {
+        //swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - Child Action
             case let .stats(.delegate(.goToStatsDetail(goalId))):
-                state.routes.append(.detail)
-                state.detail = .init(goalId: goalId)
+                state.routes.append(.statsDetail)
+                state.statsDetail = .init(goalId: goalId)
+                return .none
+                
+                
+            case let .statsDetail(.delegate(.goToGoalDetail(goalId, isCompletedPartner, date))):
+                state.routes.append(.goalDetail)
+                state.goalDetail = .init(
+                    currentUser: isCompletedPartner ? .you : .mySelf,
+                    id: goalId,
+                    verificationDate: date
+                )
+                return .none
+
+            case let .statsDetail(.delegate(.goToGoalEdit(goalId))):
+                state.routes.append(.makeGoal)
+                state.makeGoal = .init(
+                    category: .custom,
+                    mode: .edit,
+                    editingGoalId: goalId
+                )
+                return .none
+                
+            case .statsDetail(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+                
+            case .goalDetail(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+
+            case .statsDetail(.onDisappear):
+                if !state.routes.contains(.statsDetail) {
+                    state.statsDetail = nil
+                }
+                return .none
+                
+            case .goalDetail(.onDisappear):
+                if !state.routes.contains(.goalDetail) {
+                    state.goalDetail = nil
+                }
+                return .none
+
+            case .makeGoal(.delegate(.navigateBack)):
+                state.routes.removeLast()
+                return .none
+
+            case .makeGoal(.onDisappear):
+                if !state.routes.contains(.makeGoal) {
+                    state.makeGoal = nil
+                }
                 return .none
                 
             case .stats:
                 return .none
 
-            case .detail:
+            case .statsDetail:
+                return .none
+                
+            case .goalDetail:
+                return .none
+
+            case .makeGoal:
                 return .none
 
                 // MARK: - Binding
@@ -47,6 +108,8 @@ extension StatsCoordinator {
         self.init(
             statsReducer: statsReducer,
             statsDetailReducer: statsDetailReducer,
+            goalDetailReducer: goalDetailReducer,
+            makeGoalReducer: makeGoalReducer,
             reducer: reducer
         )
     }

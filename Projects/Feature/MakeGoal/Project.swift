@@ -2,35 +2,13 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.makeModule(
-    name: Module.Feature.name + Module.Feature.home.rawValue,
+    name: Module.Feature.name + Module.Feature.makeGoal.rawValue,
     targets: [
         .feature(
-            interface: .home,
+            interface: .makeGoal,
             config: .init(
                 dependencies: [
-                    .domain(interface: .photoLog),
                     .domain(interface: .goal),
-                    .feature(interface: .proofPhoto),
-                    .feature(interface: .goalDetail),
-                    .feature(interface: .makeGoal),
-                    .feature(interface: .settings),
-                    .shared(implements: .designSystem),
-                    .external(dependency: .ComposableArchitecture)
-                ]
-            )
-        ),
-        .feature(
-            implements: .home,
-            config: .init(
-                dependencies: [
-                    .core(interface: .captureSession),
-                    .domain(interface: .photoLog),
-                    .domain(interface: .goal),
-                    .feature(interface: .proofPhoto),
-                    .feature(interface: .goalDetail),
-                    .feature(interface: .makeGoal),
-                    .feature(interface: .settings),
-                    .feature(interface: .home),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
@@ -38,27 +16,41 @@ let project = Project.makeModule(
             )
         ),
         .feature(
-            testing: .home,
+            implements: .makeGoal,
             config: .init(
                 dependencies: [
-                    .feature(interface: .home)
+                    .feature(interface: .makeGoal),
+                    .domain(interface: .goal),
+                    .shared(implements: .designSystem),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
         ),
         .feature(
-            tests: .home,
+            testing: .makeGoal,
             config: .init(
                 dependencies: [
-                    .feature(testing: .home)
+                    .feature(interface: .makeGoal)
                 ]
             )
-        ),    
+        ),
         .feature(
-            example: .home,
+            tests: .makeGoal,
             config: .init(
                 dependencies: [
-                    .feature(implements: .home),
-                    .feature(interface: .home),
+                    .feature(testing: .makeGoal)
+                ]
+            )
+        ),
+        .feature(
+            example: .makeGoal,
+            config: .init(
+                infoPlist: .extendingDefault(with: [
+                    "UIUserInterfaceStyle": "Light"
+                ]),
+                dependencies: [
+                    .feature(interface: .makeGoal),
+                    .feature(implements: .makeGoal),
                     .domain(interface: .goal),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)

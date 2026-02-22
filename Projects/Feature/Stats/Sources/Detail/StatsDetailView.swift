@@ -13,7 +13,7 @@ import SharedDesignSystem
 
 struct StatsDetailView: View {
     
-    let store: StoreOf<StatsDetailReducer>
+    @Bindable var store: StoreOf<StatsDetailReducer>
     
     var body: some View {
         VStack(spacing: 0) {
@@ -30,9 +30,35 @@ struct StatsDetailView: View {
             }
             .padding(.horizontal, 20)
         }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if store.isDropdownPresented {
+                TXDropdown(
+                    config: .goal,
+                    onSelect: { item in
+                        store.send(.dropDownSelected(item))
+                    }
+                )
+                .offset(x: -12, y: 65)
+            }
+        }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             store.send(.onAppear)
+        }
+        .onDisappear {
+            store.send(.onDisappear)
+        }
+        .onTapGesture {
+            guard store.isDropdownPresented else { return }
+            store.send(.backgroundTapped)
+        }
+        .txModal(item: $store.modal) { action in
+            
         }
     }
 }
@@ -45,15 +71,24 @@ private extension StatsDetailView {
                 .init(
                     title: store.naviBarTitle,
                     rightContent: store.isCompleted
-                        ? .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
-                        : .text("삭제")
+                        ? .text("삭제")
+                        : .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
                 )
-            )
+            ),
+            onAction: { action in
+                store.send(.navigationBarTapped(action))
+            }
         )
     }
     
     var monthNavigation: some View {
-        TXCalendarMonthNavigation(title: store.currentMonthTitle)
+        TXCalendarMonthNavigation(
+            title: store.currentMonthTitle,
+            isPreviousDisabled: store.previousMonthDisabled,
+            isNextDisabled: store.nextMonthDisabled,
+            onPrevious: { store.send(.previousMonthTapped) },
+            onNext: { store.send(.nextMonthTapped) }
+        )
     }
     
     var calendar: some View {
@@ -71,7 +106,12 @@ private extension StatsDetailView {
                         )
                     )
                 }
-            )
+            ),
+            onSelect: { item in
+                if item.status == .completed {
+                    store.send(.calendarCellTapped(item))
+                }
+            }
         )
             .padding(.vertical, 24)
             .background(Color.Common.white)

@@ -81,7 +81,7 @@ extension EditGoalListReducer {
                     state.selectedCardMenu = nil
                     
                     // FIXME: - 통계 나오기 전까지 토스트 띄움
-                    let isPast = TXCalendarUtil.isEarlier(state.calendarDate, than: TXCalendarDate())
+                    let isPast = state.calendarDate < TXCalendarDate()
                     if isPast {
                         state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {

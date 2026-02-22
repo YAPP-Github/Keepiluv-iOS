@@ -238,7 +238,7 @@ public extension MakeGoalReducer.State {
                 return true
             }
             let itemDate = TXCalendarDate(year: year, month: month, day: day)
-            return !TXCalendarUtil.isEarlier(itemDate, than: minimumDate)
+            return itemDate >= minimumDate
         }
     }
 }
@@ -249,6 +249,16 @@ public extension MakeGoalReducer.State.Mode {
         switch self {
         case .add: return "직접 만들기"
         case .edit: return "목표 수정"
+        }
+    }
+}
+
+extension Goal.RepeatCycle {
+    public var text: String {
+        switch self {
+        case .daily: return "매일"
+        case .weekly: return "매주"
+        case .monthly: return "매월"
         }
     }
 }
