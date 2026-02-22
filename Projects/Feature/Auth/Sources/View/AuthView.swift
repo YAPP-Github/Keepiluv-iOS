@@ -103,8 +103,7 @@ private extension AuthView {
 
     var loginButtonsSection: some View {
         VStack(spacing: Spacing.spacing6) {
-            // FIXME: 카카오 지원 이후 해제
-//            kakaoLoginButton
+            kakaoLoginButton
             googleLoginButton
             appleLoginButton
             loadingView
