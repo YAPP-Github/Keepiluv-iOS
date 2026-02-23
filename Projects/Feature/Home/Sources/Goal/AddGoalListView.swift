@@ -42,7 +42,6 @@ struct AddGoalListView: View {
 // MARK: - SubViews
 private extension AddGoalListView {
     var headerView: some View {
-        // FIXME: -h4-brand-20b
         VStack(alignment: .leading, spacing: 4) {
             Text("새로운 목표 추가")
                 .typography(.h4_20b)
@@ -52,7 +51,6 @@ private extension AddGoalListView {
             Text("함께하는 목표를 추가해 보세요!")
                 .typography(.b2_14r)
                 .foregroundStyle(Color.Gray.gray400)
-                .padding(.top, 4)
         }
     }
     
@@ -69,10 +67,9 @@ private extension AddGoalListView {
             config: .goalAdd(
                 goalName: item.title,
                 iconImage: item.icon,
-                action: {
-                    action(item)
-                }
+                action: { action(item) }
             )
         )
+        .onTapGesture { action(item) }
     }
 }

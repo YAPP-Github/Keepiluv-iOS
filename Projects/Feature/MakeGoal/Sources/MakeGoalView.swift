@@ -26,7 +26,7 @@ public struct MakeGoalView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
-                    emojiButton
+                    emojiCircle
                         .padding(.top, 52)
                     goalTitleField
                         .padding(.top, 44)
@@ -37,8 +37,9 @@ public struct MakeGoalView: View {
             }
             .scrollIndicators(.hidden)
 
+            // FIXME: - DS Component에 padding default로 수정하기
             completeButton
-                .padding(.bottom, 16)
+                .padding(.vertical, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
@@ -83,28 +84,42 @@ private extension MakeGoalView {
         )
     }
     
-    var emojiButton: some View {
-        Button {
-            store.send(.emojiButtonTapped)
-        } label: {
-            store.selectedEmoji.image
-                .resizable()
-                .frame(width: 56, height: 56)
-                .padding(26)
-                .background(Color.Gray.gray50, in: .circle)
+    var emojiCircle: some View {
+        store.selectedEmoji.image
+            .resizable()
+            .frame(width: 56, height: 56)
+            .padding(26)
+            .background(Color.Gray.gray50, in: .circle)
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: .circle,
+                lineWidth: LineWidth.m
+            )
+            .overlay(alignment: .bottomTrailing) {
+                TXCircleButton(
+                    config: .init(
+                        image: Image.Icon.Symbol.turn,
+                        frameSize: .init(width: 28, height: 28),
+                        imageSize: .init(width: 16, height: 16),
+                        colorStyle: .white
+                    ),
+                    action: {
+                        store.send(.emojiButtonTapped)
+                    }
+                )
                 .insideBorder(
                     Color.Gray.gray500,
                     shape: .circle,
                     lineWidth: LineWidth.m
                 )
-        }
-        .buttonStyle(.plain)
+            }
     }
     
     var goalTitleField: some View {
         TXTextField(
             text: $store.goalTitle,
-            placeholderText: "목표를 입력해 보세요"
+            placeholderText: "목표를 입력해 보세요",
+            submitLabel: .done
         )
     }
     
@@ -240,6 +255,7 @@ private extension MakeGoalView {
             }
             .padding(.top, 40)
             .padding(.horizontal, 20)
+            .padding(.vertical, 8)
         }
         .padding(.top, 36)
         .padding(.bottom, TXSafeArea.inset(.bottom) + 16)

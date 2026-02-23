@@ -48,7 +48,7 @@ private struct TXToggleSwitchStyle: ToggleStyle {
                 
             RoundedRectangle(cornerRadius: circleRadius)
                 .frame(width: circleSize, height: circleSize)
-                .padding(Spacing.spacing4)
+                .padding(Spacing.spacing3)
                 .foregroundStyle(configuration.isOn ? Color.Common.white : Color.Gray.gray500)
                 .onTapGesture {
                     withAnimation {
