@@ -40,10 +40,11 @@ extension GoalDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 let date = state.verificationDate
+                let goalId = state.goalId
                 
                 return .run { send in
                     do {
-                        let item = try await goalClient.fetchGoalDetailList(date)
+                        let item = try await goalClient.fetchGoalDetail(date, goalId)
                         await send(.fethedGoalDetailItem(item))
                     } catch {
                         await send(.fetchGoalDetailFailed)

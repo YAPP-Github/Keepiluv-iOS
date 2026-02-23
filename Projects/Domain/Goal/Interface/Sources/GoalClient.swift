@@ -20,7 +20,7 @@ import CoreNetworkInterface
 public struct GoalClient {
     public var fetchGoals: (String) async throws -> [Goal]
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
-    public var fetchGoalDetailList: (String) async throws -> GoalDetail
+    public var fetchGoalDetail: (String, Int64) async throws -> GoalDetail
     public var fetchGoalById: (Int64) async throws -> Goal
     public var fetchGoalEditList: (String) async throws -> [Goal]
     public var updateGoal: (Int64, GoalUpdateRequestDTO) async throws -> Goal
@@ -41,7 +41,7 @@ public struct GoalClient {
     public init(
         fetchGoals: @escaping (String) async throws -> [Goal],
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
-        fetchGoalDetailList: @escaping (String) async throws -> GoalDetail,
+        fetchGoalDetail: @escaping (String, Int64) async throws -> GoalDetail,
         fetchGoalById: @escaping (Int64) async throws -> Goal,
         fetchGoalEditList: @escaping (String) async throws -> [Goal],
         updateGoal: @escaping (Int64, GoalUpdateRequestDTO) async throws -> Goal,
@@ -51,7 +51,7 @@ public struct GoalClient {
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
-        self.fetchGoalDetailList = fetchGoalDetailList
+        self.fetchGoalDetail = fetchGoalDetail
         self.fetchGoalById = fetchGoalById
         self.fetchGoalEditList = fetchGoalEditList
         self.updateGoal = updateGoal
@@ -83,8 +83,8 @@ extension GoalClient: TestDependencyKey {
                 yourVerification: trashVerification
             )
         },
-        fetchGoalDetailList: { _ in
-            assertionFailure("GoalClient.fetchGoalDetailList이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+        fetchGoalDetail: { _, _ in
+            assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return .init(partnerNickname: "", completedGoals: [])
         },
         fetchGoalById: { _ in
@@ -196,7 +196,7 @@ extension GoalClient: TestDependencyKey {
                 yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
             )
         },
-        fetchGoalDetailList: { _ in
+        fetchGoalDetail: { _, _ in
             .init(
                 partnerNickname: "민정",
                 completedGoals: [
