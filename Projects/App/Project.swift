@@ -15,6 +15,10 @@ private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPli
     "CFBundleURLTypes": [
         [
             "CFBundleTypeRole": "Editor",
+            "CFBundleURLSchemes": ["twix"]
+        ],
+        [
+            "CFBundleTypeRole": "Editor",
             "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
         ],
         [
@@ -26,16 +30,22 @@ private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPli
     "GIDClientID": "$(GOOGLE_CLIENT_ID)",
     "DEEPLINK_HOST": "$(DEEPLINK_HOST)",
     "API_BASE_URL": "$(API_BASE_URL)",
-    "NSCameraUsageDescription": "UseCamera"
+    "NSCameraUsageDescription": "UseCamera",
+    "CFBundleShortVersionString": "1.1.0"
 ], uniquingKeysWith: { current, _ in current })
 
 private let commonDependencies: [TargetDependency] = [
     .feature,
     .core,
+    .core(implements: .push),
     .domain(implements: .auth),
+    .domain(implements: .notification),
     .external(dependency: .KakaoSDKAuth),
     .external(dependency: .KakaoSDKCommon),
-    .external(dependency: .GoogleSignIn)
+    .external(dependency: .GoogleSignIn),
+    .external(dependency: .FirebaseCore),
+    .external(dependency: .FirebaseMessaging),
+    .external(dependency: .FirebaseRemoteConfig)
 ]
 
 private let commonBuildSettings: SettingsDictionary = [
@@ -93,7 +103,7 @@ let project = Project(
                 settings: .settings(
                     base: commonBuildSettings.merging([
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)",
-                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG"
+                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG CORE_LOGGING_DEBUG"
                     ])
                 )
             )
