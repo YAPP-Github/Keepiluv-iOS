@@ -23,6 +23,7 @@ let project = Project.makeModule(
                     .core(interface: .captureSession),
                     .domain(interface: .photoLog),
                     .shared(implements: .designSystem),
+                    .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
