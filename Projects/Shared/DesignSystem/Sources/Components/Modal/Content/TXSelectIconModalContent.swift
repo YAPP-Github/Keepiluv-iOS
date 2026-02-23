@@ -89,7 +89,6 @@ public struct TXGridButtonModalContent: View {
                             .resizable()
                             .frame(width: config.imageSize.width, height: config.imageSize.height)
                             .frame(width: config.frameSize.width, height: config.frameSize.height)
-                            .background(Color.Gray.gray50, in: Circle())
                             .insideBorder(
                                 selectedIndex == index ? Color.Gray.gray500 : Color.Gray.gray100,
                                 shape: .circle,

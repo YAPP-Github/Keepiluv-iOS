@@ -49,7 +49,7 @@ public struct TXModalView<Content: View>: View {
             }
             .frame(width: 350)
             .background(Color.Common.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
     }
 }
@@ -83,6 +83,7 @@ private extension TXModalView {
                 )
                 
             case let .gridButton(config):
+                // FIXME: - vertical padding 8 DS Default로 수정
                 TXRoundedRectangleButton(
                     config: .long(
                         text: config.buttonTitle,
@@ -92,6 +93,7 @@ private extension TXModalView {
                     onAction(.confirm)
                 }
                 .padding(.horizontal, 20)
+                .padding(.vertical, 8)
             }
         }
         .padding(.top, Spacing.spacing9)
