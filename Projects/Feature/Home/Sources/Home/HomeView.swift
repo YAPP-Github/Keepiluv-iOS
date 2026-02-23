@@ -59,19 +59,27 @@ public struct HomeView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .sheet(isPresented: $store.isAddGoalPresented, content: {
-            AddGoalListView { category in
-                store.send(.addGoalButtonTapped(category))
+        .txBottomSheet(
+            isPresented: $store.isAddGoalPresented,
+            showDragIndicator: true,
+            sheetContent: {
+                AddGoalListView { category in
+                    store.send(.addGoalButtonTapped(category))
+                }
+                .frame(height: UIScreen.main.bounds.height - 92)
             }
-        })
-        .transaction { transaction in
-            transaction.disablesAnimations = false
-        }
-        .calendarSheet(
+        )
+        .txBottomSheet(
             isPresented: $store.isCalendarSheetPresented,
-            selectedDate: $store.calendarSheetDate,
-            completeButtonText: "완료",
-            onComplete: { store.send(.monthCalendarConfirmTapped) }
+            sheetContent: {
+                TXCalendarBottomSheet(
+                    selectedDate: $store.calendarSheetDate,
+                    completeButtonText: "완료",
+                    onComplete: {
+                        store.send(.monthCalendarConfirmTapped)
+                    }
+                )
+            }
         )
         .txModal(
             item: $store.modal,
@@ -85,6 +93,9 @@ public struct HomeView: View {
             item: $store.toast,
             onButtonTap: { }
         )
+        .transaction { transaction in
+            transaction.disablesAnimations = false
+        }
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },

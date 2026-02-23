@@ -132,7 +132,6 @@ public struct MainTabReducer {
                 
             case .home:
                 state.isTabBarHidden = !state.home.routes.isEmpty
-                    || state.home.home.isCalendarSheetPresented
                 return .none
                 
             case .stats:
