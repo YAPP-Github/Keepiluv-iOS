@@ -22,6 +22,7 @@ public struct TXRoundedRectangleButton: View {
         let font: TypographyToken
         let colorStyle: ColorStyle
         let fixedFrame: Bool
+        let minWidth: CGFloat = 56
         let radius: CGFloat
         let borderWidth: CGFloat
         let width: CGFloat?
@@ -97,6 +98,7 @@ private extension TXRoundedRectangleButton {
                     .padding(.vertical, config.verticalPadding)
             }
         }
+        .frame(minWidth: 56)
         .background(config.colorStyle.backgroundColor, in: shape)
         .insideBorder(
             config.colorStyle.borderColor,
