@@ -30,15 +30,17 @@ import SwiftUI
 ///     }
 /// }
 ///
-/// // subTitle 스타일
-/// TXNavigationBar(style: .subTitle(title: "목표 직접 만들기", rightText: "수정")) { action in
-///     switch action {
-///     case .backTapped:
+/// // subTitle 스타일 (back)
+/// TXNavigationBar(style: .subTitle(title: "설정", type: .back)) { action in
+///     if action == .backTapped {
 ///         // 뒤로가기
-///     case .rightTapped:
-///         // 오른쪽 버튼
-///     default:
-///         break
+///     }
+/// }
+///
+/// // subTitle 스타일 (close)
+/// TXNavigationBar(style: .subTitle(title: "알림", type: .close)) { action in
+///     if action == .closeTapped {
+///         // 닫기
 ///     }
 /// }
 ///
@@ -79,8 +81,8 @@ public struct TXNavigationBar: View {
             case let .home(homeStyle):
                 homeContent(homeStyle)
 
-            case let .subTitle(title, rightText):
-                subTitleContent(title: title, rightText: rightText)
+            case let .subTitle(title, type):
+                subTitleContent(title: title, type: type)
 
             case .iconOnly(let iconStyle):
                 iconOnlyContent(iconStyle: iconStyle)
@@ -282,13 +284,11 @@ private extension TXNavigationBar {
 
 // MARK: - SubTitle Style
 private extension TXNavigationBar {
-    func subTitleContent(title: String, rightText: String?) -> some View {
+    func subTitleContent(title: String, type: SubTitleType) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TXRectangleButton(
-                    config: .blankLeftBack(),
-                    action: { onAction?(.backTapped) }
-                )
+                // 왼쪽 영역
+                subTitleLeftArea(type: type)
 
                 Spacer()
 
@@ -298,10 +298,8 @@ private extension TXNavigationBar {
 
                 Spacer()
 
-                TXRectangleButton(
-                    config: .blankRight(text: rightText),
-                    action: { onAction?(.rightTapped) }
-                )
+                // 오른쪽 영역
+                subTitleRightArea(type: type)
             }
             .frame(height: 60)
             .insideRectEdgeBorder(
@@ -311,6 +309,56 @@ private extension TXNavigationBar {
             )
         }
         .padding(.vertical, 20)
+    }
+
+    @ViewBuilder
+    func subTitleLeftArea(type: SubTitleType) -> some View {
+        switch type {
+        case .back:
+            TXRectangleButton(
+                config: .blankLeftBack(),
+                action: { onAction?(.backTapped) }
+            )
+        case .close:
+            Color.Common.white
+                .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                .insideRectEdgeBorder(
+                    width: style.borderWidth,
+                    edges: [.top, .bottom, .trailing],
+                    color: style.borderColor
+                )
+        }
+    }
+
+    @ViewBuilder
+    func subTitleRightArea(type: SubTitleType) -> some View {
+        switch type {
+        case .back:
+            Color.Common.white
+                .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                .insideRectEdgeBorder(
+                    width: style.borderWidth,
+                    edges: [.top, .bottom, .leading],
+                    color: style.borderColor
+                )
+        case .close:
+            Button {
+                onAction?(.closeTapped)
+            } label: {
+                Image.Icon.Symbol.closeM
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: style.iconSize.width, height: style.iconSize.height)
+                    .foregroundStyle(style.iconForegroundColor)
+                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                    .insideRectEdgeBorder(
+                        width: style.borderWidth,
+                        edges: [.top, .bottom, .leading],
+                        color: style.borderColor
+                    )
+            }
+            .buttonStyle(.plain)
+        }
     }
 }
 
@@ -377,8 +425,14 @@ private extension TXNavigationBar {
     }
 }
 
-#Preview("SubTitle") {
-    TXNavigationBar(style: .subTitle(title: "목표 직접 만들기", rightText: "수정")) { action in
+#Preview("SubTitle - Back") {
+    TXNavigationBar(style: .subTitle(title: "설정", type: .back)) { action in
+        print(action)
+    }
+}
+
+#Preview("SubTitle - Close") {
+    TXNavigationBar(style: .subTitle(title: "알림", type: .close)) { action in
         print(action)
     }
 }

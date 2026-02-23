@@ -13,7 +13,7 @@ extension TXNavigationBar {
         case mainTitle(title: String)
         case subContent(SubContent)
         case home(Home)
-        case subTitle(title: String, rightText: String?)
+        case subTitle(title: String, type: SubTitleType)
         case iconOnly(IconStyle)
         case noTitle
 
@@ -90,6 +90,14 @@ extension TXNavigationBar {
         case back
         case close
     }
+
+    /// subTitle 스타일에서 사용할 타입입니다.
+    public enum SubTitleType {
+        /// 좌측 뒤로가기 버튼, 우측 빈 영역
+        case back
+        /// 좌측 빈 영역, 우측 닫기 버튼
+        case close
+    }
 }
 
 // MARK: - Style Properties
@@ -121,16 +129,7 @@ extension TXNavigationBar.Style {
 
     var height: CGFloat {
         switch self {
-        case .mainTitle:
-            return 80
-
-        case .subContent:
-            return 80
-
-        case .home:
-            return 80
-
-        case .subTitle:
+        case .mainTitle, .subContent, .home, .subTitle:
             return 80
 
         case .iconOnly, .noTitle:
