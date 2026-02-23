@@ -130,11 +130,7 @@ private extension GoalDetailView {
     var cardView: some View {
         SwipeableCardView(
             isEditing: store.isEditing,
-            canSwipeUp: store.canSwipeUp,
-            canSwipeDown: store.canSwipeDown,
-            onCardTap: { store.send(.cardTapped) },
-            onSwipeUp: { store.send(.cardSwipedUp) },
-            onSwipeDown: { store.send(.cardSwipedDown) }
+            onCardTap: { store.send(.cardTapped) }
         ) {
             currentCardView
         }

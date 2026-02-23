@@ -102,23 +102,6 @@ extension GoalDetailReducer {
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
-            case .cardSwipedUp:
-                let nextIndex = state.currentGoalIndex + 1
-                guard nextIndex < state.completedGoalItems.count else { return .none }
-                state.currentGoalIndex = nextIndex
-                state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-                
-            case .cardSwipedDown:
-                guard state.currentGoalIndex > 0 else { return .none }
-                state.currentGoalIndex -= 1
-                state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-                
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
                 return .none

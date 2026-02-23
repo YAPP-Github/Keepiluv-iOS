@@ -62,9 +62,6 @@ public struct GoalDetailReducer {
             ?? goalId
         }
         
-        public var canSwipeUp: Bool { currentGoalIndex + 1 < completedGoalItems.count }
-        public var canSwipeDown: Bool { currentGoalIndex > 0 }
-        
         public var isCompleted: Bool {
             pendingEditedImageData != nil || currentCard?.imageUrl != nil
         }
@@ -126,8 +123,6 @@ public struct GoalDetailReducer {
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(ReactionEmoji)
         case cardTapped
-        case cardSwipedUp
-        case cardSwipedDown
         case focusChanged(Bool)
         case dimmedBackgroundTapped
         case updateMyPhotoLog(GoalDetail.CompletedGoal.PhotoLog)
