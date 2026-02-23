@@ -12,6 +12,7 @@ import ComposableArchitecture
 import DomainGoalInterface
 import FeatureHomeInterface
 import SharedDesignSystem
+import SharedUtil
 
 extension EditGoalListReducer {
     /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
@@ -161,8 +162,8 @@ extension EditGoalListReducer {
                                 goalName: $0.title,
                                 iconImage: GoalIcon(from: $0.goalIcon).image,
                                 repeatCycle: $0.repeatCycle?.text ?? "",
-                                startDate: $0.startDate ?? "",
-                                endDate: $0.endDate ?? "미설정"
+                                startDate: $0.startDate?.dateDisplayString ?? "",
+                                endDate: $0.endDate?.dateDisplayString ?? "미설정"
                             )
                         }
                         await send(.fetchGoalsCompleted(editItems, date: date))

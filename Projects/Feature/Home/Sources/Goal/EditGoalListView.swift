@@ -19,9 +19,9 @@ struct EditGoalListView: View {
         VStack(spacing: 0) {
             navigationBar
             weekCalendar
+                .padding(.top, 4)
             if store.hasCards {
                 cardScrollView
-                    .padding(.top, 16)
                     .padding(.bottom, 1)
             }
             
@@ -81,7 +81,6 @@ private extension EditGoalListView {
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
-        .padding(.top, 4)
     }
     
     var cardScrollView: some View {
@@ -111,7 +110,7 @@ private extension EditGoalListView {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 1)
+            .padding(.top, 16)
         }
     }
 
