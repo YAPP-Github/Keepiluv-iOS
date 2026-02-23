@@ -71,6 +71,7 @@ public extension Module {
     /// 앱의 핵심 규칙과 정책을 담으며,
     /// Feature에 의존하지 않고 독립적으로 설계되는 것이 원칙입니다.
     enum Domain: String, CaseIterable {
+        case notification = "Notification"
         case stats = "Stats"
         case photoLog = "PhotoLog"
         case goal = "Goal"
@@ -88,6 +89,7 @@ public extension Module {
     /// 네트워크, 로깅, 저장소 등 기술적 기반을 담당하며,
     /// Feature/Domain에서 재사용되도록 설계됩니다.
     enum Core: String, CaseIterable {
+        case push = "Push"
         case captureSession = "CaptureSession"
         case network = "Network"
         case logging = "Logging"

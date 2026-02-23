@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainNotificationInterface
 import Foundation
 
 /// 알림 화면의 상태와 액션을 정의하는 리듀서입니다.
@@ -17,11 +18,23 @@ public struct NotificationReducer {
     @ObservableState
     public struct State: Equatable {
         public var notifications: IdentifiedArrayOf<NotificationItem>
+        public var isLoading: Bool
+        public var isLoadingMore: Bool
+        public var hasNext: Bool
+        public var lastId: Int64?
 
         public init(
-            notifications: IdentifiedArrayOf<NotificationItem> = []
+            notifications: IdentifiedArrayOf<NotificationItem> = [],
+            isLoading: Bool = false,
+            isLoadingMore: Bool = false,
+            hasNext: Bool = false,
+            lastId: Int64? = nil
         ) {
             self.notifications = notifications
+            self.isLoading = isLoading
+            self.isLoadingMore = isLoadingMore
+            self.hasNext = hasNext
+            self.lastId = lastId
         }
     }
 
@@ -32,9 +45,15 @@ public struct NotificationReducer {
         // MARK: - User Action
         case backButtonTapped
         case notificationTapped(NotificationItem)
+        case loadMore
 
         // MARK: - Lifecycle
         case onAppear
+
+        // MARK: - Internal
+        case fetchListResponse(Result<NotificationListResult, Error>)
+        case fetchMoreResponse(Result<NotificationListResult, Error>)
+        case markAsReadResponse(NotificationItem, Result<Void, Error>)
 
         // MARK: - Delegate
         case delegate(Delegate)

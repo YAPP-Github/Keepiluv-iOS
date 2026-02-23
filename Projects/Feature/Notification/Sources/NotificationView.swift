@@ -22,15 +22,14 @@ public struct NotificationView: View {
         VStack(spacing: 0) {
             navigationBar
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: Spacing.spacing3) {
-                    sectionHeader
-
-                    notificationList
+            ZStack {
+                if store.isLoading && store.notifications.isEmpty {
+                    loadingView
+                } else if filteredNotifications.isEmpty {
+                    emptyView
+                } else {
+                    contentView
                 }
-                .padding(.top, Spacing.spacing6)
-                .padding(.horizontal, Spacing.spacing8)
-                .padding(.bottom, Spacing.spacing8)
             }
         }
         .ignoresSafeArea(.container, edges: .bottom)
@@ -39,6 +38,7 @@ public struct NotificationView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -46,7 +46,7 @@ public struct NotificationView: View {
 
 private extension NotificationView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "알림", rightText: "")) { action in
+        TXNavigationBar(style: .subTitle(title: "알림", type: .back)) { action in
             switch action {
             case .backTapped:
                 store.send(.backButtonTapped)
@@ -54,6 +54,52 @@ private extension NotificationView {
             default:
                 break
             }
+        }
+    }
+}
+
+// MARK: - Content View
+
+private extension NotificationView {
+    var contentView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.spacing3) {
+                sectionHeader
+
+                notificationList
+            }
+            .padding(.top, Spacing.spacing6)
+            .padding(.horizontal, Spacing.spacing8)
+            .padding(.bottom, Spacing.spacing8)
+        }
+    }
+}
+
+// MARK: - Loading View
+
+private extension NotificationView {
+    var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Empty View
+
+private extension NotificationView {
+    var emptyView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            Text("알림이 없어요")
+                .typography(.t1_18eb)
+                .foregroundStyle(Color.Gray.gray300)
+
+            Spacer()
         }
     }
 }
@@ -82,6 +128,18 @@ private extension NotificationView {
             ForEach(Array(filteredNotifications.enumerated()), id: \.element.id) { index, item in
                 let isLast = index == filteredNotifications.count - 1
                 notificationListItem(item, isLast: isLast)
+                    .onAppear {
+                        // 마지막 3개 아이템 중 하나가 보이면 미리 로드
+                        if index >= filteredNotifications.count - 3 {
+                            store.send(.loadMore)
+                        }
+                    }
+            }
+
+            if store.isLoadingMore {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
+                    .frame(height: 44)
             }
         }
     }

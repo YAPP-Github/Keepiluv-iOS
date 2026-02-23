@@ -12,4 +12,10 @@ public enum HomeRoute: Equatable, Hashable {
     case editGoalList
     case detail
     case makeGoal
+    case settings
+    case settingsAccount
+    case settingsInfo
+    case settingsNotificationSettings
+    case settingsWebView(url: URL, title: String)
+    case notification
 }

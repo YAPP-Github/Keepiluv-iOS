@@ -11,11 +11,57 @@ import SwiftUI
 import ComposableArchitecture
 import CoreCaptureSessionInterface
 import DomainGoalInterface
+import DomainNotificationInterface
 import DomainPhotoLogInterface
 import FeatureHomeInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
+
+// MARK: - Poke Cooldown Manager
+
+private enum PokeCooldownManager {
+    private static let userDefaultsKey = "pokeCooldownTimestamps"
+    private static let cooldownInterval: TimeInterval = 3 * 60 * 60 // 3시간
+
+    /// 찌르기 쿨다운 남은 시간을 반환합니다.
+    /// - Parameter goalId: 목표 ID
+    /// - Returns: 남은 시간(초). 쿨다운이 끝났으면 nil
+    static func remainingCooldown(goalId: Int64) -> TimeInterval? {
+        guard let timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval],
+              let lastPokeTime = timestamps[String(goalId)] else {
+            return nil
+        }
+        let elapsed = Date().timeIntervalSince1970 - lastPokeTime
+        let remaining = cooldownInterval - elapsed
+        return remaining > 0 ? remaining : nil
+    }
+
+    /// 남은 시간을 포맷팅합니다.
+    /// - Parameter seconds: 남은 시간(초)
+    /// - Returns: "2시간 20분", "1시간", "28분" 형태의 문자열
+    static func formatRemainingTime(_ seconds: TimeInterval) -> String {
+        let totalMinutes = Int(ceil(seconds / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 && minutes > 0 {
+            return "\(hours)시간 \(minutes)분"
+        } else if hours > 0 {
+            return "\(hours)시간"
+        } else {
+            return "\(max(1, minutes))분"
+        }
+    }
+
+    /// 찌르기 시간을 기록합니다.
+    /// - Parameter goalId: 목표 ID
+    static func recordPoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps[String(goalId)] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
+}
 
 extension HomeReducer {
     /// 실제 로직을 포함한 HomeReducer를 생성합니다.
@@ -32,6 +78,7 @@ extension HomeReducer {
         @Dependency(\.goalClient) var goalClient
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
+        @Dependency(\.notificationClient) var notificationClient
         
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
@@ -87,7 +134,7 @@ extension HomeReducer {
                     return .send(.setCalendarSheetPresented(true))
                     
                 case .alertTapped:
-                    return .none
+                    return .send(.delegate(.goToNotification))
                     
                 case .settingTapped:
                     return .send(.delegate(.goToSettings))
@@ -137,7 +184,21 @@ extension HomeReducer {
                 
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
-                    return .send(.showToast(.poke(message: "상대방을 찔렀어요!")))
+                    // 쿨다운 확인 (3시간 이내 재요청 방지)
+                    if let remaining = PokeCooldownManager.remainingCooldown(goalId: card.id) {
+                        let timeText = PokeCooldownManager.formatRemainingTime(remaining)
+                        return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
+                    }
+                    // 상대방 미인증 시 찌르기 API 호출
+                    return .run { send in
+                        do {
+                            try await goalClient.pokePartner(card.id)
+                            PokeCooldownManager.recordPoke(goalId: card.id)
+                            await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
+                        } catch {
+                            await send(.showToast(.warning(message: "찌르기에 실패했어요")))
+                        }
+                    }
                 } else {
                     let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
                     return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
@@ -213,6 +274,11 @@ extension HomeReducer {
             case .fetchGoals:
                 let date = state.calendarDate
                 return .run { send in
+                    // 읽지 않은 알림 여부 체크
+                    if let hasUnread = try? await notificationClient.fetchUnread() {
+                        await send(.fetchUnreadResponse(hasUnread))
+                    }
+
                     do {
                         let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
                         let items: [GoalCardItem] = goals.map { goal in
@@ -300,6 +366,10 @@ extension HomeReducer {
 
             case .deletePhotoLogFailed:
                 return .send(.showToast(.warning(message: "해제에 실패했어요")))
+
+            case let .fetchUnreadResponse(hasUnread):
+                state.hasUnreadNotification = hasUnread
+                return .none
 
             case .binding:
                 return .none

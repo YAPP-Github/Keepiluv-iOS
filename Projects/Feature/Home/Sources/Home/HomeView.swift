@@ -122,7 +122,7 @@ private extension HomeView {
                     subTitle: store.calendarMonthTitle,
                     mainTitle: store.mainTitle,
                     isHiddenRefresh: store.isRefreshHidden,
-                    isRemainedAlarm: false,
+                    isRemainedAlarm: store.hasUnreadNotification
                 )
             ), onAction: { action in
                 store.send(.navigationBarAction(action))

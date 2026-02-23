@@ -7,10 +7,13 @@
 
 import ComposableArchitecture
 import CoreNetworkInterface
+import CorePushInterface
 import DomainAuthInterface
+import DomainNotificationInterface
 import DomainOnboardingInterface
 import Feature
 import Foundation
+import UIKit
 
 @Reducer
 struct AppCoordinator {
@@ -23,6 +26,12 @@ struct AppCoordinator {
     @Dependency(\.authClient)
     var authClient
 
+    @Dependency(\.pushClient)
+    var pushClient
+
+    @Dependency(\.notificationClient)
+    var notificationClient
+
     private let authReducer: AuthReducer
     private let onboardingCoordinator: OnboardingCoordinator
     private let mainTabReducer: MainTabReducer
@@ -32,6 +41,7 @@ struct AppCoordinator {
         var route: Route = .auth(AuthReducer.State())
         var isCheckingAuth: Bool = true
         var pendingInviteCode: String?
+        var pendingNotificationDeepLink: NotificationDeepLink?
 
         public init() { }
     }
@@ -79,7 +89,12 @@ struct AppCoordinator {
         case checkAuthResult(Result<Token?, Error>)
         case checkOnboardingStatusResult(Result<OnboardingStatus, Error>)
         case deepLinkReceived(code: String)
+        case notificationDeepLinkReceived(NotificationDeepLink)
         case route(RouteAction)
+
+        // MARK: - FCM Token
+        case registerFCMTokenCompleted
+        case fcmTokenRefreshed(String)
     }
 
     @CasePathable
@@ -96,6 +111,7 @@ struct AppCoordinator {
     }
 
     var body: some ReducerOf<Self> {
+        // swiftlint:disable:next closure_body_length
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -134,6 +150,25 @@ struct AppCoordinator {
                 switch status {
                 case .completed:
                     state.route = .mainTab(MainTabReducer.State())
+                    // FCM 토큰 등록 및 tokenRefreshStream 구독 (기존 유저 로그인)
+                    var effects: [Effect<Action>] = [
+                        registerFCMTokenEffect(
+                            pushClient: pushClient,
+                            notificationClient: notificationClient
+                        ),
+                        subscribeTokenRefreshEffect(
+                            pushClient: pushClient,
+                            notificationClient: notificationClient
+                        )
+                    ]
+
+                    // pending 딥링크가 있으면 처리
+                    if let pendingDeepLink = state.pendingNotificationDeepLink {
+                        state.pendingNotificationDeepLink = nil
+                        effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
+                    }
+
+                    return .merge(effects)
 
                 case .coupleConnection, .profileSetup, .anniversarySetup:
                     state.route = .onboarding(OnboardingCoordinator.State(
@@ -166,6 +201,16 @@ struct AppCoordinator {
                 }
                 return .none
 
+            case let .notificationDeepLinkReceived(deepLink):
+                // 메인탭 상태가 아니면 pending으로 저장
+                guard case .mainTab = state.route else {
+                    state.pendingNotificationDeepLink = deepLink
+                    return .none
+                }
+
+                state.pendingNotificationDeepLink = nil
+                return .send(.route(.mainTab(.notificationDeepLinkReceived(deepLink))))
+
             case .route(.auth(.delegate(.loginSucceeded))):
                 return .run { [onboardingClient] send in
                     do {
@@ -176,9 +221,37 @@ struct AppCoordinator {
                     }
                 }
 
-            case .route(.onboarding(.delegate(.onboardingCompleted))):
+            case let .route(.onboarding(.delegate(.onboardingCompleted(isPushEnabled, isMarketingEnabled, isNightEnabled)))):
                 state.route = .mainTab(MainTabReducer.State())
-                return .none
+                // 온보딩 완료 시: initSettings + FCM 토큰 등록
+                // (시스템 권한 요청은 OnboardingCoordinator에서 이미 완료됨)
+                var effects: [Effect<Action>] = [
+                    .run { [pushClient, notificationClient] _ in
+                        // 1. 권한 결과 + 사용자 선택값으로 initSettings 호출
+                        _ = try? await notificationClient.initSettings(isPushEnabled, isMarketingEnabled, isNightEnabled)
+
+                        // 2. 권한 허용 시 FCM 토큰 등록
+                        if isPushEnabled {
+                            await pushClient.registerForRemoteNotifications()
+                            guard let token = try? await pushClient.getFCMToken(),
+                                  let deviceId = await UIDevice.current.identifierForVendor?.uuidString else {
+                                return
+                            }
+                            try? await notificationClient.registerFCMToken(token, deviceId)
+                        }
+                    },
+                    subscribeTokenRefreshEffect(
+                        pushClient: pushClient,
+                        notificationClient: notificationClient
+                    )
+                ]
+
+                if let pendingDeepLink = state.pendingNotificationDeepLink {
+                    state.pendingNotificationDeepLink = nil
+                    effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
+                }
+
+                return .merge(effects)
 
             case .route(.onboarding(.delegate(.logoutRequested))):
                 return .run { [authClient] send in
@@ -194,6 +267,18 @@ struct AppCoordinator {
 
             case .route:
                 return .none
+
+            case .registerFCMTokenCompleted:
+                return .none
+
+            case .fcmTokenRefreshed(let token):
+                // 토큰 갱신 시 서버에 재등록
+                return .run { [notificationClient] _ in
+                    guard let deviceId = await UIDevice.current.identifierForVendor?.uuidString else {
+                        return
+                    }
+                    try? await notificationClient.registerFCMToken(token, deviceId)
+                }
             }
         }
         .ifLet(\.route.auth, action: \.route.auth) {
@@ -204,6 +289,48 @@ struct AppCoordinator {
         }
         .ifLet(\.route.mainTab, action: \.route.mainTab) {
             mainTabReducer
+        }
+    }
+}
+
+// MARK: - FCM Token Effects
+
+private func registerFCMTokenEffect(
+    pushClient: PushClient,
+    notificationClient: NotificationClient
+) -> Effect<AppCoordinator.Action> {
+    .run { send in
+        // 1. 현재 권한 상태 확인
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+
+        // 2. 권한이 없으면 요청
+        if settings.authorizationStatus == .notDetermined {
+            let granted = (try? await pushClient.requestAuthorization()) ?? false
+            if !granted { return }
+        } else if settings.authorizationStatus == .denied {
+            return
+        }
+
+        // 3. APNS 등록 및 FCM 토큰 획득
+        await pushClient.registerForRemoteNotifications()
+
+        guard let token = try? await pushClient.getFCMToken(),
+              let deviceId = await UIDevice.current.identifierForVendor?.uuidString else {
+            return
+        }
+
+        try? await notificationClient.registerFCMToken(token, deviceId)
+        await send(.registerFCMTokenCompleted)
+    }
+}
+
+private func subscribeTokenRefreshEffect(
+    pushClient: PushClient,
+    notificationClient: NotificationClient
+) -> Effect<AppCoordinator.Action> {
+    .run { send in
+        for await token in pushClient.tokenRefreshStream() {
+            await send(.fcmTokenRefreshed(token))
         }
     }
 }

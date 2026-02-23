@@ -14,9 +14,11 @@ let project = Project.makeModule(
                 dependencies: [
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
+                    .domain(interface: .notification),
                     .feature(interface: .mainTab),
                     .feature(interface: .makeGoal),
                     .core(implements: .logging),
+                    .core(interface: .push),
                     .external(dependency: .ComposableArchitecture)
                 ] + Module.Feature.allCases.filter { $0 != .mainTab }.map {  .feature(implements: $0) }
             )

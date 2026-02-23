@@ -8,25 +8,23 @@
 import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
+import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import FeatureSettingsInterface
 
 extension HomeCoordinator {
-    /// 기본 구성의 HomeCoordinatorReducer를 생성합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// let reducer = HomeCoordinatorReducer()
-    /// ```
+    // 기본 구성의 HomeCoordinator를 생성합니다.
     // swiftlint:disable:next function_body_length
     public init(
         goalDetailReducer: GoalDetailReducer,
         proofPhotoReducer: ProofPhotoReducer,
         makeGoalReducer: MakeGoalReducer,
         editGoalListReducer: EditGoalListReducer,
-        settingsReducer: SettingsReducer
+        settingsReducer: SettingsReducer,
+        notificationReducer: NotificationReducer
     ) {
+        // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
             case let .home(.delegate(.goToGoalDetail(id, owner, verificationDate))):
@@ -45,12 +43,17 @@ extension HomeCoordinator {
                 return .none
 
             case .home(.delegate(.goToSettings)):
+                state.routes.append(.settings)
                 state.settings = .init()
-                state.isSettingsPresented = true
+                return .none
+
+            case .home(.delegate(.goToNotification)):
+                state.routes.append(.notification)
+                state.notification = .init()
                 return .none
                 
             case .goalDetail(.delegate(.navigateBack)):
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 return .none
                 
             case .goalDetail(.onDisappear):
@@ -58,7 +61,7 @@ extension HomeCoordinator {
                 return .none
                 
             case .makeGoal(.delegate(.navigateBack)):
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 return .none
                 
             case .makeGoal(.onDisappear):
@@ -67,7 +70,7 @@ extension HomeCoordinator {
                 
             case .editGoalList(.delegate(.navigateBack)):
                 state.editGoalList = nil
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 return .none
                 
             case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
@@ -88,26 +91,64 @@ extension HomeCoordinator {
                 return .none
 
             case .settings(.delegate(.navigateBack)):
-                state.isSettingsPresented = false
-                return .none
-
-            case .settings(.delegate(.logoutCompleted)):
-                state.isSettingsPresented = false
-                return .send(.delegate(.logoutCompleted))
-
-            case .settings(.delegate(.withdrawCompleted)):
-                state.isSettingsPresented = false
-                return .send(.delegate(.withdrawCompleted))
-
-            case .settings(.delegate(.sessionExpired)):
-                state.isSettingsPresented = false
-                return .send(.delegate(.sessionExpired))
-
-            case .settingsDismissed:
+                popLastRoute(&state.routes)
                 state.settings = nil
                 return .none
 
+            case .settings(.delegate(.navigateBackFromSubView)):
+                popLastRoute(&state.routes)
+                return .none
+
+            case .settings(.delegate(.navigateToAccount)):
+                state.routes.append(.settingsAccount)
+                return .none
+
+            case .settings(.delegate(.navigateToInfo)):
+                state.routes.append(.settingsInfo)
+                return .none
+
+            case .settings(.delegate(.navigateToNotificationSettings)):
+                state.routes.append(.settingsNotificationSettings)
+                return .none
+
+            case let .settings(.delegate(.navigateToWebView(url, title))):
+                state.routes.append(.settingsWebView(url: url, title: title))
+                return .none
+
+            case .settings(.delegate(.logoutCompleted)):
+                state.routes.removeAll()
+                state.settings = nil
+                return .send(.delegate(.logoutCompleted))
+
+            case .settings(.delegate(.withdrawCompleted)):
+                state.routes.removeAll()
+                state.settings = nil
+                return .send(.delegate(.withdrawCompleted))
+
+            case .settings(.delegate(.sessionExpired)):
+                state.routes.removeAll()
+                state.settings = nil
+                return .send(.delegate(.sessionExpired))
+
             case .settings:
+                return .none
+
+            case .notification(.delegate(.navigateBack)):
+                popLastRoute(&state.routes)
+                state.notification = nil
+                return .none
+
+            case let .notification(.delegate(.notificationSelected(item))):
+                popLastRoute(&state.routes)
+                state.notification = nil
+                return .send(.delegate(.notificationItemTapped(item)))
+
+            case .notification:
+                return .none
+
+            case let .navigateToGoalDetail(id, owner, date):
+                state.routes.append(.detail)
+                state.goalDetail = .init(currentUser: owner, id: id, verificationDate: date)
                 return .none
 
             case .delegate:
@@ -124,7 +165,13 @@ extension HomeCoordinator {
             goalDetailReducer: goalDetailReducer,
             makeGoalReducer: makeGoalReducer,
             editGoalListReducer: editGoalListReducer,
-            settingsReducer: settingsReducer
+            settingsReducer: settingsReducer,
+            notificationReducer: notificationReducer
         )
     }
+}
+
+private func popLastRoute(_ routes: inout [HomeRoute]) {
+    guard !routes.isEmpty else { return }
+    routes.removeLast()
 }

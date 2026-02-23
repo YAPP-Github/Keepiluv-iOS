@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainNotificationInterface
 import DomainOnboardingInterface
 import FeatureOnboarding
 import SwiftUI
@@ -22,6 +23,7 @@ struct OnboardingApp: App {
             reducer: { OnboardingCoordinator() },
             withDependencies: {
                 $0.onboardingClient = .previewValue
+                $0.notificationClient = .previewValue
             }
         )
     }

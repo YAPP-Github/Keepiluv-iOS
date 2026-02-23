@@ -7,11 +7,15 @@
 
 import ComposableArchitecture
 import CoreNetworkInterface
+import CorePushInterface
 import DomainAuthInterface
+import DomainNotificationInterface
 import DomainOnboardingInterface
 import FeatureSettingsInterface
 import Foundation
 import SharedUtil
+import UIKit
+import UserNotifications
 
 extension SettingsReducer {
     /// 기본 구현을 제공하는 리듀서를 생성합니다.
@@ -85,6 +89,9 @@ private func reduceCore(
     case .backButtonTapped:
         return .send(.delegate(.navigateBack))
 
+    case .subViewBackButtonTapped:
+        return .send(.delegate(.navigateBackFromSubView))
+
     case .editButtonTapped:
         state.isEditing = true
         return .none
@@ -122,24 +129,24 @@ private func reduceCore(
         return .none
 
     case .accountTapped:
-        state.routes.append(.account)
-        return .none
+        return .send(.delegate(.navigateToAccount))
 
     case .infoTapped:
-        state.routes.append(.info)
-        return .none
-
-    case .popRoute:
-        guard !state.routes.isEmpty else { return .none }
-        state.routes.removeLast()
-        return .none
+        return .send(.delegate(.navigateToInfo))
 
     case .logoutTapped:
         guard !state.isLoading else { return .none }
         @Dependency(\.authClient) var authClient
+        @Dependency(\.pushClient) var pushClient
+        @Dependency(\.notificationClient) var notificationClient
 
         state.isLoading = true
         return .run { send in
+            // FCM 토큰 삭제 (실패해도 로그아웃 진행)
+            if let token = try? await pushClient.getFCMToken() {
+                try? await notificationClient.deleteFCMToken(token)
+            }
+
             do {
                 try await authClient.signOut()
                 await send(.logoutResponse(.success(())))
@@ -181,13 +188,12 @@ private func reduceCore(
 
     case .privacyPolicyTapped:
         if let url = URL(string: "https://incongruous-sweatshirt-b32.notion.site/Keepliuv-3024eb2e10638051824ef9ac7f9a522f") {
-            state.routes.append(.webView(url: url, title: "개인정보 처리방침"))
+            return .send(.delegate(.navigateToWebView(url: url, title: "개인정보 처리방침")))
         }
         return .none
 
     case .notificationSettingTapped:
-        state.routes.append(.notificationSettings)
-        return .none
+        return .send(.delegate(.navigateToNotificationSettings))
 
     case .fetchMyProfileResponse(.success(let name)):
         state.nickname = name
@@ -251,6 +257,116 @@ private func reduceCore(
 
     case .delegate:
         return .none
+
+    // MARK: - Notification Settings
+
+    case .notificationSettingsOnAppear:
+        @Dependency(\.notificationClient) var notificationClient
+
+        let checkPermissionEffect: Effect<SettingsReducer.Action> = .run { send in
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            let isEnabled = settings.authorizationStatus == .authorized
+            await send(.checkSystemNotificationResponse(isEnabled))
+        }
+
+        guard !state.isNotificationSettingsLoading else {
+            return checkPermissionEffect
+        }
+
+        state.isNotificationSettingsLoading = true
+        return .merge(
+            checkPermissionEffect,
+            .run { send in
+                do {
+                    let notificationSettings = try await notificationClient.fetchSettings()
+                    await send(.fetchNotificationSettingsResponse(.success(notificationSettings)))
+                } catch {
+                    await send(.fetchNotificationSettingsResponse(.failure(error)))
+                }
+            }
+        )
+
+    case .fetchNotificationSettingsResponse(.success(let settings)):
+        state.isNotificationSettingsLoading = false
+        state.isPokePushEnabled = settings.isPushEnabled
+        state.isMarketingPushEnabled = settings.isMarketingEnabled
+        state.isNightMarketingPushEnabled = settings.isNightEnabled
+        return .none
+
+    case .fetchNotificationSettingsResponse(.failure(let error)):
+        state.isNotificationSettingsLoading = false
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
+        return .none
+
+    case .pokePushToggled(let enabled):
+        @Dependency(\.notificationClient) var notificationClient
+        // 낙관적 업데이트
+        state.isPokePushEnabled = enabled
+        return .run { send in
+            do {
+                let settings = try await notificationClient.updatePokeSetting(enabled)
+                await send(.updateNotificationSettingResponse(.success(settings)))
+            } catch {
+                await send(.updateNotificationSettingResponse(.failure(error)))
+            }
+        }.cancellable(id: "pokePushToggle", cancelInFlight: true)
+
+    case .marketingPushToggled(let enabled):
+        @Dependency(\.notificationClient) var notificationClient
+        // 낙관적 업데이트
+        state.isMarketingPushEnabled = enabled
+        return .run { send in
+            do {
+                let settings = try await notificationClient.updateMarketingSetting(enabled)
+                await send(.updateNotificationSettingResponse(.success(settings)))
+            } catch {
+                await send(.updateNotificationSettingResponse(.failure(error)))
+            }
+        }.cancellable(id: "marketingPushToggle", cancelInFlight: true)
+
+    case .nightPushToggled(let enabled):
+        @Dependency(\.notificationClient) var notificationClient
+        // 낙관적 업데이트
+        state.isNightMarketingPushEnabled = enabled
+        return .run { send in
+            do {
+                let settings = try await notificationClient.updateNightSetting(enabled)
+                await send(.updateNotificationSettingResponse(.success(settings)))
+            } catch {
+                await send(.updateNotificationSettingResponse(.failure(error)))
+            }
+        }.cancellable(id: "nightPushToggle", cancelInFlight: true)
+
+    case .updateNotificationSettingResponse(.success(let settings)):
+        // 서버 응답으로 상태 동기화
+        state.isPokePushEnabled = settings.isPushEnabled
+        state.isMarketingPushEnabled = settings.isMarketingEnabled
+        state.isNightMarketingPushEnabled = settings.isNightEnabled
+        return .none
+
+    case .updateNotificationSettingResponse(.failure(let error)):
+        // 실패 시 서버에서 다시 가져오기
+        if let networkError = error as? NetworkError,
+           networkError == .authorizationError {
+            return .send(.delegate(.sessionExpired))
+        }
+        return .send(.notificationSettingsOnAppear)
+
+    case let .checkSystemNotificationResponse(isEnabled):
+        state.isSystemNotificationEnabled = isEnabled
+        return .none
+
+    case .enableNotificationBannerTapped:
+        return .run { _ in
+            await MainActor.run {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
     }
 }
 // swiftlint:enable function_body_length

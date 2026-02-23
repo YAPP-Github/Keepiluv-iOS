@@ -6,8 +6,10 @@
 //
 
 import ComposableArchitecture
+import CorePushInterface
 import DomainOnboardingInterface
 import Foundation
+import SharedDesignSystem
 
 /// 온보딩 플로우 전체를 관리하는 Coordinator Reducer입니다.
 ///
@@ -24,6 +26,9 @@ import Foundation
 public struct OnboardingCoordinator {
     @Dependency(\.onboardingClient)
     private var onboardingClient
+    @Dependency(\.pushClient)
+    private var pushClient
+
     @ObservableState
     public struct State: Equatable {
         var routes: [OnboardingRoute] = []
@@ -35,6 +40,10 @@ public struct OnboardingCoordinator {
         var pendingReceivedCode: String?
         var isLoadingInviteCode: Bool = false
         var initialStatus: OnboardingStatus
+
+        // MARK: - Notification Permission
+        var isNotificationModalPresented: Bool = false
+        var isPushPermissionGranted: Bool = false
 
         public init(
             initialStatus: OnboardingStatus = .coupleConnection,
@@ -93,12 +102,17 @@ public struct OnboardingCoordinator {
         case profile(OnboardingProfileReducer.Action)
         case dday(OnboardingDdayReducer.Action)
 
+        // MARK: - Notification Permission
+        case startNotificationPermission
+        case pushPermissionResponse(granted: Bool)
+        case notificationModalConfirmed(isMarketing: Bool, isNight: Bool)
+
         // MARK: - Delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
             case logoutRequested
-            case onboardingCompleted
+            case onboardingCompleted(isPushEnabled: Bool, isMarketingEnabled: Bool, isNightEnabled: Bool)
         }
     }
 
@@ -205,7 +219,7 @@ public struct OnboardingCoordinator {
 
             // MARK: - CodeInput Delegate
             case .codeInput(.delegate(.navigateBack)):
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 state.codeInput = nil
                 return .none
 
@@ -219,7 +233,7 @@ public struct OnboardingCoordinator {
 
             // MARK: - Profile Delegate
             case .profile(.delegate(.navigateBack)):
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 state.profile = nil
                 return .none
 
@@ -241,13 +255,15 @@ public struct OnboardingCoordinator {
             case let .fetchStatusResponse(.success(status)):
                 switch status {
                 case .completed:
-                    // 이미 온보딩 완료 → MainTab으로 이동
-                    return .send(.delegate(.onboardingCompleted))
+                    // 이미 온보딩 완료 → 알림 권한 요청 시작
+                    return .send(.startNotificationPermission)
+
                 case .anniversarySetup:
                     // 기념일 설정 필요 → Dday로 이동
                     state.dday = OnboardingDdayReducer.State()
                     state.routes.append(.dday)
                     return .none
+
                 default:
                     // profileSetup, coupleConnection 등 예상치 못한 상태
                     // 프로필 등록 API 성공 후 이 상태가 나오면 서버 이슈이므로 에러 로그만 남김
@@ -266,15 +282,35 @@ public struct OnboardingCoordinator {
 
             // MARK: - Dday Delegate
             case .dday(.delegate(.navigateBack)):
-                state.routes.removeLast()
+                popLastRoute(&state.routes)
                 state.dday = nil
                 return .none
 
             case .dday(.delegate(.ddayCompleted)):
-                return .send(.delegate(.onboardingCompleted))
+                return .send(.startNotificationPermission)
 
             case .dday:
                 return .none
+
+            // MARK: - Notification Permission
+            case .startNotificationPermission:
+                return .run { [pushClient] send in
+                    let granted = (try? await pushClient.requestAuthorization()) ?? false
+                    await send(.pushPermissionResponse(granted: granted))
+                }
+
+            case let .pushPermissionResponse(granted):
+                state.isPushPermissionGranted = granted
+                state.isNotificationModalPresented = true
+                return .none
+
+            case let .notificationModalConfirmed(isMarketing, isNight):
+                state.isNotificationModalPresented = false
+                return .send(.delegate(.onboardingCompleted(
+                    isPushEnabled: state.isPushPermissionGranted,
+                    isMarketingEnabled: isMarketing,
+                    isNightEnabled: isNight
+                )))
 
             case .delegate:
                 return .none
@@ -290,4 +326,9 @@ public struct OnboardingCoordinator {
             OnboardingDdayReducer()
         }
     }
+}
+
+private func popLastRoute(_ routes: inout [OnboardingRoute]) {
+    guard !routes.isEmpty else { return }
+    routes.removeLast()
 }

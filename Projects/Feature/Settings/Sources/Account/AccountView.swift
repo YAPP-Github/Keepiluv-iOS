@@ -39,9 +39,9 @@ struct AccountView: View {
 
 private extension AccountView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "계정", rightText: "")) { action in
+        TXNavigationBar(style: .subTitle(title: "계정", type: .back)) { action in
             if action == .backTapped {
-                store.send(.popRoute)
+                store.send(.subViewBackButtonTapped)
             }
         }
     }

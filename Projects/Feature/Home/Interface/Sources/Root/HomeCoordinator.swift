@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureGoalDetailInterface
+import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import FeatureSettingsInterface
@@ -29,6 +31,7 @@ public struct HomeCoordinator {
     private let makeGoalReducer: MakeGoalReducer
     private let editGoalListReducer: EditGoalListReducer
     private let settingsReducer: SettingsReducer
+    private let notificationReducer: NotificationReducer
     
     /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///
@@ -45,7 +48,7 @@ public struct HomeCoordinator {
         public var makeGoal: MakeGoalReducer.State?
         public var editGoalList: EditGoalListReducer.State?
         public var settings: SettingsReducer.State?
-        public var isSettingsPresented: Bool = false
+        public var notification: NotificationReducer.State?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -71,9 +74,11 @@ public struct HomeCoordinator {
         case makeGoal(MakeGoalReducer.Action)
         case editGoalList(EditGoalListReducer.Action)
         case settings(SettingsReducer.Action)
+        case notification(NotificationReducer.Action)
 
-        // MARK: - Update State
-        case settingsDismissed
+
+        // MARK: - Navigation
+        case navigateToGoalDetail(id: Int64, owner: GoalDetail.Owner, date: String)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -82,6 +87,7 @@ public struct HomeCoordinator {
             case logoutCompleted
             case withdrawCompleted
             case sessionExpired
+            case notificationItemTapped(NotificationItem)
         }
     }
 
@@ -100,7 +106,8 @@ public struct HomeCoordinator {
         goalDetailReducer: GoalDetailReducer,
         makeGoalReducer: MakeGoalReducer,
         editGoalListReducer: EditGoalListReducer,
-        settingsReducer: SettingsReducer
+        settingsReducer: SettingsReducer,
+        notificationReducer: NotificationReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
@@ -108,6 +115,7 @@ public struct HomeCoordinator {
         self.makeGoalReducer = makeGoalReducer
         self.editGoalListReducer = editGoalListReducer
         self.settingsReducer = settingsReducer
+        self.notificationReducer = notificationReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -129,6 +137,9 @@ public struct HomeCoordinator {
             }
             .ifLet(\.settings, action: \.settings) {
                 settingsReducer
+            }
+            .ifLet(\.notification, action: \.notification) {
+                notificationReducer
             }
     }
 }

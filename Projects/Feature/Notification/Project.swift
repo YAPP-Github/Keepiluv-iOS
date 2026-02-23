@@ -8,6 +8,7 @@ let project = Project.makeModule(
             interface: .notification,
             config: .init(
                 dependencies: [
+                    .domain(interface: .notification),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
@@ -17,6 +18,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .feature(interface: .notification),
+                    .domain(interface: .notification),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]

@@ -190,6 +190,7 @@ private extension GoalCardView {
         .frame(minWidth: 0, maxWidth: .infinity)
         .frame(height: config.imageHeight)
         .clipShape(unEvenRoundedRect)
+        .contentShape(Rectangle())
         .overlay(alignment: .bottomTrailing) {
             if let emoji = item.emoji {
                 emojiImage(emoji: emoji)
