@@ -25,12 +25,15 @@ public extension View {
     /// ```
     func txBottomSheet<SheetContent: View>(
         isPresented: Binding<Bool>,
-        @ViewBuilder
-        sheetContent: @escaping () -> SheetContent
+        isDragEnabled: Bool = true,
+        showDragIndicator: Bool = false,
+        @ViewBuilder sheetContent: @escaping () -> SheetContent
     ) -> some View {
         modifier(
             TXBottomSheetModifier(
                 isPresented: isPresented,
+                isDragEnabled: isDragEnabled,
+                showDragIndicator: showDragIndicator,
                 sheetContent: sheetContent
             )
         )
@@ -39,13 +42,14 @@ public extension View {
 
 private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
     @Binding var isPresented: Bool
+    let isDragEnabled: Bool
+    let showDragIndicator: Bool
     var sheetContent: () -> SheetContent
 
     @State private var isCoverPresented = false
-    @State private var sheetHeight: CGFloat = 0
     @State private var sheetOffset: CGFloat = UIScreen.main.bounds.height
-    @State private var didCaptureInitialHeight = false
     @State private var dimmedOpacity: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
     private let animationDuration: TimeInterval = 0.2
 
     func body(content: Content) -> some View {
@@ -79,20 +83,60 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
 private extension TXBottomSheetModifier {
     var sheetView: some View {
         sheetContent()
-            .readSize { frame in
-                guard !didCaptureInitialHeight else { return }
-                didCaptureInitialHeight = true
-                sheetHeight = frame.height
-                if dimmedOpacity == 0 {
-                    sheetOffset = frame.height
-                }
-            }
             .frame(maxWidth: .infinity, alignment: .bottom)
             .background(Color.Common.white)
             .clipShape(
                 UnevenRoundedRectangle(cornerRadii: .init(topLeading: Radius.m, topTrailing: Radius.m))
             )
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear {
+                            updateContentHeight(proxy.size.height)
+                        }
+                        .onChange(of: proxy.size.height) {
+                            updateContentHeight(proxy.size.height)
+                        }
+                }
+            }
+            .overlay(alignment: .top) {
+                dragContainer
+            }
             .offset(y: sheetOffset)
+            .toolbar(.hidden, for: .tabBar)
+    }
+    
+    var dragContainer: some View {
+        ZStack {
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: 28)
+                .contentShape(.rect)
+            
+            if showDragIndicator {
+                RoundedRectangle(cornerRadius: 2.55)
+                    .fill(Color.Gray.gray100)
+                    .frame(width: 44, height: 6)
+                    .padding(.vertical, 11)
+            }
+        }
+        .gesture(
+            DragGesture(coordinateSpace: .global)
+                .onChanged { value in
+                    sheetOffset = max(value.translation.height, 0)
+                }
+                .onEnded { value in
+                    let threshold = contentHeight > 0 ? contentHeight / 3 : 120
+                    let shouldDismiss = value.translation.height > threshold
+                    || value.velocity.height > 500
+                    
+                    if shouldDismiss {
+                        isPresented = false
+                    } else {
+                        sheetOffset = 0
+                    }
+                },
+            isEnabled: isDragEnabled
+        )
     }
     
     var dimmedBackground: some View {
@@ -107,17 +151,17 @@ private extension TXBottomSheetModifier {
 // MARK: - Function
 private extension TXBottomSheetModifier {
     func resetSheetState() {
-        sheetHeight = 0
         sheetOffset = UIScreen.main.bounds.height
-        didCaptureInitialHeight = false
         dimmedOpacity = 0
         isPresented = false
     }
 
     func presentAnimated() {
-        withAnimation(.easeOut(duration: animationDuration)) {
-            dimmedOpacity = 1
-            sheetOffset = 0
+        Task { @MainActor in
+            withAnimation(.easeOut(duration: animationDuration)) {
+                dimmedOpacity = 1
+                sheetOffset = 0
+            }
         }
     }
     
@@ -127,7 +171,7 @@ private extension TXBottomSheetModifier {
         }
 
         withAnimation(.easeInOut(duration: animationDuration)) {
-            sheetOffset = sheetHeight == 0 ? UIScreen.main.bounds.height : sheetHeight
+            sheetOffset = UIScreen.main.bounds.height
             dimmedOpacity = 0
         }
         
@@ -135,5 +179,10 @@ private extension TXBottomSheetModifier {
             try await Task.sleep(for: .seconds(animationDuration))
             isCoverPresented = false
         }
+    }
+
+    func updateContentHeight(_ newHeight: CGFloat) {
+        guard newHeight > 0 else { return }
+        contentHeight = newHeight
     }
 }
