@@ -12,14 +12,7 @@ import DomainGoalInterface
 extension GoalClient: @retroactive DependencyKey {
     public static let liveValue: GoalClient = .live()
     
-    /// GoalClient의 기본 구현입니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// @Dependency(\.goalClient) var goalClient
-    /// let goals = try await goalClient.fetchGoals("2026-02-06")
-    /// ```
-
+    // GoalClient의 기본 구현입니다.
     // swiftlint:disable:next function_body_length
     static func live() -> GoalClient {
         @Dependency(\.networkClient) var networkClient
@@ -102,6 +95,15 @@ extension GoalClient: @retroactive DependencyKey {
                         endpoint: GoalEndpoint.completeGoal(goalId: goalId)
                     )
                     return response
+                } catch {
+                    throw error
+                }
+            },
+            pokePartner: { goalId in
+                do {
+                    let _: EmptyResponse = try await networkClient.request(
+                        endpoint: PokeEndpoint.poke(goalId: goalId)
+                    )
                 } catch {
                     throw error
                 }

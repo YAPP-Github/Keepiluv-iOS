@@ -26,6 +26,7 @@ public struct GoalClient {
     public var updateGoal: (Int64, GoalUpdateRequestDTO) async throws -> Goal
     public var deleteGoal: (Int64) async throws -> Void
     public var completeGoal: (Int64) async throws -> GoalCompleteResponseDTO
+    public var pokePartner: (Int64) async throws -> Void
     
     /// 목표 조회 클로저를 주입하여 GoalClient를 생성합니다.
     ///
@@ -45,7 +46,8 @@ public struct GoalClient {
         fetchGoalEditList: @escaping (String) async throws -> [Goal],
         updateGoal: @escaping (Int64, GoalUpdateRequestDTO) async throws -> Goal,
         deleteGoal: @escaping (Int64) async throws -> Void,
-        completeGoal: @escaping (Int64) async throws -> GoalCompleteResponseDTO
+        completeGoal: @escaping (Int64) async throws -> GoalCompleteResponseDTO,
+        pokePartner: @escaping (Int64) async throws -> Void
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
@@ -55,6 +57,7 @@ public struct GoalClient {
         self.updateGoal = updateGoal
         self.deleteGoal = deleteGoal
         self.completeGoal = completeGoal
+        self.pokePartner = pokePartner
     }
 }
 
@@ -131,6 +134,9 @@ extension GoalClient: TestDependencyKey {
                 goalStatus: "COMPLETED",
                 completedAt: ""
             )
+        },
+        pokePartner: { _ in
+            assertionFailure("GoalClient.pokePartner가 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
         }
     )
     
