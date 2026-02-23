@@ -129,11 +129,12 @@ private extension GoalDetailView {
     
     var cardView: some View {
         SwipeableCardView(
-            isEditing: store.isEditing,
-            onCardTap: { store.send(.cardTapped) }
-        ) {
-            currentCardView
-        }
+            canSwipeLeft: store.canSwipeLeft,
+            canSwipeRight: store.canSwipeRight,
+            onSwipeLeft: { store.send(.cardSwipeLeft) },
+            onSwipeRight: { store.send(.cardSwipeRight) },
+            content: { currentCardView }
+        )
         .background(backgroundRect)
     }
     
@@ -344,6 +345,7 @@ private extension GoalDetailView {
         store: Store(
             initialState: GoalDetailReducer.State(
                 currentUser: .mySelf,
+                entryPoint: .home,
                 id: 1,
                 verificationDate: "2026-02-07"
             ),

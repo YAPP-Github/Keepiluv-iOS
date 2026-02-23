@@ -95,10 +95,15 @@ extension GoalDetailReducer {
                     }
                 )
                 
-            case .cardTapped:
-                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
+            case .cardSwipeLeft:
+                state.currentUser = .mySelf
                 state.commentText = state.comment
-                state.isCommentFocused = false
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
+                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                
+            case .cardSwipeRight:
+                state.currentUser = .you
+                state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 

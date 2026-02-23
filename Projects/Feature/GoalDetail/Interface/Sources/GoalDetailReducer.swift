@@ -21,7 +21,13 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
+        public enum EntryPoint: Equatable {
+            case home
+            case stats
+        }
+        
         public let goalId: Int64
+        public let entryPoint: EntryPoint
         public var item: GoalDetail?
         public var currentGoalIndex: Int = 0
         public var currentUser: GoalDetail.Owner
@@ -43,6 +49,26 @@ public struct GoalDetailReducer {
                 
             case .you:
                 return currentCompletedGoal?.yourPhotoLog
+            }
+        }
+        
+        public var canSwipeLeft: Bool {
+            switch entryPoint {
+            case .home:
+                return !isEditing && currentUser == .you
+                
+            case .stats:
+                return !isEditing && currentUser == .mySelf
+            }
+        }
+        
+        public var canSwipeRight: Bool {
+            switch entryPoint {
+            case .home:
+                return !isEditing && currentUser == .mySelf
+                
+            case .stats:
+                return !isEditing && currentUser == .you
             }
         }
         
@@ -101,10 +127,12 @@ public struct GoalDetailReducer {
         /// ```
         public init(
             currentUser: GoalDetail.Owner,
+            entryPoint: EntryPoint,
             id: Int64,
             verificationDate: String
         ) {
             self.currentUser = currentUser
+            self.entryPoint = entryPoint
             self.goalId = id
             self.verificationDate = verificationDate
         }
@@ -122,7 +150,8 @@ public struct GoalDetailReducer {
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(ReactionEmoji)
-        case cardTapped
+        case cardSwipeLeft
+        case cardSwipeRight
         case focusChanged(Bool)
         case dimmedBackgroundTapped
         case updateMyPhotoLog(GoalDetail.CompletedGoal.PhotoLog)

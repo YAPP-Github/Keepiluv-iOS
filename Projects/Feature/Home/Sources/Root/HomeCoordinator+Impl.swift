@@ -29,7 +29,12 @@ extension HomeCoordinator {
             switch action {
             case let .home(.delegate(.goToGoalDetail(id, owner, verificationDate))):
                 state.routes.append(.detail)
-                state.goalDetail = .init(currentUser: owner, id: id, verificationDate: verificationDate)
+                state.goalDetail = .init(
+                    currentUser: owner,
+                    entryPoint: .home,
+                    id: id,
+                    verificationDate: verificationDate
+                )
                 return .none
                 
             case let .home(.delegate(.goToMakeGoal(category))):
