@@ -15,6 +15,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .feature(interface: .onboarding),
                     .domain(interface: .onboarding),
+                    .core(interface: .push),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -47,6 +48,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .feature(implements: .onboarding),
                     .domain(implements: .onboarding),
+                    .domain(implements: .notification),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
