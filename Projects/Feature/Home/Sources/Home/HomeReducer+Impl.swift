@@ -160,9 +160,14 @@ extension HomeReducer {
                     state.modal = .info(.uncheckGoal)
                     return .none
                 } else {
-                    return .run { send in
-                        let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                        await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
+                    if state.calendarDate > TXCalendarDate() {
+                        state.toast = .warning(message: "미래의 인증샷은 지금 올릴 수 없어요!")
+                        return .none
+                    } else {
+                        return .run { send in
+                            let isAuthorized = await captureSessionClient.fetchIsAuthorized()
+                            await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
+                        }
                     }
                 }
                 
