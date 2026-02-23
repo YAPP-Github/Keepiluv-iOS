@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainNotificationInterface
 import Foundation
 import SharedDesignSystem
 import SharedUtil
@@ -28,9 +29,6 @@ public struct SettingsReducer {
     /// 설정 화면의 상태입니다.
     @ObservableState
     public struct State: Equatable {
-        // Navigation
-        public var routes: [SettingsRoute] = []
-
         // Profile
         public var nickname: String
         public var originalNickname: String
@@ -56,10 +54,12 @@ public struct SettingsReducer {
         public var isPokePushEnabled: Bool
         public var isMarketingPushEnabled: Bool
         public var isNightMarketingPushEnabled: Bool
+        public var isNotificationSettingsLoading: Bool
+        public var isSystemNotificationEnabled: Bool
 
         public static let minLength = 2
         public static let maxLength = 8
-        // FIXME: 로컬라이징 지원 이후 해제
+        // 로컬라이징 지원 이후 활성화 예정
         public static let languageOptions = ["한국어"/*, "English", "日本語"*/]
 
         /// 상태를 생성합니다.
@@ -91,6 +91,8 @@ public struct SettingsReducer {
             self.isPokePushEnabled = isPokePushEnabled
             self.isMarketingPushEnabled = isMarketingPushEnabled
             self.isNightMarketingPushEnabled = isNightMarketingPushEnabled
+            self.isNotificationSettingsLoading = false
+            self.isSystemNotificationEnabled = true
         }
     }
 
@@ -100,6 +102,7 @@ public struct SettingsReducer {
 
         // MARK: - User Action
         case backButtonTapped
+        case subViewBackButtonTapped
         case editButtonTapped
         case clearButtonTapped
         case languageSettingTapped
@@ -117,9 +120,6 @@ public struct SettingsReducer {
         case languageConfirmed
         case storeVersionResponse(String?)
 
-        // MARK: - Navigation
-        case popRoute
-
         // MARK: - Account Actions
         case logoutTapped
         case disconnectCoupleTapped
@@ -134,11 +134,26 @@ public struct SettingsReducer {
         case withdrawResponse(Result<Void, Error>)
         case showToast(TXToastType)
 
+        // MARK: - Notification Settings
+        case notificationSettingsOnAppear
+        case pokePushToggled(Bool)
+        case marketingPushToggled(Bool)
+        case nightPushToggled(Bool)
+        case fetchNotificationSettingsResponse(Result<NotificationSettings, Error>)
+        case updateNotificationSettingResponse(Result<NotificationSettings, Error>)
+        case enableNotificationBannerTapped
+        case checkSystemNotificationResponse(Bool)
+
         // MARK: - Delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
             case navigateBack
+            case navigateBackFromSubView
+            case navigateToAccount
+            case navigateToInfo
+            case navigateToNotificationSettings
+            case navigateToWebView(url: URL, title: String)
             case logoutCompleted
             case withdrawCompleted
             case sessionExpired
@@ -169,22 +184,18 @@ public struct SettingsReducer {
 // MARK: - Computed Properties
 
 extension SettingsReducer.State {
-    /// 닉네임 길이가 유효한지 여부 (2-8자)
     public var isNicknameLengthValid: Bool {
         nickname.count >= Self.minLength && nickname.count <= Self.maxLength
     }
 
-    /// 닉네임이 변경되었는지 여부
     public var isNicknameChanged: Bool {
         nickname != originalNickname
     }
 
-    /// 닉네임에 비속어가 포함되어 있는지 여부
     public var containsProfanity: Bool {
         ProfanityFilter.containsProfanity(nickname)
     }
 
-    /// 닉네임이 유효한지 여부 (길이 + 비속어 체크)
     public var isNicknameValid: Bool {
         isNicknameLengthValid && !containsProfanity
     }

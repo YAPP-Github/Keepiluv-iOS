@@ -20,24 +20,7 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $store.routes) {
-            settingsContent
-                .navigationDestination(for: SettingsRoute.self) { route in
-                    switch route {
-                    case .account:
-                        AccountView(store: store)
-
-                    case .info:
-                        InfoView(store: store)
-
-                    case .notificationSettings:
-                        NotificationSettingsView(store: store)
-
-                    case let .webView(url, title):
-                        SettingsWebView(url: url, title: title, store: store)
-                    }
-                }
-        }
+        settingsContent
     }
 
     private var settingsContent: some View {
@@ -74,6 +57,7 @@ public struct SettingsView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -81,7 +65,7 @@ public struct SettingsView: View {
 
 private extension SettingsView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "설정", rightText: "")) { action in
+        TXNavigationBar(style: .subTitle(title: "설정", type: .back)) { action in
             switch action {
             case .backTapped:
                 store.send(.backButtonTapped)
