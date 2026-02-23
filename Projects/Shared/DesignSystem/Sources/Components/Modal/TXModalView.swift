@@ -67,6 +67,7 @@ private extension TXModalView {
     @ViewBuilder
     var actionButtons: some View {
         Group {
+            // FIXME: - vertical padding 8 DS Default로 수정
             switch type {
             case let .info(config):
                 TXRoundedRectangleGroupButton(
@@ -83,7 +84,6 @@ private extension TXModalView {
                 )
                 
             case let .gridButton(config):
-                // FIXME: - vertical padding 8 DS Default로 수정
                 TXRoundedRectangleButton(
                     config: .long(
                         text: config.buttonTitle,
@@ -96,6 +96,7 @@ private extension TXModalView {
                 .padding(.vertical, 8)
             }
         }
+        .padding(.vertical, 8)
         .padding(.top, Spacing.spacing9)
         .padding(.bottom, Spacing.spacing6)
     }
