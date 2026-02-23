@@ -186,12 +186,9 @@ private extension GoalDetailView {
            let editedImage = UIImage(data: editImageData) {
             Image(uiImage: editedImage)
                 .resizable()
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
+                .scaledToFill()
                 .frame(width: 336, height: 336)
+                .clipped()
                 .readSize { rectFrame = $0 }
                 .overlay(dimmedView)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -201,16 +198,17 @@ private extension GoalDetailView {
                             .padding(.bottom, 26)
                     }
                 }
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
                 .rotationEffect(.degrees(degree(isBackground: false)))
         } else if let imageUrl = store.currentCard?.imageUrl,
                   let url = URL(string: imageUrl) {
             KFImage(url)
                 .resizable()
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
+                .scaledToFill()
                 .frame(width: 336, height: 336)
                 .readSize { rectFrame = $0 }
                 .overlay(dimmedView)
@@ -221,6 +219,11 @@ private extension GoalDetailView {
                             .padding(.bottom, 26)
                     }
                 }
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
                 .rotationEffect(.degrees(degree(isBackground: false)))
         } else {
             EmptyView()
