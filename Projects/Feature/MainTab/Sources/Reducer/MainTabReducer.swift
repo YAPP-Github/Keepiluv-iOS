@@ -9,10 +9,14 @@ import Foundation
 
 import ComposableArchitecture
 import CoreLogging
+import CorePushInterface
+import DomainNotificationInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
 import FeatureHome
 import FeatureHomeInterface
+import FeatureNotification
+import FeatureNotificationInterface
 import FeatureMakeGoal
 import FeatureMakeGoalInterface
 import FeatureProofPhoto
@@ -73,6 +77,10 @@ public struct MainTabReducer {
 
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
+
+        // MARK: - User Action
+        case selectedTabChanged(TXTabItem)
+        case notificationDeepLinkReceived(NotificationDeepLink)
         case stats(StatsCoordinator.Action)
 
         // MARK: - Delegate
@@ -93,6 +101,8 @@ public struct MainTabReducer {
     /// ```
     public init() { }
 
+    @Dependency(\.notificationClient) var notificationClient
+
     public var body: some ReducerOf<Self> {
         BindingReducer()
 
@@ -103,7 +113,8 @@ public struct MainTabReducer {
                 proofPhotoReducer: proofPhotoReducer,
                 makeGoalReducer: MakeGoalReducer(),
                 editGoalListReducer: EditGoalListReducer(),
-                settingsReducer: SettingsReducer()
+                settingsReducer: SettingsReducer(),
+                notificationReducer: NotificationReducer()
             )
         }
         
@@ -120,6 +131,58 @@ public struct MainTabReducer {
 
         Reduce { state, action in
             switch action {
+                // MARK: - User Action
+            case .selectedTabChanged:
+                switch state.selectedTab {
+                case .home:
+                    state.isTabBarHidden = !state.home.routes.isEmpty
+                        || state.home.home.isCalendarSheetPresented
+
+                case .statistics, .couple:
+                    state.isTabBarHidden = false
+                }
+                return .none
+
+            case let .notificationDeepLinkReceived(deepLink):
+                state.selectedTab = .home
+                state.home.routes = []
+
+                let notificationIdString = deepLink.notificationId
+                let markAsReadEffect: Effect<Action> = .run { [notificationClient] _ in
+                    guard let notificationId = Int64(notificationIdString) else { return }
+                    try? await notificationClient.markAsRead(notificationId)
+                }
+
+                switch deepLink {
+                case let .poke(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+                    )
+
+                case let .goalCompleted(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .you, date: date)))
+                    )
+
+                case let .reaction(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+                    )
+
+                case .partnerConnected, .dailyGoalAchieved, .marketing:
+                    return markAsReadEffect
+
+                case .goalEnded:
+                    // TODO: 통계 탭 → 종료된 목표로 이동
+                    return markAsReadEffect
+                }
+
                 // MARK: - Child Action (Home)
             case .home(.delegate(.logoutCompleted)):
                 return .send(.delegate(.logoutCompleted))
@@ -129,7 +192,35 @@ public struct MainTabReducer {
                 
             case .home(.delegate(.sessionExpired)):
                 return .send(.delegate(.sessionExpired))
-                
+
+            case let .home(.delegate(.notificationItemTapped(item))):
+                guard let deepLinkString = item.deepLink,
+                      let url = URL(string: deepLinkString),
+                      let deepLink = NotificationDeepLink.parse(from: url) else {
+                    return .none
+                }
+
+                switch deepLink {
+                case let .poke(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+
+                case let .goalCompleted(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .you, date: date)))
+
+                case let .reaction(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+
+                case .partnerConnected, .dailyGoalAchieved, .marketing:
+                    return .none
+
+                case .goalEnded:
+                    // TODO: 통계 탭 → 종료된 목표로 이동
+                    return .none
+                }
+
             case .home:
                 state.isTabBarHidden = !state.home.routes.isEmpty
                 return .none
