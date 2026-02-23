@@ -19,6 +19,8 @@ import FeatureProofPhoto
 import FeatureProofPhotoInterface
 import FeatureSettings
 import FeatureSettingsInterface
+import FeatureStats
+import FeatureStatsInterface
 import SharedDesignSystem
 
 /// 앱의 메인 탭 화면을 관리하는 Reducer입니다.
@@ -43,9 +45,13 @@ public struct MainTabReducer {
     /// let state = MainTabReducer.State()
     /// ```
     public struct State: Equatable {
-        public var home = HomeCoordinator.State()
+        public var home: HomeCoordinator.State = .init()
+        public var stats: StatsCoordinator.State = .init()
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
+        public var shouldShowHomeFloatingButton: Bool {
+            selectedTab == .home && !isTabBarHidden
+        }
 
         /// 기본 상태를 생성합니다.
         ///
@@ -67,9 +73,7 @@ public struct MainTabReducer {
 
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
-
-        // MARK: - User Action
-        case selectedTabChanged(TXTabItem)
+        case stats(StatsCoordinator.Action)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -102,36 +106,37 @@ public struct MainTabReducer {
                 settingsReducer: SettingsReducer()
             )
         }
+        
+        Scope(state: \.stats, action: \.stats) {
+            StatsCoordinator(
+                statsReducer: StatsReducer(),
+                statsDetailReducer: StatsDetailReducer(),
+                goalDetailReducer: GoalDetailReducer(
+                    proofPhotoReducer: ProofPhotoReducer()
+                ),
+                makeGoalReducer: MakeGoalReducer()
+            )
+        }
 
         Reduce { state, action in
             switch action {
-                // MARK: - User Action
-            case .selectedTabChanged:
-                switch state.selectedTab {
-                case .home:
-                    state.isTabBarHidden = !state.home.routes.isEmpty
-                        || state.home.home.isCalendarSheetPresented
-
-                case .statistics, .couple:
-                    state.isTabBarHidden = false
-                }
-                return .none
-
                 // MARK: - Child Action (Home)
             case .home(.delegate(.logoutCompleted)):
                 return .send(.delegate(.logoutCompleted))
-
+                
             case .home(.delegate(.withdrawCompleted)):
                 return .send(.delegate(.withdrawCompleted))
-
+                
             case .home(.delegate(.sessionExpired)):
                 return .send(.delegate(.sessionExpired))
-
+                
             case .home:
-                if state.selectedTab == .home {
-                    state.isTabBarHidden = !state.home.routes.isEmpty
-                        || state.home.home.isCalendarSheetPresented
-                }
+                state.isTabBarHidden = !state.home.routes.isEmpty
+                    || state.home.home.isCalendarSheetPresented
+                return .none
+                
+            case .stats:
+                state.isTabBarHidden = !state.stats.routes.isEmpty
                 return .none
 
             case .delegate:

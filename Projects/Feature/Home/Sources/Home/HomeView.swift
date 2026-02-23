@@ -50,9 +50,6 @@ public struct HomeView: View {
             }
             Spacer()
         }
-        .overlay(alignment: .bottomTrailing) {
-            floatingButton
-        }
         .overlay {
             if store.isLoading {
                 ProgressView()
@@ -86,9 +83,7 @@ public struct HomeView: View {
         )
         .txToast(
             item: $store.toast,
-            onButtonTap: {
-                
-            }, customPadding: Constants.tabBarHeight + 16
+            onButtonTap: { }
         )
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
@@ -146,7 +141,7 @@ private extension HomeView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .padding(.bottom, 103 + Constants.tabBarHeight)
+            .padding(.bottom, 103)
         }
         .refreshable {
             store.send(.fetchGoals)
@@ -204,20 +199,6 @@ private extension HomeView {
         )
     }
     
-    var floatingButton: some View {
-        TXCircleButton(config: .plus()) {
-            store.send(.floatingButtonTapped)
-        }
-        .insideBorder(
-            Color.Gray.gray300,
-            shape: .circle,
-            lineWidth: LineWidth.m
-        )
-        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
-        .padding(.trailing, 16)
-        .padding(.bottom, Constants.tabBarHeight + 12)
-    }
-    
     var goalEmptyView: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -236,7 +217,7 @@ private extension HomeView {
                 .frame(width: geometry.size.width, height: geometry.size.height)
                 .overlay(alignment: .bottomTrailing) {
                     Image.Illustration.arrow
-                        .padding(.bottom, 63 + Constants.tabBarHeight)
+                        .padding(.bottom, 63)
                         .padding(.trailing, 86)
                 }
             }
@@ -244,12 +225,5 @@ private extension HomeView {
                 store.send(.fetchGoals)
             }
         }
-        .padding(.bottom, Constants.tabBarHeight)
-    }
-}
-
-private extension HomeView {
-    enum Constants {
-        static let tabBarHeight: CGFloat = 58
     }
 }

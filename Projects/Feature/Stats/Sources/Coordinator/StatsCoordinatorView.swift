@@ -45,16 +45,19 @@ public struct StatsCoordinatorView: View {
                     case .statsDetail:
                         IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
                             StatsDetailView(store: store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
                         
                     case .goalDetail:
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .makeGoal:
                         IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
                             makeGoalFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
                     }
                 }

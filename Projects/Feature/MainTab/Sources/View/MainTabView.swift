@@ -11,6 +11,8 @@ import ComposableArchitecture
 import FeatureHome
 import FeatureHomeInterface
 import FeatureGoalDetail
+import FeatureStats
+import FeatureStatsInterface
 import FeatureProofPhoto
 import SharedDesignSystem
 
@@ -45,19 +47,43 @@ public struct MainTabView: View {
             selectedItem: $store.selectedTab,
             isTabBarHidden: store.isTabBarHidden
         ) {
-            switch store.selectedTab {
-            case .home:
-                HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-
-            case .statistics:
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            case .couple:
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
+                .tag(TXTabItem.home)
+            
+            StatsCoordinatorView(store: store.scope(state: \.stats, action: \.stats))
+                .tag(TXTabItem.statistics)
+            
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tag(TXTabItem.couple)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if store.shouldShowHomeFloatingButton {
+                homeFloatingButton
             }
         }
+    }
+}
+
+private extension MainTabView {
+    var homeFloatingButton: some View {
+        TXCircleButton(config: .plus()) {
+            store.send(.home(.home(.floatingButtonTapped)))
+        }
+        .insideBorder(
+            Color.Gray.gray300,
+            shape: .circle,
+            lineWidth: LineWidth.m
+        )
+        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
+        .padding(.trailing, 16)
+        .padding(.bottom, 12 + Constants.tabBarHeight)
+    }
+}
+
+private extension MainTabView {
+    enum Constants {
+        static let tabBarHeight: CGFloat = 58
     }
 }
 

@@ -58,13 +58,16 @@ public struct TXTabBarContainer<Content: View>: View {
     }
 
     public var body: some View {
-        content()
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                if shouldShowTabBar {
-                    TXTabBar(selectedItem: $selectedItem)
-                }
+        TabView(selection: $selectedItem) {
+            content()
+        }
+        .toolbar(.hidden, for: .tabBar)
+        .overlay(alignment: .bottom) {
+            if shouldShowTabBar {
+                TXTabBar(selectedItem: $selectedItem)
             }
-            .ignoresSafeArea(.keyboard)
+        }
+        .ignoresSafeArea(.keyboard)
     }
 }
 
@@ -78,6 +81,7 @@ public struct TXTabBarContainer<Content: View>: View {
                     Text("Selected: \(selectedItem.title)")
                     Spacer()
                 }
+                .tag(TXTabItem.home)
             }
         }
     }

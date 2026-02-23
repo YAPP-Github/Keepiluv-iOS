@@ -82,7 +82,7 @@ private extension StatsView {
                 }
             }
             .padding(.top, 12)
-            .padding(.horizontal, 20)
+            .padding([.horizontal, .bottom], 20)
         }
     }
 }
