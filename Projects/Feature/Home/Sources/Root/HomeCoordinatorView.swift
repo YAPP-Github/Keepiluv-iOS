@@ -49,16 +49,19 @@ public struct HomeCoordinatorView: View {
                     case .detail:
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .editGoalList:
                         IfLetStore(store.scope(state: \.editGoalList, action: \.editGoalList)) { store in
                             EditGoalListView(store: store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .makeGoal:
                         IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
                             makeGoalFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
                     }
                 }
