@@ -279,6 +279,9 @@ extension GoalClient: TestDependencyKey {
                 goalStatus: "COMPLETED",
                 completedAt: "2026-02-22T00:00:00Z"
             )
+        },
+        pokePartner: { _ in
+            return
         }
     )
 }

@@ -59,9 +59,13 @@ public struct GoalDetailView: View {
     public var body: some View {
         VStack(spacing: 0) {
             TXNavigationBar(
-                style: .subTitle(
-                    title: store.goalName,
-                    rightText: store.naviBarRightText
+                style: .subContent(
+                    .init(
+                        title: store.goalName,
+                        rightContent: store.naviBarRightText.isEmpty
+                            ? nil
+                            : .text(store.naviBarRightText)
+                    )
                 ),
                 onAction: { action in
                     store.send(.navigationBarTapped(action))
