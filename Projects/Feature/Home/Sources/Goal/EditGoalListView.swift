@@ -64,7 +64,7 @@ struct EditGoalListView: View {
 
 private extension EditGoalListView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "편집", rightText: "")) { _ in
+        TXNavigationBar(style: .subTitle(title: "편집", type: .back)) { _ in
             store.send(.navigationBackButtonTapped)
         }
     }

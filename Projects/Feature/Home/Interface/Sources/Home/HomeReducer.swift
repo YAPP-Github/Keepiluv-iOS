@@ -55,6 +55,7 @@ public struct HomeReducer {
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
+        public var hasUnreadNotification: Bool = false
         
         public var goalSectionTitle: String {
             let now = CalendarNow()
@@ -120,6 +121,7 @@ public struct HomeReducer {
         case fetchGoalsFailed
         case deletePhotoLogCompleted(goalId: Int64)
         case deletePhotoLogFailed
+        case fetchUnreadResponse(Bool)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -130,6 +132,7 @@ public struct HomeReducer {
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList(date: TXCalendarDate)
             case goToSettings
+            case goToNotification
         }
     }
     

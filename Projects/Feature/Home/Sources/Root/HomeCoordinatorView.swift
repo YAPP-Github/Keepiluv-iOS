@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
+import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureSettingsInterface
 
@@ -27,6 +28,7 @@ import FeatureSettingsInterface
 /// ```
 public struct HomeCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
+    @Dependency(\.notificationFactory) var notificationFactory
     @Dependency(\.makeGoalFactory) var makeGoalFactory
     @Dependency(\.settingsFactory) var settingsFactory
     @Bindable public var store: StoreOf<HomeCoordinator>
@@ -63,16 +65,62 @@ public struct HomeCoordinatorView: View {
                             makeGoalFactory.makeView(store)
                                 .toolbar(.hidden, for: .tabBar)
                         }
+
+                    case .settings:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                        }
+
+                    case .settingsAccount:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeAccountView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                        }
+
+                    case .settingsInfo:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeInfoView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                        }
+
+                    case .settingsNotificationSettings:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeNotificationSettingsView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                        }
+
+                    case let .settingsWebView(url, title):
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeWebView(settingsStore, url, title)
+                                .navigationBarBackButtonHidden(true)
+                        }
+
+                    case .notification:
+                        if let notificationStore = store.scope(
+                            state: \.notification,
+                            action: \.notification
+                        ) {
+                            notificationFactory.makeView(notificationStore)
+                                .navigationBarBackButtonHidden(true)
+                        }
                     }
                 }
-        }
-        .fullScreenCover(
-            isPresented: $store.isSettingsPresented,
-            onDismiss: { store.send(.settingsDismissed) }
-        ) {
-            IfLetStore(store.scope(state: \.settings, action: \.settings)) { store in
-                settingsFactory.makeView(store)
-            }
         }
     }
 }

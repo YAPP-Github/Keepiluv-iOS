@@ -77,7 +77,7 @@ private extension MakeGoalView {
         TXNavigationBar(
             style: .subTitle(
                 title: store.mode.title,
-                rightText: ""
+                type: .back
             ), onAction: { _ in
                 store.send(.navigationBackButtonTapped)
             }
