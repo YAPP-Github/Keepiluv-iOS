@@ -64,7 +64,14 @@ extension StatsDetailReducer {
                     hideAdjacentDates: true
                 )
                 return .send(.fetchStatsDetail)
-                
+
+            case let .calendarSwiped(swipe):
+                switch swipe {
+                case .previous:
+                    return .send(.previousMonthTapped)
+                case .next:
+                    return .send(.nextMonthTapped)
+                }
                 
             case let .calendarCellTapped(item):
                 guard let dateComponents = item.dateComponents,

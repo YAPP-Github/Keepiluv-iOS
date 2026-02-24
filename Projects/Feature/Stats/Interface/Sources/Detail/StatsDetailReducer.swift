@@ -99,6 +99,7 @@ public struct StatsDetailReducer {
         case navigationBarTapped(TXNavigationBar.Action)
         case previousMonthTapped
         case nextMonthTapped
+        case calendarSwiped(TXCalendar.SwipeGesture)
         case calendarCellTapped(TXCalendarDateItem)
         case dropDownSelected(TXDropdownItem)
         case backgroundTapped

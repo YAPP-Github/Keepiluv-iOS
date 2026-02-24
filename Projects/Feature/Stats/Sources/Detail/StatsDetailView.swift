@@ -95,6 +95,8 @@ private extension StatsDetailView {
         TXCalendar(
             mode: .monthly,
             weeks: store.monthlyData,
+            canMovePrevious: !store.previousMonthDisabled,
+            canMoveNext: !store.nextMonthDisabled,
             config: .init(
                 dateCellBackground: { item in
                     guard let completedDate = completedDate(for: item) else { return nil }
@@ -111,6 +113,9 @@ private extension StatsDetailView {
                 if item.status == .completed {
                     store.send(.calendarCellTapped(item))
                 }
+            },
+            onSwipe: { swipe in
+                store.send(.calendarSwiped(swipe))
             }
         )
             .padding(.vertical, 24)
