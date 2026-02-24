@@ -20,12 +20,10 @@ struct StatsView: View {
             topTabBar
             monthNavigation
                 .padding(.top, store.isOngoing ? 16 : 20)
+                .background(Color.Gray.gray50)
             
             if store.hasItems {
                 cardList
-            } else {
-                // TODO: - 디자인 확정되면 구현
-                EmptyView()
             }
             
             Spacer()
@@ -33,6 +31,10 @@ struct StatsView: View {
         .overlay {
             if store.isLoading {
                 ProgressView()
+            }
+            
+            if !store.hasItems {
+               statsEmptyView
             }
         }
         .onAppear { store.send(.onAppear) }
@@ -83,6 +85,25 @@ private extension StatsView {
             }
             .padding(.top, 12)
             .padding([.horizontal, .bottom], 20)
+        }
+        .background(Color.Gray.gray50)
+    }
+    
+    var statsEmptyView: some View {
+        if store.isOngoing {
+            VStack(spacing: 8) {
+                Image.Illustration.scare
+                Text("아직 목표가 없어요!")
+                    .typography(.t2_16b)
+                    .foregroundStyle(Color.Gray.gray400)
+            }
+        } else {
+            VStack(spacing: 8) {
+                Image.Illustration.trash
+                Text("아직 끝낸 목표가 없어요!")
+                    .typography(.t2_16b)
+                    .foregroundStyle(Color.Gray.gray400)
+            }
         }
     }
 }

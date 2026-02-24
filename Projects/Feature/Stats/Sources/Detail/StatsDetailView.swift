@@ -30,6 +30,7 @@ struct StatsDetailView: View {
             }
             .padding(.horizontal, 20)
         }
+        .background(Color.Gray.gray50)
         .overlay {
             if store.isLoading {
                 ProgressView()
