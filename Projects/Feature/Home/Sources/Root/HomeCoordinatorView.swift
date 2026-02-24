@@ -73,6 +73,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             settingsFactory.makeView(settingsStore)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .settingsAccount:
@@ -82,6 +83,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             settingsFactory.makeAccountView(settingsStore)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .settingsInfo:
@@ -91,6 +93,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             settingsFactory.makeInfoView(settingsStore)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .settingsNotificationSettings:
@@ -100,6 +103,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             settingsFactory.makeNotificationSettingsView(settingsStore)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case let .settingsWebView(url, title):
@@ -109,6 +113,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             settingsFactory.makeWebView(settingsStore, url, title)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .notification:
@@ -118,6 +123,7 @@ public struct HomeCoordinatorView: View {
                         ) {
                             notificationFactory.makeView(notificationStore)
                                 .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
                     }
                 }
