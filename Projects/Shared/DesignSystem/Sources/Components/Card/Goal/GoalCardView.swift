@@ -183,12 +183,15 @@ private extension GoalCardView {
                     .resizable()
                     .placeholder { }
                     .scaledToFill()
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: config.imageHeight)
+                    .clipped()
             } else {
                 unCompletedView(placeholder: placeholder, buttonAction: buttonAction)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: config.imageHeight)
             }
         }
-        .frame(minWidth: 0, maxWidth: .infinity)
-        .frame(height: config.imageHeight)
         .clipShape(unEvenRoundedRect)
         .contentShape(Rectangle())
         .overlay(alignment: .bottomTrailing) {
