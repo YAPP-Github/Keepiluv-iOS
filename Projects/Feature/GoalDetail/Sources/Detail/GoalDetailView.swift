@@ -58,72 +58,24 @@ public struct GoalDetailView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            TXNavigationBar(
-                style: .subContent(
-                    .init(
-                        title: store.goalName,
-                        rightContent: store.naviBarRightText.isEmpty
-                            ? nil
-                            : .text(store.naviBarRightText)
-                    )
-                ),
-                onAction: { action in
-                    store.send(.navigationBarTapped(action))
-                }
-            )
-            .overlay(dimmedView)
-
-            ScrollView {
-                ZStack(alignment: .bottom) {
-                    if !store.isCompleted {
-                        VStack {
-                            Spacer()
-                            bottomButton
-                                .frame(maxWidth: .infinity)
-                        }
+            navigationBar
+            cardView
+                .padding(.horizontal, 27)
+                .padding(.top, isSEDevice ? 47 : 103)
+            
+            if store.isCompleted {
+                completedBottomContent
+            } else {
+                bottomButton
+                    .padding(.top, 105)
+                    .frame(maxWidth: .infinity)
+                    .overlay(alignment: .topTrailing) {
+                        pokeImage
+                            .offset(x: -20, y: -20)
                     }
-
-                    if !store.isCompleted {
-                        VStack {
-                            Spacer()
-                            HStack {
-                                Spacer()
-                                pokeImage
-                                    .offset(x: -20, y: -20)
-                            }
-                        }
-                    }
-
-                    VStack(spacing: 0) {
-                        ZStack {
-                            backgroundRect
-                            
-                            SwipeableCardView(
-                                isEditing: store.isEditing,
-                                canSwipeUp: store.canSwipeUp,
-                                canSwipeDown: store.canSwipeDown,
-                                onCardTap: { store.send(.cardTapped) },
-                                onSwipeUp: { store.send(.cardSwipedUp) },
-                                onSwipeDown: { store.send(.cardSwipedDown) }
-                            ) {
-                                currentCardView
-                            }
-                        }
-                        .padding(.horizontal, 27)
-                        .padding(.top, 103)
-
-                        if store.isCompleted {
-                            completedBottomContent
-                        } else {
-                            Color.clear
-                                .frame(height: 74)
-                                .padding(.top, 105)
-                        }
-                    }
-                }
-                .padding(.bottom, 40)
             }
-            .scrollIndicators(.hidden)
+            
+            Spacer()
         }
         .ignoresSafeArea(.keyboard)
         .background(dimmedView)
@@ -158,6 +110,34 @@ public struct GoalDetailView: View {
 
 // MARK: - SubViews
 private extension GoalDetailView {
+    var navigationBar: some View {
+        TXNavigationBar(
+            style: .subContent(
+                .init(
+                    title: store.goalName,
+                    rightContent: store.naviBarRightText.isEmpty
+                        ? nil
+                        : .text(store.naviBarRightText)
+                )
+            ),
+            onAction: { action in
+                store.send(.navigationBarTapped(action))
+            }
+        )
+        .overlay(dimmedView)
+    }
+    
+    var cardView: some View {
+        SwipeableCardView(
+            canSwipeLeft: store.canSwipeLeft,
+            canSwipeRight: store.canSwipeRight,
+            onSwipeLeft: { store.send(.cardSwipeLeft) },
+            onSwipeRight: { store.send(.cardSwipeRight) },
+            content: { currentCardView }
+        )
+        .background(backgroundRect)
+    }
+    
     var currentCardView: some View {
         Group {
             if store.isCompleted {
@@ -178,7 +158,8 @@ private extension GoalDetailView {
                 shape: RoundedRectangle(cornerRadius: 20),
                 lineWidth: 1.6
             )
-            .frame(width: 336, height: 336)
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
             .overlay(dimmedView)
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .rotationEffect(.degrees(degree(isBackground: true)))
@@ -188,47 +169,18 @@ private extension GoalDetailView {
     var completedImageCard: some View {
         if let editImageData = store.pendingEditedImageData,
            let editedImage = UIImage(data: editImageData) {
-            Image(uiImage: editedImage)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 336, height: 336)
-                .clipped()
-                .readSize { rectFrame = $0 }
-                .overlay(dimmedView)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(alignment: .bottom) {
-                    if let comment = store.currentCard?.comment, !comment.isEmpty {
-                        commentCircle
-                            .padding(.bottom, 26)
-                    }
-                }
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
-                .rotationEffect(.degrees(degree(isBackground: false)))
+            completedImageCardContainer {
+                Image(uiImage: editedImage)
+                    .resizable()
+                    .scaledToFill()
+            }
         } else if let imageUrl = store.currentCard?.imageUrl,
                   let url = URL(string: imageUrl) {
-            KFImage(url)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 336, height: 336)
-                .readSize { rectFrame = $0 }
-                .overlay(dimmedView)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(alignment: .bottom) {
-                    if let comment = store.currentCard?.comment, !comment.isEmpty {
-                        commentCircle
-                            .padding(.bottom, 26)
-                    }
-                }
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
-                .rotationEffect(.degrees(degree(isBackground: false)))
+            completedImageCardContainer {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+            }
         } else {
             EmptyView()
         }
@@ -248,8 +200,8 @@ private extension GoalDetailView {
         
         if store.isShowReactionBar {
             reactionBar
-                .padding(.top, 73)
-                .padding(.horizontal, 21)
+                .padding(.top, isSEDevice ? 23 : 73)
+                .padding(.horizontal, 20)
         }
     }
     
@@ -270,16 +222,22 @@ private extension GoalDetailView {
     }
     
     var nonCompletedCard: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(.white)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
+        let shape = RoundedRectangle(cornerRadius: 20)
+
+        return Color.clear
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay {
+                shape
+                    .fill(Color.Common.white)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .clipShape(shape)
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: shape,
+                lineWidth: 1.6
+            )
             .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
@@ -332,6 +290,36 @@ private extension GoalDetailView {
                 store.send(.dimmedBackgroundTapped)
             }
     }
+
+    func completedImageCardContainer<Content: View>(
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 20)
+
+        return Color.clear
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1, contentMode: .fit)
+            .readSize { rectFrame = $0 }
+            .overlay {
+                content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            }
+            .overlay(dimmedView)
+            .clipShape(shape)
+            .overlay(alignment: .bottom) {
+                if let comment = store.currentCard?.comment, !comment.isEmpty {
+                    commentCircle
+                        .padding(.bottom, 26)
+                }
+            }
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: shape,
+                lineWidth: 1.6
+            )
+            .rotationEffect(.degrees(degree(isBackground: false)))
+    }
 }
 
 // MARK: - Constants
@@ -345,6 +333,11 @@ private extension GoalDetailView {
             return isBackground ? 0 : -8
         }
     }
+    
+    // 다른곳에서도 쓸 때 Util로 빼기
+    private var isSEDevice: Bool {
+        UIScreen.main.bounds.height <= 667
+    }
 }
 
 #Preview {
@@ -352,6 +345,7 @@ private extension GoalDetailView {
         store: Store(
             initialState: GoalDetailReducer.State(
                 currentUser: .mySelf,
+                entryPoint: .home,
                 id: 1,
                 verificationDate: "2026-02-07"
             ),

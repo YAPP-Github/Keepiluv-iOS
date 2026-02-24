@@ -13,7 +13,7 @@ import CoreNetworkInterface
 public enum GoalEndpoint: Endpoint {
     case fetchGoalList(date: String)
     case createGoal(GoalCreateRequestDTO)
-    case fetchGoalDetailList(date: String)
+    case fetchGoalDetail(date: String, goalId: Int64)
     case fetchGoalById(goalId: Int64)
     case fetchGoalEditList(date: String)
     case updateGoal(goalId: Int64, GoalUpdateRequestDTO)
@@ -28,7 +28,7 @@ extension GoalEndpoint {
 
         case .createGoal: return "/api/v1/goals"
 
-        case .fetchGoalDetailList:
+        case .fetchGoalDetail:
             return "/api/v1/photologs"
 
         case let .fetchGoalById(goalId):
@@ -56,7 +56,7 @@ extension GoalEndpoint {
         case .createGoal:
             return .post
 
-        case .fetchGoalDetailList:
+        case .fetchGoalDetail:
             return .get
 
         case .fetchGoalById:
@@ -88,8 +88,11 @@ extension GoalEndpoint {
         case let .fetchGoalEditList(date):
             return [URLQueryItem(name: "date", value: date)]
             
-        case let .fetchGoalDetailList(date):
-            return [URLQueryItem(name: "targetDate", value: date)]
+        case let .fetchGoalDetail(date, goalId):
+            return [
+                URLQueryItem(name: "targetDate", value: date),
+                URLQueryItem(name: "goalId", value: String(goalId))
+            ]
 
         case .createGoal,
              .fetchGoalById,
@@ -108,7 +111,7 @@ extension GoalEndpoint {
         case let .createGoal(request):
             return request
 
-        case .fetchGoalDetailList,
+        case .fetchGoalDetail,
              .fetchGoalById,
              .fetchGoalEditList,
              .deleteGoal,

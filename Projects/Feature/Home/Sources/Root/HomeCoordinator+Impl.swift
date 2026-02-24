@@ -29,7 +29,12 @@ extension HomeCoordinator {
             switch action {
             case let .home(.delegate(.goToGoalDetail(id, owner, verificationDate))):
                 state.routes.append(.detail)
-                state.goalDetail = .init(currentUser: owner, id: id, verificationDate: verificationDate)
+                state.goalDetail = .init(
+                    currentUser: owner,
+                    entryPoint: .home,
+                    id: id,
+                    verificationDate: verificationDate
+                )
                 return .none
                 
             case let .home(.delegate(.goToMakeGoal(category))):
@@ -41,12 +46,12 @@ extension HomeCoordinator {
                 state.routes.append(.editGoalList)
                 state.editGoalList = .init(calendarDate: date)
                 return .none
-
+                
             case .home(.delegate(.goToSettings)):
                 state.routes.append(.settings)
                 state.settings = .init()
                 return .none
-
+                
             case .home(.delegate(.goToNotification)):
                 state.routes.append(.notification)
                 state.notification = .init()
@@ -89,66 +94,71 @@ extension HomeCoordinator {
                 
             case .editGoalList:
                 return .none
-
+                
             case .settings(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 state.settings = nil
                 return .none
-
+                
             case .settings(.delegate(.navigateBackFromSubView)):
                 popLastRoute(&state.routes)
                 return .none
-
+                
             case .settings(.delegate(.navigateToAccount)):
                 state.routes.append(.settingsAccount)
                 return .none
-
+                
             case .settings(.delegate(.navigateToInfo)):
                 state.routes.append(.settingsInfo)
                 return .none
-
+                
             case .settings(.delegate(.navigateToNotificationSettings)):
                 state.routes.append(.settingsNotificationSettings)
                 return .none
-
+                
             case let .settings(.delegate(.navigateToWebView(url, title))):
                 state.routes.append(.settingsWebView(url: url, title: title))
                 return .none
-
+                
             case .settings(.delegate(.logoutCompleted)):
                 state.routes.removeAll()
                 state.settings = nil
                 return .send(.delegate(.logoutCompleted))
-
+                
             case .settings(.delegate(.withdrawCompleted)):
                 state.routes.removeAll()
                 state.settings = nil
                 return .send(.delegate(.withdrawCompleted))
-
+                
             case .settings(.delegate(.sessionExpired)):
                 state.routes.removeAll()
                 state.settings = nil
                 return .send(.delegate(.sessionExpired))
-
+                
             case .settings:
                 return .none
-
+                
             case .notification(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 state.notification = nil
                 return .none
-
+                
             case let .notification(.delegate(.notificationSelected(item))):
                 popLastRoute(&state.routes)
                 state.notification = nil
                 return .send(.delegate(.notificationItemTapped(item)))
-
+                
             case .notification:
                 return .none
-
+                
             case let .navigateToGoalDetail(id, owner, date):
                 state.routes.append(.detail)
-                state.goalDetail = .init(currentUser: owner, id: id, verificationDate: date)
+                state.goalDetail = .init(
+                    currentUser: owner,
+                    entryPoint: .stats,
+                    id: id,
+                    verificationDate: date
+                )
                 return .none
 
             case .delegate:

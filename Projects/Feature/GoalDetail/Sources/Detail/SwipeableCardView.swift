@@ -9,19 +9,11 @@ import SwiftUI
 
 struct SwipeableCardView<Content: View>: View {
     enum SwipeDirection {
-        case up
-        case down
         case left
         case right
         
         var exitOffset: CGSize {
             switch self {
-            case .up:
-                return CGSize(width: 0, height: -420)
-                
-            case .down:
-                return CGSize(width: 0, height: 420)
-                
             case .left:
                 return CGSize(width: -420, height: 0)
                 
@@ -30,33 +22,26 @@ struct SwipeableCardView<Content: View>: View {
             }
         }
     }
-    
-    let isEditing: Bool
-    let canSwipeUp: Bool
-    let canSwipeDown: Bool
-    let onCardTap: () -> Void
-    let onSwipeUp: () -> Void
-    let onSwipeDown: () -> Void
+    let canSwipeLeft: Bool
+    let canSwipeRight: Bool
+    let onSwipeLeft: () -> Void
+    let onSwipeRight: () -> Void
     let content: Content
     
     @State private var cardOffset: CGSize = .zero
     @State private var cardOpacity: Double = 1
     
     init(
-        isEditing: Bool,
-        canSwipeUp: Bool,
-        canSwipeDown: Bool,
-        onCardTap: @escaping () -> Void,
-        onSwipeUp: @escaping () -> Void,
-        onSwipeDown: @escaping () -> Void,
+        canSwipeLeft: Bool,
+        canSwipeRight: Bool,
+        onSwipeLeft: @escaping () -> Void,
+        onSwipeRight: @escaping () -> Void,
         @ViewBuilder content: () -> Content
     ) {
-        self.isEditing = isEditing
-        self.canSwipeUp = canSwipeUp
-        self.canSwipeDown = canSwipeDown
-        self.onCardTap = onCardTap
-        self.onSwipeUp = onSwipeUp
-        self.onSwipeDown = onSwipeDown
+        self.canSwipeLeft = canSwipeLeft
+        self.canSwipeRight = canSwipeRight
+        self.onSwipeLeft = onSwipeLeft
+        self.onSwipeRight = onSwipeRight
         self.content = content()
     }
     
@@ -66,11 +51,7 @@ struct SwipeableCardView<Content: View>: View {
             .opacity(cardOpacity)
             .rotationEffect(.degrees(swipeRotation))
             .contentShape(RoundedRectangle(cornerRadius: 20))
-            .onTapGesture { handleCardTap() }
             .gesture(cardSwipeGesture)
-            .onChange(of: isEditing) {
-                if isEditing { resetCardOffset() }
-            }
     }
 }
 
@@ -83,52 +64,43 @@ private extension SwipeableCardView {
     var cardSwipeGesture: some Gesture {
         DragGesture(minimumDistance: 16)
             .onChanged { value in
-                guard !isEditing else { return }
-                cardOffset = value.translation
-            }
-            .onEnded { value in
-                guard !isEditing else {
-                    resetCardOffset()
+                let translation = value.translation
+
+                guard abs(translation.width) >= abs(translation.height) else {
+                    cardOffset = .zero
                     return
                 }
-                
+
+                cardOffset = CGSize(width: translation.width, height: 0)
+            }
+            .onEnded { value in
                 guard let direction = swipeDirection(for: value.translation) else {
                     resetCardOffset()
                     return
                 }
                 
-                if direction == .up && !canSwipeUp {
-                    resetCardOffset()
-                    return
+                switch direction {
+                case .left:
+                    if !canSwipeLeft {
+                        resetCardOffset()
+                        return
+                    }
+                    
+                case .right:
+                    if !canSwipeRight {
+                        resetCardOffset()
+                        return
+                    }
                 }
-                
-                if direction == .down && !canSwipeDown {
-                    resetCardOffset()
-                    return
-                }
-                
                 completeSwipe(direction: direction)
             }
     }
     
-    func handleCardTap() {
-        guard !isEditing else { return }
-        withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
-            onCardTap()
-        }
-    }
-    
     func swipeDirection(for translation: CGSize) -> SwipeDirection? {
         let threshold: CGFloat = 60
-        let isHorizontal = abs(translation.width) > abs(translation.height)
-        
-        if isHorizontal {
-            guard abs(translation.width) > threshold else { return nil }
-            return translation.width > 0 ? .right : .left
-        } else {
-            guard abs(translation.height) > threshold else { return nil }
-            return translation.height > 0 ? .down : .up
-        }
+        guard abs(translation.width) > abs(translation.height) else { return nil }
+        guard abs(translation.width) > threshold else { return nil }
+        return translation.width > 0 ? .right : .left
     }
     
     func completeSwipe(direction: SwipeDirection) {
@@ -142,12 +114,13 @@ private extension SwipeableCardView {
         Task { @MainActor in
             try await Task.sleep(for: .seconds(0.15))
             switch direction {
-            case .up:
-                onSwipeUp()
-            case .down:
-                onSwipeDown()
-            case .left, .right:
-                onCardTap()
+            case .left:
+                guard canSwipeLeft else { return }
+                onSwipeLeft()
+                
+            case .right:
+                guard canSwipeRight else { return }
+                onSwipeRight()
             }
             cardOffset = CGSize(width: -exitOffset.width * 0.2, height: -exitOffset.height * 0.2)
             withAnimation(.spring(response: 0.34, dampingFraction: 0.84)) {

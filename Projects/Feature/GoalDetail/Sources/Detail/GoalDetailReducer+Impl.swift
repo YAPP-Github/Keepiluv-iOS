@@ -15,6 +15,7 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
+import SharedUtil
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
@@ -40,10 +41,11 @@ extension GoalDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 let date = state.verificationDate
+                let goalId = state.goalId
                 
                 return .run { send in
                     do {
-                        let item = try await goalClient.fetchGoalDetailList(date)
+                        let item = try await goalClient.fetchGoalDetail(date, goalId)
                         await send(.fethedGoalDetailItem(item))
                     } catch {
                         await send(.fetchGoalDetailFailed)
@@ -95,27 +97,15 @@ extension GoalDetailReducer {
                     }
                 )
                 
-            case .cardTapped:
-                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
+            case .cardSwipeLeft:
+                state.currentUser = .mySelf
                 state.commentText = state.comment
-                state.isCommentFocused = false
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
-            case .cardSwipedUp:
-                let nextIndex = state.currentGoalIndex + 1
-                guard nextIndex < state.completedGoalItems.count else { return .none }
-                state.currentGoalIndex = nextIndex
+            case .cardSwipeRight:
+                state.currentUser = .you
                 state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-                
-            case .cardSwipedDown:
-                guard state.currentGoalIndex > 0 else { return .none }
-                state.currentGoalIndex -= 1
-                state.commentText = state.comment
-                state.isCommentFocused = false
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
@@ -219,8 +209,14 @@ extension GoalDetailReducer {
                         do {
                             var fileName: String
                             if let pendingEditedImageData {
+                                let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(
+                                    from: pendingEditedImageData
+                                )
                                 let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                                try await photoLogClient.uploadImageData(pendingEditedImageData, uploadResponse.uploadUrl)
+                                try await photoLogClient.uploadImageData(
+                                    optimizedImageData,
+                                    uploadResponse.uploadUrl
+                                )
                                 fileName = uploadResponse.fileName
                             } else {
                                 let imageURLString = current.imageUrl ?? ""

@@ -62,6 +62,10 @@ public struct MainTabView: View {
                 homeFloatingButton
             }
         }
+        .txToast(
+            item: $store.home.home.toast,
+            customPadding: Constants.tabBarHeight
+        )
     }
 }
 

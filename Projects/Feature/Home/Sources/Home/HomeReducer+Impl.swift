@@ -160,9 +160,20 @@ extension HomeReducer {
                     state.modal = .info(.uncheckGoal)
                     return .none
                 } else {
-                    return .run { send in
-                        let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                        await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
+                    let now = state.nowDate
+                    let today = TXCalendarDate(
+                        year: now.year,
+                        month: now.month,
+                        day: now.day
+                    )
+                    if state.calendarDate > today {
+                        state.toast = .warning(message: "미래의 인증샷은 지금 올릴 수 없어요!")
+                        return .none
+                    } else {
+                        return .run { send in
+                            let isAuthorized = await captureSessionClient.fetchIsAuthorized()
+                            await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
+                        }
                     }
                 }
                 
@@ -242,6 +253,9 @@ extension HomeReducer {
                 
                 // MARK: - Update State
             case let .fetchGoalsCompleted(items, date):
+                let cacheKey = TXCalendarUtil.apiDateString(for: date)
+                state.goalsCache[cacheKey] = items
+                
                 if date != state.calendarDate {
                     return .none
                 }
@@ -273,6 +287,13 @@ extension HomeReducer {
                 
             case .fetchGoals:
                 let date = state.calendarDate
+                let cacheKey = TXCalendarUtil.apiDateString(for: date)
+                if let cachedItems = state.goalsCache[cacheKey] {
+                    state.cards = cachedItems
+                    state.isLoading = false
+                } else {
+                    state.isLoading = true
+                }
                 return .run { send in
                     // 읽지 않은 알림 여부 체크
                     if let hasUnread = try? await notificationClient.fetchUnread() {
@@ -280,7 +301,7 @@ extension HomeReducer {
                     }
 
                     do {
-                        let goals = try await goalClient.fetchGoals(TXCalendarUtil.apiDateString(for: date))
+                        let goals = try await goalClient.fetchGoals(cacheKey)
                         let items: [GoalCardItem] = goals.map { goal in
                             let myImageURL = goal.myVerification?.imageURL.flatMap(URL.init(string:))
                             let yourImageURL = goal.yourVerification?.imageURL.flatMap(URL.init(string:))
@@ -343,6 +364,7 @@ extension HomeReducer {
                     isSelected: true,
                     emoji: state.cards[index].myCard.emoji
                 )
+                state.goalsCache[TXCalendarUtil.apiDateString(for: state.calendarDate)] = state.cards
                 return .none
                 
             case .proofPhotoDismissed:
@@ -362,6 +384,7 @@ extension HomeReducer {
                     isSelected: false,
                     emoji: state.cards[index].myCard.emoji
                 )
+                state.goalsCache[TXCalendarUtil.apiDateString(for: state.calendarDate)] = state.cards
                 return .send(.showToast(.delete(message: "인증이 해제되었어요")))
 
             case .deletePhotoLogFailed:

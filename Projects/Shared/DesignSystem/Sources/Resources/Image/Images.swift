@@ -115,4 +115,6 @@ public extension Image.Illustration {
     static let arrow = IllustrationAsset.illustArrow.swiftUIImage
     static let hug = IllustrationAsset.illustHug.swiftUIImage
     static let plane = IllustrationAsset.illustPlane.swiftUIImage
+    static let scare = IllustrationAsset.illustScare.swiftUIImage
+    static let trash = IllustrationAsset.illustTrash.swiftUIImage
 }

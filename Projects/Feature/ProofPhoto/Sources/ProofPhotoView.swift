@@ -64,6 +64,11 @@ public struct ProofPhotoView: View {
             if shouldShowCommentOverlay {
                 floatingCommentOverlay
             }
+
+            if store.isUploading {
+                ProgressView()
+                    .scaleEffect(1.2)
+            }
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

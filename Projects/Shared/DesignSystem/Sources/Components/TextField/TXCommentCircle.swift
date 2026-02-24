@@ -102,7 +102,12 @@ private extension TXCommentCircle {
                     .foregroundColor(
                         commentText.isEmpty ? Color.Gray.gray200 : Color.Gray.gray500
                     )
-                    .frame(width: Constants.circleSize, height: Constants.circleSize)
+                    .overlay {
+                        if isFocused && index == commentText.count {
+                            cursor
+                        }
+                    }
+                .frame(width: Constants.circleSize, height: Constants.circleSize)
             }
         }
         .background {
@@ -116,10 +121,22 @@ private extension TXCommentCircle {
     func circleText(at index: Int) -> String {
         let textArray = Array(commentText)
         if textArray.isEmpty {
-            return String(Constants.placeholder[index])
+            return isFocused ? "" : String(Constants.placeholder[index])
         }
 
         return index < textArray.count ? String(textArray[index]) : ""
+    }
+    
+    var cursor: some View {
+        TimelineView(.periodic(from: .now, by: 0.5)) { context in
+            let isVisible = Int(context.date.timeIntervalSinceReferenceDate * 2).isMultiple(of: 2)
+
+            RoundedRectangle(cornerRadius: 1)
+                .fill(Color.Gray.gray500)
+                .frame(width: 2, height: 28)
+                .opacity(isVisible ? 1 : 0)
+        }
+        .allowsHitTesting(false)
     }
 }
 

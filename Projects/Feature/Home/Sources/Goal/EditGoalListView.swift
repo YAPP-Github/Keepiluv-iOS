@@ -76,7 +76,7 @@ private extension EditGoalListView {
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
             },
-            onWeekSwipe: { swipe in
+            onSwipe: { swipe in
                 store.send(.weekCalendarSwipe(swipe))
             }
         )

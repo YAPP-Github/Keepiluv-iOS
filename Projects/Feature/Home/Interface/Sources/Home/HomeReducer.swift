@@ -44,6 +44,7 @@ public struct HomeReducer {
         public var calendarWeeks: [[TXCalendarDateItem]] = []
         public var calendarDate: TXCalendarDate = .init()
         public var calendarSheetDate: TXCalendarDate = .init()
+        public var goalsCache: [String: [GoalCardItem]] = [:]
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
         public var pendingDeleteGoalID: Int64?
@@ -98,6 +99,7 @@ public struct HomeReducer {
         
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
         case goalCheckButtonTapped(id: Int64, isChecked: Bool)
@@ -106,7 +108,6 @@ public struct HomeReducer {
         case myCardTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
-        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         
         // MARK: - Update State
         case fetchGoals
