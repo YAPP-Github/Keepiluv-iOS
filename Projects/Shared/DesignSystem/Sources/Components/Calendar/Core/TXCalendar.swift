@@ -24,8 +24,8 @@ public struct TXCalendar: View {
         case weekly
         case monthly
     }
-    
-    /// 주간 모드에서의 스와이프 방향입니다.
+
+    /// 캘린더 스와이프 방향입니다.
     public enum SwipeGesture {
         case previous
         case next
@@ -78,25 +78,57 @@ public struct TXCalendar: View {
     private let mode: DisplayMode
     private let weekdays: [String]
     private let weeks: [[TXCalendarDateItem]]
+    private let currentDate: Binding<TXCalendarDate>?
+    private let canMovePrevious: Bool
+    private let canMoveNext: Bool
     private let config: Configuration
     private let onSelect: (TXCalendarDateItem) -> Void
-    private let onWeekSwipe: ((SwipeGesture) -> Void)?
+    private let onSwipe: ((SwipeGesture) -> Void)?
     
     /// 캘린더 컴포넌트를 생성합니다.
     public init(
         mode: DisplayMode,
         weeks: [[TXCalendarDateItem]],
         weekdays: [String] = Self.defaultWeekdays,
+        canMovePrevious: Bool = true,
+        canMoveNext: Bool = true,
         config: Configuration = .init(),
         onSelect: @escaping (TXCalendarDateItem) -> Void = { _ in },
-        onWeekSwipe: ((SwipeGesture) -> Void)? = nil
+        onSwipe: ((SwipeGesture) -> Void)? = nil
+
     ) {
         self.mode = mode
         self.weeks = weeks
         self.weekdays = Array(weekdays.prefix(TXCalendarLayout.daysInWeek))
         self.config = config
+        self.currentDate = nil
+        self.canMovePrevious = canMovePrevious
+        self.canMoveNext = canMoveNext
         self.onSelect = onSelect
-        self.onWeekSwipe = onWeekSwipe
+        self.onSwipe = onSwipe
+    }
+
+    /// 현재 날짜 바인딩을 포함한 캘린더 컴포넌트를 생성합니다.
+    public init(
+        mode: DisplayMode,
+        currentDate: Binding<TXCalendarDate>,
+        weeks: [[TXCalendarDateItem]],
+        weekdays: [String] = Self.defaultWeekdays,
+        config: Configuration = .init(),
+        canMovePrevious: Bool = true,
+        canMoveNext: Bool = true,
+        onSelect: @escaping (TXCalendarDateItem) -> Void = { _ in },
+        onSwipe: ((SwipeGesture) -> Void)? = nil
+    ) {
+        self.mode = mode
+        self.weeks = weeks
+        self.weekdays = Array(weekdays.prefix(TXCalendarLayout.daysInWeek))
+        self.config = config
+        self.currentDate = currentDate
+        self.canMovePrevious = canMovePrevious
+        self.canMoveNext = canMoveNext
+        self.onSelect = onSelect
+        self.onSwipe = onSwipe
     }
     
     public var body: some View {
@@ -120,14 +152,32 @@ public struct TXCalendar: View {
         .gesture(
             DragGesture(minimumDistance: 16)
                 .onEnded { value in
-                    guard mode == .weekly else { return }
-                    
                     let horizontalDistance = value.translation.width
                     let verticalDistance = value.translation.height
                     guard abs(horizontalDistance) > abs(verticalDistance) else { return }
                     
-                    let swipeGesture: SwipeGesture = horizontalDistance > 0 ? .previous : .next
-                    onWeekSwipe?(swipeGesture)
+                    let rightSwipe = horizontalDistance > 0
+                    if rightSwipe {
+                        guard canMovePrevious else { return }
+                        switch mode {
+                        case .weekly:
+                            applySwipeToCurrentDate(.previous)
+                            onSwipe?(.previous)
+                        case .monthly:
+                            applySwipeToCurrentDate(.previous)
+                            onSwipe?(.previous)
+                        }
+                    } else {
+                        guard canMoveNext else { return }
+                        switch mode {
+                        case .weekly:
+                            applySwipeToCurrentDate(.next)
+                            onSwipe?(.next)
+                        case .monthly:
+                            applySwipeToCurrentDate(.next)
+                            onSwipe?(.next)
+                        }
+                    }
                 }
         )
     }
@@ -252,6 +302,30 @@ private extension TXCalendar {
 
 // MARK: - Private Methods
 private extension TXCalendar {
+    func applySwipeToCurrentDate(_ swipe: SwipeGesture) {
+        guard let currentDate else { return }
+
+        var updatedDate = currentDate.wrappedValue
+        switch mode {
+        case .weekly:
+            let offset: Int
+            switch swipe {
+            case .previous: offset = -1
+            case .next: offset = 1
+            }
+            guard let date = TXCalendarUtil.dateByAddingWeek(from: updatedDate, by: offset) else { return }
+            updatedDate = date
+
+        case .monthly:
+            switch swipe {
+            case .previous: updatedDate.goToPreviousMonth()
+            case .next: updatedDate.goToNextMonth()
+            }
+        }
+
+        currentDate.wrappedValue = updatedDate
+    }
+
     func weeklyHeaderTitle(index: Int, item: TXCalendarDateItem) -> String {
         guard let components = item.dateComponents,
               let year = components.year,

@@ -96,6 +96,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                 } else {
                     TXCalendar(
                         mode: .monthly,
+                        currentDate: $selectedDate,
                         weeks: displayWeeks,
                         config: calendarConfig
                     ) { item in
