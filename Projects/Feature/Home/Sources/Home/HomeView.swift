@@ -89,10 +89,6 @@ public struct HomeView: View {
                 }
             }
         )
-        .txToast(
-            item: $store.toast,
-            onButtonTap: { }
-        )
         .transaction { transaction in
             transaction.disablesAnimations = false
         }
