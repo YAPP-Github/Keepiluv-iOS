@@ -44,6 +44,7 @@ public struct HomeReducer {
         public var calendarWeeks: [[TXCalendarDateItem]] = []
         public var calendarDate: TXCalendarDate = .init()
         public var calendarSheetDate: TXCalendarDate = .init()
+        public var goalsCache: [String: [GoalCardItem]] = [:]
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
         public var pendingDeleteGoalID: Int64?
