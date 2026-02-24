@@ -15,6 +15,7 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
+import SharedUtil
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
@@ -208,8 +209,14 @@ extension GoalDetailReducer {
                         do {
                             var fileName: String
                             if let pendingEditedImageData {
+                                let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(
+                                    from: pendingEditedImageData
+                                )
                                 let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                                try await photoLogClient.uploadImageData(pendingEditedImageData, uploadResponse.uploadUrl)
+                                try await photoLogClient.uploadImageData(
+                                    optimizedImageData,
+                                    uploadResponse.uploadUrl
+                                )
                                 fileName = uploadResponse.fileName
                             } else {
                                 let imageURLString = current.imageUrl ?? ""

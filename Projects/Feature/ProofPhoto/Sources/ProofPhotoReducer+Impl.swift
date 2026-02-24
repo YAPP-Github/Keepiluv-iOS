@@ -13,6 +13,7 @@ import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
 import PhotosUI
 import SharedDesignSystem
+import SharedUtil
 
 extension ProofPhotoReducer {
     // swiftlint: disable function_body_length
@@ -130,8 +131,9 @@ extension ProofPhotoReducer {
                     }
                     return .run { send in
                         do {
+                            let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                            try await photoLogClient.uploadImageData(imageData, uploadResponse.uploadUrl)
+                            try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
                             
                             let createRequest = PhotoLogCreateRequestDTO(
                                 goalId: goalId,

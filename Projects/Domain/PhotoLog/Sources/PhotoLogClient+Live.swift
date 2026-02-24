@@ -31,7 +31,7 @@ extension PhotoLogClient: @retroactive DependencyKey {
 
                 var request = URLRequest(url: url)
                 request.httpMethod = "PUT"
-                request.setValue("image/png", forHTTPHeaderField: "Content-Type")
+                request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
 
                 _ = try await URLSession.shared.upload(for: request, from: data)
             },
