@@ -13,6 +13,7 @@ import FeatureHomeInterface
 import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureSettingsInterface
+import FeatureStatsInterface
 
 /// Home Feature의 NavigationStack을 제공하는 Root View입니다.
 ///
@@ -28,6 +29,7 @@ import FeatureSettingsInterface
 /// ```
 public struct HomeCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
+    @Dependency(\.statsDetailFactory) var statsDetailFactory
     @Dependency(\.notificationFactory) var notificationFactory
     @Dependency(\.makeGoalFactory) var makeGoalFactory
     @Dependency(\.settingsFactory) var settingsFactory
@@ -51,6 +53,12 @@ public struct HomeCoordinatorView: View {
                     case .detail:
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .statsDetail:
+                        IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
+                            statsDetailFactory.makeView(store)
                                 .toolbar(.hidden, for: .tabBar)
                         }
 

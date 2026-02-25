@@ -42,7 +42,7 @@ public struct StatsCoordinator {
         public var statsDetail: StatsDetailReducer.State?
         public var goalDetail: GoalDetailReducer.State?
         public var makeGoal: MakeGoalReducer.State?
-        
+
         /// 기본 상태를 생성합니다.
         ///
         /// ## 사용 예시
@@ -55,7 +55,7 @@ public struct StatsCoordinator {
     /// StatsCoordinator 화면에서 발생 가능한 액션입니다.
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        
+
         case stats(StatsReducer.Action)
         case statsDetail(StatsDetailReducer.Action)
         case goalDetail(GoalDetailReducer.Action)

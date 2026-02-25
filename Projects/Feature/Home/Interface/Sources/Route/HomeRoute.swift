@@ -11,6 +11,7 @@ import Foundation
 public enum HomeRoute: Equatable, Hashable {
     case editGoalList
     case detail
+    case statsDetail
     case makeGoal
     case settings
     case settingsAccount

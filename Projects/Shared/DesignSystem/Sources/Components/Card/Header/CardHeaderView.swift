@@ -69,13 +69,23 @@ private extension CardHeaderView {
     
     var baseContent: some View {
         HStack(spacing: config.contentSpacing) {
-            config.iconImage
-            
-            Text(config.goalName)
-                .typography(config.titleTypography)
-            
+            HStack(spacing: config.contentSpacing) {
+                config.iconImage
+
+                Text(config.goalName)
+                    .typography(config.titleTypography)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                config.onHeaderTapped?()
+            }
+
             Spacer()
-            
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    config.onHeaderTapped?()
+                }
+
             rightContent
         }
         .padding(config.padding)

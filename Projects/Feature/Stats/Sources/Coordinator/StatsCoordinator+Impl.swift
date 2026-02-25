@@ -37,8 +37,7 @@ extension StatsCoordinator {
                 state.routes.append(.statsDetail)
                 state.statsDetail = .init(goalId: goalId)
                 return .none
-                
-                
+
             case let .statsDetail(.delegate(.goToGoalDetail(goalId, isCompletedPartner, date))):
                 state.routes.append(.goalDetail)
                 state.goalDetail = .init(

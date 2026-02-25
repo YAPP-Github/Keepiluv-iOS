@@ -69,7 +69,6 @@ public struct HomeView: View {
                 AddGoalListView { category in
                     store.send(.addGoalButtonTapped(category))
                 }
-                .frame(height: UIScreen.main.bounds.height - 92)
             }
         )
         .txBottomSheet(
@@ -168,11 +167,12 @@ private extension HomeView {
             Button {
                 store.send(.editButtonTapped)
             } label: {
-                Image.Icon.Symbol.edit
+                Text("편집")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray500)
             }
         }
         .frame(height: 24)
-        .padding(.top, 12)
     }
     
     var cardList: some View {
@@ -198,12 +198,14 @@ private extension HomeView {
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
                     store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
+                },
+                onHeaderTapped: {
+                    store.send(.headerTapped(card))
                 }
             ),
             actionLeft: {
                 store.send(.myCardTapped(card))
             }, actionRight: {
-                
                 store.send(.yourCardTapped(card))
             }
         )
