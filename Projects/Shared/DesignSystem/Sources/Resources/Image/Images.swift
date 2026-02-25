@@ -14,6 +14,8 @@ public extension Image {
     enum Illustration { }
     /// 모듈 공통 벡터 리소스 네임스페이스입니다.
     enum Vector { }
+    /// 모듈 공통 Shape 리소스 네임스페이스입니다.
+    enum Shape { }
 }
 
 /// 모듈 전반에서 공통으로 사용하는 Icon형식의 Image 입니다.
@@ -117,4 +119,10 @@ public extension Image.Illustration {
     static let plane = IllustrationAsset.illustPlane.swiftUIImage
     static let scare = IllustrationAsset.illustScare.swiftUIImage
     static let trash = IllustrationAsset.illustTrash.swiftUIImage
+}
+
+public extension Image.Shape {
+    typealias ShapeAsset = SharedDesignSystemAsset.ImageAssets.Shape
+    
+    static let emojiBubble = ShapeAsset.yourEmoji.swiftUIImage
 }
