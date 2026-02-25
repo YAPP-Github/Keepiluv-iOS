@@ -54,7 +54,7 @@ extension StatsReducer {
                 // MARK: - Network
             case .fetchStats:
                 let isOngoing = state.isOngoing
-                let month = state.currentMonth.formattedAPIDateString()
+                let month = state.currentMonth.formattedYearDashMonth
                 
                 if isOngoing,
                    let cachedItems = state.ongoingItemsCache[month] {
@@ -88,10 +88,19 @@ extension StatsReducer {
                         goalId: $0.goalId,
                         goalName: $0.goalName,
                         iconImage: GoalIcon(from: $0.icon).image,
+                        stampIcon: .init(statsStamp: $0.stamp),
                         goalCount: goalCount,
                         completionInfos: [
-                            .init(name: stats.myNickname, count: $0.myCompletedCount),
-                            .init(name: stats.partnerNickname, count: $0.partnerCompletedCount)
+                            .init(
+                                name: stats.myNickname,
+                                count: $0.myStamp.completedCount,
+                                stampColors: $0.myStamp.stampColors.map(\.statsCardStampColor)
+                            ),
+                            .init(
+                                name: stats.partnerNickname,
+                                count: $0.partnerStamp.completedCount,
+                                stampColors: $0.partnerStamp.stampColors.map(\.statsCardStampColor)
+                            )
                         ]
                     )
                 }
@@ -101,7 +110,7 @@ extension StatsReducer {
                 }
 
                 // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
-                guard month == state.currentMonth.formattedAPIDateString() else {
+                guard month == state.currentMonth.formattedYearDashMonth else {
                     return .none
                 }
 
@@ -125,5 +134,37 @@ extension StatsReducer {
             }
         }
         self.init(reducer: reducer)
+    }
+}
+
+private extension Stats.StatsItem.StampColor {
+    var statsCardStampColor: StatsCardItem.StampColor {
+        switch self {
+        case .green400:
+            return .green400
+        case .blue400:
+            return .blue400
+        case .yellow400:
+            return .yellow400
+        case .pink400:
+            return .pink400
+        case .pink300:
+            return .pink300
+        case .pink200:
+            return .pink200
+        case .orange400:
+            return .orange400
+        case .purple400:
+            return .purple400
+        }
+    }
+}
+
+private extension TXVector.Icon {
+    init(statsStamp: String?) {
+        self = statsStamp
+            .map { $0.lowercased() }
+            .flatMap(Self.init(rawValue:))
+        ?? .clover
     }
 }

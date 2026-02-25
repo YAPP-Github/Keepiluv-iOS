@@ -64,8 +64,8 @@ private extension StatsView {
                 title: store.monthTitle,
                 onTitleTap: { },
                 isNextDisabled: store.isNextMonthDisabled,
-                onPrevious: { store.send(.previousMonthTapped)},
-                onNext: { store.send(.nextMonthTapped)}
+                onPrevious: { store.send(.previousMonthTapped) },
+                onNext: { store.send(.nextMonthTapped) }
             )
         } else { EmptyView() }
     }
