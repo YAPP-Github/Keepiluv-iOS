@@ -22,19 +22,20 @@ struct StatsView: View {
                 .padding(.top, store.isOngoing ? 16 : 20)
                 .background(Color.Gray.gray50)
             
-            if store.hasItems {
+            if !store.items.isEmpty {
                 cardList
             }
             
             Spacer()
         }
         .overlay {
+            if !store.isLoading && store.items.isEmpty {
+               statsEmptyView
+            }
+        }
+        .overlay {
             if store.isLoading {
                 ProgressView()
-            }
-            
-            if !store.hasItems {
-               statsEmptyView
             }
         }
         .onAppear { store.send(.onAppear) }
