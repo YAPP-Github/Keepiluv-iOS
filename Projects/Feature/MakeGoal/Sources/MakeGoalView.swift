@@ -133,7 +133,8 @@ private extension MakeGoalView {
             text: $store.goalTitle,
             placeholderText: "목표를 입력해 보세요",
             isFocused: $isGoalTitleTextFieldFocused,
-            submitLabel: .done
+            submitLabel: .done,
+            subText: .init(text: "목표 이름 2-14자", state: validationState)
         )
     }
     
@@ -363,5 +364,12 @@ private extension MakeGoalView {
                 }
             }
         )
+    }
+    
+    var validationState: TXTextField.SubTextConfiguration.State {
+        if store.goalTitle.isEmpty {
+            return .empty
+        }
+        return store.isInvalidTitle ? .valid : .invalid
     }
 }

@@ -65,7 +65,9 @@ public struct MakeGoalReducer {
         public var showPeriodCount: Bool { selectedPeriod != .daily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
         public var selectedEmoji: GoalIcon { icons[selectedEmojiIndex] }
-        public var completeButtonDisabled: Bool { goalTitle.isEmpty || isLoading }
+        public var completeButtonDisabled: Bool { !isValidTitleLength || isLoading }
+        public var isInvalidTitle: Bool { isValidTitleLength }
+        public var isValidTitleLength: Bool { 2 <= goalTitle.count && goalTitle.count <= 14 }
         
         public var modal: TXModalType?
         public var toast: TXToastType?
