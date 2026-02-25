@@ -81,39 +81,53 @@ public struct Stats: Equatable {
         public let goalName: String
         public let monthlyCount: Int?
         public let totalCount: Int?
-        public let myCompletedCount: Int
-        public let partnerCompletedCount: Int
+        public let stamp: String?
+        public let myStamp: Stamp
+        public let partnerStamp: Stamp
         
-        /// 단일 목표 통계 항목을 생성합니다.
-        ///
-        /// ## 사용 예시
-        /// ```swift
-        /// let item = Stats.StatsItem(
-        ///     goalId: 1,
-        ///     icon: "ICON_BOOK",
-        ///     goalName: "독서하기",
-        ///     monthlyCount: 12,
-        ///     totalCount: nil,
-        ///     myCompletedCount: 6,
-        ///     partnerCompletedCount: 2
-        /// )
-        /// ```
         public init(
             goalId: Int64,
             icon: String,
             goalName: String,
             monthlyCount: Int?,
             totalCount: Int?,
-            myCompletedCount: Int,
-            partnerCompletedCount: Int
+            stamp: String?,
+            myStamp: Stamp,
+            partnerStamp: Stamp
         ) {
             self.goalId = goalId
             self.icon = icon
             self.goalName = goalName
             self.monthlyCount = monthlyCount
             self.totalCount = totalCount
-            self.myCompletedCount = myCompletedCount
-            self.partnerCompletedCount = partnerCompletedCount
+            self.stamp = stamp
+            self.myStamp = myStamp
+            self.partnerStamp = partnerStamp
+        }
+
+        /// 통계 스탬프에서 사용하는 색상 타입입니다.
+        public enum StampColor: String, Equatable, CaseIterable {
+            case green400 = "GREEN400"
+            case blue400 = "BLUE400"
+            case yellow400 = "YELLOW400"
+            case pink400 = "PINK400"
+            case pink300 = "PINK300"
+            case pink200 = "PINK200"
+            case orange400 = "ORANGE400"
+            case purple400 = "PURPLE400"
+        }
+        
+        public struct Stamp: Equatable {
+            public let completedCount: Int
+            public let stampColors: [StampColor]
+            
+            public init(
+                completedCount: Int,
+                stampColors: [StampColor]
+            ) {
+                self.completedCount = completedCount
+                self.stampColors = stampColors
+            }
         }
     }
 }

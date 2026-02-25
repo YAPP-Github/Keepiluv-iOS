@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import DomainStats
 import DomainStatsInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
@@ -36,7 +37,7 @@ struct StatsApp: App {
                         )
                     },
                     withDependencies: {
-                        $0.statsClient = .testValue
+                        $0.statsClient = .previewValue
                         $0.goalDetailFactory = .liveValue
                         $0.makeGoalFactory = .liveValue
                         $0.goalClient = .previewValue

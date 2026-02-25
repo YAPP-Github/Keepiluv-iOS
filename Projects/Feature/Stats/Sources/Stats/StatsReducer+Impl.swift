@@ -54,7 +54,7 @@ extension StatsReducer {
                 // MARK: - Network
             case .fetchStats:
                 let isOngoing = state.isOngoing
-                let month = state.currentMonth.formattedAPIDateString()
+                let month = state.currentMonth.formattedYearDashMonth
                 
                 if isOngoing,
                    let cachedItems = state.ongoingItemsCache[month] {
@@ -66,13 +66,7 @@ extension StatsReducer {
                 
                 return .run { send in
                     do {
-                        let stats: Stats
-                        if isOngoing {
-                            stats = try await statsClient.fetchOngoingStats(month)
-                        } else {
-                            stats = try await statsClient.fetchCompletedStats(month)
-                        }
-                        
+                        let stats = try await statsClient.fetchStats(month, isOngoing)
                         await send(.fetchedStats(stats: stats, month: month))
                     } catch {
                         await send(.fetchStatsFailed)
@@ -88,10 +82,19 @@ extension StatsReducer {
                         goalId: $0.goalId,
                         goalName: $0.goalName,
                         iconImage: GoalIcon(from: $0.icon).image,
+                        stampIcon: .init(statsStamp: $0.stamp),
                         goalCount: goalCount,
                         completionInfos: [
-                            .init(name: stats.myNickname, count: $0.myCompletedCount),
-                            .init(name: stats.partnerNickname, count: $0.partnerCompletedCount)
+                            .init(
+                                name: stats.myNickname,
+                                count: $0.myStamp.completedCount,
+                                stampColors: $0.myStamp.stampColors.map(\.statsCardStampColor)
+                            ),
+                            .init(
+                                name: stats.partnerNickname,
+                                count: $0.partnerStamp.completedCount,
+                                stampColors: $0.partnerStamp.stampColors.map(\.statsCardStampColor)
+                            )
                         ]
                     )
                 }
@@ -101,7 +104,7 @@ extension StatsReducer {
                 }
 
                 // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
-                guard month == state.currentMonth.formattedAPIDateString() else {
+                guard month == state.currentMonth.formattedYearDashMonth else {
                     return .none
                 }
 
@@ -125,5 +128,29 @@ extension StatsReducer {
             }
         }
         self.init(reducer: reducer)
+    }
+}
+
+private extension Stats.StatsItem.StampColor {
+    var statsCardStampColor: StatsCardItem.StampColor {
+        switch self {
+        case .green400: .green400
+        case .blue400: .blue400
+        case .yellow400: .yellow400
+        case .pink400: .pink400
+        case .pink300: .pink300
+        case .pink200: .pink200
+        case .orange400: .orange400
+        case .purple400: .purple400
+        }
+    }
+}
+
+private extension TXVector.Icon {
+    init(statsStamp: String?) {
+        self = statsStamp
+            .map { $0.lowercased() }
+            .flatMap(Self.init(rawValue:))
+        ?? .clover
     }
 }

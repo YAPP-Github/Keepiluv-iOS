@@ -27,7 +27,6 @@ public struct StatsCardView: View {
         repeating: GridItem(.flexible()),
         count: Constants.gridColumnCount
     )
-    private let icon = TXVector.Icon.allCases.randomElement() ?? .clover
     
     private var onTap: (Int64) -> Void
     
@@ -116,12 +115,14 @@ private extension StatsCardView {
                 LazyVGrid(columns: columns, spacing: Constants.gridSpacing) {
                     ForEach(0..<item.goalCount, id: \.self) { count in
                         let isCompleted = count < info.count
-                        let fillColor = isCompleted ? Constants.iconColors.randomElement() ?? .clear : .clear
+                        let stampColor = isCompleted
+                        ? info.stampColors.color(at: count) ?? Color.Chromatic.blue400
+                        : .clear
                         let borderColor = isCompleted ? Color.Gray.gray500 : Color.Gray.gray200
                         
                         TXVector(
-                            icon: icon,
-                            fillColor: fillColor,
+                            icon: item.stampIcon,
+                            fillColor: stampColor,
                             borderColor: borderColor
                         )
                         .frame(
@@ -141,6 +142,36 @@ private extension StatsCardView {
     }
 }
 
+private extension Array where Element == StatsCardItem.StampColor {
+    func color(at index: Int) -> Color? {
+        guard indices.contains(index) else { return nil }
+        return self[index].color
+    }
+}
+
+private extension StatsCardItem.StampColor {
+    var color: Color {
+        switch self {
+        case .green400:
+            return Color.Chromatic.green400
+        case .blue400:
+            return Color.Chromatic.blue400
+        case .yellow400:
+            return Color.Chromatic.yellow400
+        case .pink400:
+            return Color.Chromatic.pink400
+        case .pink300:
+            return Color.Chromatic.pink300
+        case .pink200:
+            return Color.Chromatic.pink200
+        case .orange400:
+            return Color.Chromatic.orange400
+        case .purple400:
+            return Color.Chromatic.purple400
+        }
+    }
+}
+
 // MARK: - Constants
 private extension StatsCardView {
     enum Constants {
@@ -151,14 +182,6 @@ private extension StatsCardView {
         static let gridSpacing: CGFloat = 4
         static let iconSize: CGFloat = 18
         static let cellPadding: CGFloat = 16
-        static let iconColors: [Color] = [
-            Color.Chromatic.blue400,
-            Color.Chromatic.green400,
-            Color.Chromatic.pink400,
-            Color.Chromatic.yellow400,
-            Color.Chromatic.orange400,
-            Color.Chromatic.purple400
-        ]
     }
 }
 
@@ -169,10 +192,11 @@ private extension StatsCardView {
                 goalId: 1,
                 goalName: "목표이름",
                 iconImage: .Icon.Illustration.book,
+                stampIcon: .clover,
                 goalCount: 30,
                 completionInfos: [
-                    .init(name: "민정", count: 10),
-                    .init(name: "현수", count: 20)
+                    .init(name: "민정", count: 10, stampColors: [.green400, .blue400]),
+                    .init(name: "현수", count: 20, stampColors: [.pink400, .orange400])
                 ]
             ),
             isOngoing: true,
@@ -184,10 +208,11 @@ private extension StatsCardView {
                 goalId: 2,
                 goalName: "목표이름",
                 iconImage: .Icon.Illustration.book,
+                stampIcon: .flower,
                 goalCount: 20,
                 completionInfos: [
-                    .init(name: "민정", count: 3),
-                    .init(name: "현수", count: 10)
+                    .init(name: "민정", count: 3, stampColors: []),
+                    .init(name: "현수", count: 10, stampColors: [])
                 ]
             ),
             isOngoing: false,
