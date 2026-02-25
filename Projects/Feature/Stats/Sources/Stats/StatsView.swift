@@ -57,6 +57,7 @@ private extension StatsView {
                 store.send(.topTabBarSelected(item))
             }
         )
+        .background(Color.Common.white)
     }
     
     @ViewBuilder

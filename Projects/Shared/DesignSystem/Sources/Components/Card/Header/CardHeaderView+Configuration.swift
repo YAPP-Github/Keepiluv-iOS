@@ -16,7 +16,7 @@ extension CardHeaderView {
         )
         case goalAdd(action: () -> Void)
         case goalEdit(action: () -> Void)
-        case goalStats(goalCount: Int)
+        case goalStats(goalCount: Int, isOngoing: Bool)
     }
     
     /// CardHeaderView에 필요한 스타일/데이터를 묶는 설정 값입니다.
@@ -202,12 +202,13 @@ extension CardHeaderView.Configuration {
     public static func goalStats(
         goalName: String,
         iconImage: Image,
-        goalCount: Int
+        goalCount: Int,
+        isOngoing: Bool,
     ) -> Self {
         Self(
             goalName: goalName,
             iconImage: iconImage,
-            content: .goalStats(goalCount: goalCount),
+            content: .goalStats(goalCount: goalCount, isOngoing: isOngoing),
             isBordered: false,
             padding: Spacing.spacing7,
             contentSpacing: Spacing.spacing6,
