@@ -16,23 +16,20 @@ extension StatsClient: @retroactive DependencyKey {
         @Dependency(\.networkClient) var networkClient
         
         return StatsClient(
-            fetchOngoingStats: { date in
+            fetchStats: { date, isInProgress in
                 do {
+                    let status = isInProgress ? "IN_PROGRESS" : "COMPLETED"
                     let response: StatsResponseDTO = try await networkClient.request(
-                        endpoint: StatsEndpoint.fetchStats(selectedDate: date, status: "IN_PROGRESS")
+                        endpoint: StatsEndpoint.fetchStats(selectedDate: date, status: status)
                     )
                     
-                    guard let stats = response.toEntity(isInProgress: true)
+                    guard let stats = response.toEntity(isInProgress: isInProgress)
                     else { throw NetworkError.invalidResponseError }
                     
                     return stats
                 } catch {
                     throw error
                 }
-            },
-            fetchCompletedStats: { _ in
-                // FIXME: - API 연동
-                throw NetworkError.notFoundError
             },
             fetchStatsDetail: { _ in
                 // FIXME: - API 연동

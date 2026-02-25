@@ -17,14 +17,12 @@ import CoreNetworkInterface
 /// ## 사용 예시
 /// ```swift
 /// @Dependency(\.statsClient) var statsClient
-/// let ongoing = try await statsClient.fetchOngoingStats("2026-02")
+/// let ongoing = try await statsClient.fetchStats("2026-02")
 /// let completed = try await statsClient.fetchCompletedStats("2026-02")
 /// ```
 public struct StatsClient {
-    /// 진행 중 목표 통계를 조회합니다.
-    public var fetchOngoingStats: (String) async throws -> Stats
-    /// 완료된 목표 통계를 조회합니다.
-    public var fetchCompletedStats: (String) async throws -> Stats
+    /// 목표 통계를 조회합니다.
+    public var fetchStats: (String, Bool) async throws -> Stats
     /// 단일 목표의 상세 통계를 조회합니다.
     public var fetchStatsDetail: (String) async throws -> StatsDetail
     
@@ -33,8 +31,7 @@ public struct StatsClient {
     /// ## 사용 예시
     /// ```swift
     /// let client = StatsClient(
-    ///     fetchOngoingStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) },
-    ///     fetchCompletedStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) },
+    ///     fetchStats: { _ in Stats(myNickname: "", partnerNickname: "", stats: []) },
     ///     fetchStatsDetail: { _ in
     ///         StatsDetail(
     ///             goalId: 1,
@@ -56,28 +53,18 @@ public struct StatsClient {
     /// )
     /// ```
     public init(
-        fetchOngoingStats: @escaping (String) async throws -> Stats,
-        fetchCompletedStats: @escaping (String) async throws -> Stats,
+        fetchStats: @escaping (String, Bool) async throws -> Stats,
         fetchStatsDetail: @escaping (String) async throws -> StatsDetail,
     ) {
-        self.fetchOngoingStats = fetchOngoingStats
-        self.fetchCompletedStats = fetchCompletedStats
+        self.fetchStats = fetchStats
         self.fetchStatsDetail = fetchStatsDetail
     }
 }
 
 extension StatsClient: TestDependencyKey {
     public static var testValue: StatsClient = Self(
-        fetchOngoingStats: { date in
-            assertionFailure("StatsClient.fetchOngoingStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return Stats(
-                myNickname: "현수",
-                partnerNickname: "민정",
-                stats: []
-            )
-        },
-        fetchCompletedStats: { _ in
-            assertionFailure("StatsClient.fetchCompletedStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+        fetchStats: { date, _ in
+            assertionFailure("StatsClient.fetchStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return Stats(
                 myNickname: "현수",
                 partnerNickname: "민정",
@@ -105,7 +92,7 @@ extension StatsClient: TestDependencyKey {
         }
     )
     public static var previewValue: StatsClient = Self(
-        fetchOngoingStats: { date in
+        fetchStats: { date, _ in
             return Stats(
                 myNickname: "현수",
                 partnerNickname: "민정",
@@ -189,54 +176,6 @@ extension StatsClient: TestDependencyKey {
                                 .green400, .orange400, .blue400
                             ]
                         )
-                    ),
-                ]
-            )
-        },
-        fetchCompletedStats: { _ in
-            return Stats(
-                myNickname: "현수",
-                partnerNickname: "민정",
-                stats: [
-                    .init(
-                        goalId: 6,
-                        icon: "ICON_BOOK",
-                        goalName: "독서하기",
-                        monthlyCount: nil,
-                        totalCount: 232,
-                        stamp: nil,
-                        myStamp: .init(completedCount: 221, stampColors: []),
-                        partnerStamp: .init(completedCount: 114, stampColors: [])
-                    ),
-                    .init(
-                        goalId: 7,
-                        icon: "ICON_DEFUALT",
-                        goalName: "요리 해먹기",
-                        monthlyCount: nil,
-                        totalCount: 68,
-                        stamp: nil,
-                        myStamp: .init(completedCount: 23, stampColors: []),
-                        partnerStamp: .init(completedCount: 62, stampColors: [])
-                    ),
-                    .init(
-                        goalId: 8,
-                        icon: "ICON_HEALTH",
-                        goalName: "운동하기",
-                        monthlyCount: nil,
-                        totalCount: 5,
-                        stamp: nil,
-                        myStamp: .init(completedCount: 5, stampColors: []),
-                        partnerStamp: .init(completedCount: 5, stampColors: [])
-                    ),
-                    .init(
-                        goalId: 9,
-                        icon: "ICON_DEFAULT",
-                        goalName: "난나난나",
-                        monthlyCount: nil,
-                        totalCount: 300,
-                        stamp: nil,
-                        myStamp: .init(completedCount: 102, stampColors: []),
-                        partnerStamp: .init(completedCount: 130, stampColors: [])
                     ),
                 ]
             )

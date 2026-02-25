@@ -66,13 +66,7 @@ extension StatsReducer {
                 
                 return .run { send in
                     do {
-                        let stats: Stats
-                        if isOngoing {
-                            stats = try await statsClient.fetchOngoingStats(month)
-                        } else {
-                            stats = try await statsClient.fetchCompletedStats(month)
-                        }
-                        
+                        let stats = try await statsClient.fetchStats(month, isOngoing)
                         await send(.fetchedStats(stats: stats, month: month))
                     } catch {
                         await send(.fetchStatsFailed)
@@ -140,22 +134,14 @@ extension StatsReducer {
 private extension Stats.StatsItem.StampColor {
     var statsCardStampColor: StatsCardItem.StampColor {
         switch self {
-        case .green400:
-            return .green400
-        case .blue400:
-            return .blue400
-        case .yellow400:
-            return .yellow400
-        case .pink400:
-            return .pink400
-        case .pink300:
-            return .pink300
-        case .pink200:
-            return .pink200
-        case .orange400:
-            return .orange400
-        case .purple400:
-            return .purple400
+        case .green400: .green400
+        case .blue400: .blue400
+        case .yellow400: .yellow400
+        case .pink400: .pink400
+        case .pink300: .pink300
+        case .pink200: .pink200
+        case .orange400: .orange400
+        case .purple400: .purple400
         }
     }
 }
