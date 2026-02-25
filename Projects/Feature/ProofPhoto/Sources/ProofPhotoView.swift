@@ -86,6 +86,7 @@ private extension ProofPhotoView {
     var mainContent: some View {
         VStack(spacing: 0) {
             topBar
+                .padding(.trailing, 10)
             titleText
                 .padding(.top, 25)
             photoPreview
@@ -110,7 +111,9 @@ private extension ProofPhotoView {
                 store.send(.closeButtonTapped)
             } label: {
                 Image.Icon.Symbol.closeM
+                    .resizable()
                     .renderingMode(.template)
+                    .frame(width: 24, height: 24)
                     .foregroundStyle(Color.Gray.gray100)
                     .frame(width: 44, height: 44)
             }
@@ -179,14 +182,11 @@ private extension ProofPhotoView {
 
     @ViewBuilder
     var bottomControls: some View {
-        Group {
-            if store.hasImage {
-                uploadControls
-            } else {
-                captureControls
-            }
+        if store.hasImage {
+            uploadControls
+        } else {
+            captureControls
         }
-        .frame(height: 74)
     }
     
     var captureControls: some View {
@@ -223,6 +223,7 @@ private extension ProofPhotoView {
                 .frame(width: 50)
         }
         .frame(maxWidth: .infinity)
+        .frame(height: 74)
     }
     
     var galleryButton: some View {
@@ -258,6 +259,7 @@ private extension ProofPhotoView {
                         .frame(width: 84, height: 84)
                 )
         }
+        .frame(width: 84, height: 84)
         .disabled(store.isCapturing)
     }
     
@@ -278,7 +280,7 @@ private extension ProofPhotoView {
     func previewContainer(
         @ViewBuilder content: @escaping () -> some View
     ) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 76)
+        let shape = RoundedRectangle(cornerRadius: 76, style: .continuous)
 
         return Color.clear
             .frame(maxWidth: .infinity)
