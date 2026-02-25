@@ -22,14 +22,15 @@ struct StatsView: View {
                 .padding(.top, store.isOngoing ? 16 : 20)
                 .background(Color.Gray.gray50)
             
-            if !store.items.isEmpty {
+            if let items = store.items, !items.isEmpty {
                 cardList
             }
             
             Spacer()
         }
+        .background(Color.Gray.gray50)
         .overlay {
-            if !store.isLoading && store.items.isEmpty {
+            if let items = store.items, items.isEmpty {
                statsEmptyView
             }
         }
@@ -74,7 +75,7 @@ private extension StatsView {
     var cardList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(store.items, id: \.self.goalId) { item in
+                ForEach(store.items ?? [], id: \.self.goalId) { item in
                     StatsCardView(
                         item: item,
                         isOngoing: store.isOngoing,

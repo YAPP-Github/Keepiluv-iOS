@@ -37,12 +37,12 @@ public struct StatsReducer {
             currentMonth >= TXCalendarDate()
         }
 
-        public var items: [StatsCardItem] {
+        public var items: [StatsCardItem]? {
             return isOngoing ? ongoingItems : completedItems
         }
         
-        public var ongoingItems: [StatsCardItem] = []
-        public var completedItems: [StatsCardItem] = []
+        public var ongoingItems: [StatsCardItem]?
+        public var completedItems: [StatsCardItem]?
         public var ongoingItemsCache: [String: [StatsCardItem]] = [:]
         
         public var toast: TXToastType?
