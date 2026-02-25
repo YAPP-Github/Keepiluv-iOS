@@ -66,12 +66,46 @@ public struct StatsClient {
     }
 }
 
-// TODO: - API 연동
 extension StatsClient: TestDependencyKey {
     public static var testValue: StatsClient = Self(
         fetchOngoingStats: { date in
-            //            assertionFailure("StatsClient.fetchOngoingStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            //            return []
+            assertionFailure("StatsClient.fetchOngoingStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            return Stats(
+                myNickname: "현수",
+                partnerNickname: "민정",
+                stats: []
+            )
+        },
+        fetchCompletedStats: { _ in
+            assertionFailure("StatsClient.fetchCompletedStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            return Stats(
+                myNickname: "현수",
+                partnerNickname: "민정",
+                stats: []
+            )
+        },
+        fetchStatsDetail: { _ in
+            assertionFailure("StatsClient.fetchStatsDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            return .init(
+                goalId: 1,
+                goalName: "",
+                isCompleted: false,
+                completedDate: [ ],
+                summary: .init(
+                    myNickname: "",
+                    partnerNickname: "",
+                    totalCount: 322,
+                    myCompletedCount: 82,
+                    partnerCompltedCount: 211,
+                    repeatCycle: .daily,
+                    startDate: "2026-01-07",
+                    endDate: "2027-01-07"
+                )
+            )
+        }
+    )
+    public static var previewValue: StatsClient = Self(
+        fetchOngoingStats: { date in
             return Stats(
                 myNickname: "현수",
                 partnerNickname: "민정",
@@ -82,17 +116,39 @@ extension StatsClient: TestDependencyKey {
                         goalName: "독서하기",
                         monthlyCount: 12,
                         totalCount: nil,
-                        myCompletedCount: 6,
-                        partnerCompletedCount: 2
+                        stamp: "CLOVER",
+                        myStamp: .init(
+                            completedCount: 5,
+                            stampColors: [
+                                .pink200, .orange400, .purple400
+                            ]
+                        ),
+                        partnerStamp: .init(
+                            completedCount: 2,
+                            stampColors: [
+                                .green400, .orange400, .yellow400
+                            ]
+                        )
                     ),
                     .init(
                         goalId: 2,
                         icon: "ICON_DEFUALT",
                         goalName: "요리 해먹기",
-                        monthlyCount: 17,
+                        monthlyCount: 31,
                         totalCount: nil,
-                        myCompletedCount: 12,
-                        partnerCompletedCount: 8
+                        stamp: "FLOWER",
+                        myStamp: .init(
+                            completedCount: 2,
+                            stampColors: [
+                                .pink400, .orange400, .blue400
+                            ]
+                        ),
+                        partnerStamp: .init(
+                            completedCount: 11,
+                            stampColors: [
+                                .green400, .blue400, .yellow400
+                            ]
+                        )
                     ),
                     .init(
                         goalId: 3,
@@ -100,8 +156,19 @@ extension StatsClient: TestDependencyKey {
                         goalName: "운동하기",
                         monthlyCount: 31,
                         totalCount: nil,
-                        myCompletedCount: 2,
-                        partnerCompletedCount: 11
+                        stamp: "MOON",
+                        myStamp: .init(
+                            completedCount: 25,
+                            stampColors: [
+                                .pink200, .orange400, .purple400
+                            ]
+                        ),
+                        partnerStamp: .init(
+                            completedCount: 12,
+                            stampColors: [
+                                .green400, .orange400, .yellow400
+                            ]
+                        )
                     ),
                     .init(
                         goalId: 4,
@@ -109,15 +176,24 @@ extension StatsClient: TestDependencyKey {
                         goalName: "난나난나",
                         monthlyCount: 15,
                         totalCount: nil,
-                        myCompletedCount: 13,
-                        partnerCompletedCount: 15
+                        stamp: "CLOVER",
+                        myStamp: .init(
+                            completedCount: 13,
+                            stampColors: [
+                                .pink300, .orange400, .purple400
+                            ]
+                        ),
+                        partnerStamp: .init(
+                            completedCount: 15,
+                            stampColors: [
+                                .green400, .orange400, .blue400
+                            ]
+                        )
                     ),
                 ]
             )
         },
         fetchCompletedStats: { _ in
-            //            assertionFailure("StatsClient.fetchCompletedStats이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            //            return []
             return Stats(
                 myNickname: "현수",
                 partnerNickname: "민정",
@@ -128,8 +204,9 @@ extension StatsClient: TestDependencyKey {
                         goalName: "독서하기",
                         monthlyCount: nil,
                         totalCount: 232,
-                        myCompletedCount: 221,
-                        partnerCompletedCount: 187
+                        stamp: nil,
+                        myStamp: .init(completedCount: 221, stampColors: []),
+                        partnerStamp: .init(completedCount: 114, stampColors: [])
                     ),
                     .init(
                         goalId: 7,
@@ -137,8 +214,9 @@ extension StatsClient: TestDependencyKey {
                         goalName: "요리 해먹기",
                         monthlyCount: nil,
                         totalCount: 68,
-                        myCompletedCount: 23,
-                        partnerCompletedCount: 62
+                        stamp: nil,
+                        myStamp: .init(completedCount: 23, stampColors: []),
+                        partnerStamp: .init(completedCount: 62, stampColors: [])
                     ),
                     .init(
                         goalId: 8,
@@ -146,8 +224,9 @@ extension StatsClient: TestDependencyKey {
                         goalName: "운동하기",
                         monthlyCount: nil,
                         totalCount: 5,
-                        myCompletedCount: 5,
-                        partnerCompletedCount: 5
+                        stamp: nil,
+                        myStamp: .init(completedCount: 5, stampColors: []),
+                        partnerStamp: .init(completedCount: 5, stampColors: [])
                     ),
                     .init(
                         goalId: 9,
@@ -155,15 +234,14 @@ extension StatsClient: TestDependencyKey {
                         goalName: "난나난나",
                         monthlyCount: nil,
                         totalCount: 300,
-                        myCompletedCount: 102,
-                        partnerCompletedCount: 203
+                        stamp: nil,
+                        myStamp: .init(completedCount: 102, stampColors: []),
+                        partnerStamp: .init(completedCount: 130, stampColors: [])
                     ),
                 ]
             )
         },
         fetchStatsDetail: { _ in
-            //             assertionFailure("StatsClient.fetchStatsDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            //
             return .init(
                 goalId: 1,
                 goalName: "밥 잘 챙겨먹기",
@@ -197,7 +275,7 @@ extension StatsClient: TestDependencyKey {
                 )
             )
         }
-    )
+    )   
 }
 
 extension DependencyValues {
