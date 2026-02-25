@@ -35,6 +35,8 @@ public struct GoalDetailView: View {
     @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
     @State private var rectFrame: CGRect = .zero
     @State private var keyboardFrame: CGRect = .zero
+    @StateObject private var myEmojiFlyingReactionEmitter = FlyingReactionEmitter()
+    @State private var didPlayMyEmojiAppearAnimation = false
     
     /// GoalDetailView를 생성합니다.
     ///
@@ -85,6 +87,8 @@ public struct GoalDetailView: View {
             store.send(.onAppear)
         }
         .onDisappear {
+            didPlayMyEmojiAppearAnimation = false
+            myEmojiFlyingReactionEmitter.clear()
             store.send(.onDisappear)
         }
         .fullScreenCover(
@@ -100,6 +104,9 @@ public struct GoalDetailView: View {
             isPresented: $store.isCameraPermissionAlertPresented,
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
+        .overlay(alignment: .bottom) {
+            myEmojiFlyingReactionOverlay
+        }
         .overlay {
             if store.isSavingPhotoLog {
                 ProgressView()
@@ -295,7 +302,7 @@ private extension GoalDetailView {
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         let shape = RoundedRectangle(cornerRadius: 20)
-
+        
         return Color.clear
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
@@ -318,7 +325,68 @@ private extension GoalDetailView {
                 shape: shape,
                 lineWidth: 1.6
             )
+            .overlay(alignment: .topTrailing) {
+                myEmoji
+            }
             .rotationEffect(.degrees(degree(isBackground: false)))
+    }
+    
+    @ViewBuilder
+    var myEmoji: some View {
+        if store.myHasEmoji,
+           let emoji = store.selectedReactionEmoji?.image {
+            emoji
+                .resizable()
+                .frame(width: 52, height: 52)
+                .padding(
+                    .init(
+                        top: 5,
+                        leading: 11,
+                        bottom: 19,
+                        trailing: 13
+                    )
+                )
+                .background(
+                    Image.Shape.emojiBubble
+                        .frame(width: 76, height: 76)
+                )
+                .offset(x: 19, y: -14)
+        } else {
+            EmptyView()
+        }
+    }
+
+    var myEmojiFlyingReactionOverlay: some View {
+        GeometryReader { proxy in
+            FlyingReactionOverlay(
+                reactions: myEmojiFlyingReactionEmitter.reactions,
+                alignment: .bottom
+            )
+            .onChange(of: store.selectedReactionEmoji) {
+                playMyEmojiAppearAnimationIfNeeded(
+                    containerWidth: proxy.size.width,
+                    containerHeight: proxy.size.height
+                )
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    func playMyEmojiAppearAnimationIfNeeded(
+        containerWidth: CGFloat,
+        containerHeight: CGFloat
+    ) {
+        guard store.myHasEmoji,
+              !didPlayMyEmojiAppearAnimation,
+              let selectedEmoji = store.selectedReactionEmoji else { return }
+        didPlayMyEmojiAppearAnimation = true
+        myEmojiFlyingReactionEmitter.emit(
+            emoji: selectedEmoji,
+            config: .goalDetailBottom(
+                width: containerWidth,
+                height: containerHeight
+            )
+        )
     }
 }
 
@@ -337,6 +405,27 @@ private extension GoalDetailView {
     // 다른곳에서도 쓸 때 Util로 빼기
     private var isSEDevice: Bool {
         UIScreen.main.bounds.height <= 667
+    }
+}
+
+private extension FlyingReactionConfig {
+    static func goalDetailBottom(width: CGFloat, height: CGFloat) -> Self {
+        let xSpread = max(60, (width / 2) - 24)
+        let maxTravel = max(220, height - 40)
+        return FlyingReactionConfig(
+            emojiCount: 30,
+            startXRange: (-xSpread)...xSpread,
+            startYRange: -12...6,
+            durationRange: 1.05...1.55,
+            delayStep: 0.03,
+            delayJitterRange: 0...0.02,
+            heightRange: (300)...maxTravel,
+            amplitudeRange: 8...18,
+            frequencyRange: 0.7...1.2,
+            driftRange: -20...20,
+            scaleRange: 0.78...1.08,
+            wobbleRange: 1...3
+        )
     }
 }
 

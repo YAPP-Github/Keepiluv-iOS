@@ -105,6 +105,7 @@ public struct GoalDetailReducer {
         public var isCameraPermissionAlertPresented: Bool = false
         
         public var selectedReactionEmoji: ReactionEmoji?
+        public var myHasEmoji: Bool { currentUser == .mySelf && selectedReactionEmoji != nil }
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
