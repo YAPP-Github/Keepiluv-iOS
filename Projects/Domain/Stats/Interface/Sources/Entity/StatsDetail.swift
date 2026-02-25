@@ -14,9 +14,8 @@ public struct StatsDetail: Equatable {
     public let goalId: Int64
     public let goalName: String
     public var isCompleted: Bool
+    public let yearMonth: String
     public let completedDate: [CompletedDate]
-    
-    public let summary: Summary
     
     /// 날짜별 목표 달성 이미지를 나타내는 모델입니다.
     public struct CompletedDate: Equatable {

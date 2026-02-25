@@ -35,6 +35,7 @@ public struct StatsDetailReducer {
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
+        public var statsSummary: StatsDetail.Summary?
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
         public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
@@ -43,7 +44,7 @@ public struct StatsDetailReducer {
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
         public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
         public var previousMonthDisabled: Bool {
-            guard let startDateString = statsDetail?.summary.startDate,
+            guard let startDateString = statsSummary?.startDate,
                 let startDate = TXCalendarUtil.parseAPIDateString(startDateString) else {
                 return false
             }
@@ -105,9 +106,12 @@ public struct StatsDetailReducer {
         case backgroundTapped
         
         // MARK: - Network
-        case fetchStatsDetail
-        case fetchedStatsDetail(StatsDetail, month: String)
-        case fetchStatsDetailFailed
+        case fetchStatsDetailCalendar
+        case fetchedStatsDetailCalendar(StatsDetail, month: String)
+        case fetchStatsDetailCalendarFailed
+        case fetchStatsDetailSummary
+        case fetchedStatsDetailSummary(StatsDetail.Summary)
+        case fetchStatsDetailSummaryFailed
         
         // MARK: - Update State
         case updateStatsDetail(StatsDetail)

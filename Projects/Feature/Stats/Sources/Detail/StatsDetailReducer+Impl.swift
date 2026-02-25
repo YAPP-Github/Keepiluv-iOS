@@ -29,7 +29,10 @@ extension StatsDetailReducer {
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                return .send(.fetchStatsDetail)
+                return .merge(
+                    .send(.fetchStatsDetailCalendar),
+                    .send(.fetchStatsDetailSummary)
+                )
                 
             case .onDisappear:
                 return .none
@@ -54,7 +57,7 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                return .send(.fetchStatsDetail)
+                return .send(.fetchStatsDetailCalendar)
                 
             case .nextMonthTapped:
                 guard !state.nextMonthDisabled else { return .none }
@@ -63,7 +66,7 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                return .send(.fetchStatsDetail)
+                return .send(.fetchStatsDetailCalendar)
 
             case let .calendarSwiped(swipe):
                 switch swipe {
@@ -92,15 +95,16 @@ extension StatsDetailReducer {
                 )
                 
             case let .dropDownSelected(item):
-                guard let detail = state.statsDetail else { return .none }
+                guard let detail = state.statsDetail,
+                      let summary = state.statsSummary else { return .none }
                 let goalItem = GoalEditCardItem(
                     id: detail.goalId,
                     goalName: detail.goalName,
                     // FIXME: - image 연결
                     iconImage: .Icon.Illustration.default,
-                    repeatCycle: detail.summary.repeatCycle.text,
-                    startDate: detail.summary.startDate,
-                    endDate: detail.summary.endDate ?? ""
+                    repeatCycle: summary.repeatCycle.text,
+                    startDate: summary.startDate,
+                    endDate: summary.endDate ?? ""
                 )
                 state.isDropdownPresented = false
                 
@@ -121,7 +125,7 @@ extension StatsDetailReducer {
                 return .none
                 
                 // MARK: - Network
-            case .fetchStatsDetail:
+            case .fetchStatsDetailCalendar:
                 let month = state.currentMonth.formattedYearDashMonth
                 let goalId = state.goalId
                 var applyCached: Effect<Action> = .none
@@ -134,16 +138,27 @@ extension StatsDetailReducer {
                 
                 let fetchRemote: Effect<Action> = .run { send in
                     do {
-                        let statsDetail = try await statsClient.fetchStatsDetail(String(goalId))
-                        await send(.fetchedStatsDetail(statsDetail, month: month))
+                        let statsDetail = try await statsClient.fetchStatsDetailCalendar(goalId, month)
+                        await send(.fetchedStatsDetailCalendar(statsDetail, month: month))
                     } catch {
-                        await send(.fetchStatsDetailFailed)
+                        await send(.fetchStatsDetailCalendarFailed)
                     }
                 }
                 
                 return .merge(applyCached, fetchRemote)
             
-            case let .fetchedStatsDetail(statsDetail, month):
+            case .fetchStatsDetailSummary:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        let summary = try await statsClient.fetchStatsDetailSummary(goalId)
+                        await send(.fetchedStatsDetailSummary(summary))
+                    } catch {
+                        await send(.fetchStatsDetailSummaryFailed)
+                    }
+                }
+
+            case let .fetchedStatsDetailCalendar(statsDetail, month):
                 state.isLoading = false
                 state.statsDetail = statsDetail
                 state.completedDateCache[month] = statsDetail.completedDate.filter { $0.date.hasPrefix(month) }
@@ -153,21 +168,25 @@ extension StatsDetailReducer {
                     return .none
                 }
                 
-                return .merge(
-                    .send(.updateStatsSummary(statsDetail.summary)),
-                    .send(.updateMonthlyDate(state.completedDateCache[month] ?? []))
-                )
+                return .send(.updateMonthlyDate(state.completedDateCache[month] ?? []))
                 
-            case .fetchStatsDetailFailed:
+            case .fetchStatsDetailCalendarFailed:
                 state.isLoading = false
+                return .none
+
+            case let .fetchedStatsDetailSummary(summary):
+                return .send(.updateStatsSummary(summary))
+
+            case .fetchStatsDetailSummaryFailed:
                 return .none
                 
                 // MARK: - Update State
             case let .updateStatsDetail(statsDetail):
                 state.statsDetail = statsDetail
-                return .send(.updateStatsSummary(statsDetail.summary))
+                return .none
                 
             case let .updateStatsSummary(summary):
+                state.statsSummary = summary
                 let myCountString = "\(summary.myNickname) - \(summary.myCompletedCount)/\(summary.totalCount)"
                 let partnerCountString = "\(summary.partnerNickname) - \(summary.partnerCompltedCount)/\(summary.totalCount)"
                  

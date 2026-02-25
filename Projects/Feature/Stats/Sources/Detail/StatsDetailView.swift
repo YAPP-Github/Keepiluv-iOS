@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureStatsInterface
 import SharedDesignSystem
+import Kingfisher
 
 struct StatsDetailView: View {
     
@@ -190,8 +191,8 @@ private extension StatsDetailView {
     
     @ViewBuilder
     func dateImageBackground(
-        myImageUrl: String?,
-        partnerImageUrl: String?
+        myImageUrl: URL?,
+        partnerImageUrl: URL?
     ) -> some View {
         let bothCompleted: Bool = myImageUrl != nil && partnerImageUrl != nil
         
@@ -208,16 +209,16 @@ private extension StatsDetailView {
                         )
                         .rotationEffect(.degrees(16))
                     
-                    SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
+                    KFImage(partnerImageUrl)
                         .resizable()
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                 }
             } else if let myImageUrl {
-                SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage
+                KFImage(myImageUrl)
                     .resizable()
                     .clipShape(RoundedRectangle(cornerRadius: 7))
             } else if let partnerImageUrl {
-                SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage
+                KFImage(partnerImageUrl)
                     .resizable()
                     .clipShape(RoundedRectangle(cornerRadius: 7))
             }
@@ -232,7 +233,7 @@ private extension StatsDetailView {
 
 // MARK: - Private Methods
 private extension StatsDetailView {
-    func completedDate(for item: TXCalendarDateItem) -> (myImageUrl: String?, partnerImageUrl: String?)? {
+    func completedDate(for item: TXCalendarDateItem) -> (myImageUrl: URL?, partnerImageUrl: URL?)? {
         guard item.status == .completed,
               let components = item.dateComponents,
               let dateKey = TXCalendarDate(components: components)?.formattedAPIDateString() else {
@@ -240,7 +241,7 @@ private extension StatsDetailView {
         }
         
         guard let completedDate = store.completedDateByKey[dateKey] else { return nil }
-        return (completedDate.myImageUrl, completedDate.partnerImageUrl)
+        return (URL(string: completedDate.myImageUrl ?? ""), URL(string: completedDate.partnerImageUrl ?? ""))
     }
 }
 
