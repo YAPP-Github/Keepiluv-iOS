@@ -65,7 +65,7 @@ public struct TXCommentCircle: View {
             onFocused?(isFocused)
             externalFocus?.wrappedValue = isFocused
         }
-        .onChange(of: externalFocus?.wrappedValue) { newValue in
+        .onChange(of: externalFocus?.wrappedValue) { _, newValue in
             guard let newValue, newValue != isFocused else { return }
             isFocused = newValue
         }
@@ -75,23 +75,15 @@ public struct TXCommentCircle: View {
 // MARK: - SubViews
 private extension TXCommentCircle {
     var borderCircles: some View {
-        HStack(spacing: Constants.circleSpacing) {
-            ForEach(0..<Constants.maxCount, id: \.self) { _ in
-                Circle()
-                    .outsideBorder(.black, shape: .circle, lineWidth: 2)
-                    .frame(width: Constants.circleSize, height: Constants.circleSize)
-            }
-        }
+        mergedCircleBorderShape(lineWidth: Constants.borderLineWidth)
+            .fill(Color.black)
+            .frame(width: Constants.totalWidth, height: Constants.circleSize)
     }
     
     var fillCircles: some View {
-        HStack(spacing: Constants.circleSpacing) {
-            ForEach(0..<Constants.maxCount, id: \.self) { _ in
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: Constants.circleSize, height: Constants.circleSize)
-            }
-        }
+        mergedCircleShape(inset: Constants.borderLineWidth)
+            .fill(Color.white)
+            .frame(width: Constants.totalWidth, height: Constants.circleSize)
     }
     
     var textCircles: some View {
@@ -138,13 +130,59 @@ private extension TXCommentCircle {
         }
         .allowsHitTesting(false)
     }
+
+    func mergedCircleBorderShape(lineWidth: CGFloat) -> AnyShape {
+        let outer = mergedCircleShape(inset: 0)
+        let inner = mergedCircleShape(inset: lineWidth)
+        return AnyShape(outer.subtracting(inner))
+    }
+
+    func mergedCircleShape(inset: CGFloat) -> AnyShape {
+        let diameter = Constants.circleSize - (inset * 2)
+        let step = Constants.circleSize + Constants.circleSpacing
+        let baseCircle = AnyShape(
+            PositionedCircleShape(
+                posX: inset,
+                posY: inset,
+                diameter: diameter
+            )
+        )
+
+        var merged = baseCircle
+        for index in 1..<Constants.maxCount {
+            let offsetX = CGFloat(index) * step + inset
+            let nextCircle = AnyShape(
+                PositionedCircleShape(
+                    posX: offsetX,
+                    posY: inset,
+                    diameter: diameter
+                )
+            )
+            merged = AnyShape(merged.union(nextCircle))
+        }
+
+        return merged
+    }
 }
 
 private enum Constants {
     static let maxCount = 5
-    static let circleSize: CGFloat = 62
+    static let circleSize: CGFloat = 64
     static let circleSpacing: CGFloat = -14
+    static let borderLineWidth: CGFloat = 1.6
+    static let totalWidth: CGFloat = (circleSize * CGFloat(maxCount))
+        + (circleSpacing * CGFloat(maxCount - 1))
     static let placeholder = Array("코멘트추가")
+}
+
+private struct PositionedCircleShape: Shape {
+    let posX: CGFloat
+    let posY: CGFloat
+    let diameter: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        Path(ellipseIn: CGRect(x: posX, y: posY, width: diameter, height: diameter))
+    }
 }
 
 #Preview {
