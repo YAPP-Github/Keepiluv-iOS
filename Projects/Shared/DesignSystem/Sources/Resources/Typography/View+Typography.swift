@@ -16,6 +16,6 @@ public extension View {
             .padding(.vertical, token.lineSpacing / 2)
             .font(token.font.swiftUIFont(size: token.size))
             .lineSpacing(token.lineSpacing)
-            .kerning(token.kerning)
+            .tracking(token.kerning)
     }
 }
