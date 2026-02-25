@@ -82,6 +82,7 @@ extension MakeGoalReducer {
 
                 // MARK: - User Action
             case .emojiButtonTapped:
+                state.isGoalTitleFocused = false
                 state.modal = .gridButton(
                     .selectIcon(
                         icons: state.icons.map { $0.image },
@@ -93,8 +94,17 @@ extension MakeGoalReducer {
             case let .modalConfirmTapped(index):
                 state.selectedEmojiIndex = index
                 return .none
+
+            case let .goalTitleFocusChanged(isFocused):
+                state.isGoalTitleFocused = isFocused
+                return .none
+
+            case .dismissKeyboard:
+                state.isGoalTitleFocused = false
+                return .none
                 
             case .periodSelected:
+                state.isGoalTitleFocused = false
                 state.isPeriodSheetPresented = true
                 return .none
                 
@@ -143,12 +153,14 @@ extension MakeGoalReducer {
                 return .none
                 
             case .startDateTapped:
+                state.isGoalTitleFocused = false
                 state.calendarTarget = .startDate
                 state.calendarSheetDate = state.startDate
                 state.isCalendarSheetPresented = true
                 return .none
                 
             case .endDateTapped:
+                state.isGoalTitleFocused = false
                 state.calendarTarget = .endDate
                 if state.endDate < state.startDate {
                     state.endDate = state.startDate

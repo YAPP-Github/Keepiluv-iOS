@@ -14,6 +14,7 @@ import SharedDesignSystem
 public struct MakeGoalView: View {
     
     @Bindable public var store: StoreOf<MakeGoalReducer>
+    @FocusState private var isGoalTitleTextFieldFocused: Bool
 
     public init(store: StoreOf<MakeGoalReducer>) {
         self.store = store
@@ -47,6 +48,15 @@ public struct MakeGoalView: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { store.send(.onAppear) }
         .onDisappear { store.send(.onDisappear) }
+        .onTapGesture { store.send(.dismissKeyboard) }
+        .onChange(of: isGoalTitleTextFieldFocused) { _, newValue in
+            guard store.isGoalTitleFocused != newValue else { return }
+            store.send(.goalTitleFocusChanged(newValue))
+        }
+        .onChange(of: store.isGoalTitleFocused) { _, newValue in
+            guard isGoalTitleTextFieldFocused != newValue else { return }
+            isGoalTitleTextFieldFocused = newValue
+        }
         .txBottomSheet(
             isPresented: $store.isCalendarSheetPresented
         ) {
@@ -122,6 +132,7 @@ private extension MakeGoalView {
         TXTextField(
             text: $store.goalTitle,
             placeholderText: "목표를 입력해 보세요",
+            isFocused: $isGoalTitleTextFieldFocused,
             submitLabel: .done
         )
     }

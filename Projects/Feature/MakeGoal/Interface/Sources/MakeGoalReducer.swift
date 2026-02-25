@@ -58,6 +58,7 @@ public struct MakeGoalReducer {
         public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
         public var selectedEmojiIndex: Int
+        public var isGoalTitleFocused: Bool = false
         public var startDateText: String
         public var endDateText: String
         
@@ -139,6 +140,8 @@ public struct MakeGoalReducer {
 
         // MARK: - User Action
         case emojiButtonTapped
+        case goalTitleFocusChanged(Bool)
+        case dismissKeyboard
         case periodSelected
         case periodSheetWeeklyTapped
         case periodSheetMonthlyTapped
