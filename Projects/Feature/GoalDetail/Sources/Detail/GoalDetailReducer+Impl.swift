@@ -244,7 +244,7 @@ extension GoalDetailReducer {
                 state.isPresentedProofPhoto = false
                 return .none
                 
-            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, editedImageData: editedImageData))):
+            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, editedImageData))):
                 state.isPresentedProofPhoto = false
                 state.pendingEditedImageData = editedImageData
                 var myPhotoLog = myPhotoLog

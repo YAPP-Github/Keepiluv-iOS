@@ -156,7 +156,7 @@ extension ProofPhotoReducer {
                                 .delegate(
                                     .completedUploadPhoto(
                                         myPhotoLog: myPhotoLog,
-                                        editedImageData: nil
+                                        editedImageData: imageData
                                     )
                                 )
                             )
