@@ -58,13 +58,16 @@ public struct MakeGoalReducer {
         public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
         public var selectedEmojiIndex: Int
+        public var isGoalTitleFocused: Bool = false
         public var startDateText: String
         public var endDateText: String
         
         public var showPeriodCount: Bool { selectedPeriod != .daily }
         public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
         public var selectedEmoji: GoalIcon { icons[selectedEmojiIndex] }
-        public var completeButtonDisabled: Bool { goalTitle.isEmpty || isLoading }
+        public var completeButtonDisabled: Bool { !isValidTitleLength || isLoading }
+        public var isInvalidTitle: Bool { isValidTitleLength }
+        public var isValidTitleLength: Bool { 2 <= goalTitle.count && goalTitle.count <= 14 }
         
         public var modal: TXModalType?
         public var toast: TXToastType?
@@ -139,6 +142,8 @@ public struct MakeGoalReducer {
 
         // MARK: - User Action
         case emojiButtonTapped
+        case goalTitleFocusChanged(Bool)
+        case dismissKeyboard
         case periodSelected
         case periodSheetWeeklyTapped
         case periodSheetMonthlyTapped

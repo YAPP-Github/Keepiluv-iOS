@@ -40,9 +40,17 @@ public struct SettingsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
+        .onTapGesture {
+            dismissKeyboard()
+        }
         .onChange(of: isTextFieldFocused) { _, newValue in
             if !newValue && store.isEditing {
                 store.send(.nicknameEditingEnded)
+            }
+        }
+        .onChange(of: store.isLanguageModalPresented) { _, newValue in
+            if newValue {
+                dismissKeyboard()
             }
         }
         .txSelectionModal(
@@ -58,6 +66,10 @@ public struct SettingsView: View {
             store.send(.onAppear)
         }
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func dismissKeyboard() {
+        isTextFieldFocused = false
     }
 }
 

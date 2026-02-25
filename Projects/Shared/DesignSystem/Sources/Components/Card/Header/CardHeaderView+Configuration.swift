@@ -40,7 +40,8 @@ extension CardHeaderView {
         let borderColor: Color
         let borderWidth: CGFloat
         let titleTypography: TypographyToken
-        
+        let onHeaderTapped: (() -> Void)?
+
         init(
             goalName: String,
             iconImage: Image,
@@ -51,7 +52,8 @@ extension CardHeaderView {
             radius: CGFloat,
             borderColor: Color,
             borderWidth: CGFloat,
-            titleTypography: TypographyToken
+            titleTypography: TypographyToken,
+            onHeaderTapped: (() -> Void)? = nil
         ) {
             self.goalName = goalName
             self.iconImage = iconImage
@@ -63,6 +65,7 @@ extension CardHeaderView {
             self.borderColor = borderColor
             self.borderWidth = borderWidth
             self.titleTypography = titleTypography
+            self.onHeaderTapped = onHeaderTapped
         }
     }
 }
@@ -84,7 +87,8 @@ extension CardHeaderView.Configuration {
         iconImage: Image,
         isMyChecked: Bool,
         isCoupleChecked: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         makeGoalCheck(
             goalName: goalName,
@@ -92,7 +96,8 @@ extension CardHeaderView.Configuration {
             isMyChecked: isMyChecked,
             isCoupleChecked: isCoupleChecked,
             action: action,
-            isBordered: false
+            isBordered: false,
+            onHeaderTapped: onHeaderTapped
         )
     }
 
@@ -112,7 +117,8 @@ extension CardHeaderView.Configuration {
         iconImage: Image,
         isMyChecked: Bool,
         isCoupleChecked: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         makeGoalCheck(
             goalName: goalName,
@@ -120,7 +126,8 @@ extension CardHeaderView.Configuration {
             isMyChecked: isMyChecked,
             isCoupleChecked: isCoupleChecked,
             action: action,
-            isBordered: true
+            isBordered: true,
+            onHeaderTapped: onHeaderTapped
         )
     }
 
@@ -217,7 +224,8 @@ extension CardHeaderView.Configuration {
         isMyChecked: Bool,
         isCoupleChecked: Bool,
         action: @escaping () -> Void,
-        isBordered: Bool
+        isBordered: Bool,
+        onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         Self(
             goalName: goalName,
@@ -233,7 +241,8 @@ extension CardHeaderView.Configuration {
             radius: Radius.s,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
-            titleTypography: .t2_16b
+            titleTypography: .t2_16b,
+            onHeaderTapped: onHeaderTapped
         )
     }
 }

@@ -110,6 +110,7 @@ public struct MainTabReducer {
             let proofPhotoReducer = ProofPhotoReducer()
             HomeCoordinator(
                 goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
+                statsDetailReducer: StatsDetailReducer(),
                 proofPhotoReducer: proofPhotoReducer,
                 makeGoalReducer: MakeGoalReducer(),
                 editGoalListReducer: EditGoalListReducer(),

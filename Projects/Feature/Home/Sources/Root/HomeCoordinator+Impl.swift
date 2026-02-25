@@ -12,12 +12,14 @@ import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import FeatureSettingsInterface
+import FeatureStatsInterface
 
 extension HomeCoordinator {
     // 기본 구성의 HomeCoordinator를 생성합니다.
     // swiftlint:disable:next function_body_length
     public init(
         goalDetailReducer: GoalDetailReducer,
+        statsDetailReducer: StatsDetailReducer,
         proofPhotoReducer: ProofPhotoReducer,
         makeGoalReducer: MakeGoalReducer,
         editGoalListReducer: EditGoalListReducer,
@@ -56,7 +58,23 @@ extension HomeCoordinator {
                 state.routes.append(.notification)
                 state.notification = .init()
                 return .none
-                
+
+            case let .home(.delegate(.goToStatsDetail(id))):
+                state.routes.append(.statsDetail)
+                state.statsDetail = .init(goalId: id)
+                return .none
+
+            case .statsDetail(.delegate(.navigateBack)):
+                popLastRoute(&state.routes)
+                return .none
+
+            case .statsDetail(.onDisappear):
+                state.statsDetail = nil
+                return .none
+
+            case .statsDetail:
+                return .none
+
             case .goalDetail(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 return .none
@@ -173,6 +191,7 @@ extension HomeCoordinator {
             reducer: reducer,
             homeReducer: HomeReducer(proofPhotoReducer: proofPhotoReducer),
             goalDetailReducer: goalDetailReducer,
+            statsDetailReducer: statsDetailReducer,
             makeGoalReducer: makeGoalReducer,
             editGoalListReducer: editGoalListReducer,
             settingsReducer: settingsReducer,

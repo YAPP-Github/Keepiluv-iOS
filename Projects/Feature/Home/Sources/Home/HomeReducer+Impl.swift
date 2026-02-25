@@ -218,7 +218,10 @@ extension HomeReducer {
             case let .myCardTapped(card):
                 let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
                 return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf, verificationDate: verificationDate)))
-                
+
+            case let .headerTapped(card):
+                return .send(.delegate(.goToStatsDetail(id: card.id)))
+
             case .floatingButtonTapped:
                 state.isAddGoalPresented = true
                 return .none

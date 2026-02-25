@@ -46,6 +46,9 @@ public struct HomeView: View {
             if store.hasCards {
                 content
             } else {
+                headerRow
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
                 goalEmptyView
             }
             Spacer()
@@ -66,7 +69,6 @@ public struct HomeView: View {
                 AddGoalListView { category in
                     store.send(.addGoalButtonTapped(category))
                 }
-                .frame(height: UIScreen.main.bounds.height - 92)
             }
         )
         .txBottomSheet(
@@ -165,11 +167,12 @@ private extension HomeView {
             Button {
                 store.send(.editButtonTapped)
             } label: {
-                Image.Icon.Symbol.edit
+                Text("편집")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray500)
             }
         }
         .frame(height: 24)
-        .padding(.top, 12)
     }
     
     var cardList: some View {
@@ -195,12 +198,14 @@ private extension HomeView {
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
                     store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
+                },
+                onHeaderTapped: {
+                    store.send(.headerTapped(card))
                 }
             ),
             actionLeft: {
                 store.send(.myCardTapped(card))
             }, actionRight: {
-                
                 store.send(.yourCardTapped(card))
             }
         )
@@ -208,28 +213,23 @@ private extension HomeView {
     
     var goalEmptyView: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VStack(alignment: .center, spacing: 0) {
-                    Image.Illustration.emptyPoke
-
-                    Text("첫 목표를 세워볼까요?")
-                        .typography(.t2_16b)
-                        .foregroundStyle(Color.Gray.gray400)
-
-                    Text("+ 버튼을 눌러 목표를 추가해보세요")
-                        .typography(.c1_12r)
-                        .foregroundStyle(Color.Gray.gray300)
-                        .padding(.top, 5)
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .overlay(alignment: .bottomTrailing) {
-                    Image.Illustration.arrow
-                        .padding(.bottom, 63)
-                        .padding(.trailing, 86)
-                }
+            VStack(alignment: .center, spacing: 0) {
+                Image.Illustration.emptyPoke
+                
+                Text("첫 목표를 세워볼까요?")
+                    .typography(.t2_16b)
+                    .foregroundStyle(Color.Gray.gray400)
+                
+                Text("+ 버튼을 눌러 목표를 추가해보세요")
+                    .typography(.c1_12r)
+                    .foregroundStyle(Color.Gray.gray300)
+                    .padding(.top, 5)
             }
-            .refreshable {
-                store.send(.fetchGoals)
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .overlay(alignment: .bottomTrailing) {
+                Image.Illustration.arrow
+                    .padding(.bottom, 63)
+                    .padding(.trailing, 86)
             }
         }
     }

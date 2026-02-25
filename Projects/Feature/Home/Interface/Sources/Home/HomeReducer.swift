@@ -62,12 +62,12 @@ public struct HomeReducer {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
             if calendarDate < today {
-                return "지난 우리의 목표"
+                return "지난 우리 목표"
             }
             if today < calendarDate {
-                return "다음 우리의 목표"
+                return "다음 우리 목표"
             }
-            return "오늘 우리의 목표"
+            return "오늘 우리 목표"
         }
         
         public var proofPhoto: ProofPhotoReducer.State?
@@ -106,6 +106,7 @@ public struct HomeReducer {
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
         case myCardTapped(GoalCardItem)
+        case headerTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
         
@@ -130,6 +131,7 @@ public struct HomeReducer {
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case goToGoalDetail(id: Int64, owner: GoalDetail.Owner, verificationDate: String)
+            case goToStatsDetail(id: Int64)
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList(date: TXCalendarDate)
             case goToSettings

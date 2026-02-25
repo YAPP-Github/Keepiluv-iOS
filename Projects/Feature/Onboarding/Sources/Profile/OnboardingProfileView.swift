@@ -42,6 +42,9 @@ public struct OnboardingProfileView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
         .txToast(item: $store.toast, customPadding: 76)
     }
 }
