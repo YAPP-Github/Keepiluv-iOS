@@ -98,13 +98,13 @@ extension GoalDetailReducer {
                 )
                 
             case .cardSwipeLeft:
-                state.currentUser = .mySelf
+                state.currentUser = state.entryPoint == .home ? .mySelf : .you
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .cardSwipeRight:
-                state.currentUser = .you
+                state.currentUser = state.entryPoint == .home ? .you : .mySelf
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
