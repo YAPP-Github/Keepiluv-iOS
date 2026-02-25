@@ -23,10 +23,7 @@ extension StatsClient: @retroactive DependencyKey {
                         endpoint: StatsEndpoint.fetchStats(selectedDate: date, status: status)
                     )
                     
-                    guard let stats = response.toEntity(isInProgress: isInProgress)
-                    else { throw NetworkError.invalidResponseError }
-                    
-                    return stats
+                    return response.toEntity(isInProgress: isInProgress)
                 } catch {
                     throw error
                 }

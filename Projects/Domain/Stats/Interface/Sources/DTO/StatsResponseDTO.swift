@@ -5,7 +5,7 @@
 //  Created by 정지훈 on 2/25/26.
 //
 
-import Foundation
+import CoreNetworkInterface
 
 /// 통계 목록 조회 응답을 디코딩하는 DTO입니다.
 public struct StatsResponseDTO: Decodable {
@@ -37,8 +37,15 @@ extension StatsResponseDTO {
     /// let dto: StatsResponseDTO = ...
     /// let stats = dto.toEntity(isInProgress: true)
     /// ```
-    public func toEntity(isInProgress: Bool) -> Stats? {
-        guard let firstStats = statsGoals.first else { return nil }
+    public func toEntity(isInProgress: Bool) -> Stats {
+        guard let firstStats = statsGoals.first
+        else {
+            return .init(
+                myNickname: "",
+                partnerNickname: "",
+                stats: []
+            )
+        }
         
         return Stats(
             myNickname: firstStats.myStats.nickname,
