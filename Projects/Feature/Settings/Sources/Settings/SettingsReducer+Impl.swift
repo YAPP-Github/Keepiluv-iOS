@@ -393,9 +393,16 @@ private func handleNicknameEditingEnded(
         return .none
     }
 
+    let nickname = state.nickname
     state.isLoading = true
     return .run { send in
-        try? await Task.sleep(for: .milliseconds(500))
-        await send(.updateNicknameResponse(.success(())))
+        @Dependency(\.onboardingClient) var onboardingClient
+
+        do {
+            try await onboardingClient.updateProfile(nickname)
+            await send(.updateNicknameResponse(.success(())))
+        } catch {
+            await send(.updateNicknameResponse(.failure(error)))
+        }
     }
 }
