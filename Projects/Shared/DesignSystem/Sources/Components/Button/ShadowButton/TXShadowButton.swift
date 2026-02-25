@@ -47,7 +47,7 @@ public struct TXShadowButton: View {
         var borderColor: Color = .clear
         let borderWidth: CGFloat = 1.6
         let shadowHeight: CGFloat = 70
-        let shadowTopPadding: CGFloat = 4
+        let shadowTopPadding: CGFloat = 6
         let frameHeight: CGFloat = 74
 
         var buttonWidth: CGFloat? {
