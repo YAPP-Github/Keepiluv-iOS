@@ -316,7 +316,7 @@ private extension ProofPhotoView {
                 }
                 commentCircle
             }
-            .padding(.bottom, 26)
+            .padding(.bottom, 28)
             .frame(width: rectFrame.width, height: rectFrame.height, alignment: .bottom)
             .offset(x: posX, y: posY)
             .animation(.easeOut(duration: 0.25), value: keyboardInset)
