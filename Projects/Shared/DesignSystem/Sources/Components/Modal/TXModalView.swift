@@ -67,7 +67,6 @@ private extension TXModalView {
     @ViewBuilder
     var actionButtons: some View {
         Group {
-            // FIXME: - vertical padding 8 DS Default로 수정
             switch type {
             case let .info(config):
                 TXRoundedRectangleGroupButton(
@@ -82,7 +81,8 @@ private extension TXModalView {
                         onAction(.confirm)
                     }
                 )
-                
+                .padding(.vertical, Spacing.spacing5)
+
             case let .gridButton(config):
                 TXRoundedRectangleButton(
                     config: .long(
@@ -92,11 +92,10 @@ private extension TXModalView {
                 ) {
                     onAction(.confirm)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Spacing.spacing8)
+                .padding(.vertical, Spacing.spacing5)
             }
         }
-        .padding(.vertical, 8)
         .padding(.top, Spacing.spacing9)
         .padding(.bottom, Spacing.spacing6)
     }
