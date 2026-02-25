@@ -209,7 +209,7 @@ extension MakeGoalReducer {
                         return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
                     }
                     let request = GoalUpdateRequestDTO(
-                        name: state.goalTitle,
+                        goalName: state.goalTitle,
                         icon: state.selectedEmoji.rawValue,
                         repeatCycle: state.selectedPeriod.rawValue,
                         repeatCount: state.periodCount,
