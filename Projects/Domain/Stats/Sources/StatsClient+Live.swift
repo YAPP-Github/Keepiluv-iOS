@@ -28,9 +28,27 @@ extension StatsClient: @retroactive DependencyKey {
                     throw error
                 }
             },
-            fetchStatsDetail: { _ in
-                // FIXME: - API 연동
-                throw NetworkError.notFoundError
+            fetchStatsDetailCalendar: { goalId, date in
+                do {
+                    let response: StatsDetailCalendarResponseDTO = try await networkClient.request(
+                        endpoint: StatsEndpoint.fetchStatsDetailCalendar(goalId: goalId, selectedDate: date)
+                    )
+                    
+                    return response.toEntity()
+                } catch {
+                    throw error
+                }
+            },
+            fetchStatsDetailSummary: { goalId in
+                do {
+                    let response: StatsDetailSummaryResponseDTO = try await networkClient.request(
+                        endpoint: StatsEndpoint.fetchStatsDetailSummary(goalId: goalId)
+                    )
+                    
+                    return response.toEntity()
+                } catch {
+                    throw error
+                }
             }
         )
     }
