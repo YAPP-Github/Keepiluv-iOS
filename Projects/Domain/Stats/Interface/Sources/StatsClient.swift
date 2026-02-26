@@ -24,7 +24,8 @@ public struct StatsClient {
     /// 목표 통계를 조회합니다.
     public var fetchStats: (String, Bool) async throws -> Stats
     /// 단일 목표의 상세 통계를 조회합니다.
-    public var fetchStatsDetail: (String) async throws -> StatsDetail
+    public var fetchStatsDetailCalendar: (Int64, String) async throws -> StatsDetail
+    public var fetchStatsDetailSummary: (Int64) async throws -> StatsDetail.Summary
     
     /// 통계 조회 동작을 주입해 `StatsClient`를 생성합니다.
     ///
@@ -54,10 +55,12 @@ public struct StatsClient {
     /// ```
     public init(
         fetchStats: @escaping (String, Bool) async throws -> Stats,
-        fetchStatsDetail: @escaping (String) async throws -> StatsDetail,
+        fetchStatsDetailCalendar: @escaping (Int64, String) async throws -> StatsDetail,
+        fetchStatsDetailSummary: @escaping (Int64) async throws -> StatsDetail.Summary
     ) {
         self.fetchStats = fetchStats
-        self.fetchStatsDetail = fetchStatsDetail
+        self.fetchStatsDetailCalendar = fetchStatsDetailCalendar
+        self.fetchStatsDetailSummary = fetchStatsDetailSummary
     }
 }
 
@@ -71,24 +74,13 @@ extension StatsClient: TestDependencyKey {
                 stats: []
             )
         },
-        fetchStatsDetail: { _ in
-            assertionFailure("StatsClient.fetchStatsDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return .init(
-                goalId: 1,
-                goalName: "",
-                isCompleted: false,
-                completedDate: [ ],
-                summary: .init(
-                    myNickname: "",
-                    partnerNickname: "",
-                    totalCount: 322,
-                    myCompletedCount: 82,
-                    partnerCompltedCount: 211,
-                    repeatCycle: .daily,
-                    startDate: "2026-01-07",
-                    endDate: "2027-01-07"
-                )
-            )
+        fetchStatsDetailCalendar: { _, _ in
+            assertionFailure("StatsClient.fetchStatsDetailCalendar이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            throw NetworkError.invalidResponseError
+        },
+        fetchStatsDetailSummary: { _ in
+            assertionFailure("StatsClient.fetchStatsDetailSummary이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+            throw NetworkError.invalidResponseError
         }
     )
     public static var previewValue: StatsClient = Self(
@@ -180,11 +172,12 @@ extension StatsClient: TestDependencyKey {
                 ]
             )
         },
-        fetchStatsDetail: { _ in
+        fetchStatsDetailCalendar: { _, _ in
             return .init(
                 goalId: 1,
                 goalName: "밥 잘 챙겨먹기",
                 isCompleted: false,
+                yearMonth: "2026-02",
                 completedDate: [
                     .init(
                         date: "2026-02-01",
@@ -201,20 +194,22 @@ extension StatsClient: TestDependencyKey {
                         myImageUrl: "",
                         partnerImageUrl: ""
                     )
-                ],
-                summary: .init(
-                    myNickname: "현수",
-                    partnerNickname: "민정",
-                    totalCount: 322,
-                    myCompletedCount: 82,
-                    partnerCompltedCount: 211,
-                    repeatCycle: .daily,
-                    startDate: "2026-01-07",
-                    endDate: "2027-01-07"
-                )
+                ]
+            )
+        },
+        fetchStatsDetailSummary: { _ in
+            return .init(
+                myNickname: "현수",
+                partnerNickname: "민정",
+                totalCount: 322,
+                myCompletedCount: 82,
+                partnerCompltedCount: 211,
+                repeatCycle: .daily,
+                startDate: "2026-01-07",
+                endDate: "2027-01-07"
             )
         }
-    )   
+    )
 }
 
 extension DependencyValues {

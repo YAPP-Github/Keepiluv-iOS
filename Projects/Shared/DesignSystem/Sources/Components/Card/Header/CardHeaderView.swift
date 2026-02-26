@@ -112,8 +112,9 @@ private extension CardHeaderView {
                 Image.Icon.Symbol.meatball
             }
             
-        case let .goalStats(goalCount):
-            Text("이번달 목표 \(goalCount)번")
+        case let .goalStats(goalCount, isOngoing):
+            let status = isOngoing ? "이번달" : "총"
+            Text("\(status) 목표 \(goalCount)번")
                 .typography(.b1_14b)
         }
     }

@@ -22,6 +22,7 @@ extension StatsDetailReducer {
     /// ```
     // swiftlint:disable:next function_body_length
     public init() {
+        @Dependency(\.goalClient) var goalClient
         @Dependency(\.statsClient) var statsClient
         
         // swiftlint:disable:next closure_body_length
@@ -29,7 +30,10 @@ extension StatsDetailReducer {
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                return .send(.fetchStatsDetail)
+                return .merge(
+                    .send(.fetchStatsDetailCalendar),
+                    .send(.fetchStatsDetailSummary)
+                )
                 
             case .onDisappear:
                 return .none
@@ -54,7 +58,7 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                return .send(.fetchStatsDetail)
+                return .send(.fetchStatsDetailCalendar)
                 
             case .nextMonthTapped:
                 guard !state.nextMonthDisabled else { return .none }
@@ -63,7 +67,7 @@ extension StatsDetailReducer {
                     for: state.currentMonth,
                     hideAdjacentDates: true
                 )
-                return .send(.fetchStatsDetail)
+                return .send(.fetchStatsDetailCalendar)
 
             case let .calendarSwiped(swipe):
                 switch swipe {
@@ -92,17 +96,19 @@ extension StatsDetailReducer {
                 )
                 
             case let .dropDownSelected(item):
-                guard let detail = state.statsDetail else { return .none }
+                guard let detail = state.statsDetail,
+                      let summary = state.statsSummary else { return .none }
                 let goalItem = GoalEditCardItem(
                     id: detail.goalId,
                     goalName: detail.goalName,
                     // FIXME: - image 연결
                     iconImage: .Icon.Illustration.default,
-                    repeatCycle: detail.summary.repeatCycle.text,
-                    startDate: detail.summary.startDate,
-                    endDate: detail.summary.endDate ?? ""
+                    repeatCycle: summary.repeatCycle.text,
+                    startDate: summary.startDate,
+                    endDate: summary.endDate ?? ""
                 )
                 state.isDropdownPresented = false
+                state.selectedDropDownItem = item
                 
                 switch item {
                 case .edit:
@@ -120,8 +126,18 @@ extension StatsDetailReducer {
                 state.isDropdownPresented = false
                 return .none
                 
+            case .modalConfirmTapped:
+                guard let selectedDropDownItem = state.selectedDropDownItem else { return .none }
+                switch selectedDropDownItem {
+                case .edit: return .none
+                case .finish: return .send(.patchCompleteGoal)
+                case .delete: return .send(.deleteGoal)
+                }
+                
+                return .none
+                
                 // MARK: - Network
-            case .fetchStatsDetail:
+            case .fetchStatsDetailCalendar:
                 let month = state.currentMonth.formattedYearDashMonth
                 let goalId = state.goalId
                 var applyCached: Effect<Action> = .none
@@ -134,16 +150,27 @@ extension StatsDetailReducer {
                 
                 let fetchRemote: Effect<Action> = .run { send in
                     do {
-                        let statsDetail = try await statsClient.fetchStatsDetail(String(goalId))
-                        await send(.fetchedStatsDetail(statsDetail, month: month))
+                        let statsDetail = try await statsClient.fetchStatsDetailCalendar(goalId, month)
+                        await send(.fetchStatsDetailCalendarSuccess(statsDetail, month: month))
                     } catch {
-                        await send(.fetchStatsDetailFailed)
+                        await send(.fetchStatsDetailCalendarFailed)
                     }
                 }
                 
                 return .merge(applyCached, fetchRemote)
             
-            case let .fetchedStatsDetail(statsDetail, month):
+            case .fetchStatsDetailSummary:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        let summary = try await statsClient.fetchStatsDetailSummary(goalId)
+                        await send(.fetchStatsDetailSummarySuccess(summary))
+                    } catch {
+                        await send(.fetchStatsDetailSummaryFailed)
+                    }
+                }
+
+            case let .fetchStatsDetailCalendarSuccess(statsDetail, month):
                 state.isLoading = false
                 state.statsDetail = statsDetail
                 state.completedDateCache[month] = statsDetail.completedDate.filter { $0.date.hasPrefix(month) }
@@ -153,21 +180,54 @@ extension StatsDetailReducer {
                     return .none
                 }
                 
-                return .merge(
-                    .send(.updateStatsSummary(statsDetail.summary)),
-                    .send(.updateMonthlyDate(state.completedDateCache[month] ?? []))
-                )
+                return .send(.updateMonthlyDate(state.completedDateCache[month] ?? []))
                 
-            case .fetchStatsDetailFailed:
+            case .fetchStatsDetailCalendarFailed:
                 state.isLoading = false
                 return .none
+
+            case let .fetchStatsDetailSummarySuccess(summary):
+                return .send(.updateStatsSummary(summary))
+
+            case .fetchStatsDetailSummaryFailed:
+                return .none
+                
+            case .patchCompleteGoal:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        _ = try await goalClient.completeGoal(goalId)
+                        await send(.completeGoalSuccees)
+                    } catch {
+                        await send(.showToast("이미 끝났습니다."))
+                    }
+                }
+                
+            case .completeGoalSuccees:
+                state.statsDetail?.isCompleted = true
+                return .none
+                
+            case .deleteGoal:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        try await goalClient.deleteGoal(goalId)
+                        await send(.deleteGoalSuccees)
+                    } catch {
+                        await send(.showToast("목표 삭제에 실패했어요"))
+                    }
+                }
+                
+            case .deleteGoalSuccees:
+                return .send(.delegate(.navigateBack))
                 
                 // MARK: - Update State
             case let .updateStatsDetail(statsDetail):
                 state.statsDetail = statsDetail
-                return .send(.updateStatsSummary(statsDetail.summary))
+                return .none
                 
             case let .updateStatsSummary(summary):
+                state.statsSummary = summary
                 let myCountString = "\(summary.myNickname) - \(summary.myCompletedCount)/\(summary.totalCount)"
                 let partnerCountString = "\(summary.partnerNickname) - \(summary.partnerCompltedCount)/\(summary.totalCount)"
                  
@@ -205,6 +265,10 @@ extension StatsDetailReducer {
                         )
                     }
                 }
+                return .none
+                
+            case let .showToast(text):
+                state.toast = .warning(message: text)
                 return .none
              
             case .delegate:

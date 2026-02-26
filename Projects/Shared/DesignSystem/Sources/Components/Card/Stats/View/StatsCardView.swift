@@ -73,7 +73,9 @@ private extension StatsCardView {
             config: .goalStats(
                 goalName: item.goalName,
                 iconImage: item.iconImage,
-                goalCount: item.goalCount
+                goalCount: item.goalCount,
+                isOngoing: isOngoing,
+                onHeaderTapped: { onTap(item.goalId) }
             )
         )
     }

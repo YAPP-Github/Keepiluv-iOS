@@ -32,18 +32,21 @@ public struct StatsDetailReducer {
         
         public var isLoading: Bool = false
         public var isDropdownPresented: Bool = false
+        public var selectedDropDownItem: TXDropdownItem?
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
+        public var statsSummary: StatsDetail.Summary?
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
         public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
         public var modal: TXModalType?
+        public var toast: TXToastType?
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
         public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
         public var previousMonthDisabled: Bool {
-            guard let startDateString = statsDetail?.summary.startDate,
+            guard let startDateString = statsSummary?.startDate,
                 let startDate = TXCalendarUtil.parseAPIDateString(startDateString) else {
                 return false
             }
@@ -103,16 +106,25 @@ public struct StatsDetailReducer {
         case calendarCellTapped(TXCalendarDateItem)
         case dropDownSelected(TXDropdownItem)
         case backgroundTapped
+        case modalConfirmTapped
         
         // MARK: - Network
-        case fetchStatsDetail
-        case fetchedStatsDetail(StatsDetail, month: String)
-        case fetchStatsDetailFailed
+        case fetchStatsDetailCalendar
+        case fetchStatsDetailCalendarSuccess(StatsDetail, month: String)
+        case fetchStatsDetailCalendarFailed
+        case fetchStatsDetailSummary
+        case fetchStatsDetailSummarySuccess(StatsDetail.Summary)
+        case fetchStatsDetailSummaryFailed
+        case patchCompleteGoal
+        case completeGoalSuccees
+        case deleteGoal
+        case deleteGoalSuccees
         
         // MARK: - Update State
         case updateStatsDetail(StatsDetail)
         case updateStatsSummary(StatsDetail.Summary)
         case updateMonthlyDate(([StatsDetail.CompletedDate]))
+        case showToast(String)
         
         // MARK: - Delegate
         case delegate(Delegate)

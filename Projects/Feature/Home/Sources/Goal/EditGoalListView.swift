@@ -20,7 +20,7 @@ struct EditGoalListView: View {
             navigationBar
             weekCalendar
                 .padding(.top, 4)
-            if store.hasCards {
+            if let cards = store.cards, !cards.isEmpty {
                 cardScrollView
                     .padding(.bottom, 1)
             }
@@ -35,7 +35,7 @@ struct EditGoalListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
-            if !store.hasCards {
+            if let cards = store.cards, cards.isEmpty {
                 emptyContent
             }
         }
@@ -86,7 +86,7 @@ private extension EditGoalListView {
     var cardScrollView: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(store.cards) { card in
+                ForEach(store.cards ?? []) { card in
                     GoalEditCardView(
                         config: .goalEdit(
                             item: .init(

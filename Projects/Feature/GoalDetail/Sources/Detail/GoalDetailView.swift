@@ -61,20 +61,23 @@ public struct GoalDetailView: View {
     public var body: some View {
         VStack(spacing: 0) {
             navigationBar
-            cardView
-                .padding(.horizontal, 27)
-                .padding(.top, isSEDevice ? 47 : 103)
             
-            if store.isCompleted {
-                completedBottomContent
-            } else {
-                bottomButton
-                    .padding(.top, 105)
-                    .frame(maxWidth: .infinity)
-                    .overlay(alignment: .topTrailing) {
-                        pokeImage
-                            .offset(x: -20, y: -20)
-                    }
+            if store.item != nil {
+                cardView
+                    .padding(.horizontal, 27)
+                    .padding(.top, isSEDevice ? 47 : 103)
+                
+                if store.isCompleted {
+                    completedBottomContent
+                } else {
+                    bottomButton
+                        .padding(.top, 105)
+                        .frame(maxWidth: .infinity)
+                        .overlay(alignment: .topTrailing) {
+                            pokeImage
+                                .offset(x: -20, y: -20)
+                        }
+                }
             }
             
             Spacer()
