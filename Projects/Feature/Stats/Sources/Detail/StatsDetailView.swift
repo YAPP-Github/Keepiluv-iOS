@@ -60,8 +60,11 @@ struct StatsDetailView: View {
             store.send(.backgroundTapped)
         }
         .txModal(item: $store.modal) { action in
-            
+            if action == .confirm {
+                store.send(.modalConfirmTapped)
+            }
         }
+        .txToast(item: $store.toast)
     }
 }
 

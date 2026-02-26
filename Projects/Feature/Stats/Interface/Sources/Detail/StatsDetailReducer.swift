@@ -32,6 +32,7 @@ public struct StatsDetailReducer {
         
         public var isLoading: Bool = false
         public var isDropdownPresented: Bool = false
+        public var selectedDropDownItem: TXDropdownItem?
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
@@ -40,6 +41,7 @@ public struct StatsDetailReducer {
         public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
         public var modal: TXModalType?
+        public var toast: TXToastType?
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }
         public var nextMonthDisabled: Bool { currentMonth >= TXCalendarDate() }
@@ -104,19 +106,25 @@ public struct StatsDetailReducer {
         case calendarCellTapped(TXCalendarDateItem)
         case dropDownSelected(TXDropdownItem)
         case backgroundTapped
+        case modalConfirmTapped
         
         // MARK: - Network
         case fetchStatsDetailCalendar
-        case fetchedStatsDetailCalendar(StatsDetail, month: String)
+        case fetchStatsDetailCalendarSuccess(StatsDetail, month: String)
         case fetchStatsDetailCalendarFailed
         case fetchStatsDetailSummary
-        case fetchedStatsDetailSummary(StatsDetail.Summary)
+        case fetchStatsDetailSummarySuccess(StatsDetail.Summary)
         case fetchStatsDetailSummaryFailed
+        case patchCompleteGoal
+        case completeGoalSuccees
+        case deleteGoal
+        case deleteGoalSuccees
         
         // MARK: - Update State
         case updateStatsDetail(StatsDetail)
         case updateStatsSummary(StatsDetail.Summary)
         case updateMonthlyDate(([StatsDetail.CompletedDate]))
+        case showToast(String)
         
         // MARK: - Delegate
         case delegate(Delegate)

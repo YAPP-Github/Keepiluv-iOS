@@ -22,6 +22,7 @@ extension StatsDetailReducer {
     /// ```
     // swiftlint:disable:next function_body_length
     public init() {
+        @Dependency(\.goalClient) var goalClient
         @Dependency(\.statsClient) var statsClient
         
         // swiftlint:disable:next closure_body_length
@@ -107,6 +108,7 @@ extension StatsDetailReducer {
                     endDate: summary.endDate ?? ""
                 )
                 state.isDropdownPresented = false
+                state.selectedDropDownItem = item
                 
                 switch item {
                 case .edit:
@@ -124,6 +126,16 @@ extension StatsDetailReducer {
                 state.isDropdownPresented = false
                 return .none
                 
+            case .modalConfirmTapped:
+                guard let selectedDropDownItem = state.selectedDropDownItem else { return .none }
+                switch selectedDropDownItem {
+                case .edit: return .none
+                case .finish: return .send(.patchCompleteGoal)
+                case .delete: return .send(.deleteGoal)
+                }
+                
+                return .none
+                
                 // MARK: - Network
             case .fetchStatsDetailCalendar:
                 let month = state.currentMonth.formattedYearDashMonth
@@ -139,7 +151,7 @@ extension StatsDetailReducer {
                 let fetchRemote: Effect<Action> = .run { send in
                     do {
                         let statsDetail = try await statsClient.fetchStatsDetailCalendar(goalId, month)
-                        await send(.fetchedStatsDetailCalendar(statsDetail, month: month))
+                        await send(.fetchStatsDetailCalendarSuccess(statsDetail, month: month))
                     } catch {
                         await send(.fetchStatsDetailCalendarFailed)
                     }
@@ -152,13 +164,13 @@ extension StatsDetailReducer {
                 return .run { send in
                     do {
                         let summary = try await statsClient.fetchStatsDetailSummary(goalId)
-                        await send(.fetchedStatsDetailSummary(summary))
+                        await send(.fetchStatsDetailSummarySuccess(summary))
                     } catch {
                         await send(.fetchStatsDetailSummaryFailed)
                     }
                 }
 
-            case let .fetchedStatsDetailCalendar(statsDetail, month):
+            case let .fetchStatsDetailCalendarSuccess(statsDetail, month):
                 state.isLoading = false
                 state.statsDetail = statsDetail
                 state.completedDateCache[month] = statsDetail.completedDate.filter { $0.date.hasPrefix(month) }
@@ -174,11 +186,40 @@ extension StatsDetailReducer {
                 state.isLoading = false
                 return .none
 
-            case let .fetchedStatsDetailSummary(summary):
+            case let .fetchStatsDetailSummarySuccess(summary):
                 return .send(.updateStatsSummary(summary))
 
             case .fetchStatsDetailSummaryFailed:
                 return .none
+                
+            case .patchCompleteGoal:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        _ = try await goalClient.completeGoal(goalId)
+                        await send(.completeGoalSuccees)
+                    } catch {
+                        await send(.showToast("이미 끝났습니다."))
+                    }
+                }
+                
+            case .completeGoalSuccees:
+                state.statsDetail?.isCompleted = true
+                return .none
+                
+            case .deleteGoal:
+                let goalId = state.goalId
+                return .run { send in
+                    do {
+                        try await goalClient.deleteGoal(goalId)
+                        await send(.deleteGoalSuccees)
+                    } catch {
+                        await send(.showToast("목표 삭제에 실패했어요"))
+                    }
+                }
+                
+            case .deleteGoalSuccees:
+                return .send(.delegate(.navigateBack))
                 
                 // MARK: - Update State
             case let .updateStatsDetail(statsDetail):
@@ -224,6 +265,10 @@ extension StatsDetailReducer {
                         )
                     }
                 }
+                return .none
+                
+            case let .showToast(text):
+                state.toast = .warning(message: text)
                 return .none
              
             case .delegate:

@@ -134,7 +134,6 @@ extension EditGoalListReducer {
                             try await goalClient.deleteGoal(goalId)
                             await send(.deleteGoalCompleted(goalId: goalId))
                         } catch {
-                            // FIXME: - 통계 나오기 전까지 토스트 띄움
                             await send(.apiError("목표 삭제에 실패했어요"))
                         }
                     }
