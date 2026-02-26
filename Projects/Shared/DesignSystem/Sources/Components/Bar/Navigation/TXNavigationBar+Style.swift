@@ -28,6 +28,7 @@ extension TXNavigationBar {
 
             public let title: String
             public let rightContent: RightContent?
+            public let backgroundColor: Color
 
             /// `subContent` 스타일 설정을 생성합니다.
             ///
@@ -36,10 +37,12 @@ extension TXNavigationBar {
             ///   - rightContent: 우측 액션 콘텐츠
             public init(
                 title: String,
-                rightContent: RightContent? = nil
+                rightContent: RightContent? = nil,
+                backgroundColor: Color = Color.Common.white
             ) {
                 self.title = title
                 self.rightContent = rightContent
+                self.backgroundColor = backgroundColor
             }
         }
 
@@ -104,8 +107,10 @@ extension TXNavigationBar {
 extension TXNavigationBar.Style {
     var backgroundColor: Color {
         switch self {
-        case .mainTitle, .subContent, .home, .subTitle, .iconOnly, .noTitle:
+        case .mainTitle, .home, .subTitle, .iconOnly, .noTitle:
             return Color.Common.white
+        case let .subContent(content):
+            return content.backgroundColor
         }
     }
 

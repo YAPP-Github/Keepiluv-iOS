@@ -126,7 +126,7 @@ private extension TXNavigationBar {
 
                 Spacer()
 
-                subContentRightArea(subContent.rightContent)
+                subContentRightArea(subContent.rightContent, backgroundColor: subContent.backgroundColor)
             }
             .frame(height: 60)
             .insideRectEdgeBorder(
@@ -139,7 +139,10 @@ private extension TXNavigationBar {
     }
 
     @ViewBuilder
-    func subContentRightArea(_ content: Style.SubContent.RightContent?) -> some View {
+    func subContentRightArea(
+        _ content: Style.SubContent.RightContent?,
+        backgroundColor: Color
+    ) -> some View {
         if let content {
             Button {
                 onAction?(.rightTapped)
@@ -154,7 +157,7 @@ private extension TXNavigationBar {
             }
             .buttonStyle(.plain)
         } else {
-            Color.Common.white
+            backgroundColor
                 .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
                 .insideRectEdgeBorder(
                     width: style.borderWidth,

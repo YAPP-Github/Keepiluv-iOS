@@ -77,7 +77,8 @@ private extension StatsDetailView {
                     title: store.naviBarTitle,
                     rightContent: store.isCompleted
                         ? .text("삭제")
-                        : .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90))
+                        : .rotatedImage(Image.Icon.Symbol.meatball, angle: .degrees(90)),
+                    backgroundColor: Color.Gray.gray50
                 )
             ),
             onAction: { action in
