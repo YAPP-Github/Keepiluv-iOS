@@ -185,14 +185,14 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
-                state.cards.removeAll { $0.id == goalId }
+                state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
 
             case let .completeGoalCompleted(goalId):
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
-                state.cards.removeAll { $0.id == goalId }
+                state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.success(message: "목표를 달성했어요!")))
 
             case let .apiError(message):
