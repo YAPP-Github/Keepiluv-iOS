@@ -74,7 +74,8 @@ private extension StatsCardView {
                 goalName: item.goalName,
                 iconImage: item.iconImage,
                 goalCount: item.goalCount,
-                isOngoing: isOngoing
+                isOngoing: isOngoing,
+                onHeaderTapped: { onTap(item.goalId) }
             )
         )
     }

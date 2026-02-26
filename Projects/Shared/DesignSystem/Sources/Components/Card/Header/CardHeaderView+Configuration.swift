@@ -204,6 +204,7 @@ extension CardHeaderView.Configuration {
         iconImage: Image,
         goalCount: Int,
         isOngoing: Bool,
+        onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         Self(
             goalName: goalName,
@@ -215,7 +216,8 @@ extension CardHeaderView.Configuration {
             radius: Radius.s,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
-            titleTypography: .t2_16b
+            titleTypography: .t2_16b,
+            onHeaderTapped: onHeaderTapped
         )
     }
 
