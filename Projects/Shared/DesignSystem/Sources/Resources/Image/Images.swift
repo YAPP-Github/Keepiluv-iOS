@@ -112,7 +112,7 @@ public extension Image.Illustration {
     static let connect = IllustrationAsset.illustConnect.swiftUIImage
     static let invite = IllustrationAsset.illustInvite.swiftUIImage
     static let singing = IllustrationAsset.illustSinging.swiftUIImage
-    static let logo = SharedDesignSystemAsset.ImageAssets.logo.swiftUIImage
+    static let logo = IllustrationAsset.logo.swiftUIImage
     static let emptyPoke = IllustrationAsset.illustEmptyPoke.swiftUIImage
     static let arrow = IllustrationAsset.illustArrow.swiftUIImage
     static let hug = IllustrationAsset.illustHug.swiftUIImage
