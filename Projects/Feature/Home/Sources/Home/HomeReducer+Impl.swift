@@ -218,10 +218,10 @@ extension HomeReducer {
             case let .myCardTapped(card):
                 let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
                 return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf, verificationDate: verificationDate)))
-
+                
             case let .headerTapped(card):
                 return .send(.delegate(.goToStatsDetail(id: card.id)))
-
+                
             case .floatingButtonTapped:
                 state.isAddGoalPresented = true
                 return .none
@@ -267,24 +267,31 @@ extension HomeReducer {
                     state.cards = items
                 }
                 return .none
-
+                
             case .fetchGoalsFailed:
                 state.isLoading = false
                 return .send(.showToast(.warning(message: "목표 조회에 실패했어요")))
                 
             case let .setCalendarDate(date):
-                let now = state.nowDate
-                if date == state.calendarDate {
-                    return .none
-                }
+                guard date != state.calendarDate else { return .none }
+                
+                let today = TXCalendarDate()
+                let calendar = Calendar(identifier: .gregorian)
+                
                 state.calendarDate = date
                 state.calendarMonthTitle = "\(date.month)월 \(date.year)"
                 state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
-                state.isRefreshHidden = (
-                    date.year == now.year &&
-                    date.month == now.month &&
-                    date.day == now.day
-                )
+                
+                if let selectedDate = date.date,
+                   let todayDate = today.date {
+                    let isThisWeek = calendar.isDate(
+                        selectedDate,
+                        equalTo: todayDate,
+                        toGranularity: .weekOfYear
+                    )
+                    state.isRefreshHidden = isThisWeek
+                }
+                
                 state.isLoading = true
                 return .send(.fetchGoals)
                 
