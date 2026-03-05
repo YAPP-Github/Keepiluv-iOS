@@ -135,7 +135,7 @@ extension TXNavigationBar.Style {
     var height: CGFloat {
         switch self {
         case .mainTitle, .subContent, .home, .subTitle:
-            return 80
+            return 76
 
         case .iconOnly, .noTitle:
             return 72

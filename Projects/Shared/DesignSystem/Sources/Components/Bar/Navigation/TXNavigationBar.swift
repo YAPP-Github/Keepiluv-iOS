@@ -198,6 +198,7 @@ private extension TXNavigationBar {
     func homeContent(_ homeStyle: Style.Home) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             subTitleRow(subTitle: homeStyle.subTitle)
+                .padding(.top, 5)
             
             HStack(spacing: 0) {
                 mainTitleRow(homeStyle)
@@ -206,9 +207,11 @@ private extension TXNavigationBar {
                 
                 homeActionButtons(isRemained: homeStyle.isRemainedAlarm)
             }
+            .padding(.bottom, 2)
+            
+            Spacer()
         }
         .padding(style.horizontalPadding)
-        .padding(.vertical, 7)
     }
 
     func subTitleRow(subTitle: String) -> some View {
@@ -227,6 +230,7 @@ private extension TXNavigationBar {
                     .foregroundStyle(style.subTitleForegroundColor)
             }
         }
+        .frame(height: 20)
         .buttonStyle(.plain)
     }
 
