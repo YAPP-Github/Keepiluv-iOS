@@ -71,25 +71,26 @@ private extension CardHeaderView {
         HStack(spacing: config.contentSpacing) {
             HStack(spacing: config.contentSpacing) {
                 config.iconImage
+                    .resizable()
+                    .frame(width: 32, height: 32)
 
                 Text(config.goalName)
                     .typography(config.titleTypography)
             }
-            .contentShape(Rectangle())
+            .frame(maxWidth: .infinity, alignment: .leading)
             .onTapGesture {
                 config.onHeaderTapped?()
             }
-
-            Spacer()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    config.onHeaderTapped?()
-                }
 
             rightContent
         }
         .padding(config.padding)
         .background(Color.Common.white)
+        .insideRectEdgeBorder(
+            width: config.borderWidth,
+            edges: config.insideBorderEdges,
+            color: config.borderColor
+        )
     }
     
     @ViewBuilder var rightContent: some View {
@@ -131,6 +132,15 @@ private struct CardHeaderPreview: View {
         VStack {
             CardHeaderView(
                 config: .goalCheckClosed(
+                    goalName: "목표 이름",
+                    iconImage: .Icon.Illustration.exercise,
+                    isMyChecked: isMyChecked,
+                    action: { isMyChecked.toggle() }
+                )
+            )
+            
+            CardHeaderView(
+                config: .goalCheckOpened(
                     goalName: "목표 이름",
                     iconImage: .Icon.Illustration.exercise,
                     isMyChecked: isMyChecked,

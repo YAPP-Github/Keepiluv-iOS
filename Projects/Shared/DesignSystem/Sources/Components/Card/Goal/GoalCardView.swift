@@ -111,9 +111,6 @@ public struct GoalCardView: View {
             CardHeaderView(config: config.headerConfig)
             
             if config.showsContent {
-                config.borderColor
-                    .frame(height: config.borderWidth)
-                    .frame(maxWidth: .infinity)
                 
                 HStack(spacing: 0) {
                     myContent

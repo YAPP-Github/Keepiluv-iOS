@@ -34,6 +34,7 @@ extension CardHeaderView {
         let iconImage: Image
         let content: Content
         var isBordered: Bool
+        let insideBorderEdges: [Edge]
         let padding: CGFloat
         let contentSpacing: CGFloat
         let radius: CGFloat
@@ -47,6 +48,7 @@ extension CardHeaderView {
             iconImage: Image,
             content: Content,
             isBordered: Bool,
+            insideBorderEdges: [Edge] = [],
             padding: CGFloat,
             contentSpacing: CGFloat,
             radius: CGFloat,
@@ -59,6 +61,7 @@ extension CardHeaderView {
             self.iconImage = iconImage
             self.content = content
             self.isBordered = isBordered
+            self.insideBorderEdges = insideBorderEdges
             self.padding = padding
             self.contentSpacing = contentSpacing
             self.radius = radius
@@ -97,6 +100,7 @@ extension CardHeaderView.Configuration {
             isCoupleChecked: isCoupleChecked,
             action: action,
             isBordered: false,
+            insideBorderEdges: [.bottom],
             onHeaderTapped: onHeaderTapped
         )
     }
@@ -228,6 +232,7 @@ extension CardHeaderView.Configuration {
         isCoupleChecked: Bool,
         action: @escaping () -> Void,
         isBordered: Bool,
+        insideBorderEdges: [Edge] = [],
         onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         Self(
@@ -239,6 +244,7 @@ extension CardHeaderView.Configuration {
                 action: action
             ),
             isBordered: isBordered,
+            insideBorderEdges: insideBorderEdges,
             padding: Spacing.spacing7,
             contentSpacing: Spacing.spacing6,
             radius: Radius.s,
