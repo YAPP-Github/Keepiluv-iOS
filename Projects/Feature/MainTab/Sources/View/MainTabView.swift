@@ -74,7 +74,7 @@ private extension MainTabView {
         TXCircleButton(config: .plus()) {
             store.send(.home(.home(.floatingButtonTapped)))
         }
-        .insideBorder(
+        .outsideBorder(
             Color.Gray.gray300,
             shape: .circle,
             lineWidth: LineWidth.m
