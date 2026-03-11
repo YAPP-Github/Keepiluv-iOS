@@ -35,6 +35,7 @@ public struct TXCalendar: View {
     public struct Configuration {
         let weeklyHorizontalPadding: CGFloat
         let monthlyHorizontalPadding: CGFloat
+        let verticalPadding: CGFloat
         let weeklyHeaderSpacing: CGFloat
         let weeklyBottomPadding: CGFloat
         let monthlyHeaderSpacing: CGFloat
@@ -49,6 +50,7 @@ public struct TXCalendar: View {
         public init(
             weeklyHorizontalPadding: CGFloat = Spacing.spacing6,
             monthlyHorizontalPadding: CGFloat = Spacing.spacing7,
+            verticalPadding: CGFloat = Spacing.spacing3,
             weeklyHeaderSpacing: CGFloat = Spacing.spacing4,
             weeklyBottomPadding: CGFloat = Spacing.spacing5,
             monthlyHeaderSpacing: CGFloat = Spacing.spacing8,
@@ -61,6 +63,7 @@ public struct TXCalendar: View {
         ) {
             self.weeklyHorizontalPadding = weeklyHorizontalPadding
             self.monthlyHorizontalPadding = monthlyHorizontalPadding
+            self.verticalPadding = verticalPadding
             self.weeklyHeaderSpacing = weeklyHeaderSpacing
             self.weeklyBottomPadding = weeklyBottomPadding
             self.monthlyHeaderSpacing = monthlyHeaderSpacing
@@ -144,6 +147,7 @@ public struct TXCalendar: View {
                 weekdayRow(spacing: spacing)
                 dateContent(spacing: spacing)
             }
+            .padding(.vertical, config.verticalPadding)
             .padding(.horizontal, horizontalPadding)
             .frame(width: proxy.size.width, height: contentHeight, alignment: .top)
             .background(config.backgroundColor)
@@ -276,10 +280,11 @@ private extension TXCalendar {
     var contentHeight: CGFloat {
         let headerHeight = TXCalendarLayout.weekdayLabelHeight(config.weekdayTypography)
         let headerSectionHeight = headerHeight + headerSpacing
+        let verticalPadding: CGFloat = config.verticalPadding * 2
 
         switch mode {
-        case .weekly: return headerSectionHeight + config.dateStyle.size + config.weeklyBottomPadding
-        case .monthly: return headerSectionHeight + monthGridHeight
+        case .weekly: return headerSectionHeight + config.dateStyle.size + config.weeklyBottomPadding + verticalPadding
+        case .monthly: return headerSectionHeight + monthGridHeight + verticalPadding
         }
     }
 

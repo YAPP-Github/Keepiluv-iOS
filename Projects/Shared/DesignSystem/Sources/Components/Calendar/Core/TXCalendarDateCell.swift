@@ -46,9 +46,7 @@ private extension TXCalendarDateCell {
         case .selectedLine:
             shape
                 .fill(style.selectedLineBackgroundColor)
-                .overlay {
-                    shape.stroke(style.selectedLineBorderColor, lineWidth: style.borderWidth)
-                }
+                .insideBorder(style.selectedLineBorderColor, shape: .circle, lineWidth: style.borderWidth)
             
         case .completed:
             customBackground
