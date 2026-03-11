@@ -242,7 +242,7 @@ private extension OnboardingConnectView {
             .padding(.horizontal, 30)
         }
         .padding(.top, 28)
-        .padding(.bottom, TXSafeArea.inset(.bottom) + Spacing.spacing7)
+        .padding(.bottom, Spacing.spacing7)
     }
 
     func bulletItem(_ text: String) -> some View {
