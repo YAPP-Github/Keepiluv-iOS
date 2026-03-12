@@ -100,8 +100,8 @@ private extension MakeGoalView {
     var emojiCircle: some View {
         store.selectedEmoji.image
             .resizable()
-            .frame(width: 56, height: 56)
-            .padding(26)
+            .frame(width: 64, height: 64)
+            .padding(22)
             .background(Color.Gray.gray50, in: .circle)
             .insideBorder(
                 Color.Gray.gray500,
@@ -195,7 +195,8 @@ private extension MakeGoalView {
             valueText(store.startDateText)
             dropDownButton { store.send(.startDateTapped) }
         }
-        .padding(.vertical, 21.5)
+        .frame(height: 32)
+        .padding(.vertical, 16)
     }
     
     var endDateToggleRow: some View {
@@ -206,7 +207,8 @@ private extension MakeGoalView {
             
             TXToggleSwitch(isOn: $store.isEndDateOn)
         }
-        .padding(.vertical, 17)
+        .frame(height: 32)
+        .padding(.vertical, 16)
     }
     
     var endDateRow: some View {
@@ -237,6 +239,7 @@ private extension MakeGoalView {
         Color.Gray.gray500
             .frame(height: 1)
             .padding(.horizontal, -16)
+            .padding(.vertical, -1)
     }
     
     func dropDownButton(_ action: @escaping () -> Void) -> some View {

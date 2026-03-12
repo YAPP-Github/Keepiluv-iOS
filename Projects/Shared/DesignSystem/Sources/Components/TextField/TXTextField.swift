@@ -69,13 +69,14 @@ public struct TXTextField: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: subText != nil ? Spacing.spacing5 : 0) {
-            container
-
-            if let subText {
-                subTextView(config: subText)
+        container
+            .overlay(alignment: .topLeading) {
+                if let subText {
+                    subTextView(config: subText)
+                        .padding(.top, 52 + Spacing.spacing5)
+                        .allowsHitTesting(false)
+                }
             }
-        }
     }
 }
 
