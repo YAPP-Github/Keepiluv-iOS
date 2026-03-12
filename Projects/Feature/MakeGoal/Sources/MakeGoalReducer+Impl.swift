@@ -191,6 +191,10 @@ extension MakeGoalReducer {
                 
             case .completeButtonTapped:
                 guard !state.isLoading else { return .none }
+                guard !state.completeButtonDisabled  else {
+                    return .send(.showToast(.warning(message: "목표 이름은 14글자 이내로 입력해 주세요!")))
+                }
+                
                 state.isLoading = true
                 let endDateString: String? = state.isEndDateOn
                     ? TXCalendarUtil.apiDateString(for: state.endDate)

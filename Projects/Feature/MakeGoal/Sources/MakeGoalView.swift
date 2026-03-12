@@ -80,7 +80,7 @@ public struct MakeGoalView: View {
                 }
             }
         )
-        .txToast(item: $store.toast)
+        .txToast(item: $store.toast, customPadding: 70)
     }
 }
 
@@ -232,7 +232,6 @@ private extension MakeGoalView {
         ) {
             store.send(.completeButtonTapped)
         }
-        .disabled(store.completeButtonDisabled)
     }
     
     var divider: some View {
