@@ -26,9 +26,6 @@ struct AddGoalListView: View {
             headerView
                 .padding(.horizontal, 20)
             categoryListView
-                .padding(.top, 20)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 80)
         }
         .padding(.top, 28)
     }
@@ -54,10 +51,15 @@ private extension AddGoalListView {
     }
     
     var categoryListView: some View {
-        VStack(spacing: 16) {
-            ForEach(items, id: \.self) { item in
-                categoryCardView(for: item)
+        ScrollView {
+            VStack(spacing: 16) {
+                ForEach(items, id: \.self) { item in
+                    categoryCardView(for: item)
+                }
             }
+            .padding(.top, 20)
+            .padding(.bottom, 80)
+            .padding(.horizontal, 20)
         }
     }
     

@@ -49,7 +49,7 @@ private extension TXTabBar {
                     .typography(Constants.labelFont)
                     .foregroundStyle(Constants.labelColor)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .top)
             .padding(.top, Constants.topPadding)
         }
         .buttonStyle(.plain)

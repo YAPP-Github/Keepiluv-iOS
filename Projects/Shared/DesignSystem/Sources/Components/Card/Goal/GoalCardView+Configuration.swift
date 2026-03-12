@@ -61,10 +61,10 @@ extension GoalCardView.Configuration {
             contentBackgroundColor: Color.Gray.gray50,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
-            cornerRadius: 16,
+            cornerRadius: Radius.s,
             imageHeight: 136,
-            emojiSize: CGSize(width: 32, height: 32),
-            emojiPadding: Spacing.spacing4
+            emojiSize: CGSize(width: 40, height: 40),
+            emojiPadding: Spacing.spacing3
         )
     }
 }

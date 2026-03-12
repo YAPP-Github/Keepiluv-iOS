@@ -83,6 +83,7 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
 private extension TXBottomSheetModifier {
     var sheetView: some View {
         sheetContent()
+            .padding(.bottom, TXSafeArea.inset(.bottom))
             .frame(maxWidth: .infinity, alignment: .bottom)
             .background(Color.Common.white)
             .clipShape(

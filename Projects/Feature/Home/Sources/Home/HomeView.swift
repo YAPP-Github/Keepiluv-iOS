@@ -49,14 +49,22 @@ public struct HomeView: View {
                 headerRow
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
-                goalEmptyView
             }
-            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay {
             if store.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            
+            if !store.hasCards {
+                goalEmptyView
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if !store.hasCards {
+                emptyArrow
             }
         }
         .onAppear {
@@ -106,7 +114,6 @@ public struct HomeView: View {
             isPresented: $store.isCameraPermissionAlertPresented,
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
-        .frame(alignment: .center)
         .toolbar(.hidden, for: .navigationBar)
     }
 }
@@ -132,6 +139,9 @@ private extension HomeView {
         TXCalendar(
             mode: .weekly,
             weeks: store.calendarWeeks,
+            config: .init(
+                dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
+            ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
             },
@@ -212,25 +222,28 @@ private extension HomeView {
     }
     
     var goalEmptyView: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .center, spacing: 0) {
-                Image.Illustration.emptyPoke
-                
-                Text("첫 목표를 세워볼까요?")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray400)
-                
-                Text("+ 버튼을 눌러 목표를 추가해보세요")
-                    .typography(.c1_12r)
-                    .foregroundStyle(Color.Gray.gray300)
-                    .padding(.top, 5)
-            }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-            .overlay(alignment: .bottomTrailing) {
-                Image.Illustration.arrow
-                    .padding(.bottom, 63)
-                    .padding(.trailing, 86)
-            }
+        VStack(spacing: 0) {
+            Image.Illustration.emptyPoke
+                .frame(height: 116)
+            
+            Text("첫 목표를 세워볼까요?")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Gray.gray400)
+                .padding(.top, 16)
+            
+            Text("+ 버튼을 눌러 목표를 추가해보세요")
+                .typography(.c1_12r)
+                .foregroundStyle(Color.Gray.gray300)
+                .padding(.top, 4)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+    }
+    
+    var emptyArrow: some View {
+        Image.Illustration.arrow
+            .padding(.bottom, 71)
+            .padding(.trailing, 86)
+            .ignoresSafeArea()
     }
 }

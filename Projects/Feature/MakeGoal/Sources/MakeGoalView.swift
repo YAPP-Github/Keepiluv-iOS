@@ -273,7 +273,7 @@ private extension MakeGoalView {
             .padding(.vertical, 8)
         }
         .padding(.top, 36)
-        .padding(.bottom, TXSafeArea.inset(.bottom) + 16)
+        .padding(.bottom, 16)
     }
     
     var periodTabButtons: some View {
