@@ -94,6 +94,7 @@ public struct TXCalendarMonthNavigation: View {
         .padding(.horizontal, config.horizontalPadding)
         .frame(maxWidth: .infinity)
         .frame(height: config.height)
+        .transaction { $0.disablesAnimations = true }
     }
 }
 

@@ -139,6 +139,9 @@ private extension HomeView {
         TXCalendar(
             mode: .weekly,
             weeks: store.calendarWeeks,
+            config: .init(
+                dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
+            ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
             },
