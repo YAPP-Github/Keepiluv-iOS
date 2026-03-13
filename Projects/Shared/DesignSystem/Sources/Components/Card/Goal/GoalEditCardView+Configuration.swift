@@ -38,7 +38,7 @@ extension GoalEditCardView.Configuration {
             rowContentSpacing: 28,
             titleWidth: 48,
             contentPadding: 16,
-            cardCornerRadius: 16,
+            cardCornerRadius: 12,
             contentBackgroundColor: Color.Gray.gray50,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
