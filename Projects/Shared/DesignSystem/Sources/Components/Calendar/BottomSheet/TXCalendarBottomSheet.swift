@@ -106,7 +106,6 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                     }
                 }
             }
-            .padding(.top, Spacing.spacing10)
             .padding(.bottom, 40)
 
             // 버튼 영역

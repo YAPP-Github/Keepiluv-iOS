@@ -241,7 +241,6 @@ private extension OnboardingConnectView {
             .clipShape(RoundedRectangle(cornerRadius: Radius.s))
             .padding(.horizontal, 30)
         }
-        .padding(.top, 28)
         .padding(.bottom, Spacing.spacing7)
     }
 

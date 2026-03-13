@@ -27,7 +27,6 @@ struct AddGoalListView: View {
                 .padding(.horizontal, 20)
             categoryListView
         }
-        .padding(.top, 28)
     }
 }
 
