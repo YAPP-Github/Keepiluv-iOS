@@ -108,6 +108,7 @@ private extension MakeGoalView {
                 shape: .circle,
                 lineWidth: LineWidth.m
             )
+            .onTapGesture { store.send(.emojiButtonTapped) }
             .overlay(alignment: .bottomTrailing) {
                 TXCircleButton(
                     config: .init(
@@ -115,10 +116,7 @@ private extension MakeGoalView {
                         frameSize: .init(width: 28, height: 28),
                         imageSize: .init(width: 16, height: 16),
                         colorStyle: .white
-                    ),
-                    action: {
-                        store.send(.emojiButtonTapped)
-                    }
+                    ), action: { }
                 )
                 .insideBorder(
                     Color.Gray.gray500,
