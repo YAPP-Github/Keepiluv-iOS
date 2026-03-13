@@ -270,12 +270,11 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
                 store.send(.periodSheetCompleteTapped)
             }
-            .padding(.top, 40)
-            .padding(.horizontal, 20)
             .padding(.vertical, 8)
+            .padding(.top, 32)
+            .padding(.horizontal, 20)
         }
-        .padding(.top, 36)
-        .padding(.bottom, 16)
+        .padding(.top, 8)
     }
     
     var periodTabButtons: some View {
@@ -283,7 +282,8 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.weeklyPeriodText,
-                    colorStyle: store.selectedPeriod == .weekly ? .black : .white
+                    colorStyle: store.selectedPeriod == .weekly ? .black : .white,
+                    font: .b2_14r
                 )
             ) {
                 store.send(.periodSheetWeeklyTapped)
@@ -335,12 +335,16 @@ private extension MakeGoalView {
             Text("\(store.periodCount)")
                 .typography(.h2_24r)
                 .foregroundStyle(Color.Gray.gray500)
+                .frame(width: 33)
+                .padding(.leading, 22)
             
             Text("번")
                 .typography(.t2_16b)
                 .foregroundStyle(Color.Gray.gray300)
+                .padding(.trailing, 17)
         }
-        .frame(width: 96, height: 58)
+        .padding(.vertical, 12)
+        .frame(width: 96)
         .insideBorder(
             Color.Gray.gray300,
             shape: RoundedRectangle(cornerRadius: 12),
