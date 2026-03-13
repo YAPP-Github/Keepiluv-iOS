@@ -70,6 +70,5 @@ private extension AddGoalListView {
                 action: { action(item) }
             )
         )
-        .onTapGesture { action(item) }
     }
 }
