@@ -51,6 +51,7 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
     @State private var dimmedOpacity: CGFloat = 0
     @State private var contentHeight: CGFloat = 0
     private let animationDuration: TimeInterval = 0.2
+    private let dragAreaHeight: CGFloat = 28
 
     func body(content: Content) -> some View {
         content
@@ -82,35 +83,35 @@ private struct TXBottomSheetModifier<SheetContent: View>: ViewModifier {
 // MARK: - SubViews {
 private extension TXBottomSheetModifier {
     var sheetView: some View {
-        sheetContent()
-            .padding(.bottom, TXSafeArea.inset(.bottom))
-            .frame(maxWidth: .infinity, alignment: .bottom)
-            .background(Color.Common.white)
-            .clipShape(
-                UnevenRoundedRectangle(cornerRadii: .init(topLeading: Radius.m, topTrailing: Radius.m))
-            )
-            .background {
-                GeometryReader { proxy in
-                    Color.clear
-                        .onAppear {
-                            updateContentHeight(proxy.size.height)
-                        }
-                        .onChange(of: proxy.size.height) {
-                            updateContentHeight(proxy.size.height)
-                        }
-                }
+        VStack(spacing: 0) {
+            dragContainer
+            sheetContent()
+        }
+        .padding(.bottom, TXSafeArea.inset(.bottom))
+        .frame(maxWidth: .infinity, alignment: .bottom)
+        .background(Color.Common.white)
+        .clipShape(
+            UnevenRoundedRectangle(cornerRadii: .init(topLeading: Radius.m, topTrailing: Radius.m))
+        )
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear {
+                        updateContentHeight(proxy.size.height)
+                    }
+                    .onChange(of: proxy.size.height) {
+                        updateContentHeight(proxy.size.height)
+                    }
             }
-            .overlay(alignment: .top) {
-                dragContainer
-            }
-            .offset(y: sheetOffset)
-            .toolbar(.hidden, for: .tabBar)
+        }
+        .offset(y: sheetOffset)
+        .toolbar(.hidden, for: .tabBar)
     }
     
     var dragContainer: some View {
         ZStack {
             Color.clear
-                .frame(maxWidth: .infinity, maxHeight: 28)
+                .frame(maxWidth: .infinity, minHeight: dragAreaHeight, maxHeight: dragAreaHeight)
                 .contentShape(.rect)
             
             if showDragIndicator {

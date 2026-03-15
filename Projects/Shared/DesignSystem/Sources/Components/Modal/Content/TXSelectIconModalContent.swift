@@ -72,7 +72,7 @@ public struct TXGridButtonModalContent: View {
         VStack(spacing: 0) {
             Text(config.title)
                 .typography(.t1_18eb)
-                .padding(.top, Spacing.spacing9)
+                .padding(.top, Spacing.spacing10)
             
             LazyVGrid(
                 columns: Array(

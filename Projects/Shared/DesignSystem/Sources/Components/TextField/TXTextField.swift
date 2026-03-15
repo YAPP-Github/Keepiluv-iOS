@@ -69,13 +69,14 @@ public struct TXTextField: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: subText != nil ? Spacing.spacing5 : 0) {
-            container
-
-            if let subText {
-                subTextView(config: subText)
+        container
+            .overlay(alignment: .topLeading) {
+                if let subText, isFocused?.wrappedValue == true {
+                    subTextView(config: subText)
+                        .padding(.top, 52 + Spacing.spacing5)
+                        .allowsHitTesting(false)
+                }
             }
-        }
     }
 }
 
@@ -87,7 +88,7 @@ private extension TXTextField {
 
             Spacer()
 
-            if !text.isEmpty {
+            if !text.isEmpty && isFocused?.wrappedValue == true {
                 clearButton
             }
         }
@@ -108,11 +109,13 @@ private extension TXTextField {
 
             if let isFocused {
                 TextField("", text: $text)
+                    .typography(.t2_16b)
                     .focused(isFocused)
                     .submitLabel(submitLabel)
                     .tint(tintColor)
             } else {
                 TextField("", text: $text)
+                    .typography(.t2_16b)
                     .submitLabel(submitLabel)
                     .tint(tintColor)
             }

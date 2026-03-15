@@ -82,10 +82,11 @@ public struct GoalEditCardView: View {
             CardHeaderView(
                 config: config.headerConfig
             )
-            
-            Color.Gray.gray500
-                .frame(height: 1)
-                .frame(maxWidth: .infinity)
+            .insideRectEdgeBorder(
+                width: LineWidth.m,
+                edges: [.bottom],
+                color: Color.Gray.gray500
+            )
          
             VStack(alignment: .leading, spacing: config.rowSpacing) {
                 rowView(title: "반복 주기", value: config.item.repeatCycle)

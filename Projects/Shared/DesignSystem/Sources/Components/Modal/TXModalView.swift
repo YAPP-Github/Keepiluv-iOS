@@ -81,7 +81,7 @@ private extension TXModalView {
                         onAction(.confirm)
                     }
                 )
-                .padding(.vertical, Spacing.spacing5)
+                .padding(.top, Spacing.spacing6)
 
             case let .gridButton(config):
                 TXRoundedRectangleButton(
@@ -92,11 +92,10 @@ private extension TXModalView {
                 ) {
                     onAction(.confirm)
                 }
-                .padding(.horizontal, Spacing.spacing8)
+                .padding([.horizontal, .top], Spacing.spacing8)
                 .padding(.vertical, Spacing.spacing5)
             }
         }
-        .padding(.top, Spacing.spacing9)
         .padding(.bottom, Spacing.spacing6)
     }
 }

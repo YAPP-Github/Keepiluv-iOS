@@ -78,14 +78,14 @@ private extension CardHeaderView {
                     .typography(config.titleTypography)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .onTapGesture {
-                config.onHeaderTapped?()
-            }
-
+            
             rightContent
         }
         .padding(config.padding)
         .background(Color.Common.white)
+        .onTapGesture {
+            config.onHeaderTapped?()
+        }
         .insideRectEdgeBorder(
             width: config.borderWidth,
             edges: config.insideBorderEdges,
@@ -103,11 +103,12 @@ private extension CardHeaderView {
                 action: action
             )
             
-        case let .goalAdd(action):
-            TXCircleButton(config: .rightArrow()) {
-                action()
-            }
-            
+        case .goalAdd:
+            TXCircleButton(
+                config: .rightArrow(),
+                action: { config.onHeaderTapped?() }
+            )
+
         case let .goalEdit(action):
             Button(action: action) {
                 Image.Icon.Symbol.meatball

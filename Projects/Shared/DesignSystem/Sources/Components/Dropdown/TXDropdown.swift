@@ -70,13 +70,10 @@ public struct TXDropdown: View {
                 Button {
                     onSelect(item)
                 } label: {
-                    dropdownItem(item)
-                }
-
-                if index != config.items.indices.last {
-                    Rectangle()
-                        .frame(height: config.borderWidth)
-                        .foregroundStyle(config.dividerColor)
+                    dropdownItem(
+                        item,
+                        showsBottomDivider: index != config.items.indices.last
+                    )
                 }
             }
         }
@@ -101,12 +98,20 @@ public struct TXDropdown: View {
 
 // MARK: - SubViews
 private extension TXDropdown {
-    func dropdownItem(_ item: TXDropdownItem) -> some View {
+    func dropdownItem(
+        _ item: TXDropdownItem,
+        showsBottomDivider: Bool
+    ) -> some View {
         Text(item.title)
             .typography(config.textTypography)
             .foregroundStyle(config.textColor)
             .frame(maxWidth: .infinity, maxHeight: config.itemHeight, alignment: .leading)
             .padding(.leading, config.leadingPadding)
+            .insideRectEdgeBorder(
+                width: config.borderWidth,
+                edges: showsBottomDivider ? [.bottom] : [],
+                color: config.dividerColor
+            )
     }
 }
 

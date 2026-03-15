@@ -80,7 +80,7 @@ public struct MakeGoalView: View {
                 }
             }
         )
-        .txToast(item: $store.toast)
+        .txToast(item: $store.toast, customPadding: 70)
     }
 }
 
@@ -100,14 +100,15 @@ private extension MakeGoalView {
     var emojiCircle: some View {
         store.selectedEmoji.image
             .resizable()
-            .frame(width: 56, height: 56)
-            .padding(26)
+            .frame(width: 64, height: 64)
+            .padding(22)
             .background(Color.Gray.gray50, in: .circle)
             .insideBorder(
                 Color.Gray.gray500,
                 shape: .circle,
                 lineWidth: LineWidth.m
             )
+            .onTapGesture { store.send(.emojiButtonTapped) }
             .overlay(alignment: .bottomTrailing) {
                 TXCircleButton(
                     config: .init(
@@ -115,10 +116,7 @@ private extension MakeGoalView {
                         frameSize: .init(width: 28, height: 28),
                         imageSize: .init(width: 16, height: 16),
                         colorStyle: .white
-                    ),
-                    action: {
-                        store.send(.emojiButtonTapped)
-                    }
+                    ), action: { }
                 )
                 .insideBorder(
                     Color.Gray.gray500,
@@ -195,7 +193,8 @@ private extension MakeGoalView {
             valueText(store.startDateText)
             dropDownButton { store.send(.startDateTapped) }
         }
-        .padding(.vertical, 21.5)
+        .frame(height: 32)
+        .padding(.vertical, 16)
     }
     
     var endDateToggleRow: some View {
@@ -206,7 +205,8 @@ private extension MakeGoalView {
             
             TXToggleSwitch(isOn: $store.isEndDateOn)
         }
-        .padding(.vertical, 17)
+        .frame(height: 32)
+        .padding(.vertical, 16)
     }
     
     var endDateRow: some View {
@@ -230,13 +230,13 @@ private extension MakeGoalView {
         ) {
             store.send(.completeButtonTapped)
         }
-        .disabled(store.completeButtonDisabled)
     }
     
     var divider: some View {
         Color.Gray.gray500
             .frame(height: 1)
             .padding(.horizontal, -16)
+            .padding(.vertical, -1)
     }
     
     func dropDownButton(_ action: @escaping () -> Void) -> some View {
@@ -268,12 +268,11 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
                 store.send(.periodSheetCompleteTapped)
             }
-            .padding(.top, 40)
-            .padding(.horizontal, 20)
             .padding(.vertical, 8)
+            .padding(.top, 32)
+            .padding(.horizontal, 20)
         }
-        .padding(.top, 36)
-        .padding(.bottom, 16)
+        .padding(.top, 8)
     }
     
     var periodTabButtons: some View {
@@ -281,7 +280,8 @@ private extension MakeGoalView {
             TXRoundedRectangleButton(
                 config: .small(
                     text: store.weeklyPeriodText,
-                    colorStyle: store.selectedPeriod == .weekly ? .black : .white
+                    colorStyle: store.selectedPeriod == .weekly ? .black : .white,
+                    font: .b2_14r
                 )
             ) {
                 store.send(.periodSheetWeeklyTapped)
@@ -333,12 +333,16 @@ private extension MakeGoalView {
             Text("\(store.periodCount)")
                 .typography(.h2_24r)
                 .foregroundStyle(Color.Gray.gray500)
+                .frame(width: 33)
+                .padding(.leading, 22)
             
             Text("번")
                 .typography(.t2_16b)
                 .foregroundStyle(Color.Gray.gray300)
+                .padding(.trailing, 17)
         }
-        .frame(width: 96, height: 58)
+        .padding(.vertical, 12)
+        .frame(width: 96)
         .insideBorder(
             Color.Gray.gray300,
             shape: RoundedRectangle(cornerRadius: 12),

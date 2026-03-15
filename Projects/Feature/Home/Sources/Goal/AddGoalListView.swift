@@ -27,7 +27,6 @@ struct AddGoalListView: View {
                 .padding(.horizontal, 20)
             categoryListView
         }
-        .padding(.top, 28)
     }
 }
 
@@ -71,6 +70,5 @@ private extension AddGoalListView {
                 action: { action(item) }
             )
         )
-        .onTapGesture { action(item) }
     }
 }
