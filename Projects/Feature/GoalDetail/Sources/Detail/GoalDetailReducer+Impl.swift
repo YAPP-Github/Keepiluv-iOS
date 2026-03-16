@@ -17,6 +17,41 @@ import SharedDesignSystem
 import SharedUtil
 import SharedUtil
 
+private enum PokeCooldownManager {
+    private static let userDefaultsKey = "pokeCooldownTimestamps"
+    private static let cooldownInterval: TimeInterval = 3 * 60 * 60
+
+    static func remainingCooldown(goalId: Int64) -> TimeInterval? {
+        guard let timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval],
+              let lastPokeTime = timestamps[String(goalId)] else {
+            return nil
+        }
+        let elapsed = Date().timeIntervalSince1970 - lastPokeTime
+        let remaining = cooldownInterval - elapsed
+        return remaining > 0 ? remaining : nil
+    }
+
+    static func formatRemainingTime(_ seconds: TimeInterval) -> String {
+        let totalMinutes = Int(ceil(seconds / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 && minutes > 0 {
+            return "\(hours)시간 \(minutes)분"
+        } else if hours > 0 {
+            return "\(hours)시간"
+        } else {
+            return "\(max(1, minutes))분"
+        }
+    }
+
+    static func recordPoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps[String(goalId)] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
+}
+
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
     /// 실제 로직을 포함한 GoalDetailReducer를 생성합니다.
@@ -64,7 +99,21 @@ extension GoalDetailReducer {
                         await send(.authorizationCompleted(isAuthorized: isAuthorized))
                     }
                 }
-                return .none
+                guard state.currentUser == .you, !state.isCompleted else { return .none }
+                let goalId = state.currentGoalId
+                if let remaining = PokeCooldownManager.remainingCooldown(goalId: goalId) {
+                    let timeText = PokeCooldownManager.formatRemainingTime(remaining)
+                    return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
+                }
+                return .run { send in
+                    do {
+                        try await goalClient.pokePartner(goalId)
+                        PokeCooldownManager.recordPoke(goalId: goalId)
+                        await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
+                    } catch {
+                        await send(.showToast(.warning(message: "찌르기에 실패했어요")))
+                    }
+                }
                 
             case let .navigationBarTapped(action):
                 if case .backTapped = action {

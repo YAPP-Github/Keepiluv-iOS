@@ -115,6 +115,7 @@ public struct GoalDetailView: View {
                 ProgressView()
             }
         }
+        .txToast(item: $store.toast, customPadding: 54)
     }
 }
 
