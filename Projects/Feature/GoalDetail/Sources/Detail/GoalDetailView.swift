@@ -177,7 +177,7 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let editImageData = store.pendingEditedImageData,
+        if let editImageData = store.currentEditedImageData,
            let editedImage = UIImage(data: editImageData) {
             completedImageCardContainer {
                 Image(uiImage: editedImage)

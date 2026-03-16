@@ -52,6 +52,10 @@ public struct GoalDetailReducer {
             }
         }
         
+        public var currentEditedImageData: Data? {
+            currentUser == .mySelf ? pendingEditedImageData : nil
+        }
+        
         public var canSwipeLeft: Bool {
             switch entryPoint {
             case .home:
@@ -89,7 +93,7 @@ public struct GoalDetailReducer {
         }
         
         public var isCompleted: Bool {
-            pendingEditedImageData != nil || currentCard?.imageUrl != nil
+            currentEditedImageData != nil || currentCard?.imageUrl != nil
         }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
