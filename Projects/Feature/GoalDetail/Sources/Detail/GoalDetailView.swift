@@ -160,19 +160,21 @@ private extension GoalDetailView {
         .animation(.spring(response: 0.36, dampingFraction: 0.86), value: store.currentUser)
     }
     
+    @ViewBuilder
     var backgroundRect: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.Gray.gray200)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
-            .overlay(dimmedView)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .rotationEffect(.degrees(degree(isBackground: true)))
+        if !store.isEditing {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.Gray.gray200)
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
+                .frame(width: 336, height: 336)
+                .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .rotationEffect(.degrees(degree(isBackground: true)))
+        }
     }
     
     @ViewBuilder
