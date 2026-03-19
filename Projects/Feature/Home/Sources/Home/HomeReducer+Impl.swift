@@ -63,15 +63,15 @@ private enum PokeCooldownManager {
     }
 }
 
+// MARK: - HomeReducer Implementation
+
 extension HomeReducer {
     /// 실제 로직을 포함한 HomeReducer를 생성합니다.
-    /// 
+    ///
     /// ## 사용 예시
     /// ```swift
     /// let reducer = HomeReducer()
     /// ```
-    
-    // swiftlint:disable:next function_body_length
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {
@@ -79,342 +79,409 @@ extension HomeReducer {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
         @Dependency(\.notificationClient) var notificationClient
-        
-        // swiftlint:disable:next closure_body_length
-        let reducer = Reduce<State, Action> { state, action in
-            
-            switch action {
-                // MARK: - Life Cycle
-            case .onAppear:
-                if state.calendarDate.day == nil {
-                    let now = state.nowDate
-                    let date = TXCalendarDate(
-                        year: now.year,
-                        month: now.month,
-                        day: now.day
-                    )
-                    return .send(.setCalendarDate(date))
-                }
-                state.isLoading = true
-                return .send(.fetchGoals)
-                
-                // MARK: - User Action
-            case let .calendarDateSelected(item):
-                guard let components = item.dateComponents,
-                      let year = components.year,
-                      let month = components.month,
-                      let day = components.day else {
-                    return .none
-                }
-                return .send(.setCalendarDate(TXCalendarDate(year: year, month: month, day: day)))
-                
-            case let .setCalendarSheetPresented(isPresented):
-                state.isCalendarSheetPresented = isPresented
-                if isPresented {
-                    state.calendarSheetDate = state.calendarDate
-                }
-                return .none
-                
-            case let .navigationBarAction(action):
-                switch action {
-                case .refreshTapped:
-                    let now = state.nowDate
-                    let date = TXCalendarDate(
-                        year: now.year,
-                        month: now.month,
-                        day: now.day
-                    )
-                    if date == state.calendarDate {
-                        state.isLoading = true
-                        return .send(.fetchGoals)
-                    }
-                    return .send(.setCalendarDate(date))
-                    
-                case .subTitleTapped:
-                    return .send(.setCalendarSheetPresented(true))
-                    
-                case .alertTapped:
-                    return .send(.delegate(.goToNotification))
-                    
-                case .settingTapped:
-                    return .send(.delegate(.goToSettings))
-                    
-                case .backTapped,
-                        .rightTapped,
-                        .closeTapped:
-                    return .none
-                }
-                
-            case .monthCalendarConfirmTapped:
-                state.isCalendarSheetPresented = false
-                return .send(.setCalendarDate(state.calendarSheetDate))
-                
-            case let .goalCheckButtonTapped(id, isChecked):
-                if isChecked {
-                    guard let card = state.cards.first(where: { $0.id == id }),
-                          let photologId = card.myCard.photologId else {
-                        return .none
-                    }
-                    state.pendingDeleteGoalID = id
-                    state.pendingDeletePhotologID = photologId
-                    state.modal = .info(.uncheckGoal)
-                    return .none
-                } else {
-                    let now = state.nowDate
-                    let today = TXCalendarDate(
-                        year: now.year,
-                        month: now.month,
-                        day: now.day
-                    )
-                    if state.calendarDate > today {
-                        state.toast = .warning(message: "미래의 인증샷은 지금 올릴 수 없어요!")
-                        return .none
-                    } else {
-                        return .run { send in
-                            let isAuthorized = await captureSessionClient.fetchIsAuthorized()
-                            await send(.authorizationCompleted(id: id, isAuthorized: isAuthorized))
-                        }
-                    }
-                }
-                
-            case .modalConfirmTapped:
-                guard let pendingGoalID = state.pendingDeleteGoalID,
-                      let pendingPhotologID = state.pendingDeletePhotologID else {
-                    return .none
-                }
-                state.pendingDeleteGoalID = nil
-                state.pendingDeletePhotologID = nil
-                return .run { send in
-                    do {
-                        try await photoLogClient.deletePhotoLog(pendingPhotologID)
-                        await send(.deletePhotoLogCompleted(goalId: pendingGoalID))
-                    } catch {
-                        await send(.deletePhotoLogFailed)
-                    }
-                }
-                
-            case let .yourCardTapped(card):
-                if !card.yourCard.isSelected {
-                    // 쿨다운 확인 (3시간 이내 재요청 방지)
-                    if let remaining = PokeCooldownManager.remainingCooldown(goalId: card.id) {
-                        let timeText = PokeCooldownManager.formatRemainingTime(remaining)
-                        return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
-                    }
-                    // 상대방 미인증 시 찌르기 API 호출
-                    return .run { send in
-                        do {
-                            try await goalClient.pokePartner(card.id)
-                            PokeCooldownManager.recordPoke(goalId: card.id)
-                            await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
-                        } catch {
-                            await send(.showToast(.warning(message: "찌르기에 실패했어요")))
-                        }
-                    }
-                } else {
-                    let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
-                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
-                }
-                
-            case let .myCardTapped(card):
-                let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
-                return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf, verificationDate: verificationDate)))
-                
-            case let .headerTapped(card):
-                return .send(.delegate(.goToStatsDetail(id: card.id)))
-                
-            case .floatingButtonTapped:
-                state.isAddGoalPresented = true
-                return .none
-                
-            case let .addGoalButtonTapped(category):
-                state.isAddGoalPresented = false
-                return .send(.delegate(.goToMakeGoal(category)))
-                
-            case .editButtonTapped:
-                return .send(.delegate(.goToEditGoalList(date: state.calendarDate)))
-                
-            case let .weekCalendarSwipe(swipe):
-                switch swipe {
-                case .next:
-                    guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
-                        from: state.calendarDate,
-                        by: 1
-                    ) else {
-                        return .none
-                    }
-                    return .send(.setCalendarDate(nextWeekDate))
-                    
-                case .previous:
-                    guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
-                        from: state.calendarDate,
-                        by: -1
-                    ) else {
-                        return .none
-                    }
-                    return .send(.setCalendarDate(previousWeekDate))
-                }
-                
-                // MARK: - Update State
-            case let .fetchGoalsCompleted(items, date):
-                let cacheKey = TXCalendarUtil.apiDateString(for: date)
-                state.goalsCache[cacheKey] = items
-                
-                if date != state.calendarDate {
-                    return .none
-                }
-                state.isLoading = false
-                if state.cards != items {
-                    state.cards = items
-                }
-                return .none
-                
-            case .fetchGoalsFailed:
-                state.isLoading = false
-                return .send(.showToast(.warning(message: "목표 조회에 실패했어요")))
-                
-            case let .setCalendarDate(date):
-                guard date != state.calendarDate else { return .none }
-                
-                let today = TXCalendarDate()
-                let calendar = Calendar(identifier: .gregorian)
-                
-                state.calendarDate = date
-                state.calendarMonthTitle = "\(date.month)월 \(date.year)"
-                state.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
-                
-                if let selectedDate = date.date,
-                   let todayDate = today.date {
-                    let isThisWeek = calendar.isDate(
-                        selectedDate,
-                        equalTo: todayDate,
-                        toGranularity: .weekOfYear
-                    )
-                    state.isRefreshHidden = isThisWeek
-                }
-                
-                state.isLoading = true
-                return .send(.fetchGoals)
-                
-            case .fetchGoals:
-                let date = state.calendarDate
-                let cacheKey = TXCalendarUtil.apiDateString(for: date)
-                if let cachedItems = state.goalsCache[cacheKey] {
-                    state.cards = cachedItems
-                    state.isLoading = false
-                } else {
-                    state.isLoading = true
-                }
-                return .run { send in
-                    // 읽지 않은 알림 여부 체크
-                    if let hasUnread = try? await notificationClient.fetchUnread() {
-                        await send(.fetchUnreadResponse(hasUnread))
-                    }
 
-                    do {
-                        let goals = try await goalClient.fetchGoals(cacheKey)
-                        let items: [GoalCardItem] = goals.map { goal in
-                            let myImageURL = goal.myVerification?.imageURL.flatMap(URL.init(string:))
-                            let yourImageURL = goal.yourVerification?.imageURL.flatMap(URL.init(string:))
-                            return GoalCardItem(
-                                id: goal.id,
-                                goalName: goal.title,
-                                goalEmoji: GoalIcon(from: goal.goalIcon).image,
-                                myCard: .init(
-                                    photologId: goal.myVerification?.photologId,
-                                    imageURL: myImageURL,
-                                    isSelected: goal.myVerification?.isCompleted ?? false,
-                                    emoji: goal.myVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
-                                ),
-                                yourCard: .init(
-                                    photologId: goal.yourVerification?.photologId,
-                                    imageURL: yourImageURL,
-                                    isSelected: goal.yourVerification?.isCompleted ?? false,
-                                    emoji: goal.yourVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
-                                )
-                            )
-                        }
-                        await send(.fetchGoalsCompleted(items, date: date))
-                    } catch {
-                        await send(.fetchGoalsFailed)
-                    }
-                }
-                
-            case let .showToast(toast):
-                state.toast = toast
-                return .none
-                
-            case let .authorizationCompleted(id, isAuthorized):
-                if !isAuthorized {
-                    state.isCameraPermissionAlertPresented = true
-                    return .none
-                }
-                state.proofPhoto = .init(
-                    goalId: id,
-                    verificationDate: TXCalendarUtil.apiDateString(for: state.calendarDate)
+        let reducer = Reduce<State, Action> { state, action in
+            switch action {
+            case let .view(viewAction):
+                return reduceView(
+                    state: &state,
+                    action: viewAction,
+                    goalClient: goalClient,
+                    captureSessionClient: captureSessionClient,
+                    photoLogClient: photoLogClient
                 )
-                state.isProofPhotoPresented = true
+
+            case let .internal(internalAction):
+                return reduceInternal(
+                    state: &state,
+                    action: internalAction,
+                    goalClient: goalClient,
+                    notificationClient: notificationClient
+                )
+
+            case let .response(responseAction):
+                return reduceResponse(
+                    state: &state,
+                    action: responseAction
+                )
+
+            case let .presentation(presentationAction):
+                return reducePresentation(
+                    state: &state,
+                    action: presentationAction
+                )
+
+            case .delegate:
                 return .none
-                
-            case .cameraPermissionAlertDismissed:
-                state.isCameraPermissionAlertPresented = false
-                return .none
-                
+
             case .proofPhoto(.delegate(.closeProofPhoto)):
-                state.isProofPhotoPresented = false
+                state.presentation.isProofPhotoPresented = false
                 return .none
-                
+
             case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, _))):
-                state.isProofPhotoPresented = false
+                state.presentation.isProofPhotoPresented = false
                 guard let goalId = state.proofPhoto?.goalId else { return .none }
-                guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
+                guard let index = state.data.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
                 let imageURL = myPhotoLog.imageUrl.flatMap(URL.init(string:))
-                state.cards[index].myCard = .init(
+                state.data.cards[index].myCard = .init(
                     photologId: myPhotoLog.photologId,
                     imageURL: imageURL,
                     isSelected: true,
-                    emoji: state.cards[index].myCard.emoji
+                    emoji: state.data.cards[index].myCard.emoji
                 )
-                state.goalsCache[TXCalendarUtil.apiDateString(for: state.calendarDate)] = state.cards
+                state.data.goalsCache[TXCalendarUtil.apiDateString(for: state.data.calendarDate)] = state.data.cards
                 return .none
-                
-            case .proofPhotoDismissed:
-                state.proofPhoto = nil
-                return .none
-                
+
             case .proofPhoto:
-                return .none
-
-            case let .deletePhotoLogCompleted(goalId):
-                guard let index = state.cards.firstIndex(where: { $0.id == goalId }) else {
-                    return .none
-                }
-                state.cards[index].myCard = .init(
-                    photologId: nil,
-                    imageURL: nil,
-                    isSelected: false,
-                    emoji: state.cards[index].myCard.emoji
-                )
-                state.goalsCache[TXCalendarUtil.apiDateString(for: state.calendarDate)] = state.cards
-                return .send(.showToast(.delete(message: "인증이 해제되었어요")))
-
-            case .deletePhotoLogFailed:
-                return .send(.showToast(.warning(message: "해제에 실패했어요")))
-
-            case let .fetchUnreadResponse(hasUnread):
-                state.hasUnreadNotification = hasUnread
                 return .none
 
             case .binding:
                 return .none
-
-            case .delegate:
-                return .none
             }
         }
-        
+
         self.init(
             reducer: reducer,
             proofPhotoReducer: proofPhotoReducer
         )
+    }
+}
+
+// MARK: - View Actions
+
+private func reduceView(
+    state: inout HomeReducer.State,
+    action: HomeReducer.Action.View,
+    goalClient: GoalClient,
+    captureSessionClient: CaptureSessionClient,
+    photoLogClient: PhotoLogClient
+) -> Effect<HomeReducer.Action> {
+    switch action {
+    case .onAppear:
+        if state.data.calendarDate.day == nil {
+            let now = state.ui.nowDate
+            let date = TXCalendarDate(
+                year: now.year,
+                month: now.month,
+                day: now.day
+            )
+            return .send(.internal(.setCalendarDate(date)))
+        }
+        state.ui.isLoading = true
+        return .send(.internal(.fetchGoals))
+
+    case let .calendarDateSelected(item):
+        guard let components = item.dateComponents,
+              let year = components.year,
+              let month = components.month,
+              let day = components.day else {
+            return .none
+        }
+        return .send(.internal(.setCalendarDate(TXCalendarDate(year: year, month: month, day: day))))
+
+    case let .weekCalendarSwipe(swipe):
+        switch swipe {
+        case .next:
+            guard let nextWeekDate = TXCalendarUtil.dateByAddingWeek(
+                from: state.data.calendarDate,
+                by: 1
+            ) else {
+                return .none
+            }
+            return .send(.internal(.setCalendarDate(nextWeekDate)))
+
+        case .previous:
+            guard let previousWeekDate = TXCalendarUtil.dateByAddingWeek(
+                from: state.data.calendarDate,
+                by: -1
+            ) else {
+                return .none
+            }
+            return .send(.internal(.setCalendarDate(previousWeekDate)))
+        }
+
+    case let .navigationBarAction(action):
+        switch action {
+        case .refreshTapped:
+            let now = state.ui.nowDate
+            let date = TXCalendarDate(
+                year: now.year,
+                month: now.month,
+                day: now.day
+            )
+            if date == state.data.calendarDate {
+                state.ui.isLoading = true
+                return .send(.internal(.fetchGoals))
+            }
+            return .send(.internal(.setCalendarDate(date)))
+
+        case .subTitleTapped:
+            return .send(.internal(.setCalendarSheetPresented(true)))
+
+        case .alertTapped:
+            return .send(.delegate(.goToNotification))
+
+        case .settingTapped:
+            return .send(.delegate(.goToSettings))
+
+        case .backTapped,
+             .rightTapped,
+             .closeTapped:
+            return .none
+        }
+
+    case .monthCalendarConfirmTapped:
+        state.presentation.isCalendarSheetPresented = false
+        return .send(.internal(.setCalendarDate(state.data.calendarSheetDate)))
+
+    case let .goalCheckButtonTapped(id, isChecked):
+        if isChecked {
+            guard let card = state.data.cards.first(where: { $0.id == id }),
+                  let photologId = card.myCard.photologId else {
+                return .none
+            }
+            state.data.pendingDeleteGoalID = id
+            state.data.pendingDeletePhotologID = photologId
+            state.presentation.modal = .info(.uncheckGoal)
+            return .none
+        } else {
+            let now = state.ui.nowDate
+            let today = TXCalendarDate(
+                year: now.year,
+                month: now.month,
+                day: now.day
+            )
+            if state.data.calendarDate > today {
+                return .send(.presentation(.showToast(.warning(message: "미래의 인증샷은 지금 올릴 수 없어요!"))))
+            } else {
+                return .run { send in
+                    let isAuthorized = await captureSessionClient.fetchIsAuthorized()
+                    await send(.internal(.authorizationCompleted(id: id, isAuthorized: isAuthorized)))
+                }
+            }
+        }
+
+    case .modalConfirmTapped:
+        guard let pendingGoalID = state.data.pendingDeleteGoalID,
+              let pendingPhotologID = state.data.pendingDeletePhotologID else {
+            return .none
+        }
+        state.data.pendingDeleteGoalID = nil
+        state.data.pendingDeletePhotologID = nil
+        return .run { send in
+            do {
+                try await photoLogClient.deletePhotoLog(pendingPhotologID)
+                await send(.response(.deletePhotoLogResult(.success(pendingGoalID))))
+            } catch {
+                await send(.response(.deletePhotoLogResult(.failure(HomeReducer.HomeError.unknown))))
+            }
+        }
+
+    case let .yourCardTapped(card):
+        if !card.yourCard.isSelected {
+            if let remaining = PokeCooldownManager.remainingCooldown(goalId: card.id) {
+                let timeText = PokeCooldownManager.formatRemainingTime(remaining)
+                return .send(.presentation(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요"))))
+            }
+            return .run { send in
+                do {
+                    try await goalClient.pokePartner(card.id)
+                    PokeCooldownManager.recordPoke(goalId: card.id)
+                    await send(.response(.pokePartnerResult(.success(card.id))))
+                } catch {
+                    await send(.response(.pokePartnerResult(.failure(HomeReducer.HomeError.unknown))))
+                }
+            }
+        } else {
+            let verificationDate = TXCalendarUtil.apiDateString(for: state.data.calendarDate)
+            return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
+        }
+
+    case let .myCardTapped(card):
+        let verificationDate = TXCalendarUtil.apiDateString(for: state.data.calendarDate)
+        return .send(.delegate(.goToGoalDetail(id: card.id, owner: .mySelf, verificationDate: verificationDate)))
+
+    case let .headerTapped(card):
+        return .send(.delegate(.goToStatsDetail(id: card.id)))
+
+    case .floatingButtonTapped:
+        state.presentation.isAddGoalPresented = true
+        return .none
+
+    case .editButtonTapped:
+        return .send(.delegate(.goToEditGoalList(date: state.data.calendarDate)))
+
+    case let .addGoalButtonTapped(category):
+        state.presentation.isAddGoalPresented = false
+        return .send(.delegate(.goToMakeGoal(category)))
+
+    case .cameraPermissionAlertDismissed:
+        state.presentation.isCameraPermissionAlertPresented = false
+        return .none
+
+    case .proofPhotoDismissed:
+        state.proofPhoto = nil
+        return .none
+    }
+}
+
+// MARK: - Internal Actions
+
+private func reduceInternal(
+    state: inout HomeReducer.State,
+    action: HomeReducer.Action.Internal,
+    goalClient: GoalClient,
+    notificationClient: NotificationClient
+) -> Effect<HomeReducer.Action> {
+    switch action {
+    case .fetchGoals:
+        let date = state.data.calendarDate
+        let cacheKey = TXCalendarUtil.apiDateString(for: date)
+        if let cachedItems = state.data.goalsCache[cacheKey] {
+            state.data.cards = cachedItems
+            state.ui.isLoading = false
+        } else {
+            state.ui.isLoading = true
+        }
+        return .run { send in
+            if let hasUnread = try? await notificationClient.fetchUnread() {
+                await send(.response(.fetchUnreadResult(hasUnread)))
+            }
+
+            do {
+                let goals = try await goalClient.fetchGoals(cacheKey)
+                let items: [GoalCardItem] = goals.map { goal in
+                    let myImageURL = goal.myVerification?.imageURL.flatMap(URL.init(string:))
+                    let yourImageURL = goal.yourVerification?.imageURL.flatMap(URL.init(string:))
+                    return GoalCardItem(
+                        id: goal.id,
+                        goalName: goal.title,
+                        goalEmoji: GoalIcon(from: goal.goalIcon).image,
+                        myCard: .init(
+                            photologId: goal.myVerification?.photologId,
+                            imageURL: myImageURL,
+                            isSelected: goal.myVerification?.isCompleted ?? false,
+                            emoji: goal.myVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
+                        ),
+                        yourCard: .init(
+                            photologId: goal.yourVerification?.photologId,
+                            imageURL: yourImageURL,
+                            isSelected: goal.yourVerification?.isCompleted ?? false,
+                            emoji: goal.yourVerification?.emoji.flatMap { ReactionEmoji(from: $0)?.image }
+                        )
+                    )
+                }
+                await send(.response(.fetchGoalsResult(.success(items), date: date)))
+            } catch {
+                await send(.response(.fetchGoalsResult(.failure(HomeReducer.HomeError.unknown), date: date)))
+            }
+        }
+
+    case let .setCalendarDate(date):
+        guard date != state.data.calendarDate else { return .none }
+
+        let today = TXCalendarDate()
+        let calendar = Calendar(identifier: .gregorian)
+
+        state.data.calendarDate = date
+        state.ui.calendarMonthTitle = "\(date.month)월 \(date.year)"
+        state.data.calendarWeeks = TXCalendarDataGenerator.generateWeekData(for: date)
+
+        if let selectedDate = date.date,
+           let todayDate = today.date {
+            let isThisWeek = calendar.isDate(
+                selectedDate,
+                equalTo: todayDate,
+                toGranularity: .weekOfYear
+            )
+            state.ui.isRefreshHidden = isThisWeek
+        }
+
+        state.ui.isLoading = true
+        return .send(.internal(.fetchGoals))
+
+    case let .setCalendarSheetPresented(isPresented):
+        state.presentation.isCalendarSheetPresented = isPresented
+        if isPresented {
+            state.data.calendarSheetDate = state.data.calendarDate
+        }
+        return .none
+
+    case let .authorizationCompleted(id, isAuthorized):
+        if !isAuthorized {
+            state.presentation.isCameraPermissionAlertPresented = true
+            return .none
+        }
+        state.proofPhoto = .init(
+            goalId: id,
+            verificationDate: TXCalendarUtil.apiDateString(for: state.data.calendarDate)
+        )
+        state.presentation.isProofPhotoPresented = true
+        return .none
+    }
+}
+
+// MARK: - Response Actions
+
+private func reduceResponse(
+    state: inout HomeReducer.State,
+    action: HomeReducer.Action.Response
+) -> Effect<HomeReducer.Action> {
+    switch action {
+    case let .fetchGoalsResult(.success(items), date):
+        let cacheKey = TXCalendarUtil.apiDateString(for: date)
+        state.data.goalsCache[cacheKey] = items
+
+        if date != state.data.calendarDate {
+            return .none
+        }
+        state.ui.isLoading = false
+        if state.data.cards != items {
+            state.data.cards = items
+        }
+        return .none
+
+    case .fetchGoalsResult(.failure, _):
+        state.ui.isLoading = false
+        return .send(.presentation(.showToast(.warning(message: "목표 조회에 실패했어요"))))
+
+    case let .deletePhotoLogResult(.success(goalId)):
+        guard let index = state.data.cards.firstIndex(where: { $0.id == goalId }) else {
+            return .none
+        }
+        state.data.cards[index].myCard = .init(
+            photologId: nil,
+            imageURL: nil,
+            isSelected: false,
+            emoji: state.data.cards[index].myCard.emoji
+        )
+        state.data.goalsCache[TXCalendarUtil.apiDateString(for: state.data.calendarDate)] = state.data.cards
+        return .send(.presentation(.showToast(.delete(message: "인증이 해제되었어요"))))
+
+    case .deletePhotoLogResult(.failure):
+        return .send(.presentation(.showToast(.warning(message: "해제에 실패했어요"))))
+
+    case let .fetchUnreadResult(hasUnread):
+        state.ui.hasUnreadNotification = hasUnread
+        return .none
+
+    case .pokePartnerResult(.success):
+        return .send(.presentation(.showToast(.poke(message: "상대방을 찔렀어요!"))))
+
+    case .pokePartnerResult(.failure):
+        return .send(.presentation(.showToast(.warning(message: "찌르기에 실패했어요"))))
+    }
+}
+
+// MARK: - Presentation Actions
+
+private func reducePresentation(
+    state: inout HomeReducer.State,
+    action: HomeReducer.Action.Presentation
+) -> Effect<HomeReducer.Action> {
+    switch action {
+    case let .showToast(toast):
+        state.presentation.toast = toast
+        return .none
     }
 }

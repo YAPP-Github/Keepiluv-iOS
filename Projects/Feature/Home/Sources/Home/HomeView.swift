@@ -25,10 +25,10 @@ import SharedDesignSystem
 /// )
 /// ```
 public struct HomeView: View {
-    
+
     @Bindable public var store: StoreOf<HomeReducer>
     @Dependency(\.proofPhotoFactory) var proofPhotoFactory
-    
+
     /// HomeView를 생성합니다.
     ///
     /// ## 사용 예시
@@ -38,7 +38,7 @@ public struct HomeView: View {
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             navigationBar
@@ -53,11 +53,11 @@ public struct HomeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay {
-            if store.isLoading {
+            if store.ui.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
+
             if !store.hasCards {
                 goalEmptyView
             }
@@ -68,34 +68,34 @@ public struct HomeView: View {
             }
         }
         .onAppear {
-            store.send(.onAppear)
+            store.send(.view(.onAppear))
         }
         .txBottomSheet(
-            isPresented: $store.isAddGoalPresented,
+            isPresented: $store.presentation.isAddGoalPresented,
             showDragIndicator: true,
             sheetContent: {
                 AddGoalListView { category in
-                    store.send(.addGoalButtonTapped(category))
+                    store.send(.view(.addGoalButtonTapped(category)))
                 }
             }
         )
         .txBottomSheet(
-            isPresented: $store.isCalendarSheetPresented,
+            isPresented: $store.presentation.isCalendarSheetPresented,
             sheetContent: {
                 TXCalendarBottomSheet(
-                    selectedDate: $store.calendarSheetDate,
+                    selectedDate: $store.data.calendarSheetDate,
                     completeButtonText: "완료",
                     onComplete: {
-                        store.send(.monthCalendarConfirmTapped)
+                        store.send(.view(.monthCalendarConfirmTapped))
                     }
                 )
             }
         )
         .txModal(
-            item: $store.modal,
+            item: $store.presentation.modal,
             onAction: { action in
                 if action == .confirm {
-                    store.send(.modalConfirmTapped)
+                    store.send(.view(.modalConfirmTapped))
                 }
             }
         )
@@ -103,16 +103,16 @@ public struct HomeView: View {
             transaction.disablesAnimations = false
         }
         .fullScreenCover(
-            isPresented: $store.isProofPhotoPresented,
-            onDismiss: { store.send(.proofPhotoDismissed) },
+            isPresented: $store.presentation.isProofPhotoPresented,
+            onDismiss: { store.send(.view(.proofPhotoDismissed)) },
         ) {
             IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
                 proofPhotoFactory.makeView(store)
             }
         }
         .cameraPermissionAlert(
-            isPresented: $store.isCameraPermissionAlertPresented,
-            onDismiss: { store.send(.cameraPermissionAlertDismissed) }
+            isPresented: $store.presentation.isCameraPermissionAlertPresented,
+            onDismiss: { store.send(.view(.cameraPermissionAlertDismissed)) }
         )
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -124,34 +124,34 @@ private extension HomeView {
         TXNavigationBar(
             style: .home(
                 .init(
-                    subTitle: store.calendarMonthTitle,
-                    mainTitle: store.mainTitle,
-                    isHiddenRefresh: store.isRefreshHidden,
-                    isRemainedAlarm: store.hasUnreadNotification
+                    subTitle: store.ui.calendarMonthTitle,
+                    mainTitle: store.ui.mainTitle,
+                    isHiddenRefresh: store.ui.isRefreshHidden,
+                    isRemainedAlarm: store.ui.hasUnreadNotification
                 )
             ), onAction: { action in
-                store.send(.navigationBarAction(action))
+                store.send(.view(.navigationBarAction(action)))
             }
         )
     }
-    
+
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
-            weeks: store.calendarWeeks,
+            weeks: store.data.calendarWeeks,
             config: .init(
                 dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
             ),
             onSelect: { item in
-                store.send(.calendarDateSelected(item))
+                store.send(.view(.calendarDateSelected(item)))
             },
             onSwipe: { swipe in
-                store.send(.weekCalendarSwipe(swipe))
+                store.send(.view(.weekCalendarSwipe(swipe)))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
     }
-    
+
     var content: some View {
         ScrollView {
             Group {
@@ -163,19 +163,19 @@ private extension HomeView {
             .padding(.bottom, 103)
         }
         .refreshable {
-            store.send(.fetchGoals)
+            store.send(.internal(.fetchGoals))
         }
     }
-    
+
     var headerRow: some View {
         HStack(spacing: 0) {
             Text(store.goalSectionTitle)
                 .typography(.b1_14b)
-            
+
             Spacer()
-            
+
             Button {
-                store.send(.editButtonTapped)
+                store.send(.view(.editButtonTapped))
             } label: {
                 Text("편집")
                     .typography(.b1_14b)
@@ -184,16 +184,16 @@ private extension HomeView {
         }
         .frame(height: 24)
     }
-    
+
     var cardList: some View {
         LazyVStack(spacing: 16) {
-            ForEach(store.cards) { card in
+            ForEach(store.data.cards) { card in
                 goalCard(for: card)
             }
         }
         .padding(.top, 12)
     }
-    
+
     func goalCard(for card: GoalCardItem) -> some View {
         GoalCardView(
             config: .goalCheck(
@@ -207,30 +207,30 @@ private extension HomeView {
                 isMyChecked: card.myCard.isSelected,
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
-                    store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
+                    store.send(.view(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected)))
                 },
                 onHeaderTapped: {
-                    store.send(.headerTapped(card))
+                    store.send(.view(.headerTapped(card)))
                 }
             ),
             actionLeft: {
-                store.send(.myCardTapped(card))
+                store.send(.view(.myCardTapped(card)))
             }, actionRight: {
-                store.send(.yourCardTapped(card))
+                store.send(.view(.yourCardTapped(card)))
             }
         )
     }
-    
+
     var goalEmptyView: some View {
         VStack(spacing: 0) {
             Image.Illustration.emptyPoke
                 .frame(height: 116)
-            
+
             Text("첫 목표를 세워볼까요?")
                 .typography(.t2_16b)
                 .foregroundStyle(Color.Gray.gray400)
                 .padding(.top, 16)
-            
+
             Text("+ 버튼을 눌러 목표를 추가해보세요")
                 .typography(.c1_12r)
                 .foregroundStyle(Color.Gray.gray300)
@@ -239,7 +239,7 @@ private extension HomeView {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
     }
-    
+
     var emptyArrow: some View {
         Image.Illustration.arrow
             .padding(.bottom, 71)
