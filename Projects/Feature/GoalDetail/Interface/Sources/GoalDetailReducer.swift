@@ -229,7 +229,7 @@ extension GoalDetailReducer.State {
             return isEditing ? "다시 찍기" : "업로드하기"
             
         case .you:
-            return "찔러보세요"
+            return "찌르기"
         }
     }
 }

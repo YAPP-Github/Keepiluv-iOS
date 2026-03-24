@@ -72,10 +72,9 @@ public struct GoalDetailView: View {
                 } else {
                     bottomButton
                         .padding(.top, 105)
-                        .frame(maxWidth: .infinity)
-                        .overlay(alignment: .topTrailing) {
+                        .overlay(alignment: .bottomLeading) {
                             pokeImage
-                                .offset(x: -20, y: -20)
+                                .offset(x: 79, y: -45)
                         }
                 }
             }
@@ -264,8 +263,7 @@ private extension GoalDetailView {
     var pokeImage: some View {
         Image.Illustration.poke
             .resizable()
-            .frame(width: 173, height: 173)
-            .allowsHitTesting(false)
+            .frame(width: 184, height: 160)
     }
 
     var bottomButton: some View {
@@ -310,8 +308,7 @@ private extension GoalDetailView {
         let shape = RoundedRectangle(cornerRadius: 20)
         
         return Color.clear
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 336, height: 336)
             .readSize { rectFrame = $0 }
             .overlay {
                 content()
