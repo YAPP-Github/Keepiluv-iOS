@@ -25,11 +25,10 @@ public struct TXTopTabBar: View {
         let items: [Item]
         let font: TypographyToken = .t2_16b
         let selectedColor: Color = Color.Gray.gray500
-        let unselectedColor: Color = Color.Gray.gray200
+        let unselectedColor: Color = Color.Gray.gray100
         let height: CGFloat = 36
         let bottomPadding: CGFloat = Spacing.spacing6
         let underlineHeight: CGFloat = LineWidth.l
-        let underlineBottomPadding: CGFloat = Spacing.spacing2
         
         public init(items: [Item]) {
             self.items = items
@@ -74,25 +73,21 @@ private extension TXTopTabBar {
         return Text(item.title)
             .typography(config.font)
             .foregroundStyle(color)
-            .frame(maxWidth: .infinity, maxHeight: config.height)
             .padding(.bottom, config.bottomPadding)
-            .overlay(
+            .frame(maxWidth: .infinity, maxHeight: config.height)
+            .overlay(alignment: .bottom) {
                 Rectangle()
                     .foregroundStyle(color)
                     .frame(height: config.underlineHeight)
-                    .padding(.bottom, config.underlineBottomPadding),
-                alignment: .bottom
-            )
+            }
     }
 }
 
 public extension TXTopTabBar.Item {
     var title: String {
         switch self {
-        case .ongoing:
-            return "진행중"
-        case .completed:
-            return "종료"
+        case .ongoing: return "진행중"
+        case .completed: return "종료"
         }
     }
 }
