@@ -25,7 +25,8 @@ public struct TXTopTabBar: View {
         let items: [Item]
         let font: TypographyToken = .t2_16b
         let selectedColor: Color = Color.Gray.gray500
-        let unselectedColor: Color = Color.Gray.gray100
+        let unselectedColor: Color = Color.Gray.gray200
+        let unselectedUnderLineColor: Color = Color.Gray.gray100
         let height: CGFloat = 36
         let bottomPadding: CGFloat = Spacing.spacing6
         let underlineHeight: CGFloat = LineWidth.l
@@ -68,16 +69,15 @@ public struct TXTopTabBar: View {
 // MARK: - SubViews
 private extension TXTopTabBar {
     func tabItem(item: Item, isSelected: Bool) -> some View {
-        let color = isSelected ? config.selectedColor : config.unselectedColor
         
         return Text(item.title)
             .typography(config.font)
-            .foregroundStyle(color)
+            .foregroundStyle(isSelected ? config.selectedColor : config.unselectedColor)
             .padding(.bottom, config.bottomPadding)
             .frame(maxWidth: .infinity, maxHeight: config.height)
             .overlay(alignment: .bottom) {
                 Rectangle()
-                    .foregroundStyle(color)
+                    .foregroundStyle(isSelected ? config.selectedColor : config.unselectedUnderLineColor)
                     .frame(height: config.underlineHeight)
             }
     }
