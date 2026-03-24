@@ -72,10 +72,9 @@ public struct GoalDetailView: View {
                 } else {
                     bottomButton
                         .padding(.top, 105)
-                        .frame(maxWidth: .infinity)
-                        .overlay(alignment: .topTrailing) {
+                        .overlay(alignment: .bottomLeading) {
                             pokeImage
-                                .offset(x: -20, y: -20)
+                                .offset(x: 79, y: -45)
                         }
                 }
             }
@@ -115,6 +114,7 @@ public struct GoalDetailView: View {
                 ProgressView()
             }
         }
+        .txToast(item: $store.toast, customPadding: 54)
     }
 }
 
@@ -160,24 +160,26 @@ private extension GoalDetailView {
         .animation(.spring(response: 0.36, dampingFraction: 0.86), value: store.currentUser)
     }
     
+    @ViewBuilder
     var backgroundRect: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.Gray.gray200)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
-            .overlay(dimmedView)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .rotationEffect(.degrees(degree(isBackground: true)))
+        if !store.isEditing {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.Gray.gray200)
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
+                .frame(width: 336, height: 336)
+                .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .rotationEffect(.degrees(degree(isBackground: true)))
+        }
     }
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let editImageData = store.pendingEditedImageData,
+        if let editImageData = store.currentEditedImageData,
            let editedImage = UIImage(data: editImageData) {
             completedImageCardContainer {
                 Image(uiImage: editedImage)
@@ -261,8 +263,7 @@ private extension GoalDetailView {
     var pokeImage: some View {
         Image.Illustration.poke
             .resizable()
-            .frame(width: 173, height: 173)
-            .allowsHitTesting(false)
+            .frame(width: 184, height: 160)
     }
 
     var bottomButton: some View {
@@ -307,8 +308,7 @@ private extension GoalDetailView {
         let shape = RoundedRectangle(cornerRadius: 20)
         
         return Color.clear
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
+            .frame(width: 336, height: 336)
             .readSize { rectFrame = $0 }
             .overlay {
                 content()

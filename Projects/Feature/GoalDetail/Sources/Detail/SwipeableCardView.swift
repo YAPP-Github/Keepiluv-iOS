@@ -57,6 +57,10 @@ struct SwipeableCardView<Content: View>: View {
 
 // MARK: - Private Methods
 private extension SwipeableCardView {
+    var isSwipeEnabled: Bool {
+        canSwipeLeft || canSwipeRight
+    }
+    
     var swipeRotation: Double {
         max(-8, min(8, Double(cardOffset.width / 28)))
     }
@@ -64,6 +68,11 @@ private extension SwipeableCardView {
     var cardSwipeGesture: some Gesture {
         DragGesture(minimumDistance: 16)
             .onChanged { value in
+                guard isSwipeEnabled else {
+                    resetCardOffset()
+                    return
+                }
+                
                 let translation = value.translation
 
                 guard abs(translation.width) >= abs(translation.height) else {
@@ -74,6 +83,11 @@ private extension SwipeableCardView {
                 cardOffset = CGSize(width: translation.width, height: 0)
             }
             .onEnded { value in
+                guard isSwipeEnabled else {
+                    resetCardOffset()
+                    return
+                }
+                
                 guard let direction = swipeDirection(for: value.translation) else {
                     resetCardOffset()
                     return
