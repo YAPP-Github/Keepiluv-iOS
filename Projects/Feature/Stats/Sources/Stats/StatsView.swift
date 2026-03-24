@@ -18,9 +18,11 @@ struct StatsView: View {
         VStack(spacing: 0) {
             navigationBar
             topTabBar
-            monthNavigation
-                .padding(.top, store.isOngoing ? 16 : 20)
-                .background(Color.Gray.gray50)
+            if store.isOngoing {
+                monthNavigation
+                    .padding(.top, 16)
+                    .background(Color.Gray.gray50)
+            }
             
             if let items = store.items, !items.isEmpty {
                 cardList
@@ -62,15 +64,13 @@ private extension StatsView {
     
     @ViewBuilder
     var monthNavigation: some View {
-        if store.isOngoing {
-            TXCalendarMonthNavigation(
-                title: store.monthTitle,
-                onTitleTap: { },
-                isNextDisabled: store.isNextMonthDisabled,
-                onPrevious: { store.send(.previousMonthTapped) },
-                onNext: { store.send(.nextMonthTapped) }
-            )
-        } else { EmptyView() }
+        TXCalendarMonthNavigation(
+            title: store.monthTitle,
+            onTitleTap: { },
+            isNextDisabled: store.isNextMonthDisabled,
+            onPrevious: { store.send(.previousMonthTapped) },
+            onNext: { store.send(.nextMonthTapped) }
+        )
     }
     
     var cardList: some View {
@@ -86,7 +86,7 @@ private extension StatsView {
                     )
                 }
             }
-            .padding(.top, 12)
+            .padding(.top, store.isOngoing ? 12 : 20)
             .padding([.horizontal, .bottom], 20)
         }
         .background(Color.Gray.gray50)
