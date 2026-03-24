@@ -93,20 +93,24 @@ private extension StatsView {
     }
     
     var statsEmptyView: some View {
-        if store.isOngoing {
-            VStack(spacing: 8) {
-                Image.Illustration.scare
-                Text("아직 목표가 없어요!")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray400)
-            }
-        } else {
-            VStack(spacing: 8) {
-                Image.Illustration.trash
-                Text("아직 끝낸 목표가 없어요!")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray400)
+        Group {
+            if store.isOngoing {
+                VStack(spacing: 8) {
+                    Image.Illustration.scare
+                    Text("아직 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
+            } else {
+                VStack(spacing: 8) {
+                    Image.Illustration.trash
+                    Text("아직 끝낸 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
