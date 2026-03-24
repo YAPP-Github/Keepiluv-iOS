@@ -53,7 +53,7 @@ public struct StatsCardView: View {
     public var body: some View {
         VStack(spacing: 0) {
             header
-            horizontalDivider
+            verticalDivider
             completionSection
         }
         .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius))
@@ -80,9 +80,10 @@ private extension StatsCardView {
         )
     }
     
-    var horizontalDivider: some View {
+    var verticalDivider: some View {
         Color.Gray.gray500
             .frame(maxWidth: .infinity, maxHeight: Constants.borderLineWidth)
+            .padding(.bottom, -1)
     }
     
     var completionSection: some View {
@@ -91,7 +92,7 @@ private extension StatsCardView {
                 completionCell(info: info)
                     .overlay(alignment: .trailing) {
                         if index < item.completionInfos.count - 1 {
-                            verticalDivider
+                            horizontalDivider
                         }
                     }
             }
@@ -138,7 +139,7 @@ private extension StatsCardView {
         .padding(Constants.cellPadding)
     }
     
-    var verticalDivider: some View {
+    var horizontalDivider: some View {
         Color.Gray.gray500
             .frame(width: Constants.borderLineWidth)
     }

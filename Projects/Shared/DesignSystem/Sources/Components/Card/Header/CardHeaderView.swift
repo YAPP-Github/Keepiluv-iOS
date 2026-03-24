@@ -73,9 +73,11 @@ private extension CardHeaderView {
                 config.iconImage
                     .resizable()
                     .frame(width: 32, height: 32)
-
+                
                 Text(config.goalName)
                     .typography(config.titleTypography)
+                    .lineLimit(1)
+                    .padding(.trailing, 2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
