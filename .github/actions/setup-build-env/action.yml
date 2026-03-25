@@ -39,7 +39,15 @@ runs:
         ruby-version: "3.3.0"
         bundler-cache: true
 
+    - name: 📦 Cache Tuist binary
+      id: tuist-binary-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.tuist-bin
+        key: tuist-binary-${{ runner.os }}-4.118.0
+
     - name: 🛠 Install Tuist (manual binary)
+      if: steps.tuist-binary-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
         TUIST_VERSION=4.118.0
@@ -47,7 +55,10 @@ runs:
         curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
         unzip -o tuist.zip -d ~/.tuist-bin
         chmod +x ~/.tuist-bin/tuist
-        echo "$HOME/.tuist-bin" >> $GITHUB_PATH
+
+    - name: 🔧 Add Tuist to PATH
+      shell: bash
+      run: echo "$HOME/.tuist-bin" >> $GITHUB_PATH
 
     - name: 📦 Cache SPM dependencies
       uses: actions/cache@v4
