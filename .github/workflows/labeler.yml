@@ -21,14 +21,13 @@ jobs:
             console.log(`📋 PR Title: ${title}`);
 
             const labelMap = [
-              { pattern: /^feat:/i,     label: '✨ feat'     },
-              { pattern: /^fix:/i,      label: '🐞 fix'      },
-              { pattern: /^refactor:/i, label: '🔨 refactor' },
-              { pattern: /^docs:/i,     label: '📃 docs'     },
-              { pattern: /^chore:/i,    label: '⚙️ chore'    },
-              { pattern: /^test:/i,     label: '✅ test'     },
-              { pattern: /^style:/i,    label: '🎨 style'    },
-              { pattern: /^qa:/i,       label: '🛠️ qa'      }
+              { pattern: /^feat:/i,     label: 'feat'     },
+              { pattern: /^fix:/i,      label: 'fix'      },
+              { pattern: /^refactor:/i, label: 'refactor' },
+              { pattern: /^docs:/i,     label: 'docs'     },
+              { pattern: /^chore:/i,    label: 'chore'    },
+              { pattern: /^test:/i,     label: 'test'     },
+              { pattern: /^style:/i,    label: 'style'    }
             ];
 
             // 매칭되는 라벨 찾기
