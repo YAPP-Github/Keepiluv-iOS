@@ -88,6 +88,7 @@ platform :ios do
       workspace: WORKSPACE_NAME,
       scheme: MAIN_APP_SCHEME,
       configuration: "Release",
+      destination: "generic/platform=iOS",
       export_method: "app-store",
       skip_package_ipa: false,
       export_options: {
@@ -180,6 +181,7 @@ platform :ios do
       workspace: WORKSPACE_NAME,
       scheme: DEBUG_APP_SCHEME,
       configuration: "Release",
+      destination: "generic/platform=iOS",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
@@ -217,6 +219,7 @@ platform :ios do
       workspace: WORKSPACE_NAME,
       scheme: MAIN_APP_SCHEME,
       configuration: "Release",
+      destination: "generic/platform=iOS",
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {

@@ -87,11 +87,11 @@ runs:
         fi
 
     - name: 🏗 Warm up external dependencies (with Pulse)
-      if: (inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true') && inputs.include-pulse == 'true'
+      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse == 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
 
     - name: 🏗 Warm up external dependencies (without Pulse)
-      if: (inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true') && inputs.include-pulse != 'true'
+      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse != 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
