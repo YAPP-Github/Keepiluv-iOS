@@ -2,7 +2,7 @@ name: Issue Auto Assign & Create Branch
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [labeled]
 
 permissions:
   issues: write
@@ -12,40 +12,34 @@ jobs:
   auto:
     runs-on: ubuntu-latest
     steps:
-      - name: Assign author + create branch (linked -> fallback)
+      - name: Create branch based on label
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue;
+            const label = context.payload.label;
             const title = issue?.title ?? "";
             const issueNumber = issue?.number;
-            const author = issue?.user?.login;
 
-            if (!issueNumber || !author) {
-              core.setFailed("Missing issue number or author.");
+            if (!issueNumber) {
+              core.setFailed("Missing issue number.");
               return;
             }
 
-            try {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                assignees: [author],
-              });
-              console.log(`✅ Assigned: ${author}`);
-            } catch (e) {
-              console.warn(`⚠️ Assign failed (continue): ${e.message}`);
+            // 허용된 타입 라벨인지 확인
+            const allowed = new Set(["feat","fix","refactor","docs","chore","test","style"]);
+            const labelName = label?.name?.toLowerCase() ?? "";
+
+            if (!allowed.has(labelName)) {
+              console.log(`ℹ️ Label "${label?.name}" is not a type label. Skipping.`);
+              return;
             }
 
-            const allowed = new Set(["feat","fix","refactor","docs","chore","test","style","qa"]);
-            const m = title.match(/^([a-zA-Z]+)\s*:/);
-            let type = (m?.[1] ?? "chore").toLowerCase();
-            if (!allowed.has(type)) type = "chore";
+            const type = labelName;
 
             // Parse Linear issue ID from title (e.g., [TWI-123])
-            const linearMatch = title.match(/\[(TWI-\d+)\]/);
+            const linearMatch = title.match(/\[?(TWI-\d+)\]?/);
             const linearId = linearMatch?.[1];
 
             const branchName = linearId
