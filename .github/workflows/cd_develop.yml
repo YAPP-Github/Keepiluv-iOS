@@ -22,14 +22,7 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      - name: 📦 Cache DerivedData
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: deriveddata-${{ runner.os }}-${{ hashFiles('Tuist/Package.resolved') }}
-          restore-keys: |
-            deriveddata-${{ runner.os }}-
+          skip-spm-cache: "true"
 
       - name: 🚀 Deploy to TestFlight (TwixDebug)
         env:
