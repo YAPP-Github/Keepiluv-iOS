@@ -46,35 +46,50 @@ public struct HomeView: View {
             if store.hasCards {
                 content
             } else {
-                goalEmptyView
+                headerRow
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
             }
-            Spacer()
         }
-        .overlay(alignment: .bottomTrailing) {
-            floatingButton
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .overlay {
             if store.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            
+            if !store.hasCards {
+                goalEmptyView
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if !store.hasCards {
+                emptyArrow
+            }
         }
         .onAppear {
             store.send(.onAppear)
         }
-        .sheet(isPresented: $store.isAddGoalPresented, content: {
-            AddGoalListView { category in
-                store.send(.addGoalButtonTapped(category))
+        .txBottomSheet(
+            isPresented: $store.isAddGoalPresented,
+            showDragIndicator: true,
+            sheetContent: {
+                AddGoalListView { category in
+                    store.send(.addGoalButtonTapped(category))
+                }
             }
-        })
-        .transaction { transaction in
-            transaction.disablesAnimations = false
-        }
-        .calendarSheet(
+        )
+        .txBottomSheet(
             isPresented: $store.isCalendarSheetPresented,
-            selectedDate: $store.calendarSheetDate,
-            completeButtonText: "완료",
-            onComplete: { store.send(.monthCalendarConfirmTapped) }
+            sheetContent: {
+                TXCalendarBottomSheet(
+                    selectedDate: $store.calendarSheetDate,
+                    completeButtonText: "완료",
+                    onComplete: {
+                        store.send(.monthCalendarConfirmTapped)
+                    }
+                )
+            }
         )
         .txModal(
             item: $store.modal,
@@ -84,12 +99,9 @@ public struct HomeView: View {
                 }
             }
         )
-        .txToast(
-            item: $store.toast,
-            onButtonTap: {
-                
-            }, customPadding: Constants.tabBarHeight + 16
-        )
+        .transaction { transaction in
+            transaction.disablesAnimations = false
+        }
         .fullScreenCover(
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },
@@ -102,7 +114,6 @@ public struct HomeView: View {
             isPresented: $store.isCameraPermissionAlertPresented,
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
-        .frame(alignment: .center)
         .toolbar(.hidden, for: .navigationBar)
     }
 }
@@ -116,7 +127,7 @@ private extension HomeView {
                     subTitle: store.calendarMonthTitle,
                     mainTitle: store.mainTitle,
                     isHiddenRefresh: store.isRefreshHidden,
-                    isRemainedAlarm: false,
+                    isRemainedAlarm: store.hasUnreadNotification
                 )
             ), onAction: { action in
                 store.send(.navigationBarAction(action))
@@ -128,10 +139,13 @@ private extension HomeView {
         TXCalendar(
             mode: .weekly,
             weeks: store.calendarWeeks,
+            config: .init(
+                dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
+            ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
             },
-            onWeekSwipe: { swipe in
+            onSwipe: { swipe in
                 store.send(.weekCalendarSwipe(swipe))
             }
         )
@@ -146,7 +160,7 @@ private extension HomeView {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .padding(.bottom, 103 + Constants.tabBarHeight)
+            .padding(.bottom, 103)
         }
         .refreshable {
             store.send(.fetchGoals)
@@ -163,11 +177,12 @@ private extension HomeView {
             Button {
                 store.send(.editButtonTapped)
             } label: {
-                Image.Icon.Symbol.edit
+                Text("편집")
+                    .typography(.b1_14b)
+                    .foregroundStyle(Color.Gray.gray500)
             }
         }
         .frame(height: 24)
-        .padding(.top, 12)
     }
     
     var cardList: some View {
@@ -193,63 +208,42 @@ private extension HomeView {
                 isCoupleChecked: card.yourCard.isSelected,
                 action: {
                     store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
+                },
+                onHeaderTapped: {
+                    store.send(.headerTapped(card))
                 }
             ),
             actionLeft: {
                 store.send(.myCardTapped(card))
             }, actionRight: {
-                
                 store.send(.yourCardTapped(card))
             }
         )
     }
     
-    var floatingButton: some View {
-        TXCircleButton(config: .plus()) {
-            store.send(.floatingButtonTapped)
+    var goalEmptyView: some View {
+        VStack(spacing: 0) {
+            Image.Illustration.emptyPoke
+                .frame(height: 116)
+            
+            Text("첫 목표를 세워볼까요?")
+                .typography(.t2_16b)
+                .foregroundStyle(Color.Gray.gray400)
+                .padding(.top, 16)
+            
+            Text("+ 버튼을 눌러 목표를 추가해보세요")
+                .typography(.c1_12r)
+                .foregroundStyle(Color.Gray.gray300)
+                .padding(.top, 4)
         }
-        .insideBorder(
-            Color.Gray.gray300,
-            shape: .circle,
-            lineWidth: LineWidth.m
-        )
-        .shadow(color: .black.opacity(0.16), radius: 20, x: 2, y: 1)
-        .padding(.trailing, 16)
-        .padding(.bottom, Constants.tabBarHeight + 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
     
-    var goalEmptyView: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(alignment: .center, spacing: 0) {
-                    Image.Illustration.emptyPoke
-
-                    Text("첫 목표를 세워볼까요?")
-                        .typography(.t2_16b)
-                        .foregroundStyle(Color.Gray.gray400)
-
-                    Text("+ 버튼을 눌러 목표를 추가해보세요")
-                        .typography(.c1_12r)
-                        .foregroundStyle(Color.Gray.gray300)
-                        .padding(.top, 5)
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .overlay(alignment: .bottomTrailing) {
-                    Image.Illustration.arrow
-                        .padding(.bottom, 63 + Constants.tabBarHeight)
-                        .padding(.trailing, 86)
-                }
-            }
-            .refreshable {
-                store.send(.fetchGoals)
-            }
-        }
-        .padding(.bottom, Constants.tabBarHeight)
-    }
-}
-
-private extension HomeView {
-    enum Constants {
-        static let tabBarHeight: CGFloat = 58
+    var emptyArrow: some View {
+        Image.Illustration.arrow
+            .padding(.bottom, 71)
+            .padding(.trailing, 86)
+            .ignoresSafeArea()
     }
 }

@@ -111,9 +111,6 @@ public struct GoalCardView: View {
             CardHeaderView(config: config.headerConfig)
             
             if config.showsContent {
-                config.borderColor
-                    .frame(height: config.borderWidth)
-                    .frame(maxWidth: .infinity)
                 
                 HStack(spacing: 0) {
                     myContent
@@ -183,14 +180,17 @@ private extension GoalCardView {
                     .resizable()
                     .placeholder { }
                     .scaledToFill()
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: config.imageHeight)
+                    .clipped()
             } else {
                 unCompletedView(placeholder: placeholder, buttonAction: buttonAction)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .frame(height: config.imageHeight)
             }
         }
-        .frame(minWidth: 0, maxWidth: .infinity)
-        .frame(height: config.imageHeight)
         .clipShape(unEvenRoundedRect)
-        .clipped()
+        .contentShape(Rectangle())
         .overlay(alignment: .bottomTrailing) {
             if let emoji = item.emoji {
                 emojiImage(emoji: emoji)
@@ -204,19 +204,18 @@ private extension GoalCardView {
     ) -> some View {
         VStack(spacing: 0) {
             placeholder.image
-                .resizable()
-                .frame(width: 84, height: 80)
-                .padding(.top, 5)
             
             if placeholder.isButton {
                 pokeButton(text: placeholder.text, action: buttonAction)
+                    .padding(.bottom, 14)
             } else {
                 Text(placeholder.text)
                     .typography(.b4_12b)
                     .foregroundStyle(Color.Gray.gray500)
+                    .padding(.bottom, 10)
             }
         }
-        .padding(.bottom, 14)
+        .frame(maxHeight: .infinity)
     }
 
     func pokeButton(text: String, action: (() -> Void)?) -> some View {

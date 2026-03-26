@@ -35,6 +35,8 @@ public struct GoalDetailView: View {
     @Dependency(\.proofPhotoFactory) private var proofPhotoFactory
     @State private var rectFrame: CGRect = .zero
     @State private var keyboardFrame: CGRect = .zero
+    @StateObject private var myEmojiFlyingReactionEmitter = FlyingReactionEmitter()
+    @State private var didPlayMyEmojiAppearAnimation = false
     
     /// GoalDetailView를 생성합니다.
     ///
@@ -58,68 +60,26 @@ public struct GoalDetailView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            TXNavigationBar(
-                style: .subTitle(
-                    title: store.goalName,
-                    rightText: store.naviBarRightText
-                ),
-                onAction: { action in
-                    store.send(.navigationBarTapped(action))
+            navigationBar
+            
+            if store.item != nil {
+                cardView
+                    .padding(.horizontal, 27)
+                    .padding(.top, isSEDevice ? 47 : 103)
+                
+                if store.isCompleted {
+                    completedBottomContent
+                } else {
+                    bottomButton
+                        .padding(.top, 105)
+                        .overlay(alignment: .bottomLeading) {
+                            pokeImage
+                                .offset(x: 79, y: -45)
+                        }
                 }
-            )
-            .overlay(dimmedView)
-
-            ScrollView {
-                ZStack(alignment: .bottom) {
-                    if !store.isCompleted {
-                        VStack {
-                            Spacer()
-                            bottomButton
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-
-                    if !store.isCompleted {
-                        VStack {
-                            Spacer()
-                            HStack {
-                                Spacer()
-                                pokeImage
-                                    .offset(x: -20, y: -20)
-                            }
-                        }
-                    }
-
-                    VStack(spacing: 0) {
-                        ZStack {
-                            backgroundRect
-                            
-                            SwipeableCardView(
-                                isEditing: store.isEditing,
-                                canSwipeUp: store.canSwipeUp,
-                                canSwipeDown: store.canSwipeDown,
-                                onCardTap: { store.send(.cardTapped) },
-                                onSwipeUp: { store.send(.cardSwipedUp) },
-                                onSwipeDown: { store.send(.cardSwipedDown) }
-                            ) {
-                                currentCardView
-                            }
-                        }
-                        .padding(.horizontal, 27)
-                        .padding(.top, 103)
-
-                        if store.isCompleted {
-                            completedBottomContent
-                        } else {
-                            Color.clear
-                                .frame(height: 74)
-                                .padding(.top, 105)
-                        }
-                    }
-                }
-                .padding(.bottom, 40)
             }
-            .scrollIndicators(.hidden)
+            
+            Spacer()
         }
         .ignoresSafeArea(.keyboard)
         .background(dimmedView)
@@ -129,6 +89,8 @@ public struct GoalDetailView: View {
             store.send(.onAppear)
         }
         .onDisappear {
+            didPlayMyEmojiAppearAnimation = false
+            myEmojiFlyingReactionEmitter.clear()
             store.send(.onDisappear)
         }
         .fullScreenCover(
@@ -144,16 +106,48 @@ public struct GoalDetailView: View {
             isPresented: $store.isCameraPermissionAlertPresented,
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
+        .overlay(alignment: .bottom) {
+            myEmojiFlyingReactionOverlay
+        }
         .overlay {
             if store.isSavingPhotoLog {
                 ProgressView()
             }
         }
+        .txToast(item: $store.toast, customPadding: 54)
     }
 }
 
 // MARK: - SubViews
 private extension GoalDetailView {
+    var navigationBar: some View {
+        TXNavigationBar(
+            style: .subContent(
+                .init(
+                    title: store.goalName,
+                    rightContent: store.naviBarRightText.isEmpty
+                        ? nil
+                        : .text(store.naviBarRightText)
+                )
+            ),
+            onAction: { action in
+                store.send(.navigationBarTapped(action))
+            }
+        )
+        .overlay(dimmedView)
+    }
+    
+    var cardView: some View {
+        SwipeableCardView(
+            canSwipeLeft: store.canSwipeLeft,
+            canSwipeRight: store.canSwipeRight,
+            onSwipeLeft: { store.send(.cardSwipeLeft) },
+            onSwipeRight: { store.send(.cardSwipeRight) },
+            content: { currentCardView }
+        )
+        .background(backgroundRect)
+    }
+    
     var currentCardView: some View {
         Group {
             if store.isCompleted {
@@ -166,62 +160,39 @@ private extension GoalDetailView {
         .animation(.spring(response: 0.36, dampingFraction: 0.86), value: store.currentUser)
     }
     
+    @ViewBuilder
     var backgroundRect: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.Gray.gray200)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
-            .frame(width: 336, height: 336)
-            .overlay(dimmedView)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            .rotationEffect(.degrees(degree(isBackground: true)))
+        if !store.isEditing {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.Gray.gray200)
+                .insideBorder(
+                    Color.Gray.gray500,
+                    shape: RoundedRectangle(cornerRadius: 20),
+                    lineWidth: 1.6
+                )
+                .frame(width: 336, height: 336)
+                .overlay(dimmedView)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .rotationEffect(.degrees(degree(isBackground: true)))
+        }
     }
     
     @ViewBuilder
     var completedImageCard: some View {
-        if let editImageData = store.pendingEditedImageData,
+        if let editImageData = store.currentEditedImageData,
            let editedImage = UIImage(data: editImageData) {
-            Image(uiImage: editedImage)
-                .resizable()
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
-                .frame(width: 336, height: 336)
-                .readSize { rectFrame = $0 }
-                .overlay(dimmedView)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(alignment: .bottom) {
-                    if let comment = store.currentCard?.comment, !comment.isEmpty {
-                        commentCircle
-                            .padding(.bottom, 26)
-                    }
-                }
-                .rotationEffect(.degrees(degree(isBackground: false)))
+            completedImageCardContainer {
+                Image(uiImage: editedImage)
+                    .resizable()
+                    .scaledToFill()
+            }
         } else if let imageUrl = store.currentCard?.imageUrl,
                   let url = URL(string: imageUrl) {
-            KFImage(url)
-                .resizable()
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
-                .frame(width: 336, height: 336)
-                .readSize { rectFrame = $0 }
-                .overlay(dimmedView)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(alignment: .bottom) {
-                    if let comment = store.currentCard?.comment, !comment.isEmpty {
-                        commentCircle
-                            .padding(.bottom, 26)
-                    }
-                }
-                .rotationEffect(.degrees(degree(isBackground: false)))
+            completedImageCardContainer {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+            }
         } else {
             EmptyView()
         }
@@ -241,8 +212,8 @@ private extension GoalDetailView {
         
         if store.isShowReactionBar {
             reactionBar
-                .padding(.top, 73)
-                .padding(.horizontal, 21)
+                .padding(.top, isSEDevice ? 23 : 73)
+                .padding(.horizontal, 20)
         }
     }
     
@@ -263,16 +234,22 @@ private extension GoalDetailView {
     }
     
     var nonCompletedCard: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(.white)
-            .insideBorder(
-                Color.Gray.gray500,
-                shape: RoundedRectangle(cornerRadius: 20),
-                lineWidth: 1.6
-            )
+        let shape = RoundedRectangle(cornerRadius: 20)
+
+        return Color.clear
             .frame(maxWidth: .infinity)
             .aspectRatio(1, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay {
+                shape
+                    .fill(Color.Common.white)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .clipShape(shape)
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: shape,
+                lineWidth: 1.6
+            )
             .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
@@ -286,8 +263,7 @@ private extension GoalDetailView {
     var pokeImage: some View {
         Image.Illustration.poke
             .resizable()
-            .frame(width: 173, height: 173)
-            .allowsHitTesting(false)
+            .frame(width: 184, height: 160)
     }
 
     var bottomButton: some View {
@@ -325,6 +301,96 @@ private extension GoalDetailView {
                 store.send(.dimmedBackgroundTapped)
             }
     }
+
+    func completedImageCardContainer<Content: View>(
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 20)
+        
+        return Color.clear
+            .frame(width: 336, height: 336)
+            .readSize { rectFrame = $0 }
+            .overlay {
+                content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            }
+            .overlay(dimmedView)
+            .clipShape(shape)
+            .overlay(alignment: .bottom) {
+                if let comment = store.currentCard?.comment, !comment.isEmpty {
+                    commentCircle
+                        .padding(.bottom, 26)
+                }
+            }
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: shape,
+                lineWidth: 1.6
+            )
+            .overlay(alignment: .topTrailing) {
+                myEmoji
+            }
+            .rotationEffect(.degrees(degree(isBackground: false)))
+    }
+    
+    @ViewBuilder
+    var myEmoji: some View {
+        if store.myHasEmoji,
+           let emoji = store.selectedReactionEmoji?.image {
+            emoji
+                .resizable()
+                .frame(width: 52, height: 52)
+                .padding(
+                    .init(
+                        top: 5,
+                        leading: 11,
+                        bottom: 19,
+                        trailing: 13
+                    )
+                )
+                .background(
+                    Image.Shape.emojiBubble
+                        .frame(width: 76, height: 76)
+                )
+                .offset(x: 19, y: -14)
+        } else {
+            EmptyView()
+        }
+    }
+
+    var myEmojiFlyingReactionOverlay: some View {
+        GeometryReader { proxy in
+            FlyingReactionOverlay(
+                reactions: myEmojiFlyingReactionEmitter.reactions,
+                alignment: .bottom
+            )
+            .onChange(of: store.selectedReactionEmoji) {
+                playMyEmojiAppearAnimationIfNeeded(
+                    containerWidth: proxy.size.width,
+                    containerHeight: proxy.size.height
+                )
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    func playMyEmojiAppearAnimationIfNeeded(
+        containerWidth: CGFloat,
+        containerHeight: CGFloat
+    ) {
+        guard store.myHasEmoji,
+              !didPlayMyEmojiAppearAnimation,
+              let selectedEmoji = store.selectedReactionEmoji else { return }
+        didPlayMyEmojiAppearAnimation = true
+        myEmojiFlyingReactionEmitter.emit(
+            emoji: selectedEmoji,
+            config: .goalDetailBottom(
+                width: containerWidth,
+                height: containerHeight
+            )
+        )
+    }
 }
 
 // MARK: - Constants
@@ -338,6 +404,32 @@ private extension GoalDetailView {
             return isBackground ? 0 : -8
         }
     }
+    
+    // 다른곳에서도 쓸 때 Util로 빼기
+    private var isSEDevice: Bool {
+        UIScreen.main.bounds.height <= 667
+    }
+}
+
+private extension FlyingReactionConfig {
+    static func goalDetailBottom(width: CGFloat, height: CGFloat) -> Self {
+        let xSpread = max(60, (width / 2) - 24)
+        let maxTravel = max(220, height - 40)
+        return FlyingReactionConfig(
+            emojiCount: 30,
+            startXRange: (-xSpread)...xSpread,
+            startYRange: -12...6,
+            durationRange: 1.05...1.55,
+            delayStep: 0.03,
+            delayJitterRange: 0...0.02,
+            heightRange: (300)...maxTravel,
+            amplitudeRange: 8...18,
+            frequencyRange: 0.7...1.2,
+            driftRange: -20...20,
+            scaleRange: 0.78...1.08,
+            wobbleRange: 1...3
+        )
+    }
 }
 
 #Preview {
@@ -345,6 +437,7 @@ private extension GoalDetailView {
         store: Store(
             initialState: GoalDetailReducer.State(
                 currentUser: .mySelf,
+                entryPoint: .home,
                 id: 1,
                 verificationDate: "2026-02-07"
             ),

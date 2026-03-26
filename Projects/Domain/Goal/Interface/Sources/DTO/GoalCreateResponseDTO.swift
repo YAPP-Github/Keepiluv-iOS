@@ -30,7 +30,7 @@ public extension GoalCreateResponseDTO {
     func toEntity(_ response: GoalCreateResponseDTO) -> Goal {
         Goal(
             id: response.goalId,
-            goalIcon: .init(rawValue: response.icon) ?? .`default`,
+            goalIcon: response.icon,
             title: response.goalName,
             myVerification: .init(
                 isCompleted: false,

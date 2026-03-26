@@ -12,7 +12,10 @@ let project = Project.makeModule(
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
+                    .feature(interface: .notification),
+                    .feature(interface: .makeGoal),
                     .feature(interface: .settings),
+                    .feature(interface: .stats),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -23,11 +26,15 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .core(interface: .captureSession),
+                    .domain(interface: .notification),
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
+                    .feature(interface: .notification),
+                    .feature(interface: .makeGoal),
                     .feature(interface: .settings),
+                    .feature(interface: .stats),
                     .feature(interface: .home),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),

@@ -14,6 +14,9 @@ public enum FeatureTag: String {
     case home = "Home"
     case goal = "Goal"
     case proopPhoto = "ProofPhoto"
+    case notification = "Notification"
+    case poke = "Poke"
+    case stats = "Stats"
     case unknown = "Unknown"
 }
 

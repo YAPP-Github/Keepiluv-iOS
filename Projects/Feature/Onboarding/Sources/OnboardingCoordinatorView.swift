@@ -56,5 +56,26 @@ public struct OnboardingCoordinatorView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .fullScreenCover(isPresented: $store.isNotificationModalPresented) {
+            notificationPermissionModal
+        }
+        .transaction { $0.disablesAnimations = true }
+    }
+
+    private var notificationPermissionModal: some View {
+        TXCheckboxModalView(
+            title: "도움이 되는 정보를\n알림으로 받아보시겠어요?",
+            options: [
+                TXCheckboxModalView.Option(id: 0, label: "[선택] 마케팅 정보 알림", initialValue: true),
+                TXCheckboxModalView.Option(id: 1, label: "[선택] 야간 마케팅 정보 알림", initialValue: true)
+            ],
+            description: "* 언제든지 설정 > 알림 설정에서 변경 가능해요",
+            onConfirm: { selections in
+                let isMarketing = selections[0] ?? true
+                let isNight = selections[1] ?? true
+                store.send(.notificationModalConfirmed(isMarketing: isMarketing, isNight: isNight))
+            }
+        )
+        .presentationBackground(Color.clear)
     }
 }

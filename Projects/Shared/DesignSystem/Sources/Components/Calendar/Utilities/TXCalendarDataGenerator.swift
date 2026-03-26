@@ -19,13 +19,22 @@ public enum TXCalendarDataGenerator {
     /// let weeks = TXCalendarDataGenerator.generateMonthData(for: date)
     /// ```
     ///
-    /// - Parameter date: 캘린더 날짜
+    /// - Parameters:
+    ///   - date: 캘린더 날짜
+    ///   - hideAdjacentDates: 이전/다음 달 날짜를 숨길지 여부
     /// - Returns: 주 단위로 그룹화된 날짜 아이템 배열
-    public static func generateMonthData(for date: TXCalendarDate) -> [[TXCalendarDateItem]] {
+    public static func generateMonthData(
+        for date: TXCalendarDate,
+        hideAdjacentDates: Bool = false
+    ) -> [[TXCalendarDateItem]] {
         guard let context = MonthContext(year: date.year, month: date.month, calendar: calendar) else {
             return []
         }
-        return buildWeeks(context: context, selectedDay: date.day)
+        return buildWeeks(
+            context: context,
+            selectedDay: date.day,
+            hideAdjacentDates: hideAdjacentDates
+        )
     }
 
     /// TXCalendarDate를 사용하여 특정 주의 캘린더 데이터를 생성합니다.
@@ -100,9 +109,16 @@ private extension TXCalendarDataGenerator {
 // MARK: - Week Building
 
 private extension TXCalendarDataGenerator {
-    static func buildWeeks(context: MonthContext, selectedDay: Int?) -> [[TXCalendarDateItem]] {
+    static func buildWeeks(
+        context: MonthContext,
+        selectedDay: Int?,
+        hideAdjacentDates: Bool
+    ) -> [[TXCalendarDateItem]] {
         var weeks: [[TXCalendarDateItem]] = []
-        var currentWeek = makeLeadingItems(context: context)
+        var currentWeek = makeLeadingItems(
+            context: context,
+            hideAdjacentDates: hideAdjacentDates
+        )
 
         for day in 1...context.daysInMonth {
             let status: TXCalendarDateStatus = (day == selectedDay) ? .selectedFilled : .default
@@ -116,27 +132,43 @@ private extension TXCalendarDataGenerator {
         }
 
         if !currentWeek.isEmpty {
-            appendTrailingItems(to: &currentWeek)
+            appendTrailingItems(
+                to: &currentWeek,
+                hideAdjacentDates: hideAdjacentDates
+            )
             weeks.append(currentWeek)
         }
 
         return weeks
     }
 
-    static func makeLeadingItems(context: MonthContext) -> [TXCalendarDateItem] {
+    static func makeLeadingItems(
+        context: MonthContext,
+        hideAdjacentDates: Bool
+    ) -> [TXCalendarDateItem] {
         let leadingCount = context.firstWeekday - 1
         guard leadingCount > 0 else { return [] }
 
         return (0..<leadingCount).map { idx in
             let day = context.daysInPreviousMonth - leadingCount + 1 + idx
+            if hideAdjacentDates {
+                return .init(text: "", status: .default, dateComponents: nil)
+            }
             return .init(text: "\(day)", status: .lastDate)
         }
     }
 
-    static func appendTrailingItems(to week: inout [TXCalendarDateItem]) {
+    static func appendTrailingItems(
+        to week: inout [TXCalendarDateItem],
+        hideAdjacentDates: Bool
+    ) {
         var nextDay = 1
         while week.count < 7 {
-            week.append(.init(text: "\(nextDay)", status: .lastDate))
+            if hideAdjacentDates {
+                week.append(.init(text: "", status: .default, dateComponents: nil))
+            } else {
+                week.append(.init(text: "\(nextDay)", status: .lastDate))
+            }
             nextDay += 1
         }
     }

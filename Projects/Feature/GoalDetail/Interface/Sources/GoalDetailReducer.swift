@@ -21,7 +21,13 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
+        public enum EntryPoint: Equatable {
+            case home
+            case stats
+        }
+        
         public let goalId: Int64
+        public let entryPoint: EntryPoint
         public var item: GoalDetail?
         public var currentGoalIndex: Int = 0
         public var currentUser: GoalDetail.Owner
@@ -46,6 +52,30 @@ public struct GoalDetailReducer {
             }
         }
         
+        public var currentEditedImageData: Data? {
+            currentUser == .mySelf ? pendingEditedImageData : nil
+        }
+        
+        public var canSwipeLeft: Bool {
+            switch entryPoint {
+            case .home:
+                return !isEditing && currentUser == .you
+                
+            case .stats:
+                return !isEditing && currentUser == .mySelf
+            }
+        }
+        
+        public var canSwipeRight: Bool {
+            switch entryPoint {
+            case .home:
+                return !isEditing && currentUser == .mySelf
+                
+            case .stats:
+                return !isEditing && currentUser == .you
+            }
+        }
+        
         public var goalName: String {
             if let goalName = currentCompletedGoal?.goalName, !goalName.isEmpty {
                 return goalName
@@ -62,11 +92,8 @@ public struct GoalDetailReducer {
             ?? goalId
         }
         
-        public var canSwipeUp: Bool { currentGoalIndex + 1 < completedGoalItems.count }
-        public var canSwipeDown: Bool { currentGoalIndex > 0 }
-        
         public var isCompleted: Bool {
-            pendingEditedImageData != nil || currentCard?.imageUrl != nil
+            currentEditedImageData != nil || currentCard?.imageUrl != nil
         }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
@@ -82,6 +109,7 @@ public struct GoalDetailReducer {
         public var isCameraPermissionAlertPresented: Bool = false
         
         public var selectedReactionEmoji: ReactionEmoji?
+        public var myHasEmoji: Bool { currentUser == .mySelf && selectedReactionEmoji != nil }
         public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
@@ -104,10 +132,12 @@ public struct GoalDetailReducer {
         /// ```
         public init(
             currentUser: GoalDetail.Owner,
+            entryPoint: EntryPoint,
             id: Int64,
             verificationDate: String
         ) {
             self.currentUser = currentUser
+            self.entryPoint = entryPoint
             self.goalId = id
             self.verificationDate = verificationDate
         }
@@ -125,9 +155,8 @@ public struct GoalDetailReducer {
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(ReactionEmoji)
-        case cardTapped
-        case cardSwipedUp
-        case cardSwipedDown
+        case cardSwipeLeft
+        case cardSwipeRight
         case focusChanged(Bool)
         case dimmedBackgroundTapped
         case updateMyPhotoLog(GoalDetail.CompletedGoal.PhotoLog)
@@ -136,8 +165,8 @@ public struct GoalDetailReducer {
         case authorizationCompleted(isAuthorized: Bool)
         case fethedGoalDetailItem(GoalDetail)
         case fetchGoalDetailFailed
-        case updateCurrentCardReaction(Goal.Reaction?)
-        case reactionUpdateFailed(previousReaction: Goal.Reaction?)
+        case updateCurrentCardReaction(String?)
+        case reactionUpdateFailed(previousReaction: String?)
         case showToast(TXToastType)
         case setCreatedAt(String)
         case proofPhotoDismissed
@@ -200,7 +229,7 @@ extension GoalDetailReducer.State {
             return isEditing ? "다시 찍기" : "업로드하기"
             
         case .you:
-            return "찔러보세요"
+            return "찌르기"
         }
     }
 }

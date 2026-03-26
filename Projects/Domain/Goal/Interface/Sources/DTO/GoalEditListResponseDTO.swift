@@ -25,7 +25,7 @@ extension GoalEditListResponseDTO {
         return response.goals.map {
             Goal(
                 id: $0.goalId,
-                goalIcon: Goal.Icon.init(rawValue: $0.icon) ?? .default,
+                goalIcon: $0.icon,
                 title: $0.goalName,
                 myVerification: nil,
                 yourVerification: nil,

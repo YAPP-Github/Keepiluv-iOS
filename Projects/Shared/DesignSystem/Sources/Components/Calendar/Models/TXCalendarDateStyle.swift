@@ -19,6 +19,7 @@ public struct TXCalendarDateStyle {
     let borderWidth: CGFloat
     let typography: TypographyToken
     let defaultTextColor: Color
+    let completedTextColor: Color
     let lastDateTextColor: Color
     let selectedFilledTextColor: Color
     let selectedFilledBackgroundColor: Color
@@ -26,12 +27,14 @@ public struct TXCalendarDateStyle {
     let selectedLineBackgroundColor: Color
     let selectedLineBorderColor: Color
     
+    /// 날짜 셀 스타일을 생성합니다.
     public init(
         size: CGFloat = Spacing.spacing8 + Spacing.spacing8,
         cornerRadius: CGFloat = Radius.xl,
         borderWidth: CGFloat = LineWidth.m,
         typography: TypographyToken = .b1_14b,
         defaultTextColor: Color = Color.Gray.gray500,
+        completedTextColor: Color = Color.Common.white,
         lastDateTextColor: Color = Color.Gray.gray200,
         selectedFilledTextColor: Color = Color.Common.white,
         selectedFilledBackgroundColor: Color = Color.Gray.gray500,
@@ -44,6 +47,7 @@ public struct TXCalendarDateStyle {
         self.borderWidth = borderWidth
         self.typography = typography
         self.defaultTextColor = defaultTextColor
+        self.completedTextColor = completedTextColor
         self.lastDateTextColor = lastDateTextColor
         self.selectedFilledTextColor = selectedFilledTextColor
         self.selectedFilledBackgroundColor = selectedFilledBackgroundColor

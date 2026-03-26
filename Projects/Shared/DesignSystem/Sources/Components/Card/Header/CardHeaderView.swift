@@ -69,17 +69,28 @@ private extension CardHeaderView {
     
     var baseContent: some View {
         HStack(spacing: config.contentSpacing) {
-            config.iconImage
-            
-            Text(config.goalName)
-                .typography(config.titleTypography)
-            
-            Spacer()
+            HStack(spacing: config.contentSpacing) {
+                config.iconImage
+                    .resizable()
+                    .frame(width: 32, height: 32)
+
+                Text(config.goalName)
+                    .typography(config.titleTypography)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             rightContent
         }
         .padding(config.padding)
         .background(Color.Common.white)
+        .onTapGesture {
+            config.onHeaderTapped?()
+        }
+        .insideRectEdgeBorder(
+            width: config.borderWidth,
+            edges: config.insideBorderEdges,
+            color: config.borderColor
+        )
     }
     
     @ViewBuilder var rightContent: some View {
@@ -92,18 +103,20 @@ private extension CardHeaderView {
                 action: action
             )
             
-        case let .goalAdd(action):
-            TXCircleButton(config: .rightArrow()) {
-                action()
-            }
-            
+        case .goalAdd:
+            TXCircleButton(
+                config: .rightArrow(),
+                action: { config.onHeaderTapped?() }
+            )
+
         case let .goalEdit(action):
             Button(action: action) {
                 Image.Icon.Symbol.meatball
             }
             
-        case let .goalStats(goalCount):
-            Text("이번달 목표 \(goalCount)번")
+        case let .goalStats(goalCount, isOngoing):
+            let status = isOngoing ? "이번달" : "총"
+            Text("\(status) 목표 \(goalCount)번")
                 .typography(.b1_14b)
         }
     }
@@ -120,6 +133,15 @@ private struct CardHeaderPreview: View {
         VStack {
             CardHeaderView(
                 config: .goalCheckClosed(
+                    goalName: "목표 이름",
+                    iconImage: .Icon.Illustration.exercise,
+                    isMyChecked: isMyChecked,
+                    action: { isMyChecked.toggle() }
+                )
+            )
+            
+            CardHeaderView(
+                config: .goalCheckOpened(
                     goalName: "목표 이름",
                     iconImage: .Icon.Illustration.exercise,
                     isMyChecked: isMyChecked,

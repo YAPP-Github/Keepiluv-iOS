@@ -45,18 +45,21 @@ public struct OnboardingDdayView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
-        .calendarSheet(
-            isPresented: $store.showCalendarSheet,
-            selectedDate: $store.selectedDate,
-            onComplete: { store.send(.calendarCompleted) },
-            isDateEnabled: { item in
-                guard let components = item.dateComponents,
-                      let date = Calendar.current.date(from: components) else {
-                    return true
+        .txBottomSheet(
+            isPresented: $store.showCalendarSheet
+        ) {
+            TXCalendarBottomSheet(
+                selectedDate: $store.selectedDate,
+                onComplete: { store.send(.calendarCompleted) },
+                isDateEnabled: { item in
+                    guard let components = item.dateComponents,
+                          let date = Calendar.current.date(from: components) else {
+                        return true
+                    }
+                    return date <= Date()
                 }
-                return date <= Date()
-            }
-        )
+            )
+        }
     }
 }
 

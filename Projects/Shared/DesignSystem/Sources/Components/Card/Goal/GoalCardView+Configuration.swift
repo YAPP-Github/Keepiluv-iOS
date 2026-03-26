@@ -27,18 +27,20 @@ extension GoalCardView.Configuration {
         item: GoalCardItem,
         isMyChecked: Bool,
         isCoupleChecked: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        onHeaderTapped: (() -> Void)? = nil
     ) -> Self {
         let showsContent = item.myCard.isSelected || item.yourCard.isSelected
         let headerConfig: CardHeaderView.Configuration
-        
+
         if showsContent {
             headerConfig = CardHeaderView.Configuration.goalCheckOpened(
                 goalName: item.goalName,
                 iconImage: item.goalEmoji,
                 isMyChecked: isMyChecked,
                 isCoupleChecked: isCoupleChecked,
-                action: action
+                action: action,
+                onHeaderTapped: onHeaderTapped
             )
         } else {
             headerConfig = CardHeaderView.Configuration.goalCheckClosed(
@@ -46,7 +48,8 @@ extension GoalCardView.Configuration {
                 iconImage: item.goalEmoji,
                 isMyChecked: isMyChecked,
                 isCoupleChecked: isCoupleChecked,
-                action: action
+                action: action,
+                onHeaderTapped: onHeaderTapped
             )
         }
 
@@ -58,10 +61,10 @@ extension GoalCardView.Configuration {
             contentBackgroundColor: Color.Gray.gray50,
             borderColor: Color.Gray.gray500,
             borderWidth: LineWidth.m,
-            cornerRadius: 16,
+            cornerRadius: Radius.s,
             imageHeight: 136,
-            emojiSize: CGSize(width: 32, height: 32),
-            emojiPadding: Spacing.spacing4
+            emojiSize: CGSize(width: 40, height: 40),
+            emojiPadding: Spacing.spacing3
         )
     }
 }

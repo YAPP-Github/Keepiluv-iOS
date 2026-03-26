@@ -44,7 +44,13 @@ jobs:
             let type = (m?.[1] ?? "chore").toLowerCase();
             if (!allowed.has(type)) type = "chore";
 
-            const branchName = `${type}/#${issueNumber}`;
+            // Parse Linear issue ID from title (e.g., [TWI-123])
+            const linearMatch = title.match(/\[(TWI-\d+)\]/);
+            const linearId = linearMatch?.[1];
+
+            const branchName = linearId
+              ? `${type}/#${issueNumber}/${linearId}`
+              : `${type}/#${issueNumber}`;
             console.log(`🌿 Target branch: ${branchName}`);
 
             // base branch SHA
@@ -52,7 +58,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const baseBranch = repo.default_branch;
+            const baseBranch = 'develop';
 
             const { data: baseRef } = await github.rest.git.getRef({
               owner: context.repo.owner,

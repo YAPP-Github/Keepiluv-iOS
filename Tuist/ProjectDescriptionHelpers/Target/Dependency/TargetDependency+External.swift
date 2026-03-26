@@ -16,6 +16,10 @@ public extension TargetDependency {
     /// 각 case는 SPM 패키지를 나타내며,
     /// `TargetDependency.external(dependency:)`와 유기적으로 사용됩니다.
     enum External: String {
+        case FirebaseCore
+        case FirebaseMessaging
+        case FirebaseRemoteConfig
+        
         case GoogleSignIn
         case GoogleSignInSwift
 

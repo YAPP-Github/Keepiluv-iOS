@@ -19,9 +19,9 @@ struct EditGoalListView: View {
         VStack(spacing: 0) {
             navigationBar
             weekCalendar
-            if store.hasCards {
+                .padding(.top, 4)
+            if let cards = store.cards, !cards.isEmpty {
                 cardScrollView
-                    .padding(.top, 16)
                     .padding(.bottom, 1)
             }
             
@@ -35,7 +35,7 @@ struct EditGoalListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
-            if !store.hasCards {
+            if let cards = store.cards, cards.isEmpty {
                 emptyContent
             }
         }
@@ -64,7 +64,7 @@ struct EditGoalListView: View {
 
 private extension EditGoalListView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "편집", rightText: "")) { _ in
+        TXNavigationBar(style: .subTitle(title: "편집", type: .back)) { _ in
             store.send(.navigationBackButtonTapped)
         }
     }
@@ -76,18 +76,17 @@ private extension EditGoalListView {
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
             },
-            onWeekSwipe: { swipe in
+            onSwipe: { swipe in
                 store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
-        .padding(.top, 4)
     }
     
     var cardScrollView: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(store.cards) { card in
+                ForEach(store.cards ?? []) { card in
                     GoalEditCardView(
                         config: .goalEdit(
                             item: .init(
@@ -111,7 +110,7 @@ private extension EditGoalListView {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 1)
+            .padding(.top, 16)
         }
     }
 

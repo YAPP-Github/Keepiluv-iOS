@@ -20,12 +20,13 @@ import CoreNetworkInterface
 public struct GoalClient {
     public var fetchGoals: (String) async throws -> [Goal]
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
-    public var fetchGoalDetailList: (String) async throws -> GoalDetail
+    public var fetchGoalDetail: (String, Int64) async throws -> GoalDetail
     public var fetchGoalById: (Int64) async throws -> Goal
     public var fetchGoalEditList: (String) async throws -> [Goal]
     public var updateGoal: (Int64, GoalUpdateRequestDTO) async throws -> Goal
     public var deleteGoal: (Int64) async throws -> Void
     public var completeGoal: (Int64) async throws -> GoalCompleteResponseDTO
+    public var pokePartner: (Int64) async throws -> Void
     
     /// 목표 조회 클로저를 주입하여 GoalClient를 생성합니다.
     ///
@@ -40,21 +41,23 @@ public struct GoalClient {
     public init(
         fetchGoals: @escaping (String) async throws -> [Goal],
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
-        fetchGoalDetailList: @escaping (String) async throws -> GoalDetail,
+        fetchGoalDetail: @escaping (String, Int64) async throws -> GoalDetail,
         fetchGoalById: @escaping (Int64) async throws -> Goal,
         fetchGoalEditList: @escaping (String) async throws -> [Goal],
         updateGoal: @escaping (Int64, GoalUpdateRequestDTO) async throws -> Goal,
         deleteGoal: @escaping (Int64) async throws -> Void,
-        completeGoal: @escaping (Int64) async throws -> GoalCompleteResponseDTO
+        completeGoal: @escaping (Int64) async throws -> GoalCompleteResponseDTO,
+        pokePartner: @escaping (Int64) async throws -> Void
     ) {
         self.fetchGoals = fetchGoals
         self.createGoal = createGoal
-        self.fetchGoalDetailList = fetchGoalDetailList
+        self.fetchGoalDetail = fetchGoalDetail
         self.fetchGoalById = fetchGoalById
         self.fetchGoalEditList = fetchGoalEditList
         self.updateGoal = updateGoal
         self.deleteGoal = deleteGoal
         self.completeGoal = completeGoal
+        self.pokePartner = pokePartner
     }
 }
 
@@ -74,14 +77,14 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification
             )
         },
-        fetchGoalDetailList: { _ in
-            assertionFailure("GoalClient.fetchGoalDetailList이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
+        fetchGoalDetail: { _, _ in
+            assertionFailure("GoalClient.fetchGoalDetail이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
             return .init(partnerNickname: "", completedGoals: [])
         },
         fetchGoalById: { _ in
@@ -94,7 +97,7 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification
@@ -114,7 +117,7 @@ extension GoalClient: TestDependencyKey {
 
             return .init(
                 id: 1,
-                goalIcon: .default,
+                goalIcon: "ICON_DEFAULT",
                 title: "",
                 myVerification: trashVerification,
                 yourVerification: trashVerification
@@ -131,65 +134,156 @@ extension GoalClient: TestDependencyKey {
                 goalStatus: "COMPLETED",
                 completedAt: ""
             )
+        },
+        pokePartner: { _ in
+            assertionFailure("GoalClient.pokePartner가 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
         }
     )
     
-//    public static var previewValue: GoalClient = Self(
-//        fetchGoals: { _ in
-//            return [
-//                Goal(
-//                    id: "1",
-//                    goalIcon: .Icon.Illustration.exercise,
-//                    title: "목표 1111111",
-//                    isCompleted: true,
-//                    image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-//                    emoji: .Icon.Illustration.doubt
-//                ),
-//                Goal(
-//                    id: "2",
-//                    goalIcon: .Icon.Illustration.book,
-//                    title: "목표 2222222",
-//                    isCompleted: true,
-//                    image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage
-//                ),
-//                Goal(
-//                    id: "3",
-//                    goalIcon: .Icon.Illustration.clean,
-//                    title: "목표 3333333",
-//                    isCompleted: false,
-//                    emoji: .Icon.Illustration.fuck
-//                ),
-//                Goal(
-//                    id: "4",
-//                    goalIcon: .Icon.Illustration.default,
-//                    title: "목표 4444444",
-//                    isCompleted: false
-//                )
-//            ]
-//        },
-//        fetchGoalDetailList: {
-//            return
-//                .init(
-//                    id: "1",
-//                    title: "아이스크림 먹기",
-//                    completedGoal: [
-//                        .init(
-//                            owner: .mySelf,
-//                            image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
-//                            comment: "코멘트내용",
-//                            createdAt: "6시간 전"
-//                        ),
-//                        .init(
-//                            owner: .mySelf,
-//                            image: SharedDesignSystemAsset.ImageAssets.girl.swiftUIImage,
-//                            comment: "코멘트내용",
-//                            createdAt: "6시간 전"
-//                        )
-//                    ],
-//                    selectedIndex: 3
-//                )
-//        }
-//    )
+    public static var previewValue: GoalClient = Self(
+        fetchGoals: { _ in
+            [
+                Goal(
+                    id: 1,
+                    goalIcon: "ICON_EXERCISE",
+                    title: "운동하기",
+                    myVerification: .init(
+                        photologId: 101,
+                        isCompleted: true,
+                        imageURL: "https://picsum.photos/400",
+                        emoji: nil
+                    ),
+                    yourVerification: .init(
+                        photologId: 201,
+                        isCompleted: true,
+                        imageURL: "https://picsum.photos/400",
+                        emoji: "LOVE"
+                    ),
+                    repeatCycle: .daily,
+                    repeatCount: 1,
+                    startDate: "2026-02-01",
+                    endDate: nil
+                ),
+                Goal(
+                    id: 2,
+                    goalIcon: "ICON_BOOK",
+                    title: "독서하기",
+                    myVerification: .init(
+                        photologId: nil,
+                        isCompleted: false,
+                        imageURL: nil,
+                        emoji: nil
+                    ),
+                    yourVerification: .init(
+                        photologId: 202,
+                        isCompleted: true,
+                        imageURL: "https://picsum.photos/400",
+                        emoji: nil
+                    ),
+                    repeatCycle: .weekly,
+                    repeatCount: 3,
+                    startDate: "2026-01-01",
+                    endDate: "2026-12-31"
+                )
+            ]
+        },
+        createGoal: { _ in
+            Goal(
+                id: 999,
+                goalIcon: "ICON_DEFAULT",
+                title: "새 목표",
+                myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+                yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
+            )
+        },
+        fetchGoalDetail: { _, _ in
+            .init(
+                partnerNickname: "민정",
+                completedGoals: [
+                    .init(
+                        goalName: "운동하기",
+                        myPhotoLog: .init(
+                            goalId: 1,
+                            photologId: 1001,
+                            goalName: "운동하기",
+                            owner: .mySelf,
+                            imageUrl: "https://picsum.photos/400",
+                            comment: "오늘도성공",
+                            reaction: nil,
+                            createdAt: "2026-02-22T08:00:00Z"
+                        ),
+                        yourPhotoLog: .init(
+                            goalId: 1,
+                            photologId: 2001,
+                            goalName: "운동하기",
+                            owner: .you,
+                            imageUrl: "https://picsum.photos/400",
+                            comment: "나도완료!",
+                            reaction: "LOVE",
+                            createdAt: "2026-02-22T09:00:00Z"
+                        )
+                    ),
+                    .init(
+                        goalName: "독서하기",
+                        myPhotoLog: .init(
+                            goalId: 2,
+                            photologId: 1002,
+                            goalName: "독서하기",
+                            owner: .mySelf,
+                            imageUrl: "https://picsum.photos/400",
+                            comment: "20페이지 읽음",
+                            reaction: nil,
+                            createdAt: "2026-02-21T10:00:00Z"
+                        ),
+                        yourPhotoLog: nil
+                    )
+                ]
+            )
+        },
+        fetchGoalById: { id in
+            Goal(
+                id: id,
+                goalIcon: "ICON_DEFAULT",
+                title: "미리보기 목표",
+                myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+                yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
+            )
+        },
+        fetchGoalEditList: { _ in
+            [
+                Goal(
+                    id: 1,
+                    goalIcon: "ICON_EXERCISE",
+                    title: "운동하기",
+                    myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+                    yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
+                )
+            ]
+        },
+        updateGoal: { id, _ in
+            Goal(
+                id: id,
+                goalIcon: "ICON_DEFAULT",
+                title: "수정된 목표",
+                myVerification: .init(isCompleted: false, imageURL: nil, emoji: nil),
+                yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
+            )
+        },
+        deleteGoal: { _ in
+            return
+        },
+        completeGoal: { id in
+            GoalCompleteResponseDTO(
+                goalId: id,
+                goalName: "미리보기 목표",
+                goalStatus: "COMPLETED",
+                completedAt: "2026-02-22T00:00:00Z"
+            )
+        },
+        pokePartner: { _ in
+            return
+        }
+    )
 }
 
 extension DependencyValues {

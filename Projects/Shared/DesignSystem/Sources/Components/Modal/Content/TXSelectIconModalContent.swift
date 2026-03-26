@@ -72,7 +72,7 @@ public struct TXGridButtonModalContent: View {
         VStack(spacing: 0) {
             Text(config.title)
                 .typography(.t1_18eb)
-                .padding(.top, Spacing.spacing9)
+                .padding(.top, Spacing.spacing10)
             
             LazyVGrid(
                 columns: Array(
@@ -89,7 +89,6 @@ public struct TXGridButtonModalContent: View {
                             .resizable()
                             .frame(width: config.imageSize.width, height: config.imageSize.height)
                             .frame(width: config.frameSize.width, height: config.frameSize.height)
-                            .background(Color.Gray.gray50, in: Circle())
                             .insideBorder(
                                 selectedIndex == index ? Color.Gray.gray500 : Color.Gray.gray100,
                                 shape: .circle,

@@ -10,7 +10,10 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureHomeInterface
+import FeatureNotificationInterface
+import FeatureMakeGoalInterface
 import FeatureSettingsInterface
+import FeatureStatsInterface
 
 /// Home Feature의 NavigationStack을 제공하는 Root View입니다.
 ///
@@ -26,6 +29,9 @@ import FeatureSettingsInterface
 /// ```
 public struct HomeCoordinatorView: View {
     @Dependency(\.goalDetailFactory) var goalDetailFactory
+    @Dependency(\.statsDetailFactory) var statsDetailFactory
+    @Dependency(\.notificationFactory) var notificationFactory
+    @Dependency(\.makeGoalFactory) var makeGoalFactory
     @Dependency(\.settingsFactory) var settingsFactory
     @Bindable public var store: StoreOf<HomeCoordinator>
 
@@ -47,27 +53,88 @@ public struct HomeCoordinatorView: View {
                     case .detail:
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .statsDetail:
+                        IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
+                            statsDetailFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .editGoalList:
                         IfLetStore(store.scope(state: \.editGoalList, action: \.editGoalList)) { store in
                             EditGoalListView(store: store)
+                                .toolbar(.hidden, for: .tabBar)
                         }
 
                     case .makeGoal:
                         IfLetStore(store.scope(state: \.makeGoal, action: \.makeGoal)) { store in
-                            MakeGoalView(store: store)
+                            makeGoalFactory.makeView(store)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .settings:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .settingsAccount:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeAccountView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .settingsInfo:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeInfoView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .settingsNotificationSettings:
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeNotificationSettingsView(settingsStore)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case let .settingsWebView(url, title):
+                        if let settingsStore = store.scope(
+                            state: \.settings,
+                            action: \.settings
+                        ) {
+                            settingsFactory.makeWebView(settingsStore, url, title)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
+                        }
+
+                    case .notification:
+                        if let notificationStore = store.scope(
+                            state: \.notification,
+                            action: \.notification
+                        ) {
+                            notificationFactory.makeView(notificationStore)
+                                .navigationBarBackButtonHidden(true)
+                                .toolbar(.hidden, for: .tabBar)
                         }
                     }
                 }
-        }
-        .fullScreenCover(
-            isPresented: $store.isSettingsPresented,
-            onDismiss: { store.send(.settingsDismissed) }
-        ) {
-            IfLetStore(store.scope(state: \.settings, action: \.settings)) { store in
-                settingsFactory.makeView(store)
-            }
         }
     }
 }

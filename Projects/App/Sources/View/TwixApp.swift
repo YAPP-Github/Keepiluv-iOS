@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import CoreNetwork
 import CoreNetworkInterface
+import CorePushInterface
 import CoreStorage
 import CoreStorageInterface
 import DomainAuth
@@ -10,12 +11,14 @@ import KakaoSDKAuth
 import KakaoSDKCommon
 import SwiftUI
 
-#if canImport(CoreLoggingDebug)
+#if CORE_LOGGING_DEBUG && canImport(CoreLoggingDebug)
 import CoreLoggingDebug
 #endif
 
 @main
 struct TwixApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     let store = Store(
         initialState: AppCoordinator.State()
     ) {
@@ -36,6 +39,12 @@ struct TwixApp: App {
                     // 유니버셜 링크 처리 (invite code)
                     if let inviteCode = parseInviteCode(from: url) {
                         store.send(.deepLinkReceived(code: inviteCode))
+                        return
+                    }
+
+                    // 알림 딥링크 처리 (twix://notification/...)
+                    if let notificationDeepLink = NotificationDeepLink.parse(from: url) {
+                        store.send(.notificationDeepLinkReceived(notificationDeepLink))
                         return
                     }
 
@@ -62,7 +71,7 @@ private func makeNetworkClient() -> NetworkClient {
         }
     )
 
-    #if canImport(CoreLoggingDebug)
+    #if CORE_LOGGING_DEBUG && canImport(CoreLoggingDebug)
     let interceptors: [NetworkInterceptor] = [
         authInterceptor,
         PulseNetworkInterceptor(label: "Network")
@@ -84,13 +93,10 @@ private extension TwixApp {
         KakaoSDK.initSDK(appKey: kakaoAppKey)
     }
 
-    /// 유니버셜 링크에서 invite code 파싱
-    /// - URL 형식: https://{DEEPLINK_HOST}/invite?code=12345678
+    /// 초대 코드 딥링크 파싱
+    /// - URL 형식: twix://invite?code=xxx 또는 https://xxx/invite?code=xxx
     func parseInviteCode(from url: URL) -> String? {
-        guard let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String,
-              let host = url.host,
-              host.contains(deeplinkHost),
-              url.path == "/invite",
+        guard url.path == "/invite" || url.path == "invite",
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let code = components.queryItems?.first(where: { $0.name == "code" })?.value,
               !code.isEmpty else {

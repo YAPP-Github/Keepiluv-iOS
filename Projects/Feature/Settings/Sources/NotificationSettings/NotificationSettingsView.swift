@@ -13,20 +13,37 @@ import SwiftUI
 /// 알림 설정 화면입니다.
 struct NotificationSettingsView: View {
     @Bindable var store: StoreOf<SettingsReducer>
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: 0) {
             navigationBar
 
-            ScrollView {
-                notificationList
-                    .padding(.top, Spacing.spacing8)
-                    .padding(.horizontal, Spacing.spacing8)
+            ZStack {
+                if store.isNotificationSettingsLoading {
+                    loadingView
+                } else if !store.isSystemNotificationEnabled {
+                    disabledView
+                } else {
+                    ScrollView {
+                        notificationList
+                            .padding(.top, Spacing.spacing8)
+                            .padding(.horizontal, Spacing.spacing8)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            store.send(.notificationSettingsOnAppear)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                store.send(.notificationSettingsOnAppear)
+            }
+        }
     }
 }
 
@@ -34,11 +51,69 @@ struct NotificationSettingsView: View {
 
 private extension NotificationSettingsView {
     var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: "알림 설정", rightText: "")) { action in
+        TXNavigationBar(style: .subTitle(title: "알림 설정", type: .back)) { action in
             if action == .backTapped {
-                store.send(.popRoute)
+                store.send(.subViewBackButtonTapped)
             }
         }
+    }
+}
+
+// MARK: - Loading View
+
+private extension NotificationSettingsView {
+    var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Disabled View (System Notification Off)
+
+private extension NotificationSettingsView {
+    var disabledView: some View {
+        VStack(spacing: 0) {
+            enableNotificationBanner
+                .padding(.top, Spacing.spacing6)
+                .padding(.horizontal, Spacing.spacing8)
+
+            Spacer()
+        }
+    }
+
+    var enableNotificationBanner: some View {
+        Button {
+            store.send(.enableNotificationBannerTapped)
+        } label: {
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("(권장) 알림을 켜 주세요.")
+                        .typography(.b1_14b)
+                        .foregroundStyle(Color.Gray.gray500)
+
+                    Text("메이트의 소식을 받아볼 수 있어요.")
+                        .typography(.c1_12r)
+                        .foregroundStyle(Color.Gray.gray300)
+                }
+
+                Spacer()
+
+                Image.Icon.Symbol.arrow1MRight
+                    .foregroundStyle(Color.Gray.gray300)
+            }
+            .padding(Spacing.spacing7)
+            .background(Color.Common.white)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.s)
+                    .stroke(Color.Gray.gray500, lineWidth: LineWidth.m)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -63,27 +138,31 @@ private extension NotificationSettingsView {
     var pokePushItem: some View {
         toggleItem(
             title: "찌르기 푸쉬알림",
-            isOn: $store.isPokePushEnabled
+            isOn: store.isPokePushEnabled,
+            onToggle: { store.send(.pokePushToggled($0)) }
         )
     }
 
     var marketingPushItem: some View {
         toggleItem(
             title: "마케팅 정보 푸쉬알림",
-            isOn: $store.isMarketingPushEnabled
+            isOn: store.isMarketingPushEnabled,
+            onToggle: { store.send(.marketingPushToggled($0)) }
         )
     }
 
     var nightMarketingPushItem: some View {
         toggleItem(
             title: "야간 마케팅 정보 푸쉬알림",
-            isOn: $store.isNightMarketingPushEnabled
+            isOn: store.isNightMarketingPushEnabled,
+            onToggle: { store.send(.nightPushToggled($0)) }
         )
     }
 
     func toggleItem(
         title: String,
-        isOn: Binding<Bool>
+        isOn: Bool,
+        onToggle: @escaping (Bool) -> Void
     ) -> some View {
         HStack {
             Text(title)
@@ -92,7 +171,10 @@ private extension NotificationSettingsView {
 
             Spacer()
 
-            TXToggleSwitch(isOn: isOn)
+            TXToggleSwitch(isOn: Binding(
+                get: { isOn },
+                set: { onToggle($0) }
+            ))
         }
         .padding(Spacing.spacing7)
         .frame(height: 64)

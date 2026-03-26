@@ -15,6 +15,10 @@ private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPli
     "CFBundleURLTypes": [
         [
             "CFBundleTypeRole": "Editor",
+            "CFBundleURLSchemes": ["twix"]
+        ],
+        [
+            "CFBundleTypeRole": "Editor",
             "CFBundleURLSchemes": ["kakao$(KAKAO_APP_KEY)"]
         ],
         [
@@ -26,16 +30,22 @@ private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPli
     "GIDClientID": "$(GOOGLE_CLIENT_ID)",
     "DEEPLINK_HOST": "$(DEEPLINK_HOST)",
     "API_BASE_URL": "$(API_BASE_URL)",
-    "NSCameraUsageDescription": "UseCamera"
+    "NSCameraUsageDescription": "UseCamera",
+    "CFBundleShortVersionString": "1.1.1"
 ], uniquingKeysWith: { current, _ in current })
 
 private let commonDependencies: [TargetDependency] = [
     .feature,
     .core,
+    .core(implements: .push),
     .domain(implements: .auth),
+    .domain(implements: .notification),
     .external(dependency: .KakaoSDKAuth),
     .external(dependency: .KakaoSDKCommon),
-    .external(dependency: .GoogleSignIn)
+    .external(dependency: .GoogleSignIn),
+    .external(dependency: .FirebaseCore),
+    .external(dependency: .FirebaseMessaging),
+    .external(dependency: .FirebaseRemoteConfig)
 ]
 
 private let commonBuildSettings: SettingsDictionary = [
@@ -47,7 +57,7 @@ private let commonBuildSettings: SettingsDictionary = [
     "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
     "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
     "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"],
-    "KAKAO_APP_KEY": "d62cbf5d1d7fbc9246c0d33998fce8cd",
+    "KAKAO_APP_KEY": "fb2997e54bfe080cc5c1d9706d1251f4",
     "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
     "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3",
     "DEEPLINK_HOST": "keepiluv.jiyong.xyz",
@@ -93,7 +103,7 @@ let project = Project(
                 settings: .settings(
                     base: commonBuildSettings.merging([
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)",
-                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG"
+                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "DEBUG CORE_LOGGING_DEBUG"
                     ])
                 )
             )

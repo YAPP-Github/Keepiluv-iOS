@@ -10,11 +10,12 @@ import SwiftUI
 public extension TXRoundedRectangleButton.Configuration {
     static func small(
         text: String,
-        colorStyle: ColorStyle
+        colorStyle: ColorStyle,
+        font: TypographyToken = .b1_14b
     ) -> Self {
         .init(
             text: text,
-            font: .b1_14b,
+            font: font,
             colorStyle: colorStyle,
             fixedFrame: false,
             radius: Radius.xs,

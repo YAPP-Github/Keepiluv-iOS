@@ -50,7 +50,7 @@ public extension DetailGoalListResponseDTO {
                             owner: .mySelf,
                             imageUrl: $0.imageUrl,
                             comment: $0.comment,
-                            reaction: $0.reaction.flatMap(Goal.Reaction.init(rawValue:)),
+                            reaction: $0.reaction,
                             createdAt: $0.uploadedAt
                         )
                     },
@@ -62,7 +62,7 @@ public extension DetailGoalListResponseDTO {
                             owner: .you,
                             imageUrl: $0.imageUrl,
                             comment: $0.comment,
-                            reaction: $0.reaction.flatMap(Goal.Reaction.init(rawValue:)),
+                            reaction: $0.reaction,
                             createdAt: $0.uploadedAt
                         )
                     }

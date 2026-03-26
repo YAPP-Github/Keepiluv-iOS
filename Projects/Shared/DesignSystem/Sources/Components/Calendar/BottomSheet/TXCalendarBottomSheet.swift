@@ -96,6 +96,7 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
                 } else {
                     TXCalendar(
                         mode: .monthly,
+                        currentDate: $selectedDate,
                         weeks: displayWeeks,
                         config: calendarConfig
                     ) { item in
@@ -109,7 +110,6 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
 
             // 버튼 영역
             buttonArea
-                .padding(.bottom, Spacing.spacing5)
         }
         .frame(maxWidth: .infinity)
         .background(Color.Common.white)
@@ -160,7 +160,7 @@ public struct DefaultCalendarButton: View {
             action: action
         )
         .padding(.horizontal, Spacing.spacing8)
-        .padding(.vertical, Spacing.spacing4)
+        .padding(.vertical, Spacing.spacing5)
     }
 }
 
@@ -176,14 +176,15 @@ private extension TXCalendarBottomSheet {
     func calendarContentHeight(for weeks: [[TXCalendarDateItem]]) -> CGFloat {
         let headerHeight = TXCalendarLayout.weekdayLabelHeight(calendarConfig.weekdayTypography)
         let headerSectionHeight = headerHeight + calendarConfig.monthlyHeaderSpacing
+        let verticalPadding = calendarConfig.verticalPadding * 2
 
-        guard !weeks.isEmpty else { return headerSectionHeight }
+        guard !weeks.isEmpty else { return headerSectionHeight + verticalPadding }
 
         let rowCount = CGFloat(weeks.count)
         let rowSpacing = calendarConfig.monthlyRowSpacing * CGFloat(weeks.count - 1)
         let monthGridHeight = (calendarConfig.dateStyle.size * rowCount) + rowSpacing
 
-        return headerSectionHeight + monthGridHeight
+        return headerSectionHeight + monthGridHeight + verticalPadding
     }
 
     @ViewBuilder

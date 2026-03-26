@@ -12,6 +12,7 @@ import ComposableArchitecture
 import DomainGoalInterface
 import FeatureHomeInterface
 import SharedDesignSystem
+import SharedUtil
 
 extension EditGoalListReducer {
     /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
@@ -81,7 +82,7 @@ extension EditGoalListReducer {
                     state.selectedCardMenu = nil
                     
                     // FIXME: - 통계 나오기 전까지 토스트 띄움
-                    let isPast = TXCalendarUtil.isEarlier(state.calendarDate, than: TXCalendarDate())
+                    let isPast = state.calendarDate < TXCalendarDate()
                     if isPast {
                         state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {
@@ -133,7 +134,6 @@ extension EditGoalListReducer {
                             try await goalClient.deleteGoal(goalId)
                             await send(.deleteGoalCompleted(goalId: goalId))
                         } catch {
-                            // FIXME: - 통계 나오기 전까지 토스트 띄움
                             await send(.apiError("목표 삭제에 실패했어요"))
                         }
                     }
@@ -159,10 +159,10 @@ extension EditGoalListReducer {
                             GoalEditCardItem(
                                 id: $0.id,
                                 goalName: $0.title,
-                                iconImage: $0.goalIcon.image,
+                                iconImage: GoalIcon(from: $0.goalIcon).image,
                                 repeatCycle: $0.repeatCycle?.text ?? "",
-                                startDate: $0.startDate ?? "",
-                                endDate: $0.endDate ?? "미설정"
+                                startDate: $0.startDate?.dateDisplayString ?? "",
+                                endDate: $0.endDate?.dateDisplayString ?? "미설정"
                             )
                         }
                         await send(.fetchGoalsCompleted(editItems, date: date))
@@ -185,14 +185,14 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
-                state.cards.removeAll { $0.id == goalId }
+                state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
 
             case let .completeGoalCompleted(goalId):
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
-                state.cards.removeAll { $0.id == goalId }
+                state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.success(message: "목표를 달성했어요!")))
 
             case let .apiError(message):

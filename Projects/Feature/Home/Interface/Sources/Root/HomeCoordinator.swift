@@ -6,9 +6,13 @@
 //
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureGoalDetailInterface
+import FeatureNotificationInterface
+import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import FeatureSettingsInterface
+import FeatureStatsInterface
 
 /// Home Feature의 NavigationStack을 관리하는 Root Reducer입니다.
 ///
@@ -25,9 +29,11 @@ public struct HomeCoordinator {
     private let reducer: Reduce<State, Action>
     private let homeReducer: HomeReducer
     private let goalDetailReducer: GoalDetailReducer
+    private let statsDetailReducer: StatsDetailReducer
     private let makeGoalReducer: MakeGoalReducer
     private let editGoalListReducer: EditGoalListReducer
     private let settingsReducer: SettingsReducer
+    private let notificationReducer: NotificationReducer
     
     /// HomeCoordinator 화면에서 사용하는 상태입니다.
     ///
@@ -41,10 +47,11 @@ public struct HomeCoordinator {
 
         public var home = HomeReducer.State()
         public var goalDetail: GoalDetailReducer.State?
+        public var statsDetail: StatsDetailReducer.State?
         public var makeGoal: MakeGoalReducer.State?
         public var editGoalList: EditGoalListReducer.State?
         public var settings: SettingsReducer.State?
-        public var isSettingsPresented: Bool = false
+        public var notification: NotificationReducer.State?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -67,12 +74,15 @@ public struct HomeCoordinator {
         // MARK: - Child Action
         case home(HomeReducer.Action)
         case goalDetail(GoalDetailReducer.Action)
+        case statsDetail(StatsDetailReducer.Action)
         case makeGoal(MakeGoalReducer.Action)
         case editGoalList(EditGoalListReducer.Action)
         case settings(SettingsReducer.Action)
+        case notification(NotificationReducer.Action)
 
-        // MARK: - Update State
-        case settingsDismissed
+
+        // MARK: - Navigation
+        case navigateToGoalDetail(id: Int64, owner: GoalDetail.Owner, date: String)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -81,6 +91,7 @@ public struct HomeCoordinator {
             case logoutCompleted
             case withdrawCompleted
             case sessionExpired
+            case notificationItemTapped(NotificationItem)
         }
     }
 
@@ -97,16 +108,20 @@ public struct HomeCoordinator {
         reducer: Reduce<State, Action>,
         homeReducer: HomeReducer,
         goalDetailReducer: GoalDetailReducer,
+        statsDetailReducer: StatsDetailReducer,
         makeGoalReducer: MakeGoalReducer,
         editGoalListReducer: EditGoalListReducer,
-        settingsReducer: SettingsReducer
+        settingsReducer: SettingsReducer,
+        notificationReducer: NotificationReducer
     ) {
         self.reducer = reducer
         self.homeReducer = homeReducer
         self.goalDetailReducer = goalDetailReducer
+        self.statsDetailReducer = statsDetailReducer
         self.makeGoalReducer = makeGoalReducer
         self.editGoalListReducer = editGoalListReducer
         self.settingsReducer = settingsReducer
+        self.notificationReducer = notificationReducer
     }
     
     public var body: some ReducerOf<Self> {
@@ -120,6 +135,9 @@ public struct HomeCoordinator {
             .ifLet(\.goalDetail, action: \.goalDetail) {
                 goalDetailReducer
             }
+            .ifLet(\.statsDetail, action: \.statsDetail) {
+                statsDetailReducer
+            }
             .ifLet(\.makeGoal, action: \.makeGoal) {
                 makeGoalReducer
             }
@@ -128,6 +146,9 @@ public struct HomeCoordinator {
             }
             .ifLet(\.settings, action: \.settings) {
                 settingsReducer
+            }
+            .ifLet(\.notification, action: \.notification) {
+                notificationReducer
             }
     }
 }

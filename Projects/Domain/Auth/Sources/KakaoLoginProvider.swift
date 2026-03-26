@@ -38,21 +38,22 @@ public final class KakaoLoginProvider: SocialLoginProviderProtocol {
 private extension KakaoLoginProvider {
     @MainActor
     func loginWithKakaoTalk() async throws -> AuthLoginResult {
-        try await withCheckedThrowingContinuation { continuation in
-            UserApi.shared.loginWithKakaoTalk { oauthToken, error in
+        let nonce = UUID().uuidString
+        return try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.loginWithKakaoTalk(nonce: nonce) { oauthToken, error in
                 if let error = error {
                     continuation.resume(throwing: AuthLoginError.providerError(error))
                     return
                 }
 
-                guard let accessToken = oauthToken?.accessToken else {
+                guard let idToken = oauthToken?.idToken else {
                     continuation.resume(throwing: AuthLoginError.missingCredential)
                     return
                 }
 
                 let result = AuthLoginResult(
                     provider: .kakao,
-                    code: accessToken
+                    code: idToken
                 )
 
                 continuation.resume(returning: result)
@@ -62,21 +63,22 @@ private extension KakaoLoginProvider {
 
     @MainActor
     func loginWithKakaoAccount() async throws -> AuthLoginResult {
-        try await withCheckedThrowingContinuation { continuation in
-            UserApi.shared.loginWithKakaoAccount { oauthToken, error in
+        let nonce = UUID().uuidString
+        return try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.loginWithKakaoAccount(nonce: nonce) { oauthToken, error in
                 if let error = error {
                     continuation.resume(throwing: AuthLoginError.providerError(error))
                     return
                 }
 
-                guard let accessToken = oauthToken?.accessToken else {
+                guard let idToken = oauthToken?.idToken else {
                     continuation.resume(throwing: AuthLoginError.missingCredential)
                     return
                 }
 
                 let result = AuthLoginResult(
                     provider: .kakao,
-                    code: accessToken
+                    code: idToken
                 )
 
                 continuation.resume(returning: result)

@@ -10,7 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import Feature
 
-#if canImport(CoreLoggingDebug)
+#if CORE_LOGGING_DEBUG && canImport(CoreLoggingDebug)
 import CoreLoggingDebug
 #endif
 
@@ -54,13 +54,13 @@ struct AppRootView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        #if canImport(CoreLoggingDebug)
+        #if CORE_LOGGING_DEBUG && canImport(CoreLoggingDebug)
         .detectShakeForPulse(label: pulseLabel)
         #endif
     }
 }
 
-#if canImport(CoreLoggingDebug)
+#if CORE_LOGGING_DEBUG && canImport(CoreLoggingDebug)
 private extension AppRootView {
     var pulseLabel: String {
         switch store.route {
@@ -88,7 +88,7 @@ private extension AppRootView {
     )
 }
 
-extension UINavigationController: UIGestureRecognizerDelegate {
+extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
         interactivePopGestureRecognizer?.delegate = self

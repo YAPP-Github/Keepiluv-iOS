@@ -69,7 +69,8 @@ private extension TXTabGroup {
                 text: item,
                 colorStyle: selectedItem == item
                 ? config.selectedColorStyle
-                : config.unselectedColorStyle
+                : config.unselectedColorStyle,
+                font: .b2_14r
             )
         ) {
             selectedItem = item

@@ -26,6 +26,8 @@ public struct OnboardingClient: Sendable {
 
     public var registerProfile: @Sendable (_ nickname: String) async throws -> Void
 
+    public var updateProfile: @Sendable (_ nickname: String) async throws -> Void
+
     public var setAnniversary: @Sendable (_ date: Date) async throws -> Void
 
     public var fetchStatus: @Sendable () async throws -> OnboardingStatus
@@ -34,12 +36,14 @@ public struct OnboardingClient: Sendable {
         fetchInviteCode: @escaping @Sendable () async throws -> String,
         connectCouple: @escaping @Sendable (_ inviteCode: String) async throws -> Void,
         registerProfile: @escaping @Sendable (_ nickname: String) async throws -> Void,
+        updateProfile: @escaping @Sendable (_ nickname: String) async throws -> Void,
         setAnniversary: @escaping @Sendable (_ date: Date) async throws -> Void,
         fetchStatus: @escaping @Sendable () async throws -> OnboardingStatus
     ) {
         self.fetchInviteCode = fetchInviteCode
         self.connectCouple = connectCouple
         self.registerProfile = registerProfile
+        self.updateProfile = updateProfile
         self.setAnniversary = setAnniversary
         self.fetchStatus = fetchStatus
     }
@@ -53,6 +57,7 @@ extension OnboardingClient: TestDependencyKey {
         fetchInviteCode: { "ABC123" },
         connectCouple: { _ in },
         registerProfile: { _ in },
+        updateProfile: { _ in },
         setAnniversary: { _ in },
         fetchStatus: { .coupleConnection }
     )
@@ -69,6 +74,10 @@ extension OnboardingClient: TestDependencyKey {
         },
         registerProfile: { _ in
             assertionFailure("OnboardingClient.registerProfile이 구현되지 않았습니다.")
+            throw OnboardingError.unknown
+        },
+        updateProfile: { _ in
+            assertionFailure("OnboardingClient.updateProfile이 구현되지 않았습니다.")
             throw OnboardingError.unknown
         },
         setAnniversary: { _ in

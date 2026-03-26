@@ -8,14 +8,14 @@ inputs:
   keychain-password:
     description: "Keychain password"
     required: true
-  install-swiftlint:
-    description: "Whether to install SwiftLint"
-    required: false
-    default: "true"
   include-pulse:
     description: "Whether to include Pulse in cache (false for production builds)"
     required: false
     default: "true"
+  skip-spm-cache:
+    description: "Skip SPM cache for release builds to avoid simulator artifacts"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -39,7 +39,15 @@ runs:
         ruby-version: "3.3.0"
         bundler-cache: true
 
+    - name: 📦 Cache Tuist binary
+      id: tuist-binary-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.tuist-bin
+        key: tuist-binary-${{ runner.os }}-4.118.0
+
     - name: 🛠 Install Tuist (manual binary)
+      if: steps.tuist-binary-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
         TUIST_VERSION=4.118.0
@@ -47,9 +55,14 @@ runs:
         curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
         unzip -o tuist.zip -d ~/.tuist-bin
         chmod +x ~/.tuist-bin/tuist
-        echo "$HOME/.tuist-bin" >> $GITHUB_PATH
+
+    - name: 🔧 Add Tuist to PATH
+      shell: bash
+      run: echo "$HOME/.tuist-bin" >> $GITHUB_PATH
 
     - name: 📦 Cache SPM dependencies
+      id: spm-cache
+      if: inputs.skip-spm-cache != 'true'
       uses: actions/cache@v4
       with:
         path: Tuist/.build
@@ -58,49 +71,27 @@ runs:
           tuist-spm-${{ runner.os }}-
 
     - name: 🛠 Install tuist dependencies
+      if: inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true'
       shell: bash
       run: tuist install
 
-    - name: 📦 Cache Tuist build artifacts
-      id: tuist-cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/tuist
-        key: tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-${{ hashFiles('Tuist/Package.resolved', 'Tuist/Package.swift') }}
-        restore-keys: |
-          tuist-build-cache-${{ runner.os }}-${{ inputs.include-pulse }}-
-
-    - name: 📊 Tuist cache status
+    - name: 📊 SPM cache status
       shell: bash
       run: |
-        if [ "${{ steps.tuist-cache.outputs.cache-hit }}" == "true" ]; then
-          echo "✅ Tuist cache HIT"
+        if [ "${{ inputs.skip-spm-cache }}" == "true" ]; then
+          echo "⏭️ SPM cache SKIPPED (release build)"
+        elif [ "${{ steps.spm-cache.outputs.cache-hit }}" == "true" ]; then
+          echo "✅ SPM cache HIT - skipping tuist cache warm up"
         else
-          echo "❌ Tuist cache MISS - will build dependencies"
+          echo "❌ SPM cache MISS - will build dependencies"
         fi
 
     - name: 🏗 Warm up external dependencies (with Pulse)
-      if: ${{ inputs.include-pulse == 'true' }}
+      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse == 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
 
     - name: 🏗 Warm up external dependencies (without Pulse)
-      if: ${{ inputs.include-pulse != 'true' }}
+      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse != 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
-
-    - name: 📦 Cache SwiftLint
-      if: ${{ inputs.install-swiftlint == 'true' }}
-      uses: actions/cache@v4
-      with:
-        path: /opt/homebrew/bin/swiftlint
-        key: swiftlint-${{ runner.os }}-0.57.0
-
-    - name: 🧰 Install SwiftLint
-      if: ${{ inputs.install-swiftlint == 'true' }}
-      shell: bash
-      run: |
-        if ! command -v swiftlint &> /dev/null; then
-          brew install swiftlint
-        fi
-        swiftlint version

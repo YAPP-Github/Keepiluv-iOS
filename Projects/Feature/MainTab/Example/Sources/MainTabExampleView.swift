@@ -11,6 +11,8 @@ import ComposableArchitecture
 import Feature
 import CoreCaptureSession
 import DomainGoalInterface
+import FeatureMakeGoal
+import FeatureMakeGoalInterface
 
 struct MainTabExampleView: View {
     var body: some View {
@@ -24,6 +26,7 @@ struct MainTabExampleView: View {
                     $0.captureSessionClient = .liveValue
                     $0.proofPhotoFactory = .liveValue
                     $0.goalDetailFactory = .liveValue
+                    $0.makeGoalFactory = .liveValue
                 }
             )
         )

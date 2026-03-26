@@ -36,8 +36,8 @@ public struct EditGoalListReducer {
         
         public var calendarDate: TXCalendarDate
         public var calendarWeeks: [[TXCalendarDateItem]]
-        public var cards: [GoalEditCardItem] = []
-        public var hasCards: Bool { !cards.isEmpty }
+        public var cards: [GoalEditCardItem]?
+        public var hasCards: Bool { !(cards?.isEmpty ?? true) }
         public var selectedCardMenu: GoalEditCardItem?
         public var modal: TXModalType?
         public var toast: TXToastType?

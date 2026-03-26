@@ -49,7 +49,7 @@ public struct TXModalView<Content: View>: View {
             }
             .frame(width: 350)
             .background(Color.Common.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
     }
 }
@@ -81,7 +81,8 @@ private extension TXModalView {
                         onAction(.confirm)
                     }
                 )
-                
+                .padding(.top, Spacing.spacing6)
+
             case let .gridButton(config):
                 TXRoundedRectangleButton(
                     config: .long(
@@ -91,10 +92,10 @@ private extension TXModalView {
                 ) {
                     onAction(.confirm)
                 }
-                .padding(.horizontal, 20)
+                .padding([.horizontal, .top], Spacing.spacing8)
+                .padding(.vertical, Spacing.spacing5)
             }
         }
-        .padding(.top, Spacing.spacing9)
         .padding(.bottom, Spacing.spacing6)
     }
 }

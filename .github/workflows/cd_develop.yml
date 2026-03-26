@@ -14,13 +14,15 @@ jobs:
     steps:
       - name: 🔄 Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🛠 Setup Build Environment
         uses: ./.github/actions/setup-build-env
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          install-swiftlint: "false"
+          skip-spm-cache: "true"
 
       - name: 🚀 Deploy to TestFlight (TwixDebug)
         env:
@@ -37,6 +39,7 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
         run: bundle exec fastlane deploy_develop
 
       - name: 🧹 Teardown()

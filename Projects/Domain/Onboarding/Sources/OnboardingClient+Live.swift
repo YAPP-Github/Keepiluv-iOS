@@ -50,6 +50,19 @@ extension OnboardingClient: @retroactive DependencyKey {
                 throw OnboardingError.unknown
             }
         },
+        updateProfile: { nickname in
+            @Dependency(\.networkClient) var networkClient
+
+            do {
+                let _: EmptyResponse = try await networkClient.request(
+                    endpoint: OnboardingEndpoint.updateProfile(nickname: nickname)
+                )
+            } catch let error as NetworkError {
+                throw OnboardingErrorMapper.map(error, context: .profile)
+            } catch {
+                throw OnboardingError.unknown
+            }
+        },
         setAnniversary: { date in
             @Dependency(\.networkClient) var networkClient
 

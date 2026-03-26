@@ -20,24 +20,7 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $store.routes) {
-            settingsContent
-                .navigationDestination(for: SettingsRoute.self) { route in
-                    switch route {
-                    case .account:
-                        AccountView(store: store)
-
-                    case .info:
-                        InfoView(store: store)
-
-                    case .notificationSettings:
-                        NotificationSettingsView(store: store)
-
-                    case let .webView(url, title):
-                        SettingsWebView(url: url, title: title, store: store)
-                    }
-                }
-        }
+        settingsContent
     }
 
     private var settingsContent: some View {
@@ -52,15 +35,22 @@ public struct SettingsView: View {
                     settingsListSection
                         .padding(.horizontal, Spacing.spacing8)
                 }
-                // FIXME: 설정 화면 탭바에서 다시 돌릴 때 아래 주석 제거
-//                .padding(.top, Spacing.spacing9)
+                .padding(.top, Spacing.spacing9)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
+        .onTapGesture {
+            dismissKeyboard()
+        }
         .onChange(of: isTextFieldFocused) { _, newValue in
             if !newValue && store.isEditing {
                 store.send(.nicknameEditingEnded)
+            }
+        }
+        .onChange(of: store.isLanguageModalPresented) { _, newValue in
+            if newValue {
+                dismissKeyboard()
             }
         }
         .txSelectionModal(
@@ -75,6 +65,11 @@ public struct SettingsView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func dismissKeyboard() {
+        isTextFieldFocused = false
     }
 }
 
@@ -82,19 +77,14 @@ public struct SettingsView: View {
 
 private extension SettingsView {
     var navigationBar: some View {
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 showBackButton 조건 제거
-        if store.showBackButton {
-            TXNavigationBar(style: .subTitle(title: "설정", rightText: "")) { action in
-                switch action {
-                case .backTapped:
-                    store.send(.backButtonTapped)
+        TXNavigationBar(style: .subTitle(title: "설정", type: .back)) { action in
+            switch action {
+            case .backTapped:
+                store.send(.backButtonTapped)
 
-                default:
-                    break
-                }
+            default:
+                break
             }
-        } else {
-            TXNavigationBar(style: .mainTitle(title: "설정"))
         }
     }
 }
@@ -183,9 +173,8 @@ private extension SettingsView {
             infoItem
             settingsDivider
             inquiryItem
-            // TODO: 알림 설정 기능 구현 후 주석 해제
-            // settingsDivider
-            // notificationItem
+            settingsDivider
+            notificationItem
         }
         .background(Color.Common.white)
         .clipShape(RoundedRectangle(cornerRadius: Radius.s))

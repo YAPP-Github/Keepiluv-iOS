@@ -8,12 +8,6 @@
 import Foundation
 
 public extension TXInfoModalContent.Configuration {
-    /// 체크 해제 확인용 정보 모달 설정입니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXInfoModalContent(config: .uncheckGoal)
-    /// ```
     static var uncheckGoal: Self {
         return .init(
             image: .Icon.Illustration.modalWarning,
@@ -56,12 +50,6 @@ public extension TXInfoModalContent.Configuration {
         )
     }
 
-    /// 커플 연결 해제 확인용 정보 모달 설정입니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXInfoModalContent(config: .disconnectCouple)
-    /// ```
     static var disconnectCouple: Self {
         return .init(
             image: .Icon.Illustration.modalWarning,
@@ -77,12 +65,6 @@ public extension TXInfoModalContent.Configuration {
         )
     }
 
-    /// 회원 탈퇴 확인용 정보 모달 설정입니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXInfoModalContent(config: .withdraw)
-    /// ```
     static var withdraw: Self {
         return .init(
             image: .Icon.Illustration.modalWarning,
@@ -93,6 +75,34 @@ public extension TXInfoModalContent.Configuration {
             """,
             leftButtonText: "취소",
             rightButtonText: "탈퇴"
+        )
+    }
+
+    // MARK: - 온보딩 알림 권한
+
+    static var notificationMarketing: Self {
+        return .init(
+            image: .Icon.Illustration.heart,
+            title: "마케팅 알림을 허용하시겠어요?",
+            subtitle: """
+            키피럽의 새로운 소식과
+            이벤트 정보를 받아볼 수 있어요
+            """,
+            leftButtonText: "거부",
+            rightButtonText: "허용"
+        )
+    }
+
+    static var notificationNight: Self {
+        return .init(
+            image: .Icon.Illustration.heart,
+            title: "야간 알림을 허용하시겠어요?",
+            subtitle: """
+            밤 9시 ~ 아침 8시 사이에도
+            마케팅 알림을 받아볼 수 있어요
+            """,
+            leftButtonText: "거부",
+            rightButtonText: "허용"
         )
     }
 }

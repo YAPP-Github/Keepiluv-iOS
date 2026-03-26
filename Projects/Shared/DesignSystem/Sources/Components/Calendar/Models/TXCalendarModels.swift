@@ -12,6 +12,7 @@ public enum TXCalendarDateStatus {
     case `default`
     case selectedLine
     case selectedFilled
+    case completed
     case lastDate
 }
 
@@ -31,6 +32,7 @@ public struct TXCalendarDateItem: Identifiable, Equatable, Hashable {
     public let status: TXCalendarDateStatus
     public let dateComponents: DateComponents?
     
+    /// 날짜 셀 데이터를 생성합니다.
     public init(
         id: UUID = UUID(),
         text: String,

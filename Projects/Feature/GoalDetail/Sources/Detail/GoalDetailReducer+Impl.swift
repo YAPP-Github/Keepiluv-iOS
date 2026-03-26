@@ -15,6 +15,42 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
+import SharedUtil
+
+private enum PokeCooldownManager {
+    private static let userDefaultsKey = "pokeCooldownTimestamps"
+    private static let cooldownInterval: TimeInterval = 3 * 60 * 60
+
+    static func remainingCooldown(goalId: Int64) -> TimeInterval? {
+        guard let timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval],
+              let lastPokeTime = timestamps[String(goalId)] else {
+            return nil
+        }
+        let elapsed = Date().timeIntervalSince1970 - lastPokeTime
+        let remaining = cooldownInterval - elapsed
+        return remaining > 0 ? remaining : nil
+    }
+
+    static func formatRemainingTime(_ seconds: TimeInterval) -> String {
+        let totalMinutes = Int(ceil(seconds / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 && minutes > 0 {
+            return "\(hours)시간 \(minutes)분"
+        } else if hours > 0 {
+            return "\(hours)시간"
+        } else {
+            return "\(max(1, minutes))분"
+        }
+    }
+
+    static func recordPoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps[String(goalId)] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
+}
 
 extension GoalDetailReducer {
     // swiftlint: disable function_body_length
@@ -40,10 +76,11 @@ extension GoalDetailReducer {
                 // MARK: - LifeCycle
             case .onAppear:
                 let date = state.verificationDate
+                let goalId = state.goalId
                 
                 return .run { send in
                     do {
-                        let item = try await goalClient.fetchGoalDetailList(date)
+                        let item = try await goalClient.fetchGoalDetail(date, goalId)
                         await send(.fethedGoalDetailItem(item))
                     } catch {
                         await send(.fetchGoalDetailFailed)
@@ -62,7 +99,21 @@ extension GoalDetailReducer {
                         await send(.authorizationCompleted(isAuthorized: isAuthorized))
                     }
                 }
-                return .none
+                guard state.currentUser == .you, !state.isCompleted else { return .none }
+                let goalId = state.currentGoalId
+                if let remaining = PokeCooldownManager.remainingCooldown(goalId: goalId) {
+                    let timeText = PokeCooldownManager.formatRemainingTime(remaining)
+                    return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
+                }
+                return .run { send in
+                    do {
+                        try await goalClient.pokePartner(goalId)
+                        PokeCooldownManager.recordPoke(goalId: goalId)
+                        await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
+                    } catch {
+                        await send(.showToast(.warning(message: "찌르기에 실패했어요")))
+                    }
+                }
                 
             case let .navigationBarTapped(action):
                 if case .backTapped = action {
@@ -84,7 +135,7 @@ extension GoalDetailReducer {
                 let previousReaction = state.currentCard?.reaction
                 state.selectedReactionEmoji = reactionEmoji
                 return .concatenate(
-                    .send(.updateCurrentCardReaction(Goal.Reaction(rawValue: reactionEmoji.rawValue))),
+                    .send(.updateCurrentCardReaction(reactionEmoji.rawValue)),
                     .run { send in
                         do {
                             let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.rawValue)
@@ -95,28 +146,16 @@ extension GoalDetailReducer {
                     }
                 )
                 
-            case .cardTapped:
-                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
+            case .cardSwipeLeft:
+                state.currentUser = state.entryPoint == .home ? .mySelf : .you
                 state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
-            case .cardSwipedUp:
-                let nextIndex = state.currentGoalIndex + 1
-                guard nextIndex < state.completedGoalItems.count else { return .none }
-                state.currentGoalIndex = nextIndex
+            case .cardSwipeRight:
+                state.currentUser = state.entryPoint == .home ? .you : .mySelf
                 state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-                
-            case .cardSwipedDown:
-                guard state.currentGoalIndex > 0 else { return .none }
-                state.currentGoalIndex -= 1
-                state.commentText = state.comment
-                state.isCommentFocused = false
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case let .focusChanged(isFocused):
@@ -138,7 +177,7 @@ extension GoalDetailReducer {
                     state.currentGoalIndex = 0
                 }
                 state.commentText = state.comment
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .fetchGoalDetailFailed:
@@ -171,7 +210,7 @@ extension GoalDetailReducer {
                 return .none
                 
             case let .reactionUpdateFailed(previousReaction):
-                state.selectedReactionEmoji = previousReaction.flatMap { ReactionEmoji(rawValue: $0.rawValue) }
+                state.selectedReactionEmoji = previousReaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.showToast(.warning(message: "리액션 전송에 실패했어요")))
 
             case let .showToast(toast):
@@ -219,8 +258,14 @@ extension GoalDetailReducer {
                         do {
                             var fileName: String
                             if let pendingEditedImageData {
+                                let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(
+                                    from: pendingEditedImageData
+                                )
                                 let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                                try await photoLogClient.uploadImageData(pendingEditedImageData, uploadResponse.uploadUrl)
+                                try await photoLogClient.uploadImageData(
+                                    optimizedImageData,
+                                    uploadResponse.uploadUrl
+                                )
                                 fileName = uploadResponse.fileName
                             } else {
                                 let imageURLString = current.imageUrl ?? ""
@@ -248,7 +293,7 @@ extension GoalDetailReducer {
                 state.isPresentedProofPhoto = false
                 return .none
                 
-            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, editedImageData: editedImageData))):
+            case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, editedImageData))):
                 state.isPresentedProofPhoto = false
                 state.pendingEditedImageData = editedImageData
                 var myPhotoLog = myPhotoLog
@@ -293,7 +338,7 @@ extension GoalDetailReducer {
                 )
                 
                 state.commentText = state.comment
-                state.selectedReactionEmoji = ReactionEmoji(rawValue: state.currentCard?.reaction?.rawValue ?? "")
+                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
                 
             case .proofPhoto:

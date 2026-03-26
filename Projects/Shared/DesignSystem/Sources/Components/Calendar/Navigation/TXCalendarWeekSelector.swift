@@ -27,6 +27,7 @@ public struct TXCalendarWeekSelector: View {
         let weekdayColor: Color
         let dateStyle: TXCalendarDateStyle
         
+        /// 주간 선택 스트립 레이아웃 설정을 생성합니다.
         public init(
             horizontalPadding: CGFloat = Spacing.spacing6,
             topPadding: CGFloat = Spacing.spacing3,
@@ -50,6 +51,7 @@ public struct TXCalendarWeekSelector: View {
     private let config: Configuration
     private let onSelect: (TXCalendarDateItem) -> Void
     
+    /// 주간 날짜 선택 스트립을 생성합니다.
     public init(
         items: [(weekday: String, date: TXCalendarDateItem)],
         config: Configuration = .init(),
@@ -108,7 +110,7 @@ private struct WeekSelectorItem: View {
                 .typography(config.weekdayTypography)
                 .foregroundStyle(config.weekdayColor)
             
-            TXCalendarDateCell(item: date, style: config.dateStyle)
+            TXCalendarDateCell(item: date, style: config.dateStyle, customBackground: nil)
         }
         .frame(width: config.dateStyle.size)
     }

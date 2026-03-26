@@ -9,14 +9,22 @@ import Foundation
 
 import ComposableArchitecture
 import CoreLogging
+import CorePushInterface
+import DomainNotificationInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
 import FeatureHome
 import FeatureHomeInterface
+import FeatureNotification
+import FeatureNotificationInterface
+import FeatureMakeGoal
+import FeatureMakeGoalInterface
 import FeatureProofPhoto
 import FeatureProofPhotoInterface
 import FeatureSettings
 import FeatureSettingsInterface
+import FeatureStats
+import FeatureStatsInterface
 import SharedDesignSystem
 
 /// 앱의 메인 탭 화면을 관리하는 Reducer입니다.
@@ -41,11 +49,13 @@ public struct MainTabReducer {
     /// let state = MainTabReducer.State()
     /// ```
     public struct State: Equatable {
-        public var home = HomeCoordinator.State()
+        public var home: HomeCoordinator.State = .init()
+        public var stats: StatsCoordinator.State = .init()
         public var selectedTab: TXTabItem = .home
         public var isTabBarHidden: Bool = false
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        public var settings = SettingsReducer.State(showBackButton: false)
+        public var shouldShowHomeFloatingButton: Bool {
+            selectedTab == .home && !isTabBarHidden
+        }
 
         /// 기본 상태를 생성합니다.
         ///
@@ -67,11 +77,11 @@ public struct MainTabReducer {
 
         // MARK: - Child Action
         case home(HomeCoordinator.Action)
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        case settings(SettingsReducer.Action)
 
         // MARK: - User Action
         case selectedTabChanged(TXTabItem)
+        case notificationDeepLinkReceived(NotificationDeepLink)
+        case stats(StatsCoordinator.Action)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -91,6 +101,8 @@ public struct MainTabReducer {
     /// ```
     public init() { }
 
+    @Dependency(\.notificationClient) var notificationClient
+
     public var body: some ReducerOf<Self> {
         BindingReducer()
 
@@ -98,16 +110,24 @@ public struct MainTabReducer {
             let proofPhotoReducer = ProofPhotoReducer()
             HomeCoordinator(
                 goalDetailReducer: GoalDetailReducer(proofPhotoReducer: proofPhotoReducer),
+                statsDetailReducer: StatsDetailReducer(),
                 proofPhotoReducer: proofPhotoReducer,
                 makeGoalReducer: MakeGoalReducer(),
                 editGoalListReducer: EditGoalListReducer(),
-                settingsReducer: SettingsReducer()
+                settingsReducer: SettingsReducer(),
+                notificationReducer: NotificationReducer()
             )
         }
-
-        // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-        Scope(state: \.settings, action: \.settings) {
-            SettingsReducer()
+        
+        Scope(state: \.stats, action: \.stats) {
+            StatsCoordinator(
+                statsReducer: StatsReducer(),
+                statsDetailReducer: StatsDetailReducer(),
+                goalDetailReducer: GoalDetailReducer(
+                    proofPhotoReducer: ProofPhotoReducer()
+                ),
+                makeGoalReducer: MakeGoalReducer()
+            )
         }
 
         Reduce { state, action in
@@ -119,44 +139,95 @@ public struct MainTabReducer {
                     state.isTabBarHidden = !state.home.routes.isEmpty
                         || state.home.home.isCalendarSheetPresented
 
-                case .statistics, .couple, .settings:
+                case .statistics, .couple:
                     state.isTabBarHidden = false
                 }
                 return .none
 
+            case let .notificationDeepLinkReceived(deepLink):
+                state.selectedTab = .home
+                state.home.routes = []
+
+                let notificationIdString = deepLink.notificationId
+                let markAsReadEffect: Effect<Action> = .run { [notificationClient] _ in
+                    guard let notificationId = Int64(notificationIdString) else { return }
+                    try? await notificationClient.markAsRead(notificationId)
+                }
+
+                switch deepLink {
+                case let .poke(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+                    )
+
+                case let .goalCompleted(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .you, date: date)))
+                    )
+
+                case let .reaction(_, goalId, date):
+                    guard let id = Int64(goalId) else { return markAsReadEffect }
+                    return .merge(
+                        markAsReadEffect,
+                        .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+                    )
+
+                case .partnerConnected, .dailyGoalAchieved, .marketing:
+                    return markAsReadEffect
+
+                case .goalEnded:
+                    // TODO: 통계 탭 → 종료된 목표로 이동
+                    return markAsReadEffect
+                }
+
                 // MARK: - Child Action (Home)
             case .home(.delegate(.logoutCompleted)):
                 return .send(.delegate(.logoutCompleted))
-
+                
             case .home(.delegate(.withdrawCompleted)):
                 return .send(.delegate(.withdrawCompleted))
-
+                
             case .home(.delegate(.sessionExpired)):
                 return .send(.delegate(.sessionExpired))
 
-            case .home:
-                if state.selectedTab == .home {
-                    state.isTabBarHidden = !state.home.routes.isEmpty
-                        || state.home.home.isCalendarSheetPresented
+            case let .home(.delegate(.notificationItemTapped(item))):
+                guard let deepLinkString = item.deepLink,
+                      let url = URL(string: deepLinkString),
+                      let deepLink = NotificationDeepLink.parse(from: url) else {
+                    return .none
                 }
+
+                switch deepLink {
+                case let .poke(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+
+                case let .goalCompleted(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .you, date: date)))
+
+                case let .reaction(_, goalId, date):
+                    guard let id = Int64(goalId) else { return .none }
+                    return .send(.home(.navigateToGoalDetail(id: id, owner: .mySelf, date: date)))
+
+                case .partnerConnected, .dailyGoalAchieved, .marketing:
+                    return .none
+
+                case .goalEnded:
+                    // TODO: 통계 탭 → 종료된 목표로 이동
+                    return .none
+                }
+
+            case .home:
+                state.isTabBarHidden = !state.home.routes.isEmpty
                 return .none
-
-                // MARK: - Child Action (Settings)
-                // FIXME: 삭제 예정 - 설정 화면 진입점 확정 후 제거
-            case .settings(.delegate(.logoutCompleted)):
-                return .send(.delegate(.logoutCompleted))
-
-            case .settings(.delegate(.withdrawCompleted)):
-                return .send(.delegate(.withdrawCompleted))
-
-            case .settings(.delegate(.sessionExpired)):
-                return .send(.delegate(.sessionExpired))
-
-            case .settings(.delegate(.navigateBack)):
-                // 탭에서는 백버튼 동작 무시
-                return .none
-
-            case .settings:
+                
+            case .stats:
+                state.isTabBarHidden = !state.stats.routes.isEmpty
                 return .none
 
             case .delegate:

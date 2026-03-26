@@ -17,6 +17,9 @@ enum OnboardingEndpoint: Endpoint {
     /// 프로필 등록
     case registerProfile(nickname: String)
 
+    /// 프로필 수정
+    case updateProfile(nickname: String)
+
     /// 기념일 설정
     case setAnniversary(date: String)
 
@@ -39,7 +42,7 @@ enum OnboardingEndpoint: Endpoint {
         case .connectCouple:
             return "/api/v1/onboarding/couple-connection"
 
-        case .registerProfile:
+        case .registerProfile, .updateProfile:
             return "/api/v1/onboarding/profile"
 
         case .setAnniversary:
@@ -57,6 +60,9 @@ enum OnboardingEndpoint: Endpoint {
 
         case .connectCouple, .registerProfile, .setAnniversary:
             return .post
+
+        case .updateProfile:
+            return .patch
         }
     }
 
@@ -76,7 +82,7 @@ enum OnboardingEndpoint: Endpoint {
         case .connectCouple(let inviteCode):
             return CoupleConnectionRequest(inviteCode: inviteCode)
 
-        case .registerProfile(let nickname):
+        case .registerProfile(let nickname), .updateProfile(let nickname):
             return ProfileRequest(nickname: nickname)
 
         case .setAnniversary(let date):

@@ -73,7 +73,7 @@ public struct GoalDetail: Equatable {
             public let owner: Owner
             public var imageUrl: String?
             public var comment: String?
-            public var reaction: Goal.Reaction?
+            public var reaction: String?
             public let createdAt: String?
             
             
@@ -97,7 +97,7 @@ public struct GoalDetail: Equatable {
                 owner: Owner,
                 imageUrl: String?,
                 comment: String?,
-                reaction: Goal.Reaction?,
+                reaction: String?,
                 createdAt: String?
             ) {
                 self.goalId = goalId

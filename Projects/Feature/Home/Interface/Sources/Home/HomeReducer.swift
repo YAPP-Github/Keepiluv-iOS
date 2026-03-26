@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainGoalInterface
+import FeatureMakeGoalInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
@@ -43,6 +44,7 @@ public struct HomeReducer {
         public var calendarWeeks: [[TXCalendarDateItem]] = []
         public var calendarDate: TXCalendarDate = .init()
         public var calendarSheetDate: TXCalendarDate = .init()
+        public var goalsCache: [String: [GoalCardItem]] = [:]
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
         public var pendingDeleteGoalID: Int64?
@@ -54,17 +56,18 @@ public struct HomeReducer {
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
+        public var hasUnreadNotification: Bool = false
         
         public var goalSectionTitle: String {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
-            if TXCalendarUtil.isEarlier(calendarDate, than: today) {
-                return "지난 우리의 목표"
+            if calendarDate < today {
+                return "지난 우리 목표"
             }
-            if TXCalendarUtil.isEarlier(today, than: calendarDate) {
-                return "다음 우리의 목표"
+            if today < calendarDate {
+                return "다음 우리 목표"
             }
-            return "오늘 우리의 목표"
+            return "오늘 우리 목표"
         }
         
         public var proofPhoto: ProofPhotoReducer.State?
@@ -96,15 +99,16 @@ public struct HomeReducer {
         
         // MARK: - User Action
         case calendarDateSelected(TXCalendarDateItem)
+        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         case navigationBarAction(TXNavigationBar.Action)
         case monthCalendarConfirmTapped
         case goalCheckButtonTapped(id: Int64, isChecked: Bool)
         case modalConfirmTapped
         case yourCardTapped(GoalCardItem)
         case myCardTapped(GoalCardItem)
+        case headerTapped(GoalCardItem)
         case floatingButtonTapped
         case editButtonTapped
-        case weekCalendarSwipe(TXCalendar.SwipeGesture)
         
         // MARK: - Update State
         case fetchGoals
@@ -119,6 +123,7 @@ public struct HomeReducer {
         case fetchGoalsFailed
         case deletePhotoLogCompleted(goalId: Int64)
         case deletePhotoLogFailed
+        case fetchUnreadResponse(Bool)
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -126,9 +131,11 @@ public struct HomeReducer {
         /// 홈 화면에서 외부로 전달하는 이벤트입니다.
         public enum Delegate {
             case goToGoalDetail(id: Int64, owner: GoalDetail.Owner, verificationDate: String)
+            case goToStatsDetail(id: Int64)
             case goToMakeGoal(GoalCategory)
             case goToEditGoalList(date: TXCalendarDate)
             case goToSettings
+            case goToNotification
         }
     }
     

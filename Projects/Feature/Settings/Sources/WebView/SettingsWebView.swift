@@ -29,9 +29,9 @@ struct SettingsWebView: View {
     }
 
     private var navigationBar: some View {
-        TXNavigationBar(style: .subTitle(title: title, rightText: "")) { action in
+        TXNavigationBar(style: .subTitle(title: title, type: .back)) { action in
             if action == .backTapped {
-                store.send(.popRoute)
+                store.send(.subViewBackButtonTapped)
             }
         }
     }
