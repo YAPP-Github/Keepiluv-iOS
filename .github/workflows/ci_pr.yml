@@ -3,8 +3,12 @@ name: Fastlane CI (PR)
 on:
   pull_request:
 
+concurrency:
+  group: ci-pr-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  ci_pr:
+  build:
     runs-on: macos-15
     steps:
       - name: 🔄 Checkout source code
@@ -15,7 +19,14 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          install-swiftlint: "true"
+
+      - name: 📦 Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('Tuist/Package.resolved') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
 
       - name: 🧪 Run PR Checks (build + test)
         env:
