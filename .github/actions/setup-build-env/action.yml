@@ -12,6 +12,10 @@ inputs:
     description: "Whether to include Pulse in cache (false for production builds)"
     required: false
     default: "true"
+  skip-spm-cache:
+    description: "Skip SPM cache for release builds to avoid simulator artifacts"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -58,6 +62,7 @@ runs:
 
     - name: 📦 Cache SPM dependencies
       id: spm-cache
+      if: inputs.skip-spm-cache != 'true'
       uses: actions/cache@v4
       with:
         path: Tuist/.build
@@ -66,25 +71,27 @@ runs:
           tuist-spm-${{ runner.os }}-
 
     - name: 🛠 Install tuist dependencies
-      if: steps.spm-cache.outputs.cache-hit != 'true'
+      if: inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true'
       shell: bash
       run: tuist install
 
     - name: 📊 SPM cache status
       shell: bash
       run: |
-        if [ "${{ steps.spm-cache.outputs.cache-hit }}" == "true" ]; then
+        if [ "${{ inputs.skip-spm-cache }}" == "true" ]; then
+          echo "⏭️ SPM cache SKIPPED (release build)"
+        elif [ "${{ steps.spm-cache.outputs.cache-hit }}" == "true" ]; then
           echo "✅ SPM cache HIT - skipping tuist cache warm up"
         else
           echo "❌ SPM cache MISS - will build dependencies"
         fi
 
     - name: 🏗 Warm up external dependencies (with Pulse)
-      if: steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse == 'true'
+      if: (inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true') && inputs.include-pulse == 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
 
     - name: 🏗 Warm up external dependencies (without Pulse)
-      if: steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse != 'true'
+      if: (inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true') && inputs.include-pulse != 'true'
       shell: bash
       run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
