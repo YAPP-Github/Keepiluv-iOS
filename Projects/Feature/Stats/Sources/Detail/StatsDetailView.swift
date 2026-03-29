@@ -19,17 +19,20 @@ struct StatsDetailView: View {
     var body: some View {
         VStack(spacing: 0) {
             navigationBar
+            
             ScrollView {
-                monthNavigation
-                    .padding(.top, 32)
-                calendar
-                    .padding(.top, 12)
-                statsInfoContent
-                    .padding(.top, 44)
-                
-                Spacer()
+                VStack(spacing: 0) {
+                    monthNavigation
+                        .padding(.top, 24)
+                    calendar
+                        .padding(.top, 12)
+                    statsInfoContent
+                        .padding(.top, 44)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
         }
         .background(Color.Gray.gray50)
         .overlay {
@@ -98,12 +101,19 @@ private extension StatsDetailView {
     }
     
     var calendar: some View {
+        // FIXME: - 피그마 컴포넌트에 있는 Calendar랑 값이 다른 부분이 좀 있어서 리팩터링할 때 참고 바람
         TXCalendar(
             mode: .monthly,
             weeks: store.monthlyData,
             canMovePrevious: !store.previousMonthDisabled,
             canMoveNext: !store.nextMonthDisabled,
             config: .init(
+                monthlyHorizontalPadding: 12,
+                verticalPadding: 0,
+                monthlyHeaderSpacing: 16,
+                monthlyRowSpacing: 20,
+                weekdayHeight: 24,
+                dateStyle: .init(size: 44),
                 dateCellBackground: { item in
                     guard let completedDate = completedDate(for: item) else { return nil }
                     
@@ -124,7 +134,8 @@ private extension StatsDetailView {
                 store.send(.calendarSwiped(swipe))
             }
         )
-            .padding(.vertical, 24)
+            .padding(.top, 24)
+            .padding(.bottom, 32)
             .background(Color.Common.white)
             .insideBorder(
                 Color.Gray.gray500,
@@ -205,7 +216,7 @@ private extension StatsDetailView {
                let partnerImageUrl {
                 ZStack {
                     RoundedRectangle(cornerRadius: 7)
-                        .fill(Color.Common.white)
+                        .fill(Color.Dimmed.dimmed20)
                         .insideBorder(
                             Color.Gray.gray500,
                             shape: RoundedRectangle(cornerRadius: 7),
@@ -227,6 +238,7 @@ private extension StatsDetailView {
                     .clipShape(RoundedRectangle(cornerRadius: 7))
             }
         }
+        .frame(width: 36, height: 36)
         .insideBorder(
             bothCompleted ? Color.Common.white : Color.Gray.gray500,
             shape: RoundedRectangle(cornerRadius: 7),
