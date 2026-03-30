@@ -40,6 +40,7 @@ public struct TXCalendar: View {
         let weeklyBottomPadding: CGFloat
         let monthlyHeaderSpacing: CGFloat
         let monthlyRowSpacing: CGFloat
+        let weekdayHeight: CGFloat
         let weekdayTypography: TypographyToken
         let weekdayColor: Color
         let backgroundColor: Color
@@ -55,6 +56,7 @@ public struct TXCalendar: View {
             weeklyBottomPadding: CGFloat = Spacing.spacing5,
             monthlyHeaderSpacing: CGFloat = Spacing.spacing8,
             monthlyRowSpacing: CGFloat = Spacing.spacing6,
+            weekdayHeight: CGFloat = 18,
             weekdayTypography: TypographyToken = .c1_12r,
             weekdayColor: Color = Color.Gray.gray300,
             backgroundColor: Color = Color.Common.white,
@@ -68,6 +70,7 @@ public struct TXCalendar: View {
             self.weeklyBottomPadding = weeklyBottomPadding
             self.monthlyHeaderSpacing = monthlyHeaderSpacing
             self.monthlyRowSpacing = monthlyRowSpacing
+            self.weekdayHeight = weekdayHeight
             self.weekdayTypography = weekdayTypography
             self.weekdayColor = weekdayColor
             self.backgroundColor = backgroundColor
@@ -208,7 +211,7 @@ private extension TXCalendar {
                     Text(weeklyHeaderTitle(index: index, item: item))
                         .typography(config.weekdayTypography)
                         .foregroundStyle(config.weekdayColor)
-                        .frame(width: config.dateStyle.size)
+                        .frame(width: config.dateStyle.size, height: config.weekdayHeight)
                 }
 
             case .monthly:
@@ -216,7 +219,7 @@ private extension TXCalendar {
                     Text(weekday)
                         .typography(config.weekdayTypography)
                         .foregroundStyle(config.weekdayColor)
-                        .frame(width: config.dateStyle.size)
+                        .frame(width: config.dateStyle.size, height: config.weekdayHeight)
                 }
             }
         }
@@ -278,8 +281,7 @@ private extension TXCalendar {
     }
 
     var contentHeight: CGFloat {
-        let headerHeight = TXCalendarLayout.weekdayLabelHeight(config.weekdayTypography)
-        let headerSectionHeight = headerHeight + headerSpacing
+        let headerSectionHeight = config.weekdayHeight + headerSpacing
         let verticalPadding: CGFloat = config.verticalPadding * 2
 
         switch mode {

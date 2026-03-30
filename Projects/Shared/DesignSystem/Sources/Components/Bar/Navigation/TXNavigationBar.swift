@@ -113,10 +113,24 @@ private extension TXNavigationBar {
     func subContent(_ subContent: Style.SubContent) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TXRectangleButton(
-                    config: .blankLeftBack(),
-                    action: { onAction?(.backTapped) }
-                )
+                // FIXME: - 컴포넌트 리팩터링 후 TXRectangleButton 적용
+                Button {
+                    onAction?(.backTapped)
+                } label: {
+                    Image.Icon.Symbol.arrow3Left
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: style.iconSize.width, height: style.iconSize.height)
+                        .foregroundStyle(style.iconForegroundColor)
+                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                        .background(subContent.backgroundColor)
+                        .insideRectEdgeBorder(
+                            width: style.borderWidth,
+                            edges: [.top, .bottom, .trailing],
+                            color: style.borderColor
+                        )
+                }
+                .buttonStyle(.plain)
 
                 Spacer()
 
