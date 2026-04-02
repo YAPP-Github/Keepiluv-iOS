@@ -42,7 +42,6 @@ extension StatsCoordinator {
                 state.routes.append(.goalDetail)
                 state.goalDetail = .init(
                     currentUser: isCompletedPartner ? .you : .mySelf,
-                    entryPoint: .stats,
                     id: goalId,
                     verificationDate: date
                 )
