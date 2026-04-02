@@ -27,16 +27,38 @@ public struct OnboardingCodeInputView: View {
                 }
             }
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    titleSection
-                        .padding(.horizontal, Spacing.spacing9)
-                        .padding(.bottom, 92)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        titleSection
+                            .padding(.horizontal, Spacing.spacing9)
+                            .padding(.top, Spacing.spacing5)
+                            .padding(.bottom, 92)
 
-                    bodyContent
+                        bodyContent
+                    }
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .overlay(alignment: .top) {
+                    LinearGradient(
+                        colors: [Color.Common.white, Color.Common.white.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: Spacing.spacing9)
+                    .allowsHitTesting(false)
+                }
+                .onChange(of: isTextFieldFocused) { _, focused in
+                    if focused {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                proxy.scrollTo("receivedCodeSection", anchor: .bottom)
+                                print("gg")
+                            }
+                        }
+                    }
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
 
             Spacer()
 
@@ -131,6 +153,7 @@ private extension OnboardingCodeInputView {
             codeInputFields
                 .padding(.horizontal, Spacing.spacing12)
         }
+        .id("receivedCodeSection")
     }
 
     /// Figma: justify-between for 8 cells
