@@ -95,10 +95,9 @@ private extension AuthView {
     var titleView: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("함께니까 멈추지 않아요.")
-                .typography(.h3_22eb)
             Text("지금 바로 키피럽 시작하기!")
-                .typography(.h3_22eb)
         }
+        .typography(.h3_22eb)
         .foregroundStyle(Color.Gray.gray500)
     }
 
@@ -160,7 +159,7 @@ private extension AuthView {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(Color.Gray.gray200, lineWidth: 1)
+                    .stroke(Color.Gray.gray200, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
