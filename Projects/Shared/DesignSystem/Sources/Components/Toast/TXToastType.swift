@@ -76,10 +76,12 @@ public extension TXToastType {
 
     var position: TXToastPosition {
         switch self {
-        case .fit, .delete, .poke, .success, .warning, .check:
+        case .fit:
+            return .top
+        case .delete, .poke, .success, .warning, .check:
             return .bottom
         }
     }
 
-    var duration: TimeInterval? { 2.0 }
+    var duration: TimeInterval? { 3.0 }
 }
