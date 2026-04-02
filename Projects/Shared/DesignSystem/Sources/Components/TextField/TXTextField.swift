@@ -113,11 +113,13 @@ private extension TXTextField {
                     .focused(isFocused)
                     .submitLabel(submitLabel)
                     .tint(tintColor)
+                    .foregroundStyle(Color.Gray.gray500)
             } else {
                 TextField("", text: $text)
                     .typography(.t2_16b)
                     .submitLabel(submitLabel)
                     .tint(tintColor)
+                    .foregroundStyle(Color.Gray.gray500)
             }
         }
         .padding(.leading, Spacing.spacing5)

@@ -44,7 +44,7 @@ private extension OnboardingConnectView {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(height: geometry.size.height * 0.22)
+                    .frame(height: max(0, geometry.size.height / 2 - 232))
 
                 illustrationSection
                     .frame(maxWidth: .infinity)
@@ -118,7 +118,7 @@ private extension OnboardingConnectView {
         Image.Illustration.invite
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: 300, height: 300)
+            .frame(width: 320, height: 320)
     }
 
     var buttonSection: some View {
@@ -155,10 +155,6 @@ private extension OnboardingConnectView {
                         .foregroundStyle(Color.Gray.gray400)
                     
                     Text("직접 연결하기").typography(.t2_16b)
-//                    HStack(spacing: 0) {
-//                        Text("직접 ").typography(.t2_16eb)
-//                        Text("연결하기").typography(.t2_16b)
-//                    }.foregroundStyle(Color.Gray.gray500)
                 }
 
                 Spacer()
@@ -245,7 +241,7 @@ private extension OnboardingConnectView {
     }
 
     func bulletItem(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: Spacing.spacing2) {
+        HStack(alignment: .top, spacing: Spacing.spacing4) {
             Text("•")
                 .typography(.b4_12b)
                 .foregroundStyle(Color.Gray.gray300)
