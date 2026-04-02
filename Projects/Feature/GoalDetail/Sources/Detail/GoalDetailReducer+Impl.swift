@@ -15,7 +15,6 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
-import SharedUtil
 
 private enum PokeCooldownManager {
     private static let userDefaultsKey = "pokeCooldownTimestamps"
@@ -146,14 +145,9 @@ extension GoalDetailReducer {
                     }
                 )
                 
-            case .cardSwipeLeft:
-                state.currentUser = state.entryPoint == .home ? .mySelf : .you
-                state.commentText = state.comment
-                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
-                
-            case .cardSwipeRight:
-                state.currentUser = state.entryPoint == .home ? .you : .mySelf
+            case .cardSwiped:
+                state.isSwapped.toggle()
+                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
                 return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))

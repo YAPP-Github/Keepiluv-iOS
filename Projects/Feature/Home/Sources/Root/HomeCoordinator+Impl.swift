@@ -33,7 +33,6 @@ extension HomeCoordinator {
                 state.routes.append(.detail)
                 state.goalDetail = .init(
                     currentUser: owner,
-                    entryPoint: .home,
                     id: id,
                     verificationDate: verificationDate
                 )
@@ -173,7 +172,6 @@ extension HomeCoordinator {
                 state.routes.append(.detail)
                 state.goalDetail = .init(
                     currentUser: owner,
-                    entryPoint: .stats,
                     id: id,
                     verificationDate: date
                 )
