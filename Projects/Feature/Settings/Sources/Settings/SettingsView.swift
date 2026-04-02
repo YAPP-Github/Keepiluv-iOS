@@ -35,7 +35,7 @@ public struct SettingsView: View {
                     settingsListSection
                         .padding(.horizontal, Spacing.spacing8)
                 }
-                .padding(.top, Spacing.spacing9)
+                .padding(.top, Spacing.spacing8)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
