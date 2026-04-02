@@ -29,6 +29,7 @@ public struct OnboardingDdayView: View {
                 VStack(spacing: 0) {
                     titleSection
                         .padding(.horizontal, Spacing.spacing9)
+                        .padding(.top, Spacing.spacing5)
                         .padding(.bottom, 32)
 
                     dateSelectorSection
