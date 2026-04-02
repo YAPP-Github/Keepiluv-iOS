@@ -111,45 +111,42 @@ private extension TXNavigationBar {
 
     @ViewBuilder
     func subContent(_ subContent: Style.SubContent) -> some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                // FIXME: - 컴포넌트 리팩터링 후 TXRectangleButton 적용
-                Button {
-                    onAction?(.backTapped)
-                } label: {
-                    Image.Icon.Symbol.arrow3Left
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: style.iconSize.width, height: style.iconSize.height)
-                        .foregroundStyle(style.iconForegroundColor)
-                        .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
-                        .background(subContent.backgroundColor)
-                        .insideRectEdgeBorder(
-                            width: style.borderWidth,
-                            edges: [.top, .bottom, .trailing],
-                            color: style.borderColor
-                        )
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Text(subContent.title)
-                    .typography(style.titleFont)
-                    .foregroundStyle(style.foregroundColor)
-
-                Spacer()
-
-                subContentRightArea(subContent.rightContent, backgroundColor: subContent.backgroundColor)
+        HStack(spacing: 0) {
+            // FIXME: - 컴포넌트 리팩터링 후 TXRectangleButton 적용
+            Button {
+                onAction?(.backTapped)
+            } label: {
+                Image.Icon.Symbol.arrow3Left
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: style.iconSize.width, height: style.iconSize.height)
+                    .foregroundStyle(style.iconForegroundColor)
+                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
+                    .background(subContent.backgroundColor)
+                    .insideRectEdgeBorder(
+                        width: style.borderWidth,
+                        edges: [.top, .bottom, .trailing],
+                        color: style.borderColor
+                    )
             }
-            .frame(height: 60)
-            .insideRectEdgeBorder(
-                width: style.borderWidth,
-                edges: [.top, .bottom],
-                color: style.borderColor
-            )
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            Text(subContent.title)
+                .typography(style.titleFont)
+                .foregroundStyle(style.foregroundColor)
+
+            Spacer()
+
+            subContentRightArea(subContent.rightContent, backgroundColor: subContent.backgroundColor)
         }
-        .padding(.vertical, 20)
+        .frame(height: 60)
+        .insideRectEdgeBorder(
+            width: style.borderWidth,
+            edges: [.top, .bottom],
+            color: style.borderColor
+        )
     }
 
     @ViewBuilder
@@ -302,30 +299,27 @@ private extension TXNavigationBar {
 // MARK: - SubTitle Style
 private extension TXNavigationBar {
     func subTitleContent(title: String, type: SubTitleType) -> some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                // 왼쪽 영역
-                subTitleLeftArea(type: type)
+        HStack(spacing: 0) {
+            // 왼쪽 영역
+            subTitleLeftArea(type: type)
 
-                Spacer()
+            Spacer()
 
-                Text(title)
-                    .typography(style.titleFont)
-                    .foregroundStyle(style.foregroundColor)
+            Text(title)
+                .typography(style.titleFont)
+                .foregroundStyle(style.foregroundColor)
 
-                Spacer()
+            Spacer()
 
-                // 오른쪽 영역
-                subTitleRightArea(type: type)
-            }
-            .frame(height: 60)
-            .insideRectEdgeBorder(
-                width: style.borderWidth,
-                edges: [.top, .bottom],
-                color: style.borderColor
-            )
+            // 오른쪽 영역
+            subTitleRightArea(type: type)
         }
-        .padding(.vertical, 20)
+        .frame(height: 60)
+        .insideRectEdgeBorder(
+            width: style.borderWidth,
+            edges: [.top, .bottom],
+            color: style.borderColor
+        )
     }
 
     @ViewBuilder
