@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import DomainOnboardingInterface
 import Foundation
 
 /// 커플 연결 온보딩 화면을 관리하는 Reducer입니다.
@@ -21,6 +22,9 @@ import Foundation
 /// ```
 @Reducer
 public struct OnboardingConnectReducer {
+    @Dependency(\.onboardingClient)
+    private var onboardingClient
+
     @ObservableState
     public struct State: Equatable {
         var isShareSheetPresented: Bool = false
