@@ -212,14 +212,22 @@ struct AppCoordinator {
                 return .send(.route(.mainTab(.notificationDeepLinkReceived(deepLink))))
 
             case .route(.auth(.delegate(.loginSucceeded))):
-                return .run { [onboardingClient] send in
-                    do {
-                        let status = try await onboardingClient.fetchStatus()
-                        await send(.checkOnboardingStatusResult(.success(status)))
-                    } catch {
-                        await send(.checkOnboardingStatusResult(.failure(error)))
-                    }
-                }
+                return .merge(
+                    // 1. 온보딩 상태 체크
+                    .run { [onboardingClient] send in
+                        do {
+                            let status = try await onboardingClient.fetchStatus()
+                            await send(.checkOnboardingStatusResult(.success(status)))
+                        } catch {
+                            await send(.checkOnboardingStatusResult(.failure(error)))
+                        }
+                    },
+                    // 2. FCM 토큰 조기 등록 (온보딩 중 푸시 수신을 위해)
+                    registerFCMTokenEffect(
+                        pushClient: pushClient,
+                        notificationClient: notificationClient
+                    )
+                )
 
             case let .route(.onboarding(.delegate(.onboardingCompleted(isPushEnabled, isMarketingEnabled, isNightEnabled)))):
                 state.route = .mainTab(MainTabReducer.State())
@@ -303,13 +311,8 @@ private func registerFCMTokenEffect(
         // 1. 현재 권한 상태 확인
         let settings = await UNUserNotificationCenter.current().notificationSettings()
 
-        // 2. 권한이 없으면 요청
-        if settings.authorizationStatus == .notDetermined {
-            let granted = (try? await pushClient.requestAuthorization()) ?? false
-            if !granted { return }
-        } else if settings.authorizationStatus == .denied {
-            return
-        }
+        // 이미 권한이 허용된 경우에만 등록 (notDetermined/denied는 온보딩 완료 시점에서 처리)
+        guard settings.authorizationStatus == .authorized else { return }
 
         // 3. APNS 등록 및 FCM 토큰 획득
         await pushClient.registerForRemoteNotifications()
