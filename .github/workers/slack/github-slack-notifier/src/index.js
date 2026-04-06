@@ -148,7 +148,7 @@ function buildPullRequestMessage(body, env) {
 						type: "mrkdwn",
 						text:
 							`${reviewerText} 리뷰 요청이 왔어요! :eyes: *#${pr.number}*\n` +
-							`> <${pr.html_url}|${pr.title}>`,
+							`> <${pr.html_url}|${escapeSlackText(pr.title)}>`,
 					},
 				},
 			],
@@ -258,6 +258,14 @@ async function verifyGitHubSignature(rawBody, signatureHeader, secret) {
 		.join("");
 
 	return timingSafeEqual(expected, signatureHeader);
+}
+
+function escapeSlackText(text) {
+	return String(text ?? "")
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/\|/g, "｜");
 }
 
 function timingSafeEqual(a, b) {
