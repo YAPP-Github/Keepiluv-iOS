@@ -96,7 +96,9 @@ private extension TwixApp {
     /// 초대 코드 딥링크 파싱
     /// - URL 형식: twix://invite?code=xxx 또는 https://xxx/invite?code=xxx
     func parseInviteCode(from url: URL) -> String? {
-        guard url.path == "/invite" || url.path == "invite",
+        // twix://invite?code=xxx → host: "invite", path: ""
+        // https://host/invite?code=xxx → path: "/invite"
+        guard url.host == "invite" || url.path == "/invite",
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let code = components.queryItems?.first(where: { $0.name == "code" })?.value,
               !code.isEmpty else {

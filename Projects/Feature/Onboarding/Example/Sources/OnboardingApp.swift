@@ -43,10 +43,7 @@ struct OnboardingApp: App {
 // MARK: - Deep Link Parsing
 
 private func parseInviteCode(from url: URL) -> String? {
-    guard let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String,
-          let host = url.host,
-          host.contains(deeplinkHost),
-          url.path == "/invite",
+    guard url.path == "/invite" || url.path == "invite",
           let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
           let code = components.queryItems?.first(where: { $0.name == "code" })?.value,
           !code.isEmpty else {
