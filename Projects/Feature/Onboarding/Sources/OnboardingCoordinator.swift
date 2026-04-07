@@ -28,6 +28,12 @@ public struct OnboardingCoordinator {
     private var onboardingClient
     @Dependency(\.pushClient)
     private var pushClient
+    @Dependency(\.continuousClock)
+    private var clock
+
+    private enum CancelID {
+        case couplePolling
+    }
 
     @ObservableState
     public struct State: Equatable {
@@ -40,6 +46,7 @@ public struct OnboardingCoordinator {
         var pendingReceivedCode: String?
         var isLoadingInviteCode: Bool = false
         var initialStatus: OnboardingStatus
+        var isCouplePolling: Bool = false
 
         // MARK: - Notification Permission
         var isNotificationModalPresented: Bool = false
@@ -93,6 +100,12 @@ public struct OnboardingCoordinator {
         // MARK: - Navigation
         case navigateToCodeInputWithCode(myInviteCode: String, receivedCode: String)
 
+        // MARK: - Couple Polling (커플 연결 대기 중 상태 확인)
+        case startCouplePolling
+        case stopCouplePolling
+        case couplePollingTick
+        case couplePollingResult(Result<OnboardingStatus, Error>)
+
         // MARK: - Deep Link
         case deepLinkReceived(code: String)
 
@@ -133,27 +146,76 @@ public struct OnboardingCoordinator {
 
             // MARK: - LifeCycle
             case .onAppear:
+                // 커플 연결 단계가 아니면 폴링 불필요
+                guard state.initialStatus == .coupleConnection else { return .none }
+
+                var effects: [Effect<Action>] = [.send(.startCouplePolling)]
+
                 // 초대 코드가 비어있으면 API 호출
                 if state.myInviteCode.isEmpty {
                     state.isLoadingInviteCode = true
-                    return .run { send in
+                    effects.append(.run { send in
                         do {
                             let inviteCode = try await onboardingClient.fetchInviteCode()
                             await send(.fetchInviteCodeResponse(.success(inviteCode)))
                         } catch {
                             await send(.fetchInviteCodeResponse(.failure(error)))
                         }
-                    }
+                    })
                 }
 
                 // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
                 if let code = state.pendingReceivedCode {
                     state.pendingReceivedCode = nil
-                    return .send(.navigateToCodeInputWithCode(
+                    effects.append(.send(.navigateToCodeInputWithCode(
                         myInviteCode: state.myInviteCode,
                         receivedCode: code
-                    ))
+                    )))
                 }
+
+                return .merge(effects)
+
+            // MARK: - Couple Polling
+            case .startCouplePolling:
+                guard !state.isCouplePolling else { return .none }
+                state.isCouplePolling = true
+                return .run { [clock] send in
+                    for await _ in clock.timer(interval: .seconds(3)) {
+                        await send(.couplePollingTick)
+                    }
+                }
+                .cancellable(id: CancelID.couplePolling, cancelInFlight: true)
+
+            case .stopCouplePolling:
+                state.isCouplePolling = false
+                return .cancel(id: CancelID.couplePolling)
+
+            case .couplePollingTick:
+                return .run { [onboardingClient] send in
+                    do {
+                        let status = try await onboardingClient.fetchStatus()
+                        await send(.couplePollingResult(.success(status)))
+                    } catch {
+                        await send(.couplePollingResult(.failure(error)))
+                    }
+                }
+
+            case let .couplePollingResult(.success(status)):
+                switch status {
+                case .profileSetup, .anniversarySetup, .completed:
+                    // 상대방이 연결 완료 → 폴링 중단 후 Profile로 이동
+                    state.isCouplePolling = false
+                    state.profile = OnboardingProfileReducer.State()
+                    state.routes.removeAll(where: { $0 == .codeInput })
+                    state.routes.append(.profile)
+                    return .cancel(id: CancelID.couplePolling)
+
+                case .coupleConnection:
+                    return .none
+                }
+
+            case .couplePollingResult(.failure):
+                // 에러 발생 시 다음 틱에서 재시도
                 return .none
 
             // MARK: - API Response
@@ -203,7 +265,11 @@ public struct OnboardingCoordinator {
 
             // MARK: - Connect Delegate
             case .connect(.delegate(.logoutRequested)):
-                return .send(.delegate(.logoutRequested))
+                state.isCouplePolling = false
+                return .merge(
+                    .cancel(id: CancelID.couplePolling),
+                    .send(.delegate(.logoutRequested))
+                )
 
             case .connect(.delegate(.navigateToCodeInput)):
                 state.codeInput = OnboardingCodeInputReducer.State(
@@ -224,9 +290,11 @@ public struct OnboardingCoordinator {
                 return .none
 
             case .codeInput(.delegate(.coupleConnected)):
+                // 사용자가 직접 코드 입력으로 연결 → 폴링 중단 후 Profile로 이동
+                state.isCouplePolling = false
                 state.profile = OnboardingProfileReducer.State()
                 state.routes.append(.profile)
-                return .none
+                return .cancel(id: CancelID.couplePolling)
 
             case .codeInput:
                 return .none
