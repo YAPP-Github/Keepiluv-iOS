@@ -164,8 +164,9 @@ public struct OnboardingCoordinator {
                     })
                 }
 
-                // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
-                if let code = state.pendingReceivedCode {
+                // 딥링크로 받은 코드가 있고 내 초대 코드도 준비된 경우에만 이동
+                // myInviteCode가 비어있으면 fetchInviteCodeResponse에서 처리
+                if let code = state.pendingReceivedCode, !state.myInviteCode.isEmpty {
                     state.pendingReceivedCode = nil
                     effects.append(.send(.navigateToCodeInputWithCode(
                         myInviteCode: state.myInviteCode,
@@ -224,7 +225,16 @@ public struct OnboardingCoordinator {
                 state.myInviteCode = inviteCode
                 state.connect.myInviteCode = inviteCode
                 if let deeplinkHost = Bundle.main.object(forInfoDictionaryKey: "DEEPLINK_HOST") as? String {
-                    state.connect.shareContent = "https://\(deeplinkHost)/invite?code=\(inviteCode)"
+                    state.connect.shareContent = """
+                    [키피럽 함께 시작해요]
+                    함께 시작하고 일상 속 시너지를!
+
+                    1. '키피럽'을 설치해 주세요. [스토어 링크]
+                    2. 회원가입을 해 주세요.
+                    3. 아래 링크를 통해 연결하거나, 연결 코드를 메이트과 공유하세요!
+
+                    https://\(deeplinkHost)/invite?code=\(inviteCode)
+                    """
                 }
 
                 // 딥링크로 받은 코드가 있으면 CodeInput으로 이동
@@ -254,13 +264,18 @@ public struct OnboardingCoordinator {
             // MARK: - Deep Link
             case let .deepLinkReceived(code):
                 state.routes.removeAll()
-                state.codeInput = OnboardingCodeInputReducer.State(
-                    myInviteCode: state.myInviteCode,
-                    receivedCode: code
-                )
                 state.profile = nil
                 state.dday = nil
-                state.routes.append(.codeInput)
+
+                if state.myInviteCode.isEmpty {
+                    state.pendingReceivedCode = code
+                } else {
+                    state.codeInput = OnboardingCodeInputReducer.State(
+                        myInviteCode: state.myInviteCode,
+                        receivedCode: code
+                    )
+                    state.routes.append(.codeInput)
+                }
                 return .none
 
             // MARK: - Connect Delegate
