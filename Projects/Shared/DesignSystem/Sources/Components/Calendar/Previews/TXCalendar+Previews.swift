@@ -77,16 +77,22 @@ private struct CalendarSheetCustomButtonPreview: View {
             isPresented: $showCalendar,
             selectedDate: $selectedDate
         ) { exitPickerModeIfNeeded in
-            TXRoundedRectangleGroupButton(
-                config: .modal(leftText: "버튼 이름", rightText: "완료"),
-                layout: .calendarSheet,
-                actionLeft: { showCalendar = false },
-                actionRight: {
-                    if !exitPickerModeIfNeeded() {
-                        showCalendar = false
+            HStack(spacing: Spacing.spacing5) {
+                TXButton(
+                    shape: .rect(style: .basic(text: "버튼 이름"), size: .l, state: .line),
+                    onTap: { showCalendar = false }
+                )
+                
+                TXButton(
+                    shape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
+                    onTap: {
+                        if !exitPickerModeIfNeeded() {
+                            showCalendar = false
+                        }
                     }
-                }
-            )
+                )
+            }
+            .padding(.horizontal, Spacing.spacing8)
         }
     }
 }

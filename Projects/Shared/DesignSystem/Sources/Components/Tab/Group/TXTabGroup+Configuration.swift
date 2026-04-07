@@ -10,13 +10,13 @@ import SwiftUI
 public extension TXTabGroup.Configuration {
     static func period(
         items: [String] = ["매일", "매주", "매월"],
-        selectedColorStyle: ColorStyle = .black,
-        unselectedColorStyle: ColorStyle = .white
+        selectedState: TXButtonShape.TXRectState = .standard,
+        unselectedState: TXButtonShape.TXRectState = .line
     ) -> Self {
         .init(
             items: items,
-            selectedColorStyle: selectedColorStyle,
-            unselectedColorStyle: unselectedColorStyle
+            selectedState: selectedState,
+            unselectedState: unselectedState
         )
     }
 }

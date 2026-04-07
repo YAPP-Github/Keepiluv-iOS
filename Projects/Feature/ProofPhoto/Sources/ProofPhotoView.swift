@@ -193,9 +193,20 @@ private extension ProofPhotoView {
         HStack(spacing: 52) {
             galleryButton
             captureButton
-            TXCircleButton(config: .cameraChange()) {
-                store.send(.switchButtonTapped)
-            }
+            TXButton(
+                shape: .circle(
+                    style: .basic(icon: Image.Icon.Symbol.turn),
+                    size: .custom(
+                        frameSize: .init(width: 56, height: 56),
+                        iconSize: .init(width: 24, height: 24)
+                    ),
+                    state: .custom(
+                        foregroundColor: Color.Common.white,
+                        backgroundColor: Color.Gray.gray400
+                    )
+                ),
+                onTap: { store.send(.switchButtonTapped) }
+            )
         }
     }
     
@@ -212,12 +223,14 @@ private extension ProofPhotoView {
                     .frame(width: 50, height: 50)
             }
             
-            TXShadowButton(
-                config: .medium(text: "업로드"),
-                colorStyle: .black
-            ) {
-                store.send(.uploadButtonTapped)
-            }
+            TXButton(
+                shape: .round(
+                    style: .lillustDark(text: "업로드"),
+                    size: .m,
+                    state: .standard
+                ),
+                onTap: { store.send(.uploadButtonTapped) }
+            )
             
             Color.clear
                 .frame(width: 50)

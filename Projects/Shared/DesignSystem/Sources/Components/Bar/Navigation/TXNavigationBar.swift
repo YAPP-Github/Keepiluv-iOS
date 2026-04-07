@@ -326,9 +326,14 @@ private extension TXNavigationBar {
     func subTitleLeftArea(type: SubTitleType) -> some View {
         switch type {
         case .back:
-            TXRectangleButton(
-                config: .blankLeftBack(),
-                action: { onAction?(.backTapped) }
+            TXButton(
+                shape: .square(
+                    style: .lineIcon(icon: Image.Icon.Symbol.arrow3Left),
+                    size: .m,
+                    state: .standard,
+                    edges: [.top, .bottom, .trailing]
+                ),
+                onTap: { onAction?(.backTapped) }
             )
         case .close:
             Color.Common.white
@@ -353,22 +358,15 @@ private extension TXNavigationBar {
                     color: style.borderColor
                 )
         case .close:
-            Button {
-                onAction?(.closeTapped)
-            } label: {
-                Image.Icon.Symbol.closeM
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: style.iconSize.width, height: style.iconSize.height)
-                    .foregroundStyle(style.iconForegroundColor)
-                    .frame(width: style.actionButtonSize.width, height: style.actionButtonSize.height)
-                    .insideRectEdgeBorder(
-                        width: style.borderWidth,
-                        edges: [.top, .bottom, .leading],
-                        color: style.borderColor
-                    )
-            }
-            .buttonStyle(.plain)
+            TXButton(
+                shape: .square(
+                    style: .lineIcon(icon: Image.Icon.Symbol.closeM),
+                    size: .m,
+                    state: .standard,
+                    edges: [.top, .bottom, .leading]
+                ),
+                onTap: { onAction?(.closeTapped) }
+            )
         }
     }
 }

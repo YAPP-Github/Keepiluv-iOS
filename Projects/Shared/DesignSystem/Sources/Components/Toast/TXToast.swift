@@ -70,9 +70,18 @@ private extension TXToast {
             fixedContentView
 
             if showButton {
-                TXRoundedRectangleButton(
-                    config: .small(text: "자세히", colorStyle: .gray300),
-                    action: { onButtonTap?() }
+                TXButton(
+                    shape: .rect(
+                        style: .basic(text: "자세히"),
+                        size: .s,
+                        state: .custom(
+                            foregroundColor: Color.Common.white,
+                            backgroundColor: Color.Gray.gray300,
+                            borderColor: Color.Gray.gray500,
+                            borderWidth: LineWidth.m
+                        )
+                    ),
+                    onTap: { onButtonTap?() }
                 )
             }
         }

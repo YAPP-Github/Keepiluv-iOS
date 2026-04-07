@@ -38,9 +38,7 @@ public struct MakeGoalView: View {
             }
             .scrollIndicators(.hidden)
 
-            // FIXME: - DS Component에 padding default로 수정하기
             completeButton
-                .padding(.vertical, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 20)
@@ -110,13 +108,19 @@ private extension MakeGoalView {
             )
             .onTapGesture { store.send(.emojiButtonTapped) }
             .overlay(alignment: .bottomTrailing) {
-                TXCircleButton(
-                    config: .init(
-                        image: Image.Icon.Symbol.turn,
-                        frameSize: .init(width: 28, height: 28),
-                        imageSize: .init(width: 16, height: 16),
-                        colorStyle: .white
-                    ), action: { }
+                TXButton(
+                    shape: .circle(
+                        style: .basic(icon: Image.Icon.Symbol.turn),
+                        size: .custom(
+                            frameSize: .init(width: 28, height: 28),
+                            iconSize: .init(width: 16, height: 16)
+                        ),
+                        state: .custom(
+                            foregroundColor: Color.Gray.gray500,
+                            backgroundColor: Color.Common.white
+                        )
+                    ),
+                    onTap: { }
                 )
                 .insideBorder(
                     Color.Gray.gray500,
@@ -222,14 +226,13 @@ private extension MakeGoalView {
     }
     
     var completeButton: some View {
-        TXRoundedRectangleButton(
-            config: .long(
-                text: "완료",
-                colorStyle: store.completeButtonDisabled ? .disabled : .black
+        TXButton(
+            shape: .rect(
+                style: .basic(text: "완료"),
+                size: .l,
+                state: store.completeButtonDisabled ? .disabled : .standard
             )
-        ) {
-            store.send(.completeButtonTapped)
-        }
+        ) { store.send(.completeButtonTapped) }
     }
     
     var divider: some View {
@@ -265,10 +268,10 @@ private extension MakeGoalView {
             periodCountContent
                 .padding(.top, 36)
             
-            TXRoundedRectangleButton(config: .long(text: "완료", colorStyle: .black)) {
-                store.send(.periodSheetCompleteTapped)
-            }
-            .padding(.vertical, 8)
+            TXButton(
+                shape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
+                onTap: { store.send(.periodSheetCompleteTapped) }
+            )
             .padding(.top, 32)
             .padding(.horizontal, 20)
         }
@@ -277,53 +280,54 @@ private extension MakeGoalView {
     
     var periodTabButtons: some View {
         HStack(spacing: 8) {
-            TXRoundedRectangleButton(
-                config: .small(
-                    text: store.weeklyPeriodText,
-                    colorStyle: store.selectedPeriod == .weekly ? .black : .white,
-                    font: .b2_14r
-                )
-            ) {
-                store.send(.periodSheetWeeklyTapped)
-            }
+            TXButton(
+                shape: .rect(
+                    style: .basic(text: store.weeklyPeriodText),
+                    size: .s,
+                    state: store.selectedPeriod == .weekly ? .standard : .line
+                ),
+                onTap: { store.send(.periodSheetWeeklyTapped) }
+            )
             
-            TXRoundedRectangleButton(
-                config: .small(
-                    text: store.monthlyPeriodText,
-                    colorStyle: store.selectedPeriod == .monthly ? .black : .white
-                )
-            ) {
-                store.send(.periodSheetMonthlyTapped)
-            }
+            TXButton(
+                shape: .rect(
+                    style: .basic(text: store.monthlyPeriodText),
+                    size: .s,
+                    state: store.selectedPeriod == .monthly ? .standard : .line
+                ),
+                onTap: { store.send(.periodSheetMonthlyTapped) }
+            )
         }
     }
     
     var periodCountContent: some View {
         HStack(spacing: 16) {
-            TXCircleButton(
-                config: .init(
-                    image: .Icon.Symbol.minus,
-                    frameSize: .init(width: 36, height: 36),
-                    imageSize: .init(width: 28, height: 28),
-                    colorStyle: store.isMinusEnable ? .black : .disabled
-                ), action: {
-                    store.send(.periodSheetMinusTapped)
-                }
+            TXButton(
+                shape: .circle(
+                    style: .basic(icon: .Icon.Symbol.minus),
+                    size: .custom(
+                        frameSize: .init(width: 36, height: 36),
+                        iconSize: .init(width: 28, height: 28)
+                    ),
+                    state: store.isMinusEnable ? .standard : .disabled
+                ),
+                onTap: { store.send(.periodSheetMinusTapped) }
             )
             .disabled(!store.isMinusEnable)
             
             sheetPeriodCount
             
-            TXCircleButton(
-                config: .init(
-                    image: .Icon.Symbol.plus,
-                    frameSize: .init(width: 36, height: 36),
-                    imageSize: .init(width: 28, height: 28),
-                    colorStyle: store.isPlusEnable ? .black : .disabled
-                )
-            ) {
-                store.send(.periodSheetPlusTapped)
-            }
+            TXButton(
+                shape: .circle(
+                    style: .basic(icon: .Icon.Symbol.plus),
+                    size: .custom(
+                        frameSize: .init(width: 36, height: 36),
+                        iconSize: .init(width: 28, height: 28)
+                    ),
+                    state: store.isPlusEnable ? .standard : .disabled
+                ),
+                onTap: { store.send(.periodSheetPlusTapped) }
+            )
             .disabled(!store.isPlusEnable)
         }
     }

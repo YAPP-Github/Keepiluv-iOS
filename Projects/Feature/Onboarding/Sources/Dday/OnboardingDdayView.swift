@@ -42,7 +42,6 @@ public struct OnboardingDdayView: View {
 
             bottomButton
                 .padding(.horizontal, Spacing.spacing8)
-                .padding(.vertical, Spacing.spacing5)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
@@ -131,12 +130,13 @@ private extension OnboardingDdayView {
     }
 
     var bottomButton: some View {
-        TXRoundedRectangleButton(
-            config: .long(
-                text: "완료",
-                colorStyle: store.isDateSelected ? .black : .disabled
+        TXButton(
+            shape: .rect(
+                style: .basic(text: "완료"),
+                size: .l,
+                state: store.isDateSelected ? .standard : .disabled
             ),
-            action: { store.send(.completeButtonTapped) }
+            onTap: { store.send(.completeButtonTapped) }
         )
     }
 }

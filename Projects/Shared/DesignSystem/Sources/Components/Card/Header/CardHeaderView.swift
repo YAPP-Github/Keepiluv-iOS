@@ -106,9 +106,16 @@ private extension CardHeaderView {
             )
             
         case .goalAdd:
-            TXCircleButton(
-                config: .rightArrow(),
-                action: { config.onHeaderTapped?() }
+            TXButton(
+                shape: .circle(
+                    style: .basic(icon: Image.Icon.Symbol.arrow3Right),
+                    size: .custom(
+                        frameSize: .init(width: 28, height: 28),
+                        iconSize: .init(width: 22, height: 22)
+                    ),
+                    state: .standard
+                ),
+                onTap: { config.onHeaderTapped?() }
             )
 
         case let .goalEdit(action):

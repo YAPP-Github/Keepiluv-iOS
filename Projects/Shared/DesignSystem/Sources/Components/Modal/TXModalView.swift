@@ -69,31 +69,39 @@ private extension TXModalView {
         Group {
             switch type {
             case let .info(config):
-                TXRoundedRectangleGroupButton(
-                    config: .modal(
-                        leftText: config.leftButtonText,
-                        rightText: config.rightButtonText
-                    ),
-                    actionLeft: {
-                        onAction(.cancel)
-                    },
-                    actionRight: {
-                        onAction(.confirm)
-                    }
-                )
+                HStack(spacing: Spacing.spacing5) {
+                    TXButton(
+                        shape: .rect(
+                            style: .basic(text: config.leftButtonText),
+                            size: .m,
+                            state: .line
+                        ),
+                        onTap: { onAction(.cancel) }
+                    )
+                    
+                    TXButton(
+                        shape: .rect(
+                            style: .basic(text: config.rightButtonText),
+                            size: .m,
+                            state: .standard
+                        ),
+                        onTap: { onAction(.confirm) }
+                    )
+                }
+                .padding(.vertical, Spacing.spacing5)
+                .padding(.horizontal, Spacing.spacing8)
                 .padding(.top, Spacing.spacing6)
 
             case let .gridButton(config):
-                TXRoundedRectangleButton(
-                    config: .long(
-                        text: config.buttonTitle,
-                        colorStyle: .black
-                    )
-                ) {
-                    onAction(.confirm)
-                }
+                TXButton(
+                    shape: .rect(
+                        style: .basic(text: config.buttonTitle),
+                        size: .l,
+                        state: .standard
+                    ),
+                    onTap: { onAction(.confirm) }
+                )
                 .padding([.horizontal, .top], Spacing.spacing8)
-                .padding(.vertical, Spacing.spacing5)
             }
         }
         .padding(.bottom, Spacing.spacing6)

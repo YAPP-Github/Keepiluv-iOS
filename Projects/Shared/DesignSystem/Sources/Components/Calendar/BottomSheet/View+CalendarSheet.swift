@@ -65,11 +65,11 @@ public extension View {
     ///         isPresented: $showCalendar,
     ///         selectedDate: $selectedDate
     ///     ) { exitPickerModeIfNeeded in
-    ///         TXRoundedRectangleGroupButton(
-    ///             config: .modal(),
-    ///             layout: .calendarSheet,
-    ///             actionLeft: { showCalendar = false },
-    ///             actionRight: {
+    ///         TXRectGroupButton(
+    ///             leftShape: .rect(style: .basic(text: "취소"), size: .l, state: .line),
+    ///             rightShape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
+    ///             onTapLeft: { showCalendar = false },
+    ///             onTapRight: {
     ///                 if !exitPickerModeIfNeeded() { showCalendar = false }
     ///             }
     ///         )

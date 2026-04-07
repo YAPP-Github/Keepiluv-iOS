@@ -18,17 +18,17 @@ public struct TXTabGroup: View {
     public struct Configuration {
         let items: [String]
         let spacing: CGFloat = Spacing.spacing5
-        let selectedColorStyle: ColorStyle
-        let unselectedColorStyle: ColorStyle
+        let selectedState: TXButtonShape.TXRectState
+        let unselectedState: TXButtonShape.TXRectState
 
         public init(
             items: [String],
-            selectedColorStyle: ColorStyle,
-            unselectedColorStyle: ColorStyle
+            selectedState: TXButtonShape.TXRectState,
+            unselectedState: TXButtonShape.TXRectState
         ) {
             self.items = items
-            self.selectedColorStyle = selectedColorStyle
-            self.unselectedColorStyle = unselectedColorStyle
+            self.selectedState = selectedState
+            self.unselectedState = unselectedState
         }
     }
 
@@ -64,17 +64,16 @@ public struct TXTabGroup: View {
 // MARK: - SubViews
 private extension TXTabGroup {
     func tabItem(_ item: Item) -> some View {
-        TXRoundedRectangleButton(
-            config: .small(
-                text: item,
-                colorStyle: selectedItem == item
-                ? config.selectedColorStyle
-                : config.unselectedColorStyle,
-                font: .b2_14r
-            )
-        ) {
-            selectedItem = item
-        }
+        TXButton(
+            shape: .rect(
+                style: .basic(text: item),
+                size: .s,
+                state: selectedItem == item
+                    ? config.selectedState
+                    : config.unselectedState
+            ),
+            onTap: { selectedItem = item }
+        )
     }
 }
 
