@@ -32,7 +32,7 @@ public struct StatsDetailReducer {
         
         public var isLoading: Bool = false
         public var isDropdownPresented: Bool = false
-        public var selectedDropDownItem: TXDropdownItem?
+        public var selectedDropDownItem: GoalDropList?
         public var currentMonth: TXCalendarDate
         public var monthlyData: [[TXCalendarDateItem]]
         public var statsDetail: StatsDetail?
@@ -104,7 +104,7 @@ public struct StatsDetailReducer {
         case nextMonthTapped
         case calendarSwiped(TXCalendar.SwipeGesture)
         case calendarCellTapped(TXCalendarDateItem)
-        case dropDownSelected(TXDropdownItem)
+        case dropDownSelected(GoalDropList)
         case backgroundTapped
         case modalConfirmTapped
         

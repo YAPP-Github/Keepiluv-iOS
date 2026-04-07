@@ -75,7 +75,7 @@ public struct EditGoalListReducer {
         case weekCalendarSwipe(TXCalendar.SwipeGesture)
         case navigationBackButtonTapped
         case cardMenuButtonTapped(GoalEditCardItem)
-        case cardMenuItemSelected(TXDropdownItem)
+        case cardMenuItemSelected(GoalDropList)
         case backgroundTapped
         case modalConfirmTapped
         

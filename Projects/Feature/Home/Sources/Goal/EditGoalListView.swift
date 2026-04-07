@@ -115,7 +115,7 @@ private extension EditGoalListView {
     }
 
     var dropdown: some View {
-        TXDropdown(config: .goal) { action in
+        TXDropdown(items: GoalDropList.allCases) { action in
             store.send(.cardMenuItemSelected(action))
         }
         .offset(x: -16, y: 48)
