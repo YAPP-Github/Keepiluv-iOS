@@ -102,6 +102,17 @@ extension MakeGoalReducer {
             case .dismissKeyboard:
                 state.isGoalTitleFocused = false
                 return .none
+
+            case let .periodTabSelected(item):
+                switch item {
+                case .daily:
+                    state.selectedPeriod = .daily
+                case .weekly:
+                    state.selectedPeriod = .weekly
+                case .monthly:
+                    state.selectedPeriod = .monthly
+                }
+                return .none
                 
             case .periodSelected:
                 state.isGoalTitleFocused = false

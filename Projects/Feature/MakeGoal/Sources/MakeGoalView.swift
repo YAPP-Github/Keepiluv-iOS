@@ -166,15 +166,10 @@ private extension MakeGoalView {
             sectionTitleText("반복 주기")
             
             HStack(spacing: 8) {
-                TXTabGroup(
-                    selectedItem: periodSelectionBinding,
-                    config: .period(
-                        items: [
-                            store.dailyPeriodText,
-                            store.weeklyPeriodText,
-                            store.monthlyPeriodText
-                        ]
-                    )
+                TXTab(
+                    style: .button(PeriodItem.allCases),
+                    selectedItem: selectedPeriodItem,
+                    onSelect: { store.send(.periodTabSelected($0)) }
                 )
                 
                 Spacer()
@@ -357,27 +352,18 @@ private extension MakeGoalView {
 
 // MARK: - Private Methods
 private extension MakeGoalView {
-    var periodSelectionBinding: Binding<String?> {
-        Binding(
-            get: { store.selectedPeriod.text },
-            set: { newValue in
-                guard let newValue else { return }
-
-                if newValue == store.dailyPeriodText {
-                    store.selectedPeriod = .daily
-                } else if newValue == store.weeklyPeriodText {
-                    store.selectedPeriod = .weekly
-                } else if newValue == store.monthlyPeriodText {
-                    store.selectedPeriod = .monthly
-                }
-            }
-        )
-    }
-    
     var validationState: TXTextField.SubTextConfiguration.State {
         if store.goalTitle.isEmpty {
             return .empty
         }
         return store.isInvalidTitle ? .valid : .invalid
+    }
+    
+    var selectedPeriodItem: PeriodItem {
+        switch store.selectedPeriod {
+        case .daily: return .daily
+        case .weekly: return .weekly
+        case .monthly: return .monthly
+        }
     }
 }

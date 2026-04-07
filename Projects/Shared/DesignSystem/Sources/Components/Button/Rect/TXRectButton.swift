@@ -15,7 +15,7 @@ struct TXRectButton: View {
         if case let .rect(style, size, state) = shape {
             Button(action: onTap) {
                 Text(style.text)
-                    .typography(size.typhography)
+                    .typography(style.typography ?? size.typhography)
                     .foregroundStyle(state.fontColor)
                     .padding(.horizontal, size.horizontalPadding)
                     .frame(maxWidth: size.width)
@@ -40,7 +40,13 @@ struct TXRectButton: View {
 private extension TXButtonShape.TXRectStyle {
     var text: String {
         switch self {
-        case .basic(let text): text
+        case .basic(let text, _): text
+        }
+    }
+    
+    var typography: TypographyToken? {
+        switch self {
+        case .basic(_, let typography): typography
         }
     }
 }
@@ -50,7 +56,7 @@ private extension TXButtonShape.TXRectSize {
         switch self {
         case .l: .infinity
         case .m: 151
-        case .s: nil
+        case .s: 56
         }
     }
     

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public protocol TXDropdownItem: Hashable {
+public protocol TXItem: CaseIterable, Equatable, Hashable {
     var title: String { get }
 }
 
@@ -21,7 +21,7 @@ public protocol TXDropdownItem: Hashable {
 ///     }
 /// }
 /// ```
-public struct TXDropdown<Item: TXDropdownItem>: View {
+public struct TXDropdown<Item: TXItem>: View {
     private let items: [Item]
     private let onSelect: (Item) -> Void
     

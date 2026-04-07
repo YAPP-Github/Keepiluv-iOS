@@ -144,6 +144,7 @@ public struct MakeGoalReducer {
         case emojiButtonTapped
         case goalTitleFocusChanged(Bool)
         case dismissKeyboard
+        case periodTabSelected(PeriodItem)
         case periodSelected
         case periodSheetWeeklyTapped
         case periodSheetMonthlyTapped

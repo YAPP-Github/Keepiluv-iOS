@@ -8,8 +8,8 @@
 import Foundation
 
 import ComposableArchitecture
-import SharedDesignSystem
 import DomainStatsInterface
+import SharedDesignSystem
 
 /// 통계 메인 화면의 상태와 액션을 관리하는 Reducer입니다.
 ///
@@ -64,7 +64,7 @@ public struct StatsReducer {
         case onAppear
         
         // MARK: - User Action
-        case topTabBarSelected(TXTopTabBar.Item)
+        case topTabBarSelected(StatsTopTabItem)
         case statsCardTapped(goalId: Int64)
         case previousMonthTapped
         case nextMonthTapped
