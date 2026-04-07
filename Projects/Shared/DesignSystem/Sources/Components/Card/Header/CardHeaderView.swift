@@ -98,8 +98,7 @@ private extension CardHeaderView {
     @ViewBuilder var rightContent: some View {
         switch config.content {
         case let .goalCheck(isMyChecked, isCoupleChecked, action):
-            TXToggleButton(
-                config: .goalCheck(),
+            TXCheckButton(
                 isMyChecked: isMyChecked,
                 isCoupleChecked: isCoupleChecked,
                 action: action
