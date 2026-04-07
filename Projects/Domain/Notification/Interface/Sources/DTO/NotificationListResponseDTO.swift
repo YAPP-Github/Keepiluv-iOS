@@ -47,23 +47,31 @@ extension NotificationListResponseDTO {
     }
 
     private func parseDate(_ dateString: String) -> Date? {
-        // ISO8601 with timezone (e.g., "2026-02-23T00:50:18Z")
+        // ISO8601 with timezone + fractional seconds (e.g., "2026-02-23T00:50:18.123Z")
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
         if let date = isoFormatter.date(from: dateString) {
             return date
         }
 
+        // ISO8601 with timezone, no fractional seconds (e.g., "2026-02-23T00:50:18Z")
         isoFormatter.formatOptions = [.withInternetDateTime]
         if let date = isoFormatter.date(from: dateString) {
             return date
         }
 
-        // Without timezone (e.g., "2026-02-23T00:50:18") - assume KST
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+
+        // Without timezone, with fractional seconds (e.g., "2026-02-23T00:50:18.123") - assume KST
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        if let date = dateFormatter.date(from: dateString) {
+            return date
+        }
+
+        // Without timezone, no fractional seconds (e.g., "2026-02-23T00:50:18") - assume KST
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         return dateFormatter.date(from: dateString)
     }
 }
