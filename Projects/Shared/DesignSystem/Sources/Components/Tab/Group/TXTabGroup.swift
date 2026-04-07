@@ -7,58 +7,26 @@
 
 import SwiftUI
 
-/// 여러 개의 TXRoundedRectangleButton 텍스트 버튼을 그룹으로 제공하는 컴포넌트입니다.
-///
-/// ## 사용 예시
-/// ```swift
-/// @State var selected: TXTabGroup.Item? = nil
-/// TXTabGroup(selectedItem: $selected, config: .period())
-/// ```
-public struct TXTabGroup: View {
-    public struct Configuration {
-        let items: [String]
-        let spacing: CGFloat = Spacing.spacing5
-        let selectedState: TXButtonShape.TXRectState
-        let unselectedState: TXButtonShape.TXRectState
+struct TXTabGroup<Item: TXItem>: View {
+    let selectedItem: Item?
+    let items: [Item]
+    let onSelect: (Item) -> Void
 
-        public init(
-            items: [String],
-            selectedState: TXButtonShape.TXRectState,
-            unselectedState: TXButtonShape.TXRectState
-        ) {
-            self.items = items
-            self.selectedState = selectedState
-            self.unselectedState = unselectedState
-        }
-    }
-
-    public typealias Item = String
-    
-    @Binding private var selectedItem: Item?
-    private let config: Configuration
-    
-    /// 선택된 항목 바인딩과 구성값으로 탭 그룹을 생성합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// @State var selected: TXTabGroup.Item? = nil
-    /// TXTabGroup(selectedItem: $selected, config: .period())
-    /// ```
-    public init(
-        selectedItem: Binding<Item?>,
-        config: Configuration
-    ) {
-        self._selectedItem = selectedItem
-        self.config = config
-    }
-    
-    public var body: some View {
-        HStack(spacing: config.spacing) {
-            ForEach(config.items, id: \.self) { item in
+    var body: some View {
+        HStack(spacing: Constants.spacing) {
+            ForEach(items, id: \.self) { item in
                 tabItem(item)
             }
         }
     }
+}
+
+// MARK: - Constants
+private enum Constants {
+    static let spacing: CGFloat = Spacing.spacing5
+    static let selectedState: TXButtonShape.TXRectState = .standard
+    static let unselectedState: TXButtonShape.TXRectState = .line
+    static let typography: TypographyToken = .b2_14r
 }
 
 // MARK: - SubViews
@@ -66,18 +34,18 @@ private extension TXTabGroup {
     func tabItem(_ item: Item) -> some View {
         TXButton(
             shape: .rect(
-                style: .basic(text: item),
+                style: .basic(text: item.title, typography: Constants.typography),
                 size: .s,
                 state: selectedItem == item
-                    ? config.selectedState
-                    : config.unselectedState
+                ? Constants.selectedState
+                : Constants.unselectedState
             ),
-            onTap: { selectedItem = item }
+            onTap: {
+                onSelect(item)
+            }
         )
     }
 }
 
 #Preview {
-    @Previewable @State var selected: TXTabGroup.Item? = nil
-    TXTabGroup(selectedItem: $selected, config: .period())
 }
