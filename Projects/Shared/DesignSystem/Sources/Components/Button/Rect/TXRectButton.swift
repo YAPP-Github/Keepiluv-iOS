@@ -28,7 +28,6 @@ struct TXRectButton: View {
                     )
             }
             .clipShape(RoundedRectangle(cornerRadius: size.radius))
-            .padding(.horizontal, size.outHorizontalPadding)
             .padding(.vertical, size.outVerticalPadding)
             .buttonStyle(.plain)
         } else {
@@ -83,13 +82,6 @@ private extension TXButtonShape.TXRectSize {
         }
     }
     
-    var outHorizontalPadding: CGFloat {
-        switch self {
-        case .l: Spacing.spacing8
-        case .m, .s: .zero
-        }
-    }
-    
     var outVerticalPadding: CGFloat {
         switch self {
         case .l: Spacing.spacing5
@@ -103,6 +95,7 @@ private extension TXButtonShape.TXRectState {
         switch self {
         case .line: LineWidth.m
         case .disabled, .standard: nil
+        case let .custom(_, _, _, borderWidth): borderWidth
         }
     }
     
@@ -111,6 +104,7 @@ private extension TXButtonShape.TXRectState {
         case .line: Color.Gray.gray500
         case .disabled: Color.Gray.gray100
         case .standard: .clear
+        case let .custom(_, _, borderColor, _): borderColor
         }
     }
     
@@ -119,6 +113,7 @@ private extension TXButtonShape.TXRectState {
         case .line: Color.Gray.gray500
         case .disabled: Color.Gray.gray300
         case .standard: Color.Common.white
+        case let .custom(foregroundColor, _, _, _): foregroundColor
         }
     }
     
@@ -127,6 +122,7 @@ private extension TXButtonShape.TXRectState {
         case .line: Color.Common.white
         case .disabled: Color.Gray.gray100
         case .standard: Color.Gray.gray500
+        case let .custom(_, backgroundColor, _, _): backgroundColor
         }
     }
 }
@@ -137,7 +133,7 @@ private extension TXButtonShape.TXRectState {
             Text("L")
                 .font(.headline)
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .l, state: .standard),
                 onTap: { }
             )
@@ -147,17 +143,17 @@ private extension TXButtonShape.TXRectState {
             Text("M")
                 .font(.headline)
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .m, state: .line),
                 onTap: { }
             )
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .m, state: .standard),
                 onTap: { }
             )
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .m, state: .disabled),
                 onTap: { }
             )
@@ -167,12 +163,12 @@ private extension TXButtonShape.TXRectState {
             Text("S")
                 .font(.headline)
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .s, state: .line),
                 onTap: { }
             )
             
-            TXRectButton(
+            TXButton(
                 shape: .rect(style: .basic(text: "버튼 이름"), size: .s, state: .standard),
                 onTap: { }
             )
