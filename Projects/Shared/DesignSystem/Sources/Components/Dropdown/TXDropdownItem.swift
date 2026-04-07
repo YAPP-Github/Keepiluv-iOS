@@ -14,13 +14,13 @@ import Foundation
 /// let action: TXDropdownItem = .edit
 /// print(action.title)
 /// ```
-public enum TXDropdownItem: CaseIterable, Equatable, Hashable {
+public enum GoalDropList: CaseIterable, Equatable, Hashable, TXDropdownItem {
     case edit
     case finish
     case delete
 }
 
-public extension TXDropdownItem {
+public extension GoalDropList {
     var title: String {
         switch self {
         case .edit: return "수정하기"

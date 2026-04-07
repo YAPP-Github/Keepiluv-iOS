@@ -7,116 +7,112 @@
 
 import SwiftUI
 
+public protocol TXDropdownItem: Hashable {
+    var title: String { get }
+}
+
 /// 드롭다운 선택지를 제공하는 컴포넌트입니다.
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXDropdown(config: .goal) { item in
+/// TXDropdown(items: GoalDropDownItem.allCases) { item in
 ///     if item == .edit {
 ///         print("수정하기 선택")
 ///     }
 /// }
 /// ```
-public struct TXDropdown: View {
-    public struct Configuration {
-        let items: [TXDropdownItem]
-        let width: CGFloat = 88
-        let itemHeight: CGFloat = 44
-        let leadingPadding: CGFloat = Spacing.spacing7
-        let cornerRadius: CGFloat = 8
-        let borderWidth: CGFloat = LineWidth.m
-        let dividerColor: Color = Color.Gray.gray500
-        let borderColor: Color = Color.Gray.gray500
-        let textColor: Color = Color.Gray.gray500
-        let textTypography: TypographyToken = .b2_14r
-        let shadowColor: Color = .black.opacity(0.16)
-        let shadowRadius: CGFloat = 20
-        let shadowX: CGFloat = 2
-        let shadowY: CGFloat = 1
-
-        /// 드롭다운에 표시할 항목 목록으로 설정을 생성합니다.
-        ///
-        /// ## 사용 예시
-        /// ```swift
-        /// let config = TXDropdown.Configuration(items: [.edit, .finish, .delete])
-        /// ```
-        public init(items: [TXDropdownItem]) {
-            self.items = items
-        }
-    }
-
-    private let config: Configuration
-    private let onSelect: (TXDropdownItem) -> Void
+public struct TXDropdown<Item: TXDropdownItem>: View {
+    private let items: [Item]
+    private let onSelect: (Item) -> Void
     
-    /// 설정값과 선택 액션으로 드롭다운을 생성합니다.
+    /// 드롭다운 항목, 표시 문구, 선택 액션으로 드롭다운을 생성합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// TXDropdown(config: .goal) { item in
+    /// TXDropdown(
+    ///     items: items
+    /// ) { item in
     ///     print(item)
     /// }
     /// ```
     public init(
-        config: Configuration,
-        onSelect: @escaping (TXDropdownItem) -> Void
+        items: [Item],
+        onSelect: @escaping (Item) -> Void
     ) {
-        self.config = config
+        self.items = items
         self.onSelect = onSelect
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            ForEach(Array(config.items.enumerated()), id: \.offset) { index, item in
+            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                 Button {
                     onSelect(item)
                 } label: {
                     dropdownItem(
                         item,
-                        showsBottomDivider: index != config.items.indices.last
+                        showsBottomDivider: index != items.indices.last
                     )
                 }
             }
         }
         .background(
             Color.Common.white,
-            in: RoundedRectangle(cornerRadius: config.cornerRadius)
+            in: RoundedRectangle(cornerRadius: Constants.cornerRadius)
         )
         .insideBorder(
-            config.borderColor,
-            shape: RoundedRectangle(cornerRadius: config.cornerRadius),
-            lineWidth: config.borderWidth
+            Constants.borderColor,
+            shape: RoundedRectangle(cornerRadius: Constants.cornerRadius),
+            lineWidth: Constants.borderWidth
         )
         .shadow(
-            color: config.shadowColor,
-            radius: config.shadowRadius,
-            x: config.shadowX,
-            y: config.shadowY
+            color: Constants.shadowColor,
+            radius: Constants.shadowRadius,
+            x: Constants.shadowX,
+            y: Constants.shadowY
         )
-        .frame(width: config.width)
+        .frame(width: Constants.width)
     }
 }
 
 // MARK: - SubViews
 private extension TXDropdown {
     func dropdownItem(
-        _ item: TXDropdownItem,
+        _ item: Item,
         showsBottomDivider: Bool
     ) -> some View {
         Text(item.title)
-            .typography(config.textTypography)
-            .foregroundStyle(config.textColor)
-            .frame(maxWidth: .infinity, maxHeight: config.itemHeight, alignment: .leading)
-            .padding(.leading, config.leadingPadding)
+            .typography(Constants.textTypography)
+            .foregroundStyle(Constants.textColor)
+            .frame(maxWidth: .infinity, maxHeight: Constants.itemHeight, alignment: .leading)
+            .padding(.leading, Constants.leadingPadding)
             .insideRectEdgeBorder(
-                width: config.borderWidth,
+                width: Constants.borderWidth,
                 edges: showsBottomDivider ? [.bottom] : [],
-                color: config.dividerColor
+                color: Constants.dividerColor
             )
     }
 }
 
+// MARK: - Constants
+private enum Constants {
+    static let width: CGFloat = 88
+    static let itemHeight: CGFloat = 44
+    static let leadingPadding: CGFloat = Spacing.spacing7
+    static let cornerRadius: CGFloat = 8
+    static let borderWidth: CGFloat = LineWidth.m
+    static let dividerColor: Color = Color.Gray.gray500
+    static let borderColor: Color = Color.Gray.gray500
+    static let textColor: Color = Color.Gray.gray500
+    static let textTypography: TypographyToken = .b2_14r
+    static let shadowColor: Color = .black.opacity(0.16)
+    static let shadowRadius: CGFloat = 20
+    static let shadowX: CGFloat = 2
+    static let shadowY: CGFloat = 1
+}
+
 #Preview {
     VStack {
-        TXDropdown(config: .init(items: TXDropdownItem.allCases), onSelect: { _ in })
+        TXDropdown(items: GoalDropList.allCases, onSelect: { print($0) })
     }
 }
