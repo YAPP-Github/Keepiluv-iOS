@@ -7,87 +7,52 @@
 
 import SwiftUI
 
-/// 아이콘/제목/설명으로 구성된 정보형 모달 콘텐츠입니다.
-public struct TXInfoModalContent: View {
-    /// 정보형 모달 콘텐츠의 표시 구성을 정의합니다.
-    public struct Configuration: Equatable {
-        let image: Image
-        let title: String
-        let subtitle: String
-        let leftButtonText: String
-        let rightButtonText: String
-        let imageSize: CGSize
-        
-        /// 정보형 모달 콘텐츠 구성을 생성합니다.
-        ///
-        /// ## 사용 예시
-        /// ```swift
-        /// let config = TXInfoModalContent.Configuration(
-        ///     image: .Icon.Illustration.emoji2,
-        ///     title: "목표를 이루셨나요?",
-        ///     subtitle: "목표를 완료해도 사진은 사라지지 않아요",
-        ///     leftButtonText: "취소",
-        ///     rightButtonText: "삭제"
-        /// )
-        /// ```
-        public init(
-            image: Image,
-            title: String,
-            subtitle: String,
-            leftButtonText: String,
-            rightButtonText: String,
-            imageSize: CGSize = CGSize(width: 60, height: 60)
-        ) {
-            self.image = image
-            self.title = title
-            self.subtitle = subtitle
-            self.leftButtonText = leftButtonText
-            self.rightButtonText = rightButtonText
-            self.imageSize = imageSize
-        }
-    }
+/// 이미지, 제목, 설명으로 구성된 정보형 모달 콘텐츠입니다.
+struct TXInfoModalContent: View {
+    private let image: Image
+    private let title: String
+    private let subtitle: String
     
-    private let config: Configuration
-    
-    /// 정보형 모달 콘텐츠를 생성합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// TXInfoModalContent(config: .uncheckGoal)
-    /// ```
-    public init(config: Configuration) {
-        self.config = config
+    init(
+        image: Image,
+        title: String,
+        subtitle: String
+    ) {
+        self.image = image
+        self.title = title
+        self.subtitle = subtitle
     }
 
-    public var body: some View {
-        VStack(spacing: 0) {
-            config.image
+    var body: some View {
+        VStack(spacing: Constants.vStackSpacing) {
+            image
                 .resizable()
                 .scaledToFit()
-                .frame(width: config.imageSize.width, height: config.imageSize.height)
-                .padding(.top, Spacing.spacing8)
+                .frame(width: Constants.imageSize.width, height: Constants.imageSize.height)
+                .padding(.top, Constants.imageTopPadding)
 
-            Text(config.title)
-                .typography(.t1_18eb)
+            Text(title)
+                .typography(Constants.titleTypography)
                 .multilineTextAlignment(.center)
-                .padding(.top, Spacing.spacing7)
+                .padding(.top, Constants.titleTopPadding)
 
-            Text(config.subtitle)
-                .typography(.b2_14r)
+            Text(subtitle)
+                .typography(Constants.subtitleTypography)
                 .multilineTextAlignment(.center)
-                .padding(.top, Spacing.spacing5)
+                .padding(.top, Constants.subtitleTopPadding)
         }
     }
 }
 
-#Preview {
-    TXInfoModalContent(
-        config: .init(
-            image: .Icon.Illustration.trouble,
-            title: "목표를 이루셨나요?",
-            subtitle: "목표를 완료해도 사진은 사라지지 않아요",
-            leftButtonText: "취소",
-            rightButtonText: "삭제"
-        )
-    )
+// MARK: - Constants
+private extension TXInfoModalContent {
+    enum Constants {
+        static let vStackSpacing: CGFloat = 0
+        static let imageSize = CGSize(width: 60, height: 60)
+        static let imageTopPadding = Spacing.spacing8
+        static let titleTopPadding = Spacing.spacing7
+        static let subtitleTopPadding = Spacing.spacing5
+        static let titleTypography = TypographyToken.t1_18eb
+        static let subtitleTypography = TypographyToken.b2_14r
+    }
 }

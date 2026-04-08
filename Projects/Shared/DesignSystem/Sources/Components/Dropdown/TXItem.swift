@@ -7,7 +7,6 @@
 
 import Foundation
 
-// Note: Feature/Domain Common으로 분리 예정입니다.
 /// 목표 드롭다운에서 선택 가능한 기본 항목 타입입니다.
 ///
 /// ## 사용 예시
@@ -15,6 +14,8 @@ import Foundation
 /// let action: GoalDropList = .edit
 /// print(action.title)
 /// ```
+
+// TODO: - Feature 계층으로 분리 예정
 public enum GoalDropList: TXItem {
     case edit
     case finish

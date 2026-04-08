@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-/// TXModalType 기반 모달 표시를 위한 ViewModifier입니다.
+/// TXModalStyle 기반 모달 표시를 위한 ViewModifier입니다.
 public struct TXModalModifier: ViewModifier {
     @State private var isVisible = false
     @State private var selectedIndex = 0
     private let animationDuration: Double = 0.2
     
-    @Binding private var item: TXModalType?
+    @Binding private var item: TXModalStyle?
     private let onAction: (TXModalAction) -> Void
     
     /// TXModalModifier를 생성합니다.
@@ -29,7 +29,7 @@ public struct TXModalModifier: ViewModifier {
     ///     )
     /// ```
     public init(
-        item: Binding<TXModalType?>,
+        item: Binding<TXModalStyle?>,
         onAction: @escaping (TXModalAction) -> Void
     ) {
         self._item = item
@@ -40,18 +40,17 @@ public struct TXModalModifier: ViewModifier {
         content
             .fullScreenCover(item: $item) { item in
                 TXModalView(
-                    type: item,
-                    content: {
-                        modalContent(for: item)
-                    },
+                    style: item,
+                    selectedIndex: $selectedIndex,
                     onAction: handleAction
                 )
                 .presentationBackground(.clear)
                 .opacity(isVisible ? 1 : 0)
                 .onAppear {
-                    if case let .gridButton(config) = item {
-                        selectedIndex = config.selectedIndex
+                    if let initialSelectedIndex = item.initialSelectedIndex {
+                        selectedIndex = initialSelectedIndex
                     }
+
                     withAnimation(.easeInOut(duration: animationDuration)) {
                         isVisible = true
                     }
@@ -65,22 +64,8 @@ public struct TXModalModifier: ViewModifier {
 
 // MARK: - Private Methods
 private extension TXModalModifier {
-    @ViewBuilder
-    func modalContent(for item: TXModalType) -> some View {
-        switch item {
-        case let .info(config):
-            TXInfoModalContent(config: config)
-            
-        case let .gridButton(config):
-            TXGridButtonModalContent(
-                config: config,
-                selectedIndex: $selectedIndex
-            )
-        }
-    }
-
     func handleAction(_ action: TXModalAction) {
-        if case .gridButton = item, action == .confirm {
+        if item?.returnsSelectedIndex == true, action == .confirm {
             onAction(.confirmWithIndex(selectedIndex))
         } else {
             onAction(action)
@@ -100,8 +85,34 @@ private extension TXModalModifier {
     }
 }
 
+private extension TXModalStyle {
+    var initialSelectedIndex: Int? {
+        switch self {
+        case let .selection(_, _, selectedIndex, _):
+            return selectedIndex
+
+        case let .selectList(_, _, _, selectedIndex, _, _):
+            return selectedIndex
+
+        case .info:
+            return nil
+        }
+    }
+
+    var returnsSelectedIndex: Bool {
+        switch self {
+        case .selection,
+                .selectList:
+            return true
+
+        case .info:
+            return false
+        }
+    }
+}
+
 public extension View {
-    /// TXModalType 기반으로 TXModalView를 표시하는 modifier입니다.
+    /// TXModalStyle 기반으로 TXModalView를 표시하는 modifier입니다.
     ///
     /// ## 사용 예시
     /// ```swift
@@ -111,7 +122,7 @@ public extension View {
     ///     }
     /// ```
     func txModal(
-        item: Binding<TXModalType?>,
+        item: Binding<TXModalStyle?>,
         onAction: @escaping (TXModalAction) -> Void
     ) -> some View {
         modifier(
