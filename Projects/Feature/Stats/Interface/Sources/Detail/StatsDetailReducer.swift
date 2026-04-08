@@ -40,7 +40,7 @@ public struct StatsDetailReducer {
         public var completedDateByKey: [String: StatsDetail.CompletedDate] = [:]
         public var completedDateCache: [String: [StatsDetail.CompletedDate]] = [:]
         public var statsSummaryInfo: [StatsSummaryInfo] = []
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var toast: TXToastType?
         
         public var currentMonthTitle: String { currentMonth.formattedYearMonth }

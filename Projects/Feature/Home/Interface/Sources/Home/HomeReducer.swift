@@ -52,7 +52,7 @@ public struct HomeReducer {
         public var hasCards: Bool { !cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false

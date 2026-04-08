@@ -13,6 +13,7 @@ import DomainNotificationInterface
 import DomainOnboardingInterface
 import FeatureSettingsInterface
 import Foundation
+import SharedDesignSystem
 import SharedUtil
 import UIKit
 import UserNotifications
@@ -120,11 +121,21 @@ private func reduceCore(
         return .none
 
     case .languageSettingTapped:
-        state.isLanguageModalPresented = true
+        state.modal = .selectList(
+            title: "언어 설정",
+            subtitle: "이미 앱 내에 저장된 언어는 변경되지 않아요",
+            options: SettingsReducer.State.languageOptions.map { $0.title },
+            selectedIndex: SettingsReducer.State.languageOptions.firstIndex(of: state.selectedLanguage) ?? 0,
+            leftButtonText: "취소",
+            rightButtonText: "완료"
+        )
         return .none
 
-    case .languageConfirmed:
-        state.isLanguageModalPresented = false
+    case let .languageConfirmed(index):
+        guard SettingsReducer.State.languageOptions.indices.contains(index) else {
+            return .none
+        }
+        state.selectedLanguage = SettingsReducer.State.languageOptions[index]
         // TODO: 언어 설정 저장 로직 구현
         return .none
 
@@ -156,22 +167,44 @@ private func reduceCore(
         }
 
     case .disconnectCoupleTapped:
-        state.modal = .info(.disconnectCouple)
+        state.modalPurpose = .disconnectCouple
+        state.modal = .info(
+            image: .Icon.Illustration.modalWarning,
+            title: "정말 커플을 끊으시겠어요?",
+            subtitle: """
+            오늘부로 30일 후, 모든 데이터가 삭제됩니다.
+            복구 가능 기간은 30일 이내입니다.
+            복구 희망시 ttwixteamm@gmail.com로
+            문의해 주시기 바랍니다.
+            """,
+            leftButtonText: "취소",
+            rightButtonText: "해제"
+        )
         return .none
 
     case .withdrawTapped:
-        state.modal = .info(.withdraw)
+        state.modalPurpose = .withdraw
+        state.modal = .info(
+            image: .Icon.Illustration.modalWarning,
+            title: "정말 탈퇴하시겠어요?",
+            subtitle: """
+            커플 연결이 끊어집니다.
+            데이터는 전부 삭제되며 복구가 불가능합니다.
+            """,
+            leftButtonText: "취소",
+            rightButtonText: "탈퇴"
+        )
         return .none
 
     case .modalConfirmTapped:
         guard !state.isLoading else { return .none }
         @Dependency(\.authClient) var authClient
 
-        switch state.modal {
-        case .info(.disconnectCouple):
+        switch state.modalPurpose {
+        case .disconnectCouple:
             // TODO: 커플 끊기 API 호출
             break
-        case .info(.withdraw):
+        case .withdraw:
             state.isLoading = true
             return .run { send in
                 do {

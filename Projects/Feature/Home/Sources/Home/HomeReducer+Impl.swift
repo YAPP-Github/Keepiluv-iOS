@@ -157,7 +157,13 @@ extension HomeReducer {
                     }
                     state.pendingDeleteGoalID = id
                     state.pendingDeletePhotologID = photologId
-                    state.modal = .info(.uncheckGoal)
+                    state.modal = .info(
+                        image: .Icon.Illustration.modalWarning,
+                        title: "체크를 해제할까요?",
+                        subtitle: "해제하면 등록한 사진은 사라집니다.",
+                        leftButtonText: "취소",
+                        rightButtonText: "해제"
+                    )
                     return .none
                 } else {
                     let now = state.nowDate

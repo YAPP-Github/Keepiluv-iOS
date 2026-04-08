@@ -39,7 +39,7 @@ public struct EditGoalListReducer {
         public var cards: [GoalEditCardItem]?
         public var hasCards: Bool { !(cards?.isEmpty ?? true) }
         public var selectedCardMenu: GoalEditCardItem?
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var toast: TXToastType?
         public var isLoading: Bool = true
         public var pendingGoalId: Int64?
