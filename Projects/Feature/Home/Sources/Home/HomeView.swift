@@ -45,7 +45,7 @@ public struct HomeView: View {
             calendar
             if store.hasCards {
                 content
-            } else {
+            } else if store.isEmptyVisible {
                 headerRow
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
@@ -58,12 +58,12 @@ public struct HomeView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
-            if !store.hasCards {
+            if store.isEmptyVisible {
                 goalEmptyView
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if !store.hasCards {
+            if store.isEmptyVisible {
                 emptyArrow
             }
         }
@@ -196,28 +196,11 @@ private extension HomeView {
     
     func goalCard(for card: GoalCardItem) -> some View {
         GoalCardView(
-            config: .goalCheck(
-                item: .init(
-                    id: card.id,
-                    goalName: card.goalName,
-                    goalEmoji: card.goalEmoji,
-                    myCard: card.myCard,
-                    yourCard: card.yourCard
-                ),
-                isMyChecked: card.myCard.isSelected,
-                isCoupleChecked: card.yourCard.isSelected,
-                action: {
-                    store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
-                },
-                onHeaderTapped: {
-                    store.send(.headerTapped(card))
-                }
-            ),
-            actionLeft: {
-                store.send(.myCardTapped(card))
-            }, actionRight: {
-                store.send(.yourCardTapped(card))
-            }
+            item: card,
+            onHeaderTapped: { store.send(.headerTapped(card)) },
+            onCheckButtonTapped: { store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected)) },
+            actionLeft: { store.send(.myCardTapped(card)) },
+            actionRight: { store.send(.yourCardTapped(card)) }
         )
     }
     
