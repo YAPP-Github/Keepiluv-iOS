@@ -12,16 +12,16 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// let item = GoalCardItem(
-///     id: "1",
+///     id: 1,
 ///     goalName: "목표 이름",
 ///     goalEmoji: .Icon.Illustration.exercise,
 ///     myCard: .init(
-///         image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
+///         imageURL: URL(string: "https://example.com/image.jpg"),
+///         isSelected: true,
 ///         emoji: .Icon.Illustration.emoji1
 ///     ),
 ///     yourCard: .init(
-///         image: nil,
-///         emoji: nil
+///         isSelected: false
 ///     )
 /// )
 /// ```
@@ -31,7 +31,8 @@ public struct GoalCardItem: Identifiable, Equatable {
     /// ## 사용 예시
     /// ```swift
     /// let card = GoalCardItem.Card(
-    ///     image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
+    ///     imageURL: URL(string: "https://example.com/image.jpg"),
+    ///     isSelected: true,
     ///     emoji: .Icon.Illustration.emoji1
     /// )
     /// ```
@@ -46,7 +47,8 @@ public struct GoalCardItem: Identifiable, Equatable {
         /// ## 사용 예시
         /// ```swift
         /// let card = GoalCardItem.Card(
-        ///     image: SharedDesignSystemAsset.ImageAssets.boy.swiftUIImage,
+        ///     imageURL: URL(string: "https://example.com/image.jpg"),
+        ///     isSelected: true,
         ///     emoji: .Icon.Illustration.emoji1
         /// )
         /// ```
@@ -62,7 +64,6 @@ public struct GoalCardItem: Identifiable, Equatable {
             self.emoji = emoji
         }
     }
-    
     public let id: Int64
     public let goalName: String
     public let goalEmoji: Image
@@ -74,11 +75,11 @@ public struct GoalCardItem: Identifiable, Equatable {
     /// ## 사용 예시
     /// ```swift
     /// let item = GoalCardItem(
-    ///     id: "1",
+    ///     id: 1,
     ///     goalName: "목표 이름",
     ///     goalEmoji: .Icon.Illustration.exercise,
-    ///     myCard: .init(image: nil, emoji: nil),
-    ///     yourCard: .init(image: nil, emoji: nil)
+    ///     myCard: .init(isSelected: false),
+    ///     yourCard: .init(isSelected: false)
     /// )
     /// ```
     public init(
