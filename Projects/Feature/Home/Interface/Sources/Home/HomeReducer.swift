@@ -50,9 +50,10 @@ public struct HomeReducer {
         public var pendingDeleteGoalID: Int64?
         public var pendingDeletePhotologID: Int64?
         public var hasCards: Bool { !cards.isEmpty }
+        public var isEmptyVisible: Bool { !isLoading && cards.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false

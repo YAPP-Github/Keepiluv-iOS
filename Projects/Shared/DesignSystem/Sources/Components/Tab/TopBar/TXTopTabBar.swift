@@ -11,49 +11,27 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXTopTabBar(config: .goal()) { item in
-///     print(item)
-/// }
+/// TXTab(style: .line(StatsTopTabItem.allCases), selectedItem: .ongoing) { item in print(item) }
 /// ```
-public struct TXTopTabBar: View {
-    public enum Item: CaseIterable, Equatable, Hashable {
-        case ongoing
-        case completed
-    }
-    
-    public struct Configuration {
-        let items: [Item]
-        let font: TypographyToken = .t2_16b
-        let selectedColor: Color = Color.Gray.gray500
-        let unselectedColor: Color = Color.Gray.gray200
-        let unselectedUnderLineColor: Color = Color.Gray.gray100
-        let height: CGFloat = 36
-        let bottomPadding: CGFloat = Spacing.spacing6
-        let underlineHeight: CGFloat = LineWidth.l
-        
-        public init(items: [Item]) {
-            self.items = items
-        }
-    }
-    
-    @State private var selectedItem: Item = .ongoing
-    private let config: Configuration
+struct TXTopTabBar<Item: TXItem>: View {
+    private let selectedItem: Item?
+    private let items: [Item]
     private let onSelect: (Item) -> Void
     
-    public init(
-        config: Configuration,
+    init(
+        items: [Item],
+        selectedItem: Item? = nil,
         onSelect: @escaping (Item) -> Void = { _ in }
     ) {
-        self.config = config
+        self.selectedItem = selectedItem
+        self.items = items
         self.onSelect = onSelect
-        self._selectedItem = State(initialValue: config.items.first ?? .ongoing)
     }
     
-    public var body: some View {
+    var body: some View {
         HStack(spacing: 0) {
-            ForEach(config.items, id: \.self) { item in
+            ForEach(items, id: \.self) { item in
                 Button {
-                    selectedItem = item
                     onSelect(item)
                 } label: {
                     tabItem(item: item, isSelected: selectedItem == item)
@@ -69,32 +47,36 @@ public struct TXTopTabBar: View {
 // MARK: - SubViews
 private extension TXTopTabBar {
     func tabItem(item: Item, isSelected: Bool) -> some View {
-        
-        return Text(item.title)
-            .typography(config.font)
-            .foregroundStyle(isSelected ? config.selectedColor : config.unselectedColor)
-            .padding(.bottom, config.bottomPadding)
-            .frame(maxWidth: .infinity, maxHeight: config.height)
+        Text(item.title)
+            .typography(Constants.font)
+            .foregroundStyle(isSelected ? Constants.selectedColor : Constants.unselectedColor)
+            .padding(.bottom, Constants.bottomPadding)
+            .frame(maxWidth: .infinity, maxHeight: Constants.height)
             .overlay(alignment: .bottom) {
                 Rectangle()
-                    .foregroundStyle(isSelected ? config.selectedColor : config.unselectedUnderLineColor)
-                    .frame(height: config.underlineHeight)
+                    .foregroundStyle(isSelected ? Constants.selectedColor : Constants.unselectedUnderlineColor)
+                    .frame(height: Constants.underlineHeight)
             }
     }
 }
 
-public extension TXTopTabBar.Item {
-    var title: String {
-        switch self {
-        case .ongoing: return "진행중"
-        case .completed: return "종료"
-        }
-    }
+// MARK: - Constants
+private enum Constants {
+    static let font: TypographyToken = .t2_16b
+    static let selectedColor: Color = Color.Gray.gray500
+    static let unselectedColor: Color = Color.Gray.gray200
+    static let unselectedUnderlineColor: Color = Color.Gray.gray100
+    static let height: CGFloat = 36
+    static let bottomPadding: CGFloat = Spacing.spacing6
+    static let underlineHeight: CGFloat = LineWidth.l
 }
 
 #Preview {
     VStack {
-        TXTopTabBar(config: .stats)
+        TXTopTabBar(
+            items: StatsTopTabItem.allCases,
+            selectedItem: .ongoing
+        )
         
         Spacer()
     }

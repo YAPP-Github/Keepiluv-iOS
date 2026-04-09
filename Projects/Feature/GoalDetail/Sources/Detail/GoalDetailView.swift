@@ -367,12 +367,16 @@ private extension GoalDetailView {
     }
 
     var bottomButton: some View {
-        TXShadowButton(
-            config: store.isEditing ? .long(text: store.bottomButtonText) : .medium(text: store.bottomButtonText),
-            colorStyle: .white
-        ) {
-            store.send(.bottomButtonTapped)
-        }
+        TXButton(
+            shape: .round(
+                style: .illustLight(text: store.bottomButtonText),
+                size: store.isEditing ? .l : .m,
+                state: .standard
+            ),
+            onTap: {
+                store.send(.bottomButtonTapped)
+            }
+        )
     }
     
     @ViewBuilder

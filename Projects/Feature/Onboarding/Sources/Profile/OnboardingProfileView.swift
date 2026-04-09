@@ -37,8 +37,7 @@ public struct OnboardingProfileView: View {
 
             bottomButton
                 .padding(.horizontal, Spacing.spacing8)
-                .padding(.top, Spacing.spacing5)
-                .padding(.bottom, Spacing.spacing5 + (isTextFieldFocused ? Spacing.spacing6 : 0))
+                .padding(.bottom, isTextFieldFocused ? Spacing.spacing6 : 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
@@ -83,12 +82,13 @@ private extension OnboardingProfileView {
     }
 
     var bottomButton: some View {
-        TXRoundedRectangleButton(
-            config: .long(
-                text: "완료",
-                colorStyle: store.isNicknameValid ? .black : .disabled
+        TXButton(
+            shape: .rect(
+                style: .basic(text: "완료"),
+                size: .l,
+                state: store.isNicknameValid ? .standard : .disabled
             ),
-            action: { store.send(.completeButtonTapped) }
+            onTap: { store.send(.completeButtonTapped) }
         )
     }
 }

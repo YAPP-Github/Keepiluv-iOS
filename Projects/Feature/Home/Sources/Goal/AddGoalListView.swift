@@ -64,11 +64,22 @@ private extension AddGoalListView {
     
     func categoryCardView(for item: GoalCategory) -> some View {
         CardHeaderView(
-            config: .goalAdd(
-                goalName: item.title,
-                iconImage: item.icon,
-                action: { action(item) }
+            title: item.title,
+            iconImage: item.icon,
+            isBordered: true,
+            onTap: { action(item) }
+        ) {
+            TXButton(
+                shape: .circle(
+                    style: .basic(icon: Image.Icon.Symbol.arrow3Right),
+                    size: .custom(
+                        frameSize: CGSize(width: 28, height: 28),
+                        iconSize: CGSize(width: 22, height: 22)
+                    ),
+                    state: .standard
+                ),
+                onTap: { action(item) }
             )
-        )
+        }
     }
 }

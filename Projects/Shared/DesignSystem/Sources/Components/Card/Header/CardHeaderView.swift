@@ -12,37 +12,42 @@ import SwiftUI
 /// ## 사용 예시
 /// ```swift
 /// CardHeaderView(
-///     config: .goalCheckClosed(
-///         goalName: "목표 이름",
-///         iconImage: .Icon.Illustration.exercise,
+///     title: "목표 이름",
+///     iconImage: .Icon.Illustration.exercise,
+///     isBordered: true,
+///     onTap: { }
+/// ) {
+///     TXCheckButton(
 ///         isMyChecked: isMyChecked,
+///         isCoupleChecked: false,
 ///         action: { }
 ///     )
-/// )
+/// }
 /// ```
-public struct CardHeaderView: View {
+public struct CardHeaderView<R: View>: View {
     
-    private let config: Configuration
+    private let title: String
+    private let iconImage: Image
+    private let rightContent: R
+    private let isBordered: Bool
+    private let onTap: (() -> Void)?
     
-    /// 스타일과 아이콘/제목을 전달해 카드 헤더를 구성합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// CardHeaderView(
-    ///     config: .goalCheckClosed(
-    ///         goalName: "목표 이름",
-    ///         iconImage: .Icon.Illustration.exercise,
-    ///         isMyChecked: false,
-    ///         action: { }
-    ///     )
-    /// )
-    /// ```
-    public init(config: Configuration) {
-        self.config = config
+    public init(
+        title: String,
+        iconImage: Image,
+        isBordered: Bool,
+        onTap: (() -> Void)?,
+        @ViewBuilder rightContent: () -> R
+    ) {
+        self.title = title
+        self.iconImage = iconImage
+        self.rightContent = rightContent()
+        self.isBordered = isBordered
+        self.onTap = onTap
     }
     
     public var body: some View {
-        if config.isBordered {
+        if isBordered {
             borderCard
         } else {
             nonBorderCard
@@ -52,113 +57,61 @@ public struct CardHeaderView: View {
 
 // MARK: - SubViews
 private extension CardHeaderView {
-    
     var borderCard: some View {
         baseContent
-            .clipShape(RoundedRectangle(cornerRadius: config.radius))
+            .clipShape(RoundedRectangle(cornerRadius: Constants.radius))
             .outsideBorder(
-                config.borderColor,
-                shape: RoundedRectangle(cornerRadius: config.radius),
-                lineWidth: config.borderWidth
+                Constants.borderColor,
+                shape: RoundedRectangle(cornerRadius: Constants.radius),
+                lineWidth: Constants.borderWidth
             )
     }
     
     var nonBorderCard: some View {
         baseContent
+            .insideRectEdgeBorder(
+                width: Constants.borderWidth,
+                edges: [.bottom],
+                color: Constants.borderColor
+            )
     }
     
     var baseContent: some View {
-        HStack(spacing: config.contentSpacing) {
-            HStack(spacing: config.contentSpacing) {
-                config.iconImage
+        HStack(spacing: Constants.defaultContentSpacing) {
+            HStack(spacing: Constants.defaultContentSpacing) {
+                iconImage
                     .resizable()
-                    .frame(width: 32, height: 32)
+                    .frame(
+                        width: Constants.iconSize,
+                        height: Constants.iconSize
+                    )
                 
-                Text(config.goalName)
-                    .typography(config.titleTypography)
+                Text(title)
+                    .typography(Constants.typography)
                     .lineLimit(1)
-                    .padding(.trailing, 2)
+                    .padding(.trailing, Constants.titleTrailingPadding)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
             rightContent
         }
-        .padding(config.padding)
-        .background(Color.Common.white)
+        .padding(Constants.defaultPadding)
+        .background(Constants.backgroundColor)
         .onTapGesture {
-            config.onHeaderTapped?()
-        }
-        .insideRectEdgeBorder(
-            width: config.borderWidth,
-            edges: config.insideBorderEdges,
-            color: config.borderColor
-        )
-    }
-    
-    @ViewBuilder var rightContent: some View {
-        switch config.content {
-        case let .goalCheck(isMyChecked, isCoupleChecked, action):
-            TXToggleButton(
-                config: .goalCheck(),
-                isMyChecked: isMyChecked,
-                isCoupleChecked: isCoupleChecked,
-                action: action
-            )
-            
-        case .goalAdd:
-            TXCircleButton(
-                config: .rightArrow(),
-                action: { config.onHeaderTapped?() }
-            )
-
-        case let .goalEdit(action):
-            Button(action: action) {
-                Image.Icon.Symbol.meatball
-            }
-            
-        case let .goalStats(goalCount, isOngoing):
-            let status = isOngoing ? "이번달" : "총"
-            Text("\(status) 목표 \(goalCount)번")
-                .typography(.b1_14b)
+            onTap?()
         }
     }
 }
 
-#Preview {
-    CardHeaderPreview()
-}
-
-private struct CardHeaderPreview: View {
-    @State private var isMyChecked = false
-
-    var body: some View {
-        VStack {
-            CardHeaderView(
-                config: .goalCheckClosed(
-                    goalName: "목표 이름",
-                    iconImage: .Icon.Illustration.exercise,
-                    isMyChecked: isMyChecked,
-                    action: { isMyChecked.toggle() }
-                )
-            )
-            
-            CardHeaderView(
-                config: .goalCheckOpened(
-                    goalName: "목표 이름",
-                    iconImage: .Icon.Illustration.exercise,
-                    isMyChecked: isMyChecked,
-                    action: { isMyChecked.toggle() }
-                )
-            )
-            
-            CardHeaderView(
-                config: .goalAdd(
-                    goalName: "목표 이름",
-                    iconImage: .Icon.Illustration.exercise,
-                    action: { }
-                )
-            )
-        }
-        .padding(.horizontal, Spacing.spacing8)
-    }
+// MARK: - Constants
+private enum Constants {
+    static let iconSize: CGFloat = 32
+    static let titleTrailingPadding: CGFloat = 2
+    static let defaultPadding = Spacing.spacing7
+    static let defaultContentSpacing = Spacing.spacing6
+    static let radius = Radius.s
+    static let borderColor = Color.Gray.gray500
+    static let borderWidth = LineWidth.m
+    static let typography = TypographyToken.t2_16b
+    static let backgroundColor = Color.Common.white
 }

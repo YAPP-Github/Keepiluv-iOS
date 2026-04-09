@@ -53,8 +53,9 @@ private extension StatsView {
     }
     
     var topTabBar: some View {
-        TXTopTabBar(
-            config: .stats,
+        TXTab(
+            style: .line(StatsTopTabItem.allCases),
+            selectedItem: .ongoing,
             onSelect: { item in
                 store.send(.topTabBarSelected(item))
             }

@@ -88,19 +88,17 @@ private extension EditGoalListView {
             LazyVStack(spacing: 16) {
                 ForEach(store.cards ?? []) { card in
                     GoalEditCardView(
-                        config: .goalEdit(
-                            item: .init(
-                                id: card.id,
-                                goalName: card.goalName,
-                                iconImage: card.iconImage,
-                                repeatCycle: card.repeatCycle,
-                                startDate: card.startDate,
-                                endDate: card.endDate
-                            ),
-                            action: {
-                                store.send(.cardMenuButtonTapped(card))
-                            }
-                        )
+                        item: .init(
+                            id: card.id,
+                            goalName: card.goalName,
+                            iconImage: card.iconImage,
+                            repeatCycle: card.repeatCycle,
+                            startDate: card.startDate,
+                            endDate: card.endDate
+                        ),
+                        onMenuTap: {
+                            store.send(.cardMenuButtonTapped(card))
+                        }
                     )
                     .overlay(alignment: .topTrailing) {
                         if store.selectedCardMenu == card {
@@ -115,7 +113,7 @@ private extension EditGoalListView {
     }
 
     var dropdown: some View {
-        TXDropdown(config: .goal) { action in
+        TXDropdown(items: GoalDropList.allCases) { action in
             store.send(.cardMenuItemSelected(action))
         }
         .offset(x: -16, y: 48)

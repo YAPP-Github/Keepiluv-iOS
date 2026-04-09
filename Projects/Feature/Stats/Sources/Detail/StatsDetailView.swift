@@ -43,7 +43,7 @@ struct StatsDetailView: View {
         .overlay(alignment: .topTrailing) {
             if store.isDropdownPresented {
                 TXDropdown(
-                    config: .goal,
+                    items: GoalDropList.allCases,
                     onSelect: { item in
                         store.send(.dropDownSelected(item))
                     }

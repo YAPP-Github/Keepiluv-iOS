@@ -71,9 +71,14 @@ public struct MainTabView: View {
 
 private extension MainTabView {
     var homeFloatingButton: some View {
-        TXCircleButton(config: .plus()) {
-            store.send(.home(.home(.floatingButtonTapped)))
-        }
+        TXButton(
+            shape: .circle(
+                style: .basic(icon: Image.Icon.Symbol.plus),
+                size: .m,
+                state: .standard
+            ),
+            onTap: { store.send(.home(.home(.floatingButtonTapped))) }
+        )
         .outsideBorder(
             Color.Gray.gray300,
             shape: .circle,
