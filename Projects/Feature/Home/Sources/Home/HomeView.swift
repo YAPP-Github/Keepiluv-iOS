@@ -187,20 +187,25 @@ private extension HomeView {
     
     var cardList: some View {
         LazyVStack(spacing: 16) {
-            ForEach(store.cards) { card in
-                goalCard(for: card)
+            ForEach(store.items) { item in
+                goalCard(for: item)
             }
         }
         .padding(.top, 12)
     }
     
-    func goalCard(for card: GoalCardItem) -> some View {
+    func goalCard(for item: HomeGoalItem) -> some View {
         GoalCardView(
-            item: card,
-            onHeaderTapped: { store.send(.headerTapped(card)) },
-            onCheckButtonTapped: { store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected)) },
-            actionLeft: { store.send(.myCardTapped(card)) },
-            actionRight: { store.send(.yourCardTapped(card)) }
+            item: item.card,
+            onHeaderTapped: { store.send(.headerTapped(item.card)) },
+            onCheckButtonTapped: {
+                store.send(.goalCheckButtonTapped(
+                    id: item.id,
+                    isChecked: item.card.myCard.isSelected
+                ))         
+            },
+            actionLeft: { store.send(.myCardTapped(item.card)) },
+            actionRight: { store.send(.yourCardTapped(item.card)) }
         )
     }
     
