@@ -24,6 +24,7 @@ public struct GoalListResponseDTO: Decodable {
         let goalName: String
         let icon: String
         let repeatCycle: String?
+        let goalStatus: String
         let repeatCount: Int?
         let startDate: String?
         let endDate: String?
@@ -68,7 +69,8 @@ public extension GoalListResponseDTO {
                 repeatCycle: $0.repeatCycle.flatMap { Goal.RepeatCycle(rawValue: $0) },
                 repeatCount: $0.repeatCount,
                 startDate: $0.startDate,
-                endDate: $0.endDate
+                endDate: $0.endDate,
+                status: .init(rawValue: $0.goalStatus),
             )
         }
     }

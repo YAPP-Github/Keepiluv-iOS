@@ -19,11 +19,17 @@ import Foundation
 ///     yourVerification: .init(isCompleted: false, imageURL: nil, emoji: nil)
 /// )
 /// ```
-public struct Goal {
+public struct Goal: Equatable {
     public enum RepeatCycle: String, Equatable {
         case daily = "DAILY"
         case weekly = "WEEKLY"
         case monthly = "MONTHLY"
+    }
+    
+    public enum Status: String, Equatable {
+        case notStarted = "NOT_STARTED"
+        case inProgressed = "IN_PROGRESSED"
+        case completed = "COMPLETED"
     }
     
     public let id: Int64
@@ -35,6 +41,7 @@ public struct Goal {
     public let repeatCount: Int?
     public let startDate: String?
     public let endDate: String?
+    public let status: Status
     
     /// 목표 인증 상태를 나타내는 모델입니다.
     ///
@@ -47,7 +54,7 @@ public struct Goal {
     ///     emoji: .love
     /// )
     /// ```
-    public struct Verification {
+    public struct Verification: Equatable {
         public let photologId: Int64?
         public let isCompleted: Bool
         public let imageURL: String?
@@ -98,7 +105,8 @@ public struct Goal {
         repeatCycle: RepeatCycle? = nil,
         repeatCount: Int? = nil,
         startDate: String? = nil,
-        endDate: String? = nil
+        endDate: String? = nil,
+        status: Status? = nil
     ) {
         self.id = id
         self.goalIcon = goalIcon
@@ -109,5 +117,6 @@ public struct Goal {
         self.repeatCount = repeatCount
         self.startDate = startDate
         self.endDate = endDate
+        self.status = status ?? .notStarted
     }
 }
