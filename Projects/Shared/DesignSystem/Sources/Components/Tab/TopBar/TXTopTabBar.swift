@@ -14,7 +14,7 @@ import SwiftUI
 /// TXTab(style: .line(StatsTopTabItem.allCases), selectedItem: .ongoing) { item in print(item) }
 /// ```
 struct TXTopTabBar<Item: TXItem>: View {
-    private let selectedItem: Item?
+    @State private var selectedItem: Item?
     private let items: [Item]
     private let onSelect: (Item) -> Void
     
@@ -32,6 +32,7 @@ struct TXTopTabBar<Item: TXItem>: View {
         HStack(spacing: 0) {
             ForEach(items, id: \.self) { item in
                 Button {
+                    selectedItem = item
                     onSelect(item)
                 } label: {
                     tabItem(item: item, isSelected: selectedItem == item)
