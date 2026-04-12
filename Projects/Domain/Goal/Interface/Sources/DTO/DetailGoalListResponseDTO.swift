@@ -18,6 +18,7 @@ public struct DetailGoalListResponseDTO: Decodable {
         public let goalId: Int64
         public let goalName: String
         public let goalIcon: String
+        public let goalStatus: String
         public let myPhotolog: Photolog?
         public let partnerPhotolog: Photolog?
     }
@@ -65,7 +66,8 @@ public extension DetailGoalListResponseDTO {
                             reaction: $0.reaction,
                             createdAt: $0.uploadedAt
                         )
-                    }
+                    },
+                    status: Goal.Status(rawValue: photolog.goalStatus)
                 )
             }
         )

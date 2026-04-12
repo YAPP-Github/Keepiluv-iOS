@@ -218,13 +218,16 @@ public struct GoalDetailReducer {
 }
 
 extension GoalDetailReducer.State {
-    public var partnerEmptyText: String {
-        guard let nickname = item?.partnerNickname else { return "" }
-        return "\(nickname)\n님은 아직인가봐요!"
-    }
-
-    public var explainText: String {
-        !isFrontMyCard ? partnerEmptyText : "인증샷을\n올려보세요!"
+    public var emptyCardText: String {
+        let isCompleted = currentCompletedGoal?.status == .completed
+        guard !isCompleted else { return "인증샷이 없어요" }
+        
+        if isFrontMyCard {
+            return  "인증샷을\n올려보세요!"
+        } else {
+            guard let nickname = item?.partnerNickname else { return "" }
+            return "\(nickname)\n님은 아직인가봐요!"
+        }
     }
     
     public var bottomButtonText: String {
