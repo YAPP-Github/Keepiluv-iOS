@@ -294,7 +294,7 @@ extension GoalDetailReducer {
                 myPhotoLog.goalName = state.goalName
                 myPhotoLog.photologId = state.currentCard?.photologId
                 
-                return .none
+                return .send(.updateMyPhotoLog(myPhotoLog))
                 
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
