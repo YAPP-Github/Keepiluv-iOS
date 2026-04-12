@@ -36,6 +36,7 @@ struct TXToast: View {
     private let style: TXToastStyle
     private let icon: Image?
     private let message: String
+    private let buttonText: String
     private let showButton: Bool
     private let onButtonTap: (() -> Void)?
 
@@ -43,12 +44,14 @@ struct TXToast: View {
         style: TXToastStyle = .fixed,
         icon: Image? = nil,
         message: String,
+        buttonText: String = "",
         showButton: Bool = false,
         onButtonTap: (() -> Void)? = nil
     ) {
         self.style = style
         self.icon = icon
         self.message = message
+        self.buttonText = buttonText
         self.showButton = showButton
         self.onButtonTap = onButtonTap
     }
@@ -72,7 +75,7 @@ private extension TXToast {
             if showButton {
                 TXButton(
                     shape: .rect(
-                        style: .basic(text: "자세히"),
+                        style: .basic(text: buttonText),
                         size: .s,
                         state: .custom(
                             foregroundColor: Color.Common.white,
