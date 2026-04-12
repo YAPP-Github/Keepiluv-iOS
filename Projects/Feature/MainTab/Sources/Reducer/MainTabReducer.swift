@@ -221,6 +221,12 @@ public struct MainTabReducer {
                     // TODO: 통계 탭 → 종료된 목표로 이동
                     return .none
                 }
+                
+            case .home(.delegate(.goToCompletedStats)):
+                state.selectedTab = .statistics
+                state.stats.stats.isOngoing = false
+                state.stats.routes = []
+                return .none
 
             case .home:
                 state.isTabBarHidden = !state.home.routes.isEmpty

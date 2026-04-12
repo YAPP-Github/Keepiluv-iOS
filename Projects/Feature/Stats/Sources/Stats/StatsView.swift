@@ -55,7 +55,7 @@ private extension StatsView {
     var topTabBar: some View {
         TXTab(
             style: .line(StatsTopTabItem.allCases),
-            selectedItem: .ongoing,
+            selectedItem: store.isOngoing ? .ongoing : .completed,
             onSelect: { item in
                 store.send(.topTabBarSelected(item))
             }

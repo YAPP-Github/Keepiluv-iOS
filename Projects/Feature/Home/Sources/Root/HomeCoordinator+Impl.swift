@@ -99,6 +99,11 @@ extension HomeCoordinator {
                 state.routes.append(.makeGoal)
                 state.makeGoal = .init(category: .custom, mode: .edit, editingGoalId: goalId)
                 return .none
+
+            case .editGoalList(.delegate(.goToCompletedStats)):
+                state.editGoalList = nil
+                popLastRoute(&state.routes)
+                return .send(.delegate(.goToCompletedStats))
                 
             case .home:
                 return .none
