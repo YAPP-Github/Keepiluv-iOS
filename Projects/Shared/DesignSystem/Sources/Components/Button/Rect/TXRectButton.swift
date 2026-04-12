@@ -18,7 +18,7 @@ struct TXRectButton: View {
                     .typography(style.typography ?? size.typhography)
                     .foregroundStyle(state.fontColor)
                     .padding(.horizontal, size.horizontalPadding)
-                    .frame(maxWidth: size.width)
+                    .frame(minWidth: size.minWidth, maxWidth: size.maxWidth)
                     .frame(height: size.height)
                     .background(state.backgroundColor)
                     .insideBorder(
@@ -52,10 +52,17 @@ private extension TXButtonShape.TXRectStyle {
 }
 
 private extension TXButtonShape.TXRectSize {
-    var width: CGFloat? {
+    var maxWidth: CGFloat? {
         switch self {
         case .l: .infinity
         case .m: 151
+        case .s: nil
+        }
+    }
+    
+    var minWidth: CGFloat? {
+        switch self {
+        case .l, .m: nil
         case .s: 56
         }
     }
