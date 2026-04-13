@@ -58,7 +58,7 @@ public struct HomeReducer {
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
         public var hasUnreadNotification: Bool = false
-        
+        public var hadFirstGoal: Bool?
         public var goalSectionTitle: String {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
@@ -113,7 +113,7 @@ public struct HomeReducer {
         
         // MARK: - Update State
         case fetchGoals
-        case fetchGoalsCompleted([Goal], date: TXCalendarDate)
+        case fetchGoalsCompleted(GoalList, date: TXCalendarDate)
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)

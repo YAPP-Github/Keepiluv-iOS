@@ -267,10 +267,11 @@ extension HomeReducer {
                 }
                 
                 // MARK: - Update State
-            case let .fetchGoalsCompleted(goals, date):
+            case let .fetchGoalsCompleted(goalList, date):
                 let cacheKey = TXCalendarUtil.apiDateString(for: date)
-                let items = goals.map(HomeGoalItem.init(goal:))
+                let items = goalList.goals.map(HomeGoalItem.init(goal:))
                 state.goalsCache[cacheKey] = items
+                state.hadFirstGoal = goalList.hasEverRegisteredGoal
                 
                 if date != state.calendarDate {
                     return .none
@@ -331,8 +332,8 @@ extension HomeReducer {
                     }
                     
                     do {
-                        let goals = try await goalClient.fetchGoals(cacheKey)
-                        await send(.fetchGoalsCompleted(goals, date: date))
+                        let goalList = try await goalClient.fetchGoals(cacheKey)
+                        await send(.fetchGoalsCompleted(goalList, date: date))
                     } catch {
                         await send(.fetchGoalsFailed)
                     }
