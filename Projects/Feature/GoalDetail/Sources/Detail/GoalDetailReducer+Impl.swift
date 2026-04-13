@@ -146,11 +146,12 @@ extension GoalDetailReducer {
                 )
                 
             case .cardSwiped:
-                state.isSwapped.toggle()
                 state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
+                
+                return .none
                 
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
@@ -172,7 +173,9 @@ extension GoalDetailReducer {
                 }
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
+                
+                return .none
                 
             case .fetchGoalDetailFailed:
                 return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
@@ -209,10 +212,6 @@ extension GoalDetailReducer {
 
             case let .showToast(toast):
                 state.toast = toast
-                return .none
-                
-            case let .setCreatedAt(text):
-                state.createdAt = text
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -333,7 +332,9 @@ extension GoalDetailReducer {
                 
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
+                
+                return .none
                 
             case .proofPhoto:
                 return .none

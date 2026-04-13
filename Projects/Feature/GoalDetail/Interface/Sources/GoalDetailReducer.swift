@@ -26,7 +26,6 @@ public struct GoalDetailReducer {
         public var currentGoalIndex: Int = 0
         public var currentUser: GoalDetail.Owner
         public let verificationDate: String
-        public var isSwapped: Bool = false
         
         public var completedGoalItems: [GoalDetail.CompletedGoal] {
             item?.completedGoals.compactMap { $0 } ?? []
@@ -49,36 +48,12 @@ public struct GoalDetailReducer {
             currentCompletedGoal?.yourPhotoLog
         }
         
-        public var currentEditedImageData: Data? {
-            isFrontMyCard ? pendingEditedImageData : nil
-        }
-
-        public var myCardEditedImageData: Data? {
-            pendingEditedImageData
-        }
-
-        public var myCardImageURL: String? {
-            myCard?.imageUrl
-        }
-
-        public var partnerCardImageURL: String? {
-            partnerCard?.imageUrl
-        }
-
-        public var myCardComment: String {
-            myCard?.comment ?? ""
-        }
-
-        public var partnerCardComment: String {
-            partnerCard?.comment ?? ""
-        }
-
         public var myCardIsCompleted: Bool {
-            myCardEditedImageData != nil || myCardImageURL != nil
+            pendingEditedImageData != nil || myCard?.imageUrl != nil
         }
 
         public var partnerCardIsCompleted: Bool {
-            partnerCardImageURL != nil
+            partnerCard?.imageUrl != nil
         }
         
         public var goalName: String {
@@ -98,7 +73,7 @@ public struct GoalDetailReducer {
         }
         
         public var isCompleted: Bool {
-            currentEditedImageData != nil || currentCard?.imageUrl != nil
+            pendingEditedImageData != nil || currentCard?.imageUrl != nil
         }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
@@ -174,7 +149,6 @@ public struct GoalDetailReducer {
         case updateCurrentCardReaction(String?)
         case reactionUpdateFailed(previousReaction: String?)
         case showToast(TXToastType)
-        case setCreatedAt(String)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
         case updatePhotoLog

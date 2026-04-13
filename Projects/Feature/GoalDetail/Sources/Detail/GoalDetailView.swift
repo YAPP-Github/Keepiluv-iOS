@@ -183,11 +183,10 @@ private extension GoalDetailView {
         cardFace(
             isFront: effectiveIsFrontMyCard,
             isCompleted: store.myCardIsCompleted,
-            imageData: store.myCardEditedImageData,
-            imageURL: store.myCardImageURL,
-            comment: store.myCardComment,
-            showsMyEmoji: effectiveIsFrontMyCard && store.selectedReactionEmoji != nil,
-            emptyText: store.emptyCardText
+            imageData: store.pendingEditedImageData,
+            imageURL: store.myCard?.imageUrl,
+            comment: store.myCard?.comment ?? "",
+            showsMyEmoji: effectiveIsFrontMyCard && store.selectedReactionEmoji != nil
         )
         .offset(x: cardOffset * (effectiveIsFrontMyCard ? 1 : -1))
     }
@@ -198,10 +197,9 @@ private extension GoalDetailView {
             isFront: !effectiveIsFrontMyCard,
             isCompleted: store.partnerCardIsCompleted,
             imageData: nil,
-            imageURL: store.partnerCardImageURL,
-            comment: store.partnerCardComment,
-            showsMyEmoji: false,
-            emptyText: store.emptyCardText
+            imageURL: store.partnerCard?.imageUrl,
+            comment: store.partnerCard?.comment ?? "",
+            showsMyEmoji: false
         )
         .offset(x: cardOffset * (effectiveIsFrontMyCard ? -1 : 1))
         .rotationEffect(.degrees(-8))
@@ -264,8 +262,7 @@ private extension GoalDetailView {
         imageData: Data?,
         imageURL: String?,
         comment: String,
-        showsMyEmoji: Bool,
-        emptyText: String
+        showsMyEmoji: Bool
     ) -> some View {
         ZStack {
             backgroundCard
@@ -276,8 +273,7 @@ private extension GoalDetailView {
                 imageData: imageData,
                 imageURL: imageURL,
                 comment: comment,
-                showsMyEmoji: showsMyEmoji,
-                emptyText: emptyText
+                showsMyEmoji: showsMyEmoji
             )
             .opacity(isFront ? 1 : 0)
         }
@@ -289,8 +285,7 @@ private extension GoalDetailView {
         imageData: Data?,
         imageURL: String?,
         comment: String,
-        showsMyEmoji: Bool,
-        emptyText: String
+        showsMyEmoji: Bool
     ) -> some View {
         if isCompleted {
             completedImageCard(
@@ -302,7 +297,7 @@ private extension GoalDetailView {
         } else {
             nonCompletedCard
                 .overlay {
-                    nonCompletedText(text: emptyText)
+                    nonCompletedText
                 }
         }
     }
@@ -353,8 +348,8 @@ private extension GoalDetailView {
         }
     }
     
-    func nonCompletedText(text: String) -> some View {
-        Text(text)
+    var nonCompletedText: some View {
+        Text(store.emptyCardText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray500)
             .multilineTextAlignment(.center)
