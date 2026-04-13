@@ -12,11 +12,12 @@ import Foundation
 /// ## 사용 예시
 /// ```swift
 /// let response = try JSONDecoder().decode(GoalListResponseDTO.self, from: data)
-/// let goals = response.toEntity(response)
+/// let goalList = response.toEntity(response)
 /// ```
 public struct GoalListResponseDTO: Decodable {
     // let completedCount
     // let totalCount: Int
+    public let hasEverRegisteredGoal: Bool
     public let goals: [GoalResponse]
 
     public struct GoalResponse: Decodable {
@@ -46,10 +47,10 @@ public extension GoalListResponseDTO {
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let goals = response.toEntity(response)
+    /// let goalList = response.toEntity(response)
     /// ```
-    func toEntity(_ response: GoalListResponseDTO) -> [Goal] {
-        return response.goals.map {
+    func toEntity(_ response: GoalListResponseDTO) -> GoalList {
+        let goals = response.goals.map {
             Goal(
                 id: $0.goalId,
                 goalIcon: $0.icon,
@@ -70,8 +71,13 @@ public extension GoalListResponseDTO {
                 repeatCount: $0.repeatCount,
                 startDate: $0.startDate,
                 endDate: $0.endDate,
-                status: .init(rawValue: $0.goalStatus),
+                status: .init(rawValue: $0.goalStatus)
             )
         }
+
+        return GoalList(
+            hasEverRegisteredGoal: response.hasEverRegisteredGoal,
+            goals: goals
+        )
     }
 }
