@@ -66,8 +66,7 @@ public struct ProofPhotoView: View {
             }
 
             if store.isUploading {
-                ProgressView()
-                    .scaleEffect(1.2)
+                ProofPhotoLoadingView()
             }
         }
         .ignoresSafeArea(.keyboard)
