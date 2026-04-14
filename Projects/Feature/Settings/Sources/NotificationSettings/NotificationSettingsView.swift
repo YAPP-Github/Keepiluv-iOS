@@ -20,9 +20,9 @@ struct NotificationSettingsView: View {
             navigationBar
 
             ZStack {
-                if store.isNotificationSettingsLoading {
+                if store.ui.isNotificationSettingsLoading {
                     loadingView
-                } else if !store.isSystemNotificationEnabled {
+                } else if !store.ui.isSystemNotificationEnabled {
                     disabledView
                 } else {
                     ScrollView {
@@ -37,11 +37,11 @@ struct NotificationSettingsView: View {
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            store.send(.notificationSettingsOnAppear)
+            store.send(.internal(.notificationSettingsOnAppear))
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                store.send(.notificationSettingsOnAppear)
+                store.send(.internal(.notificationSettingsOnAppear))
             }
         }
     }
@@ -53,7 +53,7 @@ private extension NotificationSettingsView {
     var navigationBar: some View {
         TXNavigationBar(style: .subTitle(title: "알림 설정", type: .back)) { action in
             if action == .backTapped {
-                store.send(.subViewBackButtonTapped)
+                store.send(.view(.subViewBackButtonTapped))
             }
         }
     }
@@ -87,7 +87,7 @@ private extension NotificationSettingsView {
 
     var enableNotificationBanner: some View {
         Button {
-            store.send(.enableNotificationBannerTapped)
+            store.send(.view(.enableNotificationBannerTapped))
         } label: {
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -138,24 +138,24 @@ private extension NotificationSettingsView {
     var pokePushItem: some View {
         toggleItem(
             title: "찌르기 푸쉬알림",
-            isOn: store.isPokePushEnabled,
-            onToggle: { store.send(.pokePushToggled($0)) }
+            isOn: store.ui.isPokePushEnabled,
+            onToggle: { store.send(.view(.pokePushToggled($0))) }
         )
     }
 
     var marketingPushItem: some View {
         toggleItem(
             title: "마케팅 정보 푸쉬알림",
-            isOn: store.isMarketingPushEnabled,
-            onToggle: { store.send(.marketingPushToggled($0)) }
+            isOn: store.ui.isMarketingPushEnabled,
+            onToggle: { store.send(.view(.marketingPushToggled($0))) }
         )
     }
 
     var nightMarketingPushItem: some View {
         toggleItem(
             title: "야간 마케팅 정보 푸쉬알림",
-            isOn: store.isNightMarketingPushEnabled,
-            onToggle: { store.send(.nightPushToggled($0)) }
+            isOn: store.ui.isNightMarketingPushEnabled,
+            onToggle: { store.send(.view(.nightPushToggled($0))) }
         )
     }
 

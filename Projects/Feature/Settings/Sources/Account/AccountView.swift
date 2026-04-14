@@ -27,9 +27,9 @@ struct AccountView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
-        .txModal(item: $store.modal) { action in
+        .txModal(item: $store.presentation.modal) { action in
             if action == .confirm {
-                store.send(.modalConfirmTapped)
+                store.send(.view(.modalConfirmTapped))
             }
         }
     }
@@ -41,7 +41,7 @@ private extension AccountView {
     var navigationBar: some View {
         TXNavigationBar(style: .subTitle(title: "계정", type: .back)) { action in
             if action == .backTapped {
-                store.send(.subViewBackButtonTapped)
+                store.send(.view(.subViewBackButtonTapped))
             }
         }
     }
@@ -69,14 +69,14 @@ private extension AccountView {
 
     var logoutItem: some View {
         listItem(title: "로그아웃") {
-            store.send(.logoutTapped)
+            store.send(.view(.logoutTapped))
         }
     }
 
     var coupleCodeItem: some View {
         listItem(
             title: "커플코드",
-            trailingText: store.coupleCode
+            trailingText: store.data.coupleCode
         ) {
             // 탭해도 동작 없음 (표시만)
         }
@@ -84,13 +84,13 @@ private extension AccountView {
 
     var disconnectCoupleItem: some View {
         listItem(title: "커플 끊기") {
-            store.send(.disconnectCoupleTapped)
+            store.send(.view(.disconnectCoupleTapped))
         }
     }
 
     var withdrawItem: some View {
         listItem(title: "탈퇴하기") {
-            store.send(.withdrawTapped)
+            store.send(.view(.withdrawTapped))
         }
     }
 
