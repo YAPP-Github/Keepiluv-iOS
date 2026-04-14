@@ -88,35 +88,35 @@ public struct GoalDetailView: View {
         .toolbar(.hidden, for: .navigationBar)
         .observeKeyboardFrame($keyboardFrame)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.internal(.onAppear))
         }
         .onDisappear {
             didPlayMyEmojiAppearAnimation = false
             myEmojiFlyingReactionEmitter.clear()
-            store.send(.onDisappear)
+            store.send(.internal(.onDisappear))
         }
         .fullScreenCover(
-            isPresented: $store.isPresentedProofPhoto,
-            onDismiss: { store.send(.proofPhotoDismissed) },
+            isPresented: $store.presentation.isPresentedProofPhoto,
+            onDismiss: { store.send(.view(.proofPhotoDismissed)) },
             content: {
-                IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
+                IfLetStore(store.scope(state: \.presentation.proofPhoto, action: \.proofPhoto)) { store in
                     proofPhotoFactory.makeView(store)
                 }
             }
         )
         .cameraPermissionAlert(
-            isPresented: $store.isCameraPermissionAlertPresented,
-            onDismiss: { store.send(.cameraPermissionAlertDismissed) }
+            isPresented: $store.presentation.isCameraPermissionAlertPresented,
+            onDismiss: { store.send(.view(.cameraPermissionAlertDismissed)) }
         )
         .overlay(alignment: .bottom) {
             myEmojiFlyingReactionOverlay
         }
         .overlay {
-            if store.isSavingPhotoLog {
+            if store.ui.isSavingPhotoLog {
                 ProgressView()
             }
         }
-        .txToast(item: $store.toast, customPadding: 54)
+        .txToast(item: $store.presentation.toast, customPadding: 54)
     }
 }
 
@@ -133,7 +133,7 @@ private extension GoalDetailView {
                 )
             ),
             onAction: { action in
-                store.send(.navigationBarTapped(action))
+                store.send(.view(.navigationBarTapped(action)))
             }
         )
         .overlay(dimmedView)
@@ -172,7 +172,7 @@ private extension GoalDetailView {
                 .onEnded { _ in
                     withAnimation(.spring(response: 0.2, dampingFraction: 0.94)) {
                         resetDragState()
-                        store.send(.cardSwiped)
+                        store.send(.view(.cardSwiped))
                     }
                 }
         )
@@ -209,7 +209,7 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var completedBottomContent: some View {
-        if store.isEditing {
+        if store.ui.isEditing {
             bottomButton
                 .padding(.top, 101)
                 .padding(.horizontal, 30)
@@ -218,7 +218,7 @@ private extension GoalDetailView {
                 .padding(.top, 14)
                 .padding(.trailing, 36)
         }
-        
+
         if store.isShowReactionBar {
             reactionBar
                 .padding(.top, isSEDevice ? 23 : 73)
@@ -227,7 +227,7 @@ private extension GoalDetailView {
     }
     
     var createdAtText: some View {
-        Text(store.createdAt)
+        Text(store.data.createdAt)
             .typography(.b4_12b)
             .foregroundStyle(Color.Gray.gray300)
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -237,7 +237,7 @@ private extension GoalDetailView {
         ReactionBarView(
             selectedEmoji: store.selectedReactionEmoji,
             onSelect: { emoji in
-                store.send(.reactionEmojiTapped(emoji))
+                store.send(.view(.reactionEmojiTapped(emoji)))
             }
         )
     }
@@ -370,25 +370,25 @@ private extension GoalDetailView {
         TXButton(
             shape: .round(
                 style: .illustLight(text: store.bottomButtonText),
-                size: store.isEditing ? .l : .m,
+                size: store.ui.isEditing ? .l : .m,
                 state: .standard
             ),
             onTap: {
-                store.send(.bottomButtonTapped)
+                store.send(.view(.bottomButtonTapped))
             }
         )
     }
-    
+
     @ViewBuilder
     func commentCircle(comment: String) -> some View {
         let keyboardInset = max(0, rectFrame.maxY - keyboardFrame.minY)
         TXCommentCircle(
-            commentText: store.isEditing ? $store.commentText : .constant(comment),
-            isEditable: store.isEditing,
+            commentText: store.ui.isEditing ? $store.data.commentText : .constant(comment),
+            isEditable: store.ui.isEditing,
             keyboardInset: keyboardInset,
-            isFocused: $store.isCommentFocused,
+            isFocused: $store.ui.isCommentFocused,
             onFocused: { isFocused in
-                store.send(.focusChanged(isFocused))
+                store.send(.view(.focusChanged(isFocused)))
             }
         )
         .animation(.easeOut(duration: 0.25), value: keyboardInset)
@@ -396,13 +396,13 @@ private extension GoalDetailView {
     
     var dimmedView: some View {
         Color.Dimmed.dimmed70
-            .opacity(store.isEditing && store.isCommentFocused ? 1 : 0)
+            .opacity(store.ui.isEditing && store.ui.isCommentFocused ? 1 : 0)
             .transition(.opacity)
-            .animation(.easeInOut, value: store.isCommentFocused)
+            .animation(.easeInOut, value: store.ui.isCommentFocused)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .ignoresSafeArea()
             .onTapGesture {
-                store.send(.dimmedBackgroundTapped)
+                store.send(.view(.dimmedBackgroundTapped))
             }
     }
 
