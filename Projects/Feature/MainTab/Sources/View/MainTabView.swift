@@ -63,7 +63,7 @@ public struct MainTabView: View {
             }
         }
         .txToast(
-            item: $store.home.home.toast,
+            item: $store.home.home.presentation.toast,
             customPadding: Constants.tabBarHeight
         )
     }
@@ -77,7 +77,7 @@ private extension MainTabView {
                 size: .m,
                 state: .standard
             ),
-            onTap: { store.send(.home(.home(.floatingButtonTapped))) }
+            onTap: { store.send(.home(.home(.view(.floatingButtonTapped)))) }
         )
         .outsideBorder(
             Color.Gray.gray300,

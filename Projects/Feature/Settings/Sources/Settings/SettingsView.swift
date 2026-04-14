@@ -49,8 +49,15 @@ public struct SettingsView: View {
             }
         }
         .txModal(item: $store.presentation.modal) { action in
-            if case let .confirmWithIndex(index) = action {
+            switch action {
+            case .confirm:
+                store.send(.view(.modalConfirmTapped))
+
+            case let .confirmWithIndex(index):
                 store.send(.internal(.languageConfirmed(index)))
+
+            default:
+                break
             }
         }
         .onAppear {

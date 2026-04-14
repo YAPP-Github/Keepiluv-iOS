@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import DomainStatsInterface
 import FeatureStatsInterface
 import SharedDesignSystem
@@ -57,6 +58,7 @@ extension StatsDetailReducer {
 
 // MARK: - View
 
+// swiftlint:disable:next function_body_length
 private func reduceView(
     state: inout StatsDetailReducer.State,
     action: StatsDetailReducer.Action.View
@@ -254,7 +256,7 @@ private func reduceInternal(
         let myCountString = "\(summary.myNickname) - \(summary.myCompletedCount)/\(summary.totalCount)"
         let partnerCountString = "\(summary.partnerNickname) - \(summary.partnerCompltedCount)/\(summary.totalCount)"
 
-        let summaryInfo: [State.StatsSummaryInfo] = [
+        let summaryInfo: [StatsDetailReducer.State.StatsSummaryInfo] = [
             .init(title: "달성 횟수", content: [myCountString, partnerCountString]),
             .init(title: "반복 주기", content: [summary.repeatCycle.text]),
             .init(title: "시작일", content: [summary.startDate]),

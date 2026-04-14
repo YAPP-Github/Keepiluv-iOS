@@ -64,7 +64,7 @@ public struct GoalDetailView: View {
         VStack(spacing: 0) {
             navigationBar
             
-            if store.item != nil {
+            if store.data.item != nil {
                 cardView
                     .padding(.horizontal, 27)
                     .padding(.top, isSEDevice ? 47 : 103)
@@ -186,7 +186,7 @@ private extension GoalDetailView {
             imageData: store.myCardEditedImageData,
             imageURL: store.myCardImageURL,
             comment: store.myCardComment,
-            showsMyEmoji: effectiveIsFrontMyCard && store.selectedReactionEmoji != nil,
+            showsMyEmoji: effectiveIsFrontMyCard && store.data.selectedReactionEmoji != nil,
             emptyText: "인증샷을\n올려보세요!"
         )
         .offset(x: cardOffset * (effectiveIsFrontMyCard ? 1 : -1))
@@ -235,7 +235,7 @@ private extension GoalDetailView {
     
     @ViewBuilder var reactionBar: some View {
         ReactionBarView(
-            selectedEmoji: store.selectedReactionEmoji,
+            selectedEmoji: store.data.selectedReactionEmoji,
             onSelect: { emoji in
                 store.send(.view(.reactionEmojiTapped(emoji)))
             }
@@ -443,7 +443,7 @@ private extension GoalDetailView {
     
     @ViewBuilder
     var myEmoji: some View {
-        if let emoji = store.selectedReactionEmoji?.image {
+        if let emoji = store.data.selectedReactionEmoji?.image {
             emoji
                 .resizable()
                 .frame(width: 52, height: 52)
@@ -471,7 +471,7 @@ private extension GoalDetailView {
                 reactions: myEmojiFlyingReactionEmitter.reactions,
                 alignment: .bottom
             )
-            .onChange(of: store.selectedReactionEmoji) {
+            .onChange(of: store.data.selectedReactionEmoji) {
                 playMyEmojiAppearAnimationIfNeeded(
                     containerWidth: proxy.size.width,
                     containerHeight: proxy.size.height
@@ -487,7 +487,7 @@ private extension GoalDetailView {
     ) {
         guard store.myHasEmoji,
               !didPlayMyEmojiAppearAnimation,
-              let selectedEmoji = store.selectedReactionEmoji else { return }
+              let selectedEmoji = store.data.selectedReactionEmoji else { return }
         didPlayMyEmojiAppearAnimation = true
         myEmojiFlyingReactionEmitter.emit(
             emoji: selectedEmoji,

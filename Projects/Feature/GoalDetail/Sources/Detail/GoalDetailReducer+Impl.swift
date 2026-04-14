@@ -60,6 +60,7 @@ extension GoalDetailReducer {
     ///     proofPhotoReducer: ProofPhotoReducer()
     /// )
     /// ```
+    // swiftlint:disable:next function_body_length
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {
@@ -334,6 +335,7 @@ private func reduceInternal(
 
 // MARK: - Response
 
+// swiftlint:disable:next function_body_length
 private func reduceResponse(
     state: inout GoalDetailReducer.State,
     action: GoalDetailReducer.Action.Response,

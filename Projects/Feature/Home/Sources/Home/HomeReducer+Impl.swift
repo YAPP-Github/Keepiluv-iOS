@@ -72,6 +72,7 @@ extension HomeReducer {
     /// ```swift
     /// let reducer = HomeReducer()
     /// ```
+    // swiftlint:disable:next function_body_length
     public init(
         proofPhotoReducer: ProofPhotoReducer
     ) {
@@ -119,7 +120,7 @@ extension HomeReducer {
 
             case let .proofPhoto(.delegate(.completedUploadPhoto(myPhotoLog, _))):
                 state.presentation.isProofPhotoPresented = false
-                guard let goalId = state.proofPhoto?.goalId else { return .none }
+                guard let goalId = state.proofPhoto?.data.goalId else { return .none }
                 guard let index = state.data.cards.firstIndex(where: { $0.id == goalId }) else { return .none }
                 let imageURL = myPhotoLog.imageUrl.flatMap(URL.init(string:))
                 state.data.cards[index].myCard = .init(
@@ -148,6 +149,7 @@ extension HomeReducer {
 
 // MARK: - View Actions
 
+// swiftlint:disable:next function_body_length
 private func reduceView(
     state: inout HomeReducer.State,
     action: HomeReducer.Action.View,
@@ -241,7 +243,13 @@ private func reduceView(
             }
             state.data.pendingDeleteGoalID = id
             state.data.pendingDeletePhotologID = photologId
-            state.presentation.modal = .info(.uncheckGoal)
+            state.presentation.modal = .info(
+                image: .Icon.Illustration.modalWarning,
+                title: "체크를 해제할까요?",
+                subtitle: "해제하면 등록한 사진은 사라집니다.",
+                leftButtonText: "취소",
+                rightButtonText: "해제"
+            )
             return .none
         } else {
             let now = state.ui.nowDate
@@ -326,6 +334,7 @@ private func reduceView(
 
 // MARK: - Internal Actions
 
+// swiftlint:disable:next function_body_length
 private func reduceInternal(
     state: inout HomeReducer.State,
     action: HomeReducer.Action.Internal,

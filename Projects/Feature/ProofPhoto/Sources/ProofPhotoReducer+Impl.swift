@@ -42,8 +42,8 @@ extension ProofPhotoReducer {
             case .presentation(let presentationAction):
                 return reducePresentation(state: &state, action: presentationAction)
 
-            case .binding(\.data.selectedPhotoItem):
-                guard let selectedPhotoItem = state.data.selectedPhotoItem else {
+            case .binding(\.selectedPhotoItem):
+                guard let selectedPhotoItem = state.selectedPhotoItem else {
                     state.data.imageData = nil
                     return .none
                 }
@@ -69,6 +69,7 @@ extension ProofPhotoReducer {
 
 // MARK: - View
 
+// swiftlint:disable:next function_body_length
 private func reduceView(
     state: inout ProofPhotoReducer.State,
     action: ProofPhotoReducer.Action.View,
@@ -119,7 +120,7 @@ private func reduceView(
 
     case .returnButtonTapped:
         state.data.imageData = nil
-        state.data.selectedPhotoItem = nil
+        state.selectedPhotoItem = nil
         state.ui.isCapturing = false
         let position: AVCaptureDevice.Position = state.ui.isFront ? .front : .back
 
@@ -218,7 +219,7 @@ private func reduceInternal(
 ) -> Effect<ProofPhotoReducer.Action> {
     switch action {
     case let .setupCaptureSessionCompleted(session):
-        state.data.captureSession = session
+        state.captureSession = session
         return .none
 
     case .cameraSwitched:

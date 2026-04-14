@@ -73,7 +73,7 @@ public struct HomeReducer {
         /// 프레젠테이션 (toast, modal, sheet 등)
         public struct Presentation: Equatable {
             public var toast: TXToastType?
-            public var modal: TXModalType?
+            public var modal: TXModalStyle?
             public var isCalendarSheetPresented: Bool = false
             public var isProofPhotoPresented: Bool = false
             public var isAddGoalPresented: Bool = false

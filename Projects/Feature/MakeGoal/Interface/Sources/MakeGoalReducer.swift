@@ -123,7 +123,7 @@ public struct MakeGoalReducer {
 
         public var showPeriodCount: Bool { data.selectedPeriod != .daily }
         public var periodCountText: String { "\(data.selectedPeriod.text) \(periodCount)번" }
-        public var selectedEmoji: GoalIcon { icons[data.selectedEmojiIndex] }
+        public var selectedEmoji: GoalIcon { Self.icons[data.selectedEmojiIndex] }
         public var completeButtonDisabled: Bool { !isValidTitleLength || ui.isLoading }
         public var isInvalidTitle: Bool { isValidTitleLength }
         public var isValidTitleLength: Bool { 2 <= data.goalTitle.count && data.goalTitle.count <= 14 }
@@ -212,7 +212,7 @@ public struct MakeGoalReducer {
         }
 
         // MARK: - Response (비동기 응답)
-        public enum Response: Equatable {
+        public enum Response {
             case fetchGoalCompleted(Goal)
             case fetchGoalFailed
             case createGoalFailed
@@ -263,13 +263,13 @@ public extension MakeGoalReducer.State {
         }
     }
 
-    var isMinusEnable: Bool { periodCount > minimumPeriodCount }
+    var isMinusEnable: Bool { periodCount > Self.minimumPeriodCount }
 
     var isPlusEnable: Bool {
         if case .monthly = data.selectedPeriod {
-            return periodCount < monthlyMaximumPeriodCount
+            return periodCount < Self.monthlyMaximumPeriodCount
         } else if case .weekly = data.selectedPeriod {
-            return periodCount < weeklyMaximumPeriodCount
+            return periodCount < Self.weeklyMaximumPeriodCount
         } else {
             return false
         }
@@ -279,11 +279,11 @@ public extension MakeGoalReducer.State {
         get {
             data.selectedPeriod.text
         } set {
-            if newValue == dailyPeriodText {
+            if newValue == Self.dailyPeriodText {
                 data.selectedPeriod = .daily
-            } else if newValue == weeklyPeriodText {
+            } else if newValue == Self.weeklyPeriodText {
                 data.selectedPeriod = .weekly
-            } else if newValue == monthlyPeriodText {
+            } else if newValue == Self.monthlyPeriodText {
                 data.selectedPeriod = .monthly
             }
         }

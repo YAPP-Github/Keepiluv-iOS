@@ -100,7 +100,7 @@ private extension ProofPhotoView {
     }
 
     var shouldShowCommentOverlay: Bool {
-        (store.data.captureSession != nil || store.hasImage) && rectFrame != .zero
+        (store.captureSession != nil || store.hasImage) && rectFrame != .zero
     }
 
     var topBar: some View {
@@ -138,7 +138,7 @@ private extension ProofPhotoView {
                     .resizable()
                     .scaledToFill()
             }
-        } else if let session = store.data.captureSession {
+        } else if let session = store.captureSession {
             previewContainer {
                 CameraPreview(session: session)
             }
@@ -241,7 +241,7 @@ private extension ProofPhotoView {
     
     var galleryButton: some View {
         PhotosPicker(
-            selection: $store.data.selectedPhotoItem,
+            selection: $store.selectedPhotoItem,
             matching: .images,
             photoLibrary: .shared()
         ) {

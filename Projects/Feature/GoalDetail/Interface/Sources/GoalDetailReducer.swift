@@ -5,6 +5,7 @@
 //  Created by 정지훈 on 1/21/26.
 //
 
+import Foundation
 import SwiftUI
 
 import ComposableArchitecture
@@ -32,7 +33,7 @@ public struct GoalDetailReducer {
             public var currentGoalIndex: Int = 0
             public var currentUser: GoalDetail.Owner
             public var selectedReactionEmoji: ReactionEmoji?
-            public var pendingEditedImageData: Swift.Data?
+            public var pendingEditedImageData: Foundation.Data?
             public var commentText: String = ""
             public var createdAt: String = ""
 
@@ -96,11 +97,11 @@ public struct GoalDetailReducer {
             currentCompletedGoal?.yourPhotoLog
         }
 
-        public var currentEditedImageData: Swift.Data? {
+        public var currentEditedImageData: Foundation.Data? {
             isFrontMyCard ? data.pendingEditedImageData : nil
         }
 
-        public var myCardEditedImageData: Swift.Data? {
+        public var myCardEditedImageData: Foundation.Data? {
             data.pendingEditedImageData
         }
 

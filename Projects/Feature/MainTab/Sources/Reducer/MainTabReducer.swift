@@ -205,7 +205,7 @@ private extension MainTabReducer {
             switch state.selectedTab {
             case .home:
                 state.isTabBarHidden = !state.home.routes.isEmpty
-                    || state.home.home.isCalendarSheetPresented
+                    || state.home.home.presentation.isCalendarSheetPresented
 
             case .statistics, .couple:
                 state.isTabBarHidden = false

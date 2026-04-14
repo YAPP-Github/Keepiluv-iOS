@@ -52,6 +52,7 @@ extension EditGoalListReducer {
 
 // MARK: - View
 
+// swiftlint:disable:next function_body_length
 private func reduceView(
     state: inout EditGoalListReducer.State,
     action: EditGoalListReducer.Action.View
@@ -154,6 +155,7 @@ private func reduceView(
 
 // MARK: - Internal
 
+// swiftlint:disable:next function_body_length
 private func reduceInternal(
     state: inout EditGoalListReducer.State,
     action: EditGoalListReducer.Action.Internal,

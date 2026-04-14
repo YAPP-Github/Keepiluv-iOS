@@ -196,26 +196,17 @@ private extension HomeView {
 
     func goalCard(for card: GoalCardItem) -> some View {
         GoalCardView(
-            config: .goalCheck(
-                item: .init(
-                    id: card.id,
-                    goalName: card.goalName,
-                    goalEmoji: card.goalEmoji,
-                    myCard: card.myCard,
-                    yourCard: card.yourCard
-                ),
-                isMyChecked: card.myCard.isSelected,
-                isCoupleChecked: card.yourCard.isSelected,
-                action: {
-                    store.send(.view(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected)))
-                },
-                onHeaderTapped: {
-                    store.send(.view(.headerTapped(card)))
-                }
-            ),
+            item: card,
+            onHeaderTapped: {
+                store.send(.view(.headerTapped(card)))
+            },
+            onCheckButtonTapped: {
+                store.send(.view(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected)))
+            },
             actionLeft: {
                 store.send(.view(.myCardTapped(card)))
-            }, actionRight: {
+            },
+            actionRight: {
                 store.send(.view(.yourCardTapped(card)))
             }
         )

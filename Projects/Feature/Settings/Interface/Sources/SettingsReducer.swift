@@ -131,12 +131,12 @@ public struct SettingsReducer {
                 storeVersion: storeVersion
             )
             self.ui = UIState()
+            self.presentation = Presentation()
             self.ui.isEditing = isEditing
             self.ui.selectedLanguage = selectedLanguage
             self.ui.isPokePushEnabled = isPokePushEnabled
             self.ui.isMarketingPushEnabled = isMarketingPushEnabled
             self.ui.isNightMarketingPushEnabled = isNightMarketingPushEnabled
-            self.presentation = Presentation()
         }
     }
 

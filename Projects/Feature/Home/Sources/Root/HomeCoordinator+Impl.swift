@@ -67,7 +67,7 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
 
-            case .statsDetail(.onDisappear):
+            case .statsDetail(.internal(.onDisappear)):
                 state.statsDetail = nil
                 return .none
 
@@ -78,7 +78,7 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
                 
-            case .goalDetail(.onDisappear):
+            case .goalDetail(.internal(.onDisappear)):
                 state.goalDetail = nil
                 return .none
                 
@@ -86,7 +86,7 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
                 
-            case .makeGoal(.onDisappear):
+            case .makeGoal(.internal(.onDisappear)):
                 state.makeGoal = nil
                 return .none
                 

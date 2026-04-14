@@ -28,18 +28,7 @@ public struct ProofPhotoReducer {
             public var goalId: Int64
             public var verificationDate: String
             public var imageData: Foundation.Data?
-            public var selectedPhotoItem: PhotosPickerItem?
             public var commentText: String
-            public var captureSession: AVCaptureSession?
-
-            public static func == (lhs: Self, rhs: Self) -> Bool {
-                lhs.goalId == rhs.goalId &&
-                lhs.verificationDate == rhs.verificationDate &&
-                lhs.imageData == rhs.imageData &&
-                lhs.selectedPhotoItem == rhs.selectedPhotoItem &&
-                lhs.commentText == rhs.commentText &&
-                lhs.captureSession === rhs.captureSession
-            }
 
             public init(
                 goalId: Int64,
@@ -78,6 +67,8 @@ public struct ProofPhotoReducer {
         public var data: Data
         public var ui: UIState
         public var presentation: Presentation
+        public var captureSession: AVCaptureSession?
+        public var selectedPhotoItem: PhotosPickerItem?
 
         public var hasImage: Bool { data.imageData != nil }
 
@@ -132,18 +123,24 @@ public struct ProofPhotoReducer {
 
             public static func == (lhs: Self, rhs: Self) -> Bool {
                 switch (lhs, rhs) {
-                case (.setupCaptureSessionCompleted(let l), .setupCaptureSessionCompleted(let r)):
-                    return l === r
-                case (.captureCompleted(let l), .captureCompleted(let r)):
-                    return l == r
+                case (.setupCaptureSessionCompleted(let lhs), .setupCaptureSessionCompleted(let rhs)):
+                    return lhs === rhs
+                    
+                case (.captureCompleted(let lhs), .captureCompleted(let rhs)):
+                    return lhs == rhs
+                    
                 case (.captureFailed, .captureFailed):
                     return true
-                case (.galleryPhotoLoaded(let l), .galleryPhotoLoaded(let r)):
-                    return l == r
+                    
+                case (.galleryPhotoLoaded(let lhs), .galleryPhotoLoaded(let rhs)):
+                    return lhs == rhs
+                    
                 case (.cameraSwitched, .cameraSwitched):
                     return true
+                    
                 case (.uploadFailed, .uploadFailed):
                     return true
+                    
                 default:
                     return false
                 }

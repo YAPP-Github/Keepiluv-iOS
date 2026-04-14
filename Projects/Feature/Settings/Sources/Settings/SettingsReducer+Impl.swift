@@ -238,6 +238,7 @@ private func reduceView(
 
 // MARK: - Internal
 
+// swiftlint:disable:next function_body_length
 private func reduceInternal(
     state: inout SettingsReducer.State,
     action: SettingsReducer.Action.Internal

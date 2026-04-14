@@ -55,7 +55,7 @@ private extension StatsView {
     var topTabBar: some View {
         TXTab(
             style: .line(StatsTopTabItem.allCases),
-            selectedItem: .ongoing,
+            selectedItem: store.ui.isOngoing ? .ongoing : .completed,
             onSelect: { item in
                 store.send(.view(.topTabBarSelected(item)))
             }
@@ -80,7 +80,7 @@ private extension StatsView {
                 ForEach(store.items ?? [], id: \.self.goalId) { item in
                     StatsCardView(
                         item: item,
-                        isOngoing: store.isOngoing,
+                        isOngoing: store.ui.isOngoing,
                         onTap: { goalId in
                             store.send(.view(.statsCardTapped(goalId: goalId)))
                         }
