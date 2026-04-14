@@ -56,7 +56,7 @@ public struct ProofPhotoView: View {
         ZStack {
             mainContent
 
-            if store.isCommentFocused {
+            if store.ui.isCommentFocused {
                 dimmedView
                     .ignoresSafeArea()
             }
@@ -65,7 +65,7 @@ public struct ProofPhotoView: View {
                 floatingCommentOverlay
             }
 
-            if store.isUploading {
+            if store.ui.isUploading {
                 ProgressView()
                     .scaleEffect(1.2)
             }
@@ -75,9 +75,9 @@ public struct ProofPhotoView: View {
         .observeKeyboardFrame($keyboardFrame)
         .background(Color.Gray.gray500)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.view(.onAppear))
         }
-        .txToast(item: $store.toast, customPadding: 75)
+        .txToast(item: $store.presentation.toast, customPadding: 75)
     }
 }
 
@@ -100,7 +100,7 @@ private extension ProofPhotoView {
     }
 
     var shouldShowCommentOverlay: Bool {
-        (store.captureSession != nil || store.hasImage) && rectFrame != .zero
+        (store.data.captureSession != nil || store.hasImage) && rectFrame != .zero
     }
 
     var topBar: some View {
@@ -108,7 +108,7 @@ private extension ProofPhotoView {
             Spacer()
             
             Button {
-                store.send(.closeButtonTapped)
+                store.send(.view(.closeButtonTapped))
             } label: {
                 Image.Icon.Symbol.closeM
                     .resizable()
@@ -122,7 +122,7 @@ private extension ProofPhotoView {
     }
     
     var titleText: some View {
-        Text(store.titleText)
+        Text(store.ui.titleText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray100)
             .frame(maxWidth: .infinity)
@@ -131,14 +131,14 @@ private extension ProofPhotoView {
     @ViewBuilder
     var photoPreview: some View {
         if store.hasImage,
-           let imageData = store.imageData,
+           let imageData = store.data.imageData,
            let image = UIImage(data: imageData) {
             previewContainer {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
             }
-        } else if let session = store.captureSession {
+        } else if let session = store.data.captureSession {
             previewContainer {
                 CameraPreview(session: session)
             }
@@ -153,7 +153,7 @@ private extension ProofPhotoView {
     var previewTopControls: some View {
         HStack {
             Button {
-                store.send(.flashButtonTapped)
+                store.send(.view(.flashButtonTapped))
             } label: {
                 flashIcon
                     .renderingMode(.template)
@@ -177,7 +177,7 @@ private extension ProofPhotoView {
     }
 
     var flashIcon: Image {
-        store.isFlashOn ? Image.Icon.Symbol.flash : Image.Icon.Symbol.flashDefault
+        store.ui.isFlashOn ? Image.Icon.Symbol.flash : Image.Icon.Symbol.flashDefault
     }
 
     @ViewBuilder
@@ -205,7 +205,7 @@ private extension ProofPhotoView {
                         backgroundColor: Color.Gray.gray400
                     )
                 ),
-                onTap: { store.send(.switchButtonTapped) }
+                onTap: { store.send(.view(.switchButtonTapped)) }
             )
         }
     }
@@ -213,7 +213,7 @@ private extension ProofPhotoView {
     var uploadControls: some View {
         HStack(spacing: Spacing.spacing6) {
             Button {
-                store.send(.returnButtonTapped)
+                store.send(.view(.returnButtonTapped))
             } label: {
                 Image.Icon.Symbol.icReturn
                     .resizable()
@@ -229,7 +229,7 @@ private extension ProofPhotoView {
                     size: .m,
                     state: .standard
                 ),
-                onTap: { store.send(.uploadButtonTapped) }
+                onTap: { store.send(.view(.uploadButtonTapped)) }
             )
             
             Color.clear
@@ -241,7 +241,7 @@ private extension ProofPhotoView {
     
     var galleryButton: some View {
         PhotosPicker(
-            selection: $store.selectedPhotoItem,
+            selection: $store.data.selectedPhotoItem,
             matching: .images,
             photoLibrary: .shared()
         ) {
@@ -255,7 +255,7 @@ private extension ProofPhotoView {
     
     var captureButton: some View {
         Button {
-            store.send(.captureButtonTapped)
+            store.send(.view(.captureButtonTapped))
         } label: {
             Circle()
                 .fill(.white)
@@ -273,16 +273,16 @@ private extension ProofPhotoView {
                 )
         }
         .frame(width: 84, height: 84)
-        .disabled(store.isCapturing)
+        .disabled(store.ui.isCapturing)
     }
     
     var dimmedView: some View {
         Color.Dimmed.dimmed70
-            .opacity(store.isCommentFocused ? 1 : 0)
+            .opacity(store.ui.isCommentFocused ? 1 : 0)
             .transition(.opacity)
-            .animation(.easeInOut, value: store.isCommentFocused)
+            .animation(.easeInOut, value: store.ui.isCommentFocused)
             .onTapGesture {
-                store.send(.dimmedBackgroundTapped)
+                store.send(.view(.dimmedBackgroundTapped))
             }
     }
 }
@@ -324,7 +324,7 @@ private extension ProofPhotoView {
             let posY = rectFrame.minY - rootFrame.minY
 
             VStack(spacing: 8) {
-                if store.isCommentFocused {
+                if store.ui.isCommentFocused {
                     commentExpalinText
                 }
                 commentCircle
@@ -344,12 +344,12 @@ private extension ProofPhotoView {
     
     var commentCircle: some View {
         TXCommentCircle(
-            commentText: $store.commentText,
+            commentText: $store.data.commentText,
             isEditable: true,
             keyboardInset: keyboardInset,
-            isFocused: $store.isCommentFocused,
+            isFocused: $store.ui.isCommentFocused,
             onFocused: { isFocused in
-                store.send(.focusChanged(isFocused))
+                store.send(.view(.focusChanged(isFocused)))
             }
         )
     }

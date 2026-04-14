@@ -16,7 +16,6 @@ import SharedDesignSystem
 import SharedUtil
 
 extension ProofPhotoReducer {
-    // swiftlint: disable function_body_length
     /// 실제 로직을 포함한 ProofPhotoReducer를 생성합니다.
     ///
     /// ## 사용 예시
@@ -26,201 +25,234 @@ extension ProofPhotoReducer {
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
-        
-        // swiftlint: disable closure_body_length
+
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
             switch action {
-                
-            // MARK: - Life Cycle
-            case .onAppear:
-                return .run { [isFlashOn = state.isFlashOn] send in
-                    captureSessionClient.setFlashEnabled(isFlashOn)
-                    let session = await captureSessionClient.setUpCaptureSession(.back)
-                    
-                    await send(.setupCaptureSessionCompleted(session: session))
-                }
-                
-            // MARK: - Action
-            case .closeButtonTapped:
-                return .send(.delegate(.closeProofPhoto))
+            case .view(let viewAction):
+                return reduceView(
+                    state: &state,
+                    action: viewAction,
+                    captureSessionClient: captureSessionClient,
+                    photoLogClient: photoLogClient
+                )
 
-            case .captureButtonTapped:
-                guard !state.isCapturing else { return .none }
-                captureSessionClient.setFlashEnabled(state.isFlashOn)
-                state.isCapturing = true
-                return .run { send in
-                    do {
-                        let imageData = try await captureSessionClient.capturePhoto()
-                        
-                        await send(.captureCompleted(imageData: imageData))
-                        captureSessionClient.stopRunning()
-                    } catch {
-                        await send(.captureFailed)
-                    }
-                }
-                
-            case .switchButtonTapped:
-                return .run { [isFront = state.isFront, isFlashOn = state.isFlashOn] send in
-                    let isFront = !isFront
-                    await captureSessionClient.switchCamera(isFront)
-                    captureSessionClient.setFlashEnabled(isFlashOn)
-                    
-                    await send(.cameraSwitched)
-                }
-                
-            case .flashButtonTapped:
-                state.isFlashOn.toggle()
-                captureSessionClient.setFlashEnabled(state.isFlashOn)
-                return .none
-                
-            case let .commentTextChanged(text):
-                state.commentText = String(text.prefix(5))
-                return .none
-                
-            case .returnButtonTapped:
-                state.imageData = nil
-                state.selectedPhotoItem = nil
-                state.isCapturing = false
-                let position: AVCaptureDevice.Position = state.isFront ? .front : .back
-                
-                return .run { [isFlashOn = state.isFlashOn] send in
-                    let session = await captureSessionClient.setUpCaptureSession(position)
-                    captureSessionClient.setFlashEnabled(isFlashOn)
-                    await send(.setupCaptureSessionCompleted(session: session))
-                }
-                
-            case let .focusChanged(isFocused):
-                state.isCommentFocused = isFocused
-                return .none
-                
-            case .uploadButtonTapped:
-                guard !state.isUploading else { return .none }
-                // 코멘트는 비워도 되지만, 입력할 경우 5글자여야 함
-                let commentCount = state.commentText.count
-                if commentCount > 0 && commentCount < 5 {
-                    return .send(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!")))
-                } else {
-                    guard let imageData = state.imageData else {
-                        return .none
-                    }
-                    state.isUploading = true
+            case .internal(let internalAction):
+                return reduceInternal(state: &state, action: internalAction)
 
-                    let goalId = state.goalId
-                    let comment = state.commentText
-                    let verificationDate = state.verificationDate
-                    
-                    if state.isEditing {
-                        let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
-                            goalId: goalId,
-                            photologId: nil,
-                            goalName: nil,
-                            owner: .mySelf,
-                            imageUrl: nil,
-                            comment: comment,
-                            reaction: nil,
-                            createdAt: "방금"
-                        )
-                        return .send(
-                            .delegate(
-                                .completedUploadPhoto(
-                                    myPhotoLog: myPhotoLog,
-                                    editedImageData: imageData
-                                )
-                            )
-                        )
-                    }
-                    return .run { send in
-                        do {
-                            let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
-                            let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
-                            try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
-                            
-                            let createRequest = PhotoLogCreateRequestDTO(
-                                goalId: goalId,
-                                fileName: uploadResponse.fileName,
-                                comment: comment,
-                                verificationDate: verificationDate
-                            )
-                            let photoLog = try await photoLogClient.createPhotoLog(createRequest)
-                            let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
-                                goalId: goalId,
-                                photologId: photoLog.photologId,
-                                goalName: nil,
-                                owner: .mySelf,
-                                imageUrl: photoLog.imageUrl,
-                                comment: comment,
-                                reaction: nil,
-                                createdAt: "방금"
-                            )
-                            await send(
-                                .delegate(
-                                    .completedUploadPhoto(
-                                        myPhotoLog: myPhotoLog,
-                                        editedImageData: imageData
-                                    )
-                                )
-                            )
-                        } catch {
-                            await send(.uploadFailed)
-                        }
-                    }
-                }
-                
-            case .dimmedBackgroundTapped:
-                return .send(.focusChanged(false))
-            
-            // MARK: - Update State
-            case let .setupCaptureSessionCompleted(session):
-                state.captureSession = session
-                return .none
-                
-            case .cameraSwitched:
-                state.isFront.toggle()
-                return .none
-            
-            case .binding(\.selectedPhotoItem):
-                guard let selectedPhotoItem = state.selectedPhotoItem else {
-                    state.imageData = nil
+            case .presentation(let presentationAction):
+                return reducePresentation(state: &state, action: presentationAction)
+
+            case .binding(\.data.selectedPhotoItem):
+                guard let selectedPhotoItem = state.data.selectedPhotoItem else {
+                    state.data.imageData = nil
                     return .none
                 }
 
                 return .run { send in
                     if let imageData = try? await selectedPhotoItem.loadTransferable(type: Data.self) {
-                        await send(.galleryPhotoLoaded(imageData: imageData))
+                        await send(.internal(.galleryPhotoLoaded(imageData: imageData)))
                         captureSessionClient.stopRunning()
                     }
                 }
 
-            case let .galleryPhotoLoaded(imageData):
-                state.imageData = imageData
-                return .none
-                
-            case let .captureCompleted(imageData: imageData):
-                state.imageData = imageData
-                state.isCapturing = false
-                return .none
-                
-            case .captureFailed:
-                state.isCapturing = false
-                return .send(.showToast(.warning(message: "사진 촬영에 실패했어요")))
-
-            case .uploadFailed:
-                state.isUploading = false
-                return .send(.showToast(.warning(message: "사진 업로드에 실패했어요")))
-
-            case let .showToast(toast):
-                state.toast = toast
-                return .none
-
             case .binding:
                 return .none
-                
-            default: return .none
+
+            case .delegate:
+                return .none
             }
         }
-        // swiftlint: enable closure_body_length
 
         self.init(reducer: reducer)
     }
-    // swiftlint: enable function_body_length
+}
+
+// MARK: - View
+
+private func reduceView(
+    state: inout ProofPhotoReducer.State,
+    action: ProofPhotoReducer.Action.View,
+    captureSessionClient: CaptureSessionClient,
+    photoLogClient: PhotoLogClient
+) -> Effect<ProofPhotoReducer.Action> {
+    switch action {
+    case .onAppear:
+        return .run { [isFlashOn = state.ui.isFlashOn] send in
+            captureSessionClient.setFlashEnabled(isFlashOn)
+            let session = await captureSessionClient.setUpCaptureSession(.back)
+            await send(.internal(.setupCaptureSessionCompleted(session: session)))
+        }
+
+    case .closeButtonTapped:
+        return .send(.delegate(.closeProofPhoto))
+
+    case .captureButtonTapped:
+        guard !state.ui.isCapturing else { return .none }
+        captureSessionClient.setFlashEnabled(state.ui.isFlashOn)
+        state.ui.isCapturing = true
+        return .run { send in
+            do {
+                let imageData = try await captureSessionClient.capturePhoto()
+                await send(.internal(.captureCompleted(imageData: imageData)))
+                captureSessionClient.stopRunning()
+            } catch {
+                await send(.internal(.captureFailed))
+            }
+        }
+
+    case .switchButtonTapped:
+        return .run { [isFront = state.ui.isFront, isFlashOn = state.ui.isFlashOn] send in
+            let isFront = !isFront
+            await captureSessionClient.switchCamera(isFront)
+            captureSessionClient.setFlashEnabled(isFlashOn)
+            await send(.internal(.cameraSwitched))
+        }
+
+    case .flashButtonTapped:
+        state.ui.isFlashOn.toggle()
+        captureSessionClient.setFlashEnabled(state.ui.isFlashOn)
+        return .none
+
+    case let .commentTextChanged(text):
+        state.data.commentText = String(text.prefix(5))
+        return .none
+
+    case .returnButtonTapped:
+        state.data.imageData = nil
+        state.data.selectedPhotoItem = nil
+        state.ui.isCapturing = false
+        let position: AVCaptureDevice.Position = state.ui.isFront ? .front : .back
+
+        return .run { [isFlashOn = state.ui.isFlashOn] send in
+            let session = await captureSessionClient.setUpCaptureSession(position)
+            captureSessionClient.setFlashEnabled(isFlashOn)
+            await send(.internal(.setupCaptureSessionCompleted(session: session)))
+        }
+
+    case let .focusChanged(isFocused):
+        state.ui.isCommentFocused = isFocused
+        return .none
+
+    case .uploadButtonTapped:
+        guard !state.ui.isUploading else { return .none }
+        let commentCount = state.data.commentText.count
+        if commentCount > 0 && commentCount < 5 {
+            return .send(.presentation(.showToast(.fit(message: "코멘트는 5글자로 입력해주세요!"))))
+        } else {
+            guard let imageData = state.data.imageData else {
+                return .none
+            }
+            state.ui.isUploading = true
+
+            let goalId = state.data.goalId
+            let comment = state.data.commentText
+            let verificationDate = state.data.verificationDate
+
+            if state.ui.isEditing {
+                let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
+                    goalId: goalId,
+                    photologId: nil,
+                    goalName: nil,
+                    owner: .mySelf,
+                    imageUrl: nil,
+                    comment: comment,
+                    reaction: nil,
+                    createdAt: "방금"
+                )
+                return .send(
+                    .delegate(
+                        .completedUploadPhoto(
+                            myPhotoLog: myPhotoLog,
+                            editedImageData: imageData
+                        )
+                    )
+                )
+            }
+            return .run { send in
+                do {
+                    let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
+                    let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
+                    try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
+
+                    let createRequest = PhotoLogCreateRequestDTO(
+                        goalId: goalId,
+                        fileName: uploadResponse.fileName,
+                        comment: comment,
+                        verificationDate: verificationDate
+                    )
+                    let photoLog = try await photoLogClient.createPhotoLog(createRequest)
+                    let myPhotoLog = GoalDetail.CompletedGoal.PhotoLog(
+                        goalId: goalId,
+                        photologId: photoLog.photologId,
+                        goalName: nil,
+                        owner: .mySelf,
+                        imageUrl: photoLog.imageUrl,
+                        comment: comment,
+                        reaction: nil,
+                        createdAt: "방금"
+                    )
+                    await send(
+                        .delegate(
+                            .completedUploadPhoto(
+                                myPhotoLog: myPhotoLog,
+                                editedImageData: imageData
+                            )
+                        )
+                    )
+                } catch {
+                    await send(.internal(.uploadFailed))
+                }
+            }
+        }
+
+    case .dimmedBackgroundTapped:
+        return .send(.view(.focusChanged(false)))
+    }
+}
+
+// MARK: - Internal
+
+private func reduceInternal(
+    state: inout ProofPhotoReducer.State,
+    action: ProofPhotoReducer.Action.Internal
+) -> Effect<ProofPhotoReducer.Action> {
+    switch action {
+    case let .setupCaptureSessionCompleted(session):
+        state.data.captureSession = session
+        return .none
+
+    case .cameraSwitched:
+        state.ui.isFront.toggle()
+        return .none
+
+    case let .galleryPhotoLoaded(imageData):
+        state.data.imageData = imageData
+        return .none
+
+    case let .captureCompleted(imageData):
+        state.data.imageData = imageData
+        state.ui.isCapturing = false
+        return .none
+
+    case .captureFailed:
+        state.ui.isCapturing = false
+        return .send(.presentation(.showToast(.warning(message: "사진 촬영에 실패했어요"))))
+
+    case .uploadFailed:
+        state.ui.isUploading = false
+        return .send(.presentation(.showToast(.warning(message: "사진 업로드에 실패했어요"))))
+    }
+}
+
+// MARK: - Presentation
+
+private func reducePresentation(
+    state: inout ProofPhotoReducer.State,
+    action: ProofPhotoReducer.Action.Presentation
+) -> Effect<ProofPhotoReducer.Action> {
+    switch action {
+    case let .showToast(toast):
+        state.presentation.toast = toast
+        return .none
+    }
 }
