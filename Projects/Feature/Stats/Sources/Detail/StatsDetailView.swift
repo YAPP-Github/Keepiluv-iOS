@@ -36,16 +36,16 @@ struct StatsDetailView: View {
         }
         .background(Color.Gray.gray50)
         .overlay {
-            if store.isLoading {
+            if store.ui.isLoading {
                 ProgressView()
             }
         }
         .overlay(alignment: .topTrailing) {
-            if store.isDropdownPresented {
+            if store.ui.isDropdownPresented {
                 TXDropdown(
                     items: GoalDropList.allCases,
                     onSelect: { item in
-                        store.send(.dropDownSelected(item))
+                        store.send(.view(.dropDownSelected(item)))
                     }
                 )
                 .offset(x: -12, y: 65)
@@ -53,21 +53,21 @@ struct StatsDetailView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.internal(.onAppear))
         }
         .onDisappear {
-            store.send(.onDisappear)
+            store.send(.internal(.onDisappear))
         }
         .onTapGesture {
-            guard store.isDropdownPresented else { return }
-            store.send(.backgroundTapped)
+            guard store.ui.isDropdownPresented else { return }
+            store.send(.view(.backgroundTapped))
         }
-        .txModal(item: $store.modal) { action in
+        .txModal(item: $store.presentation.modal) { action in
             if action == .confirm {
-                store.send(.modalConfirmTapped)
+                store.send(.view(.modalConfirmTapped))
             }
         }
-        .txToast(item: $store.toast)
+        .txToast(item: $store.presentation.toast)
     }
 }
 
@@ -85,7 +85,7 @@ private extension StatsDetailView {
                 )
             ),
             onAction: { action in
-                store.send(.navigationBarTapped(action))
+                store.send(.view(.navigationBarTapped(action)))
             }
         )
     }
@@ -95,8 +95,8 @@ private extension StatsDetailView {
             title: store.currentMonthTitle,
             isPreviousDisabled: store.previousMonthDisabled,
             isNextDisabled: store.nextMonthDisabled,
-            onPrevious: { store.send(.previousMonthTapped) },
-            onNext: { store.send(.nextMonthTapped) }
+            onPrevious: { store.send(.view(.previousMonthTapped)) },
+            onNext: { store.send(.view(.nextMonthTapped)) }
         )
     }
     
@@ -104,7 +104,7 @@ private extension StatsDetailView {
         // FIXME: - 피그마 컴포넌트에 있는 Calendar랑 값이 다른 부분이 좀 있어서 리팩터링할 때 참고 바람
         TXCalendar(
             mode: .monthly,
-            weeks: store.monthlyData,
+            weeks: store.data.monthlyData,
             canMovePrevious: !store.previousMonthDisabled,
             canMoveNext: !store.nextMonthDisabled,
             config: .init(
@@ -127,11 +127,11 @@ private extension StatsDetailView {
             ),
             onSelect: { item in
                 if item.status == .completed {
-                    store.send(.calendarCellTapped(item))
+                    store.send(.view(.calendarCellTapped(item)))
                 }
             },
             onSwipe: { swipe in
-                store.send(.calendarSwiped(swipe))
+                store.send(.view(.calendarSwiped(swipe)))
             }
         )
             .padding(.top, 24)
@@ -154,7 +154,7 @@ private extension StatsDetailView {
     
     var statsInfoContent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(store.statsSummaryInfo, id: \.title) { summary in
+            ForEach(store.data.statsSummaryInfo, id: \.title) { summary in
                 HStack(spacing: 28) {
                     summaryTitle(for: summary.title)
                     summartyContent(content: summary.content, isCompletedCount: summary.isCompletedCount)
@@ -256,7 +256,7 @@ private extension StatsDetailView {
             return nil
         }
         
-        guard let completedDate = store.completedDateByKey[dateKey] else { return nil }
+        guard let completedDate = store.data.completedDateByKey[dateKey] else { return nil }
         return (URL(string: completedDate.myImageUrl ?? ""), URL(string: completedDate.partnerImageUrl ?? ""))
     }
 }
