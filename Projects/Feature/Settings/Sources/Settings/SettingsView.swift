@@ -44,17 +44,24 @@ public struct SettingsView: View {
             dismissKeyboard()
         }
         .onChange(of: isTextFieldFocused) { _, newValue in
-            if !newValue && store.isEditing {
-                store.send(.nicknameEditingEnded)
+            if !newValue && store.ui.isEditing {
+                store.send(.internal(.nicknameEditingEnded))
             }
         }
-        .txModal(item: $store.modal) { action in
-            if case let .confirmWithIndex(index) = action {
-                store.send(.languageConfirmed(index))
+        .txModal(item: $store.presentation.modal) { action in
+            switch action {
+            case .confirm:
+                store.send(.view(.modalConfirmTapped))
+
+            case let .confirmWithIndex(index):
+                store.send(.internal(.languageConfirmed(index)))
+
+            default:
+                break
             }
         }
         .onAppear {
-            store.send(.onAppear)
+            store.send(.internal(.onAppear))
         }
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -71,7 +78,7 @@ private extension SettingsView {
         TXNavigationBar(style: .subTitle(title: "설정", type: .back)) { action in
             switch action {
             case .backTapped:
-                store.send(.backButtonTapped)
+                store.send(.view(.backButtonTapped))
 
             default:
                 break
@@ -85,7 +92,7 @@ private extension SettingsView {
 private extension SettingsView {
     @ViewBuilder
     var profileSection: some View {
-        if store.isEditing {
+        if store.ui.isEditing {
             editingProfileContent
         } else {
             HStack(spacing: Spacing.spacing7) {
@@ -104,12 +111,12 @@ private extension SettingsView {
 
     var displayProfileContent: some View {
         HStack(spacing: 0) {
-            Text(store.nickname)
+            Text(store.data.nickname)
                 .typography(.t1_18eb)
                 .foregroundStyle(Color.Gray.gray500)
 
             Button {
-                store.send(.editButtonTapped)
+                store.send(.view(.editButtonTapped))
             } label: {
                 Image.Icon.Symbol.edit
                     .resizable()
@@ -132,7 +139,7 @@ private extension SettingsView {
 
     var nicknameTextField: some View {
         TXTextField(
-            text: $store.nickname,
+            text: $store.data.nickname,
             placeholderText: "닉네임을 입력해 주세요.",
             submitLabel: .done,
             tintColor: Color.Gray.gray500,
@@ -145,7 +152,7 @@ private extension SettingsView {
     }
 
     var validationState: TXTextField.SubTextConfiguration.State {
-        if store.nickname.isEmpty {
+        if store.data.nickname.isEmpty {
             return .empty
         }
         return store.isNicknameValid ? .valid : .invalid
@@ -182,7 +189,7 @@ private extension SettingsView {
             trailing: { languageTrailing }
         ) {
             dismissKeyboard()
-            store.send(.languageSettingTapped)
+            store.send(.view(.languageSettingTapped))
         }
     }
 
@@ -191,7 +198,7 @@ private extension SettingsView {
             icon: Image.Icon.Symbol.profile,
             title: "계정"
         ) {
-            store.send(.accountTapped)
+            store.send(.view(.accountTapped))
         }
     }
 
@@ -200,7 +207,7 @@ private extension SettingsView {
             icon: Image.Icon.Symbol.info,
             title: "정보"
         ) {
-            store.send(.infoTapped)
+            store.send(.view(.infoTapped))
         }
     }
 
@@ -210,7 +217,7 @@ private extension SettingsView {
             title: "문의하기",
             trailing: { inquiryTrailing }
         ) {
-            store.send(.inquiryTapped)
+            store.send(.view(.inquiryTapped))
         }
     }
     
@@ -219,7 +226,7 @@ private extension SettingsView {
             icon: Image.Icon.Symbol.alert,
             title: "알림 설정"
         ) {
-            store.send(.notificationSettingTapped)
+            store.send(.view(.notificationSettingTapped))
         }
     }
 
@@ -263,7 +270,7 @@ private extension SettingsView {
     @ViewBuilder
     var languageTrailing: some View {
         HStack(spacing: Spacing.spacing5) {
-            Text(store.selectedLanguage.title)
+            Text(store.ui.selectedLanguage.title)
                 .typography(.b2_14r)
                 .foregroundStyle(Color.Gray.gray500)
 

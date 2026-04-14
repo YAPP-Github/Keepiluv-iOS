@@ -22,112 +22,157 @@ extension StatsReducer {
     // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.statsClient) var statsClient
-        
+
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
-                // MARK: - LifeCycle
-            case .onAppear:
-                return .send(.fetchStats)
-                
-                // MARK: - UserAction
-            case let .topTabBarSelected(item):
-                state.isOngoing = item == .ongoing
-                return .send(.fetchStats)
-                
-            case .previousMonthTapped:
-                state.currentMonth.goToPreviousMonth()
-                return .send(.fetchStats)
-                
-            case .nextMonthTapped:
-                state.currentMonth.goToNextMonth()
-                return .send(.fetchStats)
-                
-            case let .statsCardTapped(goalId):
-                return .send(.delegate(.goToStatsDetail(goalId: goalId)))
-                
-                // MARK: - Update State
-            case let .showToast(toast):
-                state.toast = toast
-                return .none
-                
-                // MARK: - Network
-            case .fetchStats:
-                let isOngoing = state.isOngoing
-                let month = state.currentMonth.formattedYearDashMonth
-                
-                if isOngoing,
-                   let cachedItems = state.ongoingItemsCache[month] {
-                    state.ongoingItems = cachedItems
-                    state.isLoading = false
-                } else {
-                    state.isLoading = true
-                }
-                
-                return .run { send in
-                    do {
-                        let stats = try await statsClient.fetchStats(month, isOngoing)
-                        await send(.fetchedStats(stats: stats, month: month))
-                    } catch {
-                        await send(.fetchStatsFailed)
-                    }
-                }
-                
-            case let .fetchedStats(stats, month):
-                state.isLoading = false
-                let items = stats.stats.map {
-                    let goalCount = $0.monthlyCount ?? $0.totalCount ?? 0
-                    
-                    return StatsCardItem(
-                        goalId: $0.goalId,
-                        goalName: $0.goalName,
-                        iconImage: GoalIcon(from: $0.icon).image,
-                        stampIcon: .init(statsStamp: $0.stamp),
-                        goalCount: goalCount,
-                        completionInfos: [
-                            .init(
-                                name: stats.myNickname,
-                                count: $0.myStamp.completedCount,
-                                stampColors: $0.myStamp.stampColors.map(\.statsCardStampColor)
-                            ),
-                            .init(
-                                name: stats.partnerNickname,
-                                count: $0.partnerStamp.completedCount,
-                                stampColors: $0.partnerStamp.stampColors.map(\.statsCardStampColor)
-                            )
-                        ]
-                    )
-                }
-                
-                if state.isOngoing {
-                    state.ongoingItemsCache[month] = items
-                }
+            case .view(let viewAction):
+                return reduceView(state: &state, action: viewAction)
 
-                // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
-                guard month == state.currentMonth.formattedYearDashMonth else {
-                    return .none
-                }
+            case .internal(let internalAction):
+                return reduceInternal(state: &state, action: internalAction, statsClient: statsClient)
 
-                if state.isOngoing {
-                    state.ongoingItems = items
-                } else {
-                    state.completedItems = items
-                }
-                
-                return .none
+            case .response(let responseAction):
+                return reduceResponse(state: &state, action: responseAction)
 
-            case .fetchStatsFailed:
-                state.isLoading = false
-                return .send(.showToast(.warning(message: "통계 조회에 실패했어요")))
-                
+            case .presentation(let presentationAction):
+                return reducePresentation(state: &state, action: presentationAction)
+
             case .delegate:
                 return .none
-                
+
             case .binding:
                 return .none
             }
         }
         self.init(reducer: reducer)
+    }
+}
+
+// MARK: - View
+
+private func reduceView(
+    state: inout StatsReducer.State,
+    action: StatsReducer.Action.View
+) -> Effect<StatsReducer.Action> {
+    switch action {
+    case .onAppear:
+        return .send(.internal(.fetchStats))
+
+    case let .topTabBarSelected(item):
+        state.ui.isOngoing = item == .ongoing
+        return .send(.internal(.fetchStats))
+
+    case .previousMonthTapped:
+        state.data.currentMonth.goToPreviousMonth()
+        return .send(.internal(.fetchStats))
+
+    case .nextMonthTapped:
+        state.data.currentMonth.goToNextMonth()
+        return .send(.internal(.fetchStats))
+
+    case let .statsCardTapped(goalId):
+        return .send(.delegate(.goToStatsDetail(goalId: goalId)))
+    }
+}
+
+// MARK: - Internal
+
+private func reduceInternal(
+    state: inout StatsReducer.State,
+    action: StatsReducer.Action.Internal,
+    statsClient: StatsClient
+) -> Effect<StatsReducer.Action> {
+    switch action {
+    case .fetchStats:
+        let isOngoing = state.ui.isOngoing
+        let month = state.data.currentMonth.formattedYearDashMonth
+
+        if isOngoing,
+           let cachedItems = state.data.ongoingItemsCache[month] {
+            state.data.ongoingItems = cachedItems
+            state.ui.isLoading = false
+        } else {
+            state.ui.isLoading = true
+        }
+
+        return .run { send in
+            do {
+                let stats = try await statsClient.fetchStats(month, isOngoing)
+                await send(.response(.fetchedStats(stats: stats, month: month)))
+            } catch {
+                await send(.response(.fetchStatsFailed))
+            }
+        }
+    }
+}
+
+// MARK: - Response
+
+private func reduceResponse(
+    state: inout StatsReducer.State,
+    action: StatsReducer.Action.Response
+) -> Effect<StatsReducer.Action> {
+    switch action {
+    case let .fetchedStats(stats, month):
+        state.ui.isLoading = false
+        let items = stats.stats.map {
+            let goalCount = $0.monthlyCount ?? $0.totalCount ?? 0
+
+            return StatsCardItem(
+                goalId: $0.goalId,
+                goalName: $0.goalName,
+                iconImage: GoalIcon(from: $0.icon).image,
+                stampIcon: .init(statsStamp: $0.stamp),
+                goalCount: goalCount,
+                completionInfos: [
+                    .init(
+                        name: stats.myNickname,
+                        count: $0.myStamp.completedCount,
+                        stampColors: $0.myStamp.stampColors.map(\.statsCardStampColor)
+                    ),
+                    .init(
+                        name: stats.partnerNickname,
+                        count: $0.partnerStamp.completedCount,
+                        stampColors: $0.partnerStamp.stampColors.map(\.statsCardStampColor)
+                    )
+                ]
+            )
+        }
+
+        if state.ui.isOngoing {
+            state.data.ongoingItemsCache[month] = items
+        }
+
+        // 요청 시점의 탭/월과 현재 상태가 같을 때만 화면을 업데이트합니다.
+        guard month == state.data.currentMonth.formattedYearDashMonth else {
+            return .none
+        }
+
+        if state.ui.isOngoing {
+            state.data.ongoingItems = items
+        } else {
+            state.data.completedItems = items
+        }
+
+        return .none
+
+    case .fetchStatsFailed:
+        state.ui.isLoading = false
+        return .send(.presentation(.showToast(.warning(message: "통계 조회에 실패했어요"))))
+    }
+}
+
+// MARK: - Presentation
+
+private func reducePresentation(
+    state: inout StatsReducer.State,
+    action: StatsReducer.Action.Presentation
+) -> Effect<StatsReducer.Action> {
+    switch action {
+    case let .showToast(toast):
+        state.presentation.toast = toast
+        return .none
     }
 }
 

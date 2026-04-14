@@ -64,13 +64,13 @@ extension StatsCoordinator {
                 state.routes.removeLast()
                 return .none
 
-            case .statsDetail(.onDisappear):
+            case .statsDetail(.internal(.onDisappear)):
                 if !state.routes.contains(.statsDetail) {
                     state.statsDetail = nil
                 }
                 return .none
                 
-            case .goalDetail(.onDisappear):
+            case .goalDetail(.internal(.onDisappear)):
                 if !state.routes.contains(.goalDetail) {
                     state.goalDetail = nil
                 }
@@ -80,7 +80,7 @@ extension StatsCoordinator {
                 state.routes.removeLast()
                 return .none
 
-            case .makeGoal(.onDisappear):
+            case .makeGoal(.internal(.onDisappear)):
                 if !state.routes.contains(.makeGoal) {
                     state.makeGoal = nil
                 }

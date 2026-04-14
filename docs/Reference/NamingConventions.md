@@ -47,43 +47,60 @@ case onBackground
 
 ---
 
-## Action 주석 구분
+## Action 중첩 enum 구조
 
-Action이 많아지면 가독성을 위해 MARK 주석으로 구분합니다.
+Action은 중첩 enum으로 분리하여 의미를 명확히 합니다.
 
 ```swift
 public enum Action: BindableAction {
-    // MARK: - Binding
     case binding(BindingAction<State>)
 
-    // MARK: - LifeCycle
-    case onAppear
+    // MARK: - View (사용자 이벤트)
+    public enum View: Equatable {
+        case backButtonTapped
+        case submitButtonTapped
+        case itemSelected(Item)
+    }
 
-    // MARK: - User Action
-    case backButtonTapped
-    case submitButtonTapped
-    case itemSelected(Item)
+    // MARK: - Internal (Reducer 내부 Effect)
+    public enum Internal: Equatable {
+        case onAppear
+        case fetchItems
+    }
 
-    // MARK: - Update State
-    case fetchCompleted([Item])
-    case toastDismissed
+    // MARK: - Response (비동기 응답 - Error 포함 시 Equatable 미적용)
+    public enum Response {
+        case fetchItemsResponse(Result<[Item], Error>)
+    }
 
-    // MARK: - Delegate
+    // MARK: - Presentation (토스트, 모달 등)
+    public enum Presentation: Equatable {
+        case showToast(TXToastType)
+    }
+
+    // MARK: - Delegate (부모에게 알림)
+    public enum Delegate: Equatable {
+        case navigateBack
+        case itemSelected(Item)
+    }
+
+    case view(View)
+    case `internal`(Internal)
+    case response(Response)
+    case presentation(Presentation)
     case delegate(Delegate)
-
-    // MARK: - Navigation (Coordinator에서 사용)
-    case path(StackActionOf<Path>)
 }
 ```
 
-### 주석 카테고리
-- **Binding**: `BindingAction` 관련
-- **LifeCycle**: `onAppear`, `onDisappear` 등
-- **User Action**: 사용자 인터랙션 (`~Tapped`, `~Changed`, `~Selected`)
-- **Update State**: 상태 업데이트 응답 (`~Completed`, `~Dismissed`)
-- **Delegate**: 부모에게 전달하는 이벤트
-- **Navigation**: Coordinator의 path 액션 (필요시)
-- **Child Action**: 자식 Reducer 액션 (필요시)
+### 중첩 enum 카테고리
+- **View**: 사용자 인터랙션 (`~Tapped`, `~Changed`, `~Selected`), lifecycle 포함
+- **Internal**: Reducer가 스스로 발행하는 Effect (fetch 트리거, 상태 계산 등)
+- **Response**: 비동기 응답 (`~Response(Result<T, Error>)`). `Error` 포함 시 `Equatable` 불필요
+- **Presentation**: 토스트·모달 표시 (`showToast`, `showModal`)
+- **Delegate**: 부모 Reducer에게 전달하는 이벤트 (항상 `Equatable`)
+- **Child Action**: 자식 Reducer 액션 (필요시 최상위에 추가)
+
+> **Lifecycle(`onAppear`, `onDisappear`)** 은 View가 트리거하지만 Reducer 내부 로직에 속하므로 `Internal`에 둡니다.
 
 ### Delegate: `delegate(<결과>)`
 

@@ -28,6 +28,12 @@ import SharedUtil
 public struct HomeReducer {
     let reducer: Reduce<State, Action>
     private let proofPhotoReducer: ProofPhotoReducer
+
+    /// 홈 화면에서 발생 가능한 에러
+    public enum HomeError: Error, Equatable {
+        case unknown
+        case networkError
+    }
     
     @ObservableState
     /// 홈 화면에서 사용되는 상태 모델입니다.
@@ -37,41 +43,67 @@ public struct HomeReducer {
     /// let state = HomeReducer.State()
     /// ```
     public struct State: Equatable {
-        public var cards: [GoalCardItem] = []
-        public var isLoading: Bool = true
-        public var mainTitle: String = "KEEPILUV"
-        public var calendarMonthTitle: String = ""
-        public var calendarWeeks: [[TXCalendarDateItem]] = []
-        public var calendarDate: TXCalendarDate = .init()
-        public var calendarSheetDate: TXCalendarDate = .init()
-        public var goalsCache: [String: [GoalCardItem]] = [:]
-        public var isRefreshHidden: Bool = true
-        public var isCalendarSheetPresented: Bool = false
-        public var pendingDeleteGoalID: Int64?
-        public var pendingDeletePhotologID: Int64?
-        public var hasCards: Bool { !cards.isEmpty }
-        public var isEmptyVisible: Bool { !isLoading && cards.isEmpty }
-        public let nowDate = CalendarNow()
-        public var toast: TXToastType?
-        public var modal: TXModalStyle?
-        public var isProofPhotoPresented: Bool = false
-        public var isAddGoalPresented: Bool = false
-        public var isCameraPermissionAlertPresented: Bool = false
-        public var hasUnreadNotification: Bool = false
-        
+        // MARK: - Nested Structs
+
+        /// 도메인 데이터 (실제 데이터/캐시/선택값)
+        public struct Data: Equatable {
+            public var cards: [GoalCardItem] = []
+            public var goalsCache: [String: [GoalCardItem]] = [:]
+            public var calendarDate: TXCalendarDate = .init()
+            public var calendarSheetDate: TXCalendarDate = .init()
+            public var calendarWeeks: [[TXCalendarDateItem]] = []
+            public var pendingDeleteGoalID: Int64?
+            public var pendingDeletePhotologID: Int64?
+
+            public init() {}
+        }
+
+        /// UI 상태 (화면 관련 상태)
+        public struct UIState: Equatable {
+            public var isLoading: Bool = true
+            public var mainTitle: String = "KEEPILUV"
+            public var calendarMonthTitle: String = ""
+            public var isRefreshHidden: Bool = true
+            public var hasUnreadNotification: Bool = false
+            public let nowDate = CalendarNow()
+
+            public init() {}
+        }
+
+        /// 프레젠테이션 (toast, modal, sheet 등)
+        public struct Presentation: Equatable {
+            public var toast: TXToastType?
+            public var modal: TXModalStyle?
+            public var isCalendarSheetPresented: Bool = false
+            public var isProofPhotoPresented: Bool = false
+            public var isAddGoalPresented: Bool = false
+            public var isCameraPermissionAlertPresented: Bool = false
+
+            public init() {}
+        }
+
+        // MARK: - State Instances
+
+        public var data = Data()
+        public var ui = UIState()
+        public var presentation = Presentation()
+        public var proofPhoto: ProofPhotoReducer.State?
+
+        // MARK: - Computed Properties
+
+        public var hasCards: Bool { !data.cards.isEmpty }
+
         public var goalSectionTitle: String {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
-            if calendarDate < today {
+            if data.calendarDate < today {
                 return "지난 우리 목표"
             }
-            if today < calendarDate {
+            if today < data.calendarDate {
                 return "다음 우리 목표"
             }
             return "오늘 우리 목표"
         }
-        
-        public var proofPhoto: ProofPhotoReducer.State?
 
         /// 기본 상태를 생성합니다.
         ///
@@ -87,50 +119,50 @@ public struct HomeReducer {
     ///
     /// ## 사용 예시
     /// ```swift
-    /// store.send(.onAppear)
+    /// store.send(.view(.onAppear))
     /// ```
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        
-        // MARK: - Child Action
-        case proofPhoto(ProofPhotoReducer.Action)
-        
-        // MARK: - LifeCycle
-        case onAppear
-        
-        // MARK: - User Action
-        case calendarDateSelected(TXCalendarDateItem)
-        case weekCalendarSwipe(TXCalendar.SwipeGesture)
-        case navigationBarAction(TXNavigationBar.Action)
-        case monthCalendarConfirmTapped
-        case goalCheckButtonTapped(id: Int64, isChecked: Bool)
-        case modalConfirmTapped
-        case yourCardTapped(GoalCardItem)
-        case myCardTapped(GoalCardItem)
-        case headerTapped(GoalCardItem)
-        case floatingButtonTapped
-        case editButtonTapped
-        
-        // MARK: - Update State
-        case fetchGoals
-        case fetchGoalsCompleted([GoalCardItem], date: TXCalendarDate)
-        case setCalendarDate(TXCalendarDate)
-        case setCalendarSheetPresented(Bool)
-        case showToast(TXToastType)
-        case authorizationCompleted(id: Int64, isAuthorized: Bool)
-        case proofPhotoDismissed
-        case addGoalButtonTapped(GoalCategory)
-        case cameraPermissionAlertDismissed
-        case fetchGoalsFailed
-        case deletePhotoLogCompleted(goalId: Int64)
-        case deletePhotoLogFailed
-        case fetchUnreadResponse(Bool)
+        // MARK: - View (사용자 이벤트)
 
-        // MARK: - Delegate
-        case delegate(Delegate)
-        
-        /// 홈 화면에서 외부로 전달하는 이벤트입니다.
-        public enum Delegate {
+        public enum View: Equatable {
+            case onAppear
+            case calendarDateSelected(TXCalendarDateItem)
+            case weekCalendarSwipe(TXCalendar.SwipeGesture)
+            case navigationBarAction(TXNavigationBar.Action)
+            case monthCalendarConfirmTapped
+            case goalCheckButtonTapped(id: Int64, isChecked: Bool)
+            case modalConfirmTapped
+            case yourCardTapped(GoalCardItem)
+            case myCardTapped(GoalCardItem)
+            case headerTapped(GoalCardItem)
+            case floatingButtonTapped
+            case editButtonTapped
+            case addGoalButtonTapped(GoalCategory)
+            case cameraPermissionAlertDismissed
+            case proofPhotoDismissed
+        }
+
+        // MARK: - Internal (Reducer 내부 Effect)
+
+        public enum Internal: Equatable {
+            case fetchGoals
+            case setCalendarDate(TXCalendarDate)
+            case setCalendarSheetPresented(Bool)
+            case authorizationCompleted(id: Int64, isAuthorized: Bool)
+        }
+
+        // MARK: - Response (비동기 응답)
+
+        public enum Response: Equatable {
+            case fetchGoalsResult(Result<[GoalCardItem], HomeError>, date: TXCalendarDate)
+            case deletePhotoLogResult(Result<Int64, HomeError>)
+            case fetchUnreadResult(Bool)
+            case pokePartnerResult(Result<Int64, HomeError>)
+        }
+
+        // MARK: - Delegate (부모에게 알림)
+
+        public enum Delegate: Equatable {
             case goToGoalDetail(id: Int64, owner: GoalDetail.Owner, verificationDate: String)
             case goToStatsDetail(id: Int64)
             case goToMakeGoal(GoalCategory)
@@ -138,6 +170,22 @@ public struct HomeReducer {
             case goToSettings
             case goToNotification
         }
+
+        // MARK: - Presentation (프레젠테이션 관련)
+
+        public enum Presentation: Equatable {
+            case showToast(TXToastType)
+        }
+
+        // MARK: - Top-level cases
+
+        case view(View)
+        case `internal`(Internal)
+        case response(Response)
+        case delegate(Delegate)
+        case presentation(Presentation)
+        case proofPhoto(ProofPhotoReducer.Action)
+        case binding(BindingAction<State>)
     }
     
     /// 외부에서 주입한 Reduce로 HomeReducer를 구성합니다.

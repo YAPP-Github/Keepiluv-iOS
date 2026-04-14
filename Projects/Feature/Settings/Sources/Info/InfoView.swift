@@ -28,7 +28,7 @@ struct InfoView: View {
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.internal(.onAppear))
         }
     }
 }
@@ -39,7 +39,7 @@ private extension InfoView {
     var navigationBar: some View {
         TXNavigationBar(style: .subTitle(title: "정보", type: .back)) { action in
             if action == .backTapped {
-                store.send(.subViewBackButtonTapped)
+                store.send(.view(.subViewBackButtonTapped))
             }
         }
     }
@@ -65,14 +65,14 @@ private extension InfoView {
 
     var privacyPolicyItem: some View {
         listItem(title: "개인정보 처리방침") {
-            store.send(.privacyPolicyTapped)
+            store.send(.view(.privacyPolicyTapped))
         }
     }
 
     var myVersionItem: some View {
         listItem(
             title: "나의 버전",
-            trailingText: store.appVersion
+            trailingText: store.data.appVersion
         ) {
             // 탭해도 동작 없음 (표시만)
         }
@@ -81,7 +81,7 @@ private extension InfoView {
     var storeVersionItem: some View {
         listItem(
             title: "스토어 최신 버전",
-            trailingText: store.storeVersion
+            trailingText: store.data.storeVersion
         ) {
             // 탭해도 동작 없음 (표시만)
         }
