@@ -44,41 +44,41 @@ public struct MakeGoalView: View {
         .padding(.horizontal, 20)
         .ignoresSafeArea(.keyboard)
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear { store.send(.onAppear) }
-        .onDisappear { store.send(.onDisappear) }
-        .onTapGesture { store.send(.dismissKeyboard) }
+        .onAppear { store.send(.internal(.onAppear)) }
+        .onDisappear { store.send(.internal(.onDisappear)) }
+        .onTapGesture { store.send(.view(.dismissKeyboard)) }
         .onChange(of: isGoalTitleTextFieldFocused) { _, newValue in
-            guard store.isGoalTitleFocused != newValue else { return }
-            store.send(.goalTitleFocusChanged(newValue))
+            guard store.ui.isGoalTitleFocused != newValue else { return }
+            store.send(.view(.goalTitleFocusChanged(newValue)))
         }
-        .onChange(of: store.isGoalTitleFocused) { _, newValue in
+        .onChange(of: store.ui.isGoalTitleFocused) { _, newValue in
             guard isGoalTitleTextFieldFocused != newValue else { return }
             isGoalTitleTextFieldFocused = newValue
         }
         .txBottomSheet(
-            isPresented: $store.isCalendarSheetPresented
+            isPresented: $store.ui.isCalendarSheetPresented
         ) {
             TXCalendarBottomSheet(
-                selectedDate: $store.calendarSheetDate,
+                selectedDate: $store.data.calendarSheetDate,
                 completeButtonText: "완료",
-                onComplete: { store.send(.monthCalendarConfirmTapped) },
+                onComplete: { store.send(.view(.monthCalendarConfirmTapped)) },
                 isDateEnabled: store.isCalendarDateEnabled
             )
         }
         .txBottomSheet(
-            isPresented: $store.isPeriodSheetPresented
+            isPresented: $store.ui.isPeriodSheetPresented
         ) {
             periodSheet
         }
         .txModal(
-            item: $store.modal,
+            item: $store.presentation.modal,
             onAction: { action in
                 if case let .confirmWithIndex(index) = action {
-                    store.send(.modalConfirmTapped(index))
+                    store.send(.view(.modalConfirmTapped(index)))
                 }
             }
         )
-        .txToast(item: $store.toast, customPadding: 70)
+        .txToast(item: $store.presentation.toast, customPadding: 70)
     }
 }
 
@@ -87,10 +87,10 @@ private extension MakeGoalView {
     var navigationBar: some View {
         TXNavigationBar(
             style: .subTitle(
-                title: store.mode.title,
+                title: store.data.mode.title,
                 type: .back
             ), onAction: { _ in
-                store.send(.navigationBackButtonTapped)
+                store.send(.view(.navigationBackButtonTapped))
             }
         )
     }
@@ -106,7 +106,7 @@ private extension MakeGoalView {
                 shape: .circle,
                 lineWidth: LineWidth.m
             )
-            .onTapGesture { store.send(.emojiButtonTapped) }
+            .onTapGesture { store.send(.view(.emojiButtonTapped)) }
             .overlay(alignment: .bottomTrailing) {
                 TXButton(
                     shape: .circle(
@@ -132,7 +132,7 @@ private extension MakeGoalView {
     
     var goalTitleField: some View {
         TXTextField(
-            text: $store.goalTitle,
+            text: $store.data.goalTitle,
             placeholderText: "목표를 입력해 보세요",
             isFocused: $isGoalTitleTextFieldFocused,
             submitLabel: .done,
@@ -148,7 +148,7 @@ private extension MakeGoalView {
             divider
             endDateToggleRow
             
-            if store.isEndDateOn {
+            if store.ui.isEndDateOn {
                 divider
                 endDateRow
             }
@@ -169,14 +169,14 @@ private extension MakeGoalView {
                 TXTab(
                     style: .button(PeriodItem.allCases),
                     selectedItem: selectedPeriodItem,
-                    onSelect: { store.send(.periodTabSelected($0)) }
+                    onSelect: { store.send(.view(.periodTabSelected($0))) }
                 )
                 
                 Spacer()
                 
                 if store.showPeriodCount {
                     valueText(store.periodCountText)
-                    dropDownButton { store.send(.periodSelected) }
+                    dropDownButton { store.send(.view(.periodSelected)) }
                 }
             }
         }
@@ -189,8 +189,8 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText(store.startDateText)
-            dropDownButton { store.send(.startDateTapped) }
+            valueText(store.ui.startDateText)
+            dropDownButton { store.send(.view(.startDateTapped)) }
         }
         .frame(height: 32)
         .padding(.vertical, 16)
@@ -202,7 +202,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            TXToggleSwitch(isOn: $store.isEndDateOn)
+            TXToggleSwitch(isOn: $store.ui.isEndDateOn)
         }
         .frame(height: 32)
         .padding(.vertical, 16)
@@ -214,8 +214,8 @@ private extension MakeGoalView {
             
             Spacer()
             
-            valueText(store.endDateText)
-            dropDownButton { store.send(.endDateTapped) }
+            valueText(store.ui.endDateText)
+            dropDownButton { store.send(.view(.endDateTapped)) }
         }
         .padding(.vertical, 21.5)
     }
@@ -227,7 +227,7 @@ private extension MakeGoalView {
                 size: .l,
                 state: store.completeButtonDisabled ? .disabled : .standard
             )
-        ) { store.send(.completeButtonTapped) }
+        ) { store.send(.view(.completeButtonTapped)) }
     }
     
     var divider: some View {
@@ -265,7 +265,7 @@ private extension MakeGoalView {
             
             TXButton(
                 shape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
-                onTap: { store.send(.periodSheetCompleteTapped) }
+                onTap: { store.send(.view(.periodSheetCompleteTapped)) }
             )
             .padding(.top, 32)
             .padding(.horizontal, 20)
@@ -277,20 +277,20 @@ private extension MakeGoalView {
         HStack(spacing: 8) {
             TXButton(
                 shape: .rect(
-                    style: .basic(text: store.weeklyPeriodText),
+                    style: .basic(text: MakeGoalReducer.State.weeklyPeriodText),
                     size: .s,
-                    state: store.selectedPeriod == .weekly ? .standard : .line
+                    state: store.data.selectedPeriod == .weekly ? .standard : .line
                 ),
-                onTap: { store.send(.periodSheetWeeklyTapped) }
+                onTap: { store.send(.view(.periodSheetWeeklyTapped)) }
             )
-            
+
             TXButton(
                 shape: .rect(
-                    style: .basic(text: store.monthlyPeriodText),
+                    style: .basic(text: MakeGoalReducer.State.monthlyPeriodText),
                     size: .s,
-                    state: store.selectedPeriod == .monthly ? .standard : .line
+                    state: store.data.selectedPeriod == .monthly ? .standard : .line
                 ),
-                onTap: { store.send(.periodSheetMonthlyTapped) }
+                onTap: { store.send(.view(.periodSheetMonthlyTapped)) }
             )
         }
     }
@@ -306,7 +306,7 @@ private extension MakeGoalView {
                     ),
                     state: store.isMinusEnable ? .standard : .disabled
                 ),
-                onTap: { store.send(.periodSheetMinusTapped) }
+                onTap: { store.send(.view(.periodSheetMinusTapped)) }
             )
             .disabled(!store.isMinusEnable)
             
@@ -321,7 +321,7 @@ private extension MakeGoalView {
                     ),
                     state: store.isPlusEnable ? .standard : .disabled
                 ),
-                onTap: { store.send(.periodSheetPlusTapped) }
+                onTap: { store.send(.view(.periodSheetPlusTapped)) }
             )
             .disabled(!store.isPlusEnable)
         }
@@ -353,14 +353,14 @@ private extension MakeGoalView {
 // MARK: - Private Methods
 private extension MakeGoalView {
     var validationState: TXTextField.SubTextConfiguration.State {
-        if store.goalTitle.isEmpty {
+        if store.data.goalTitle.isEmpty {
             return .empty
         }
         return store.isInvalidTitle ? .valid : .invalid
     }
-    
+
     var selectedPeriodItem: PeriodItem {
-        switch store.selectedPeriod {
+        switch store.data.selectedPeriod {
         case .daily: return .daily
         case .weekly: return .weekly
         case .monthly: return .monthly
