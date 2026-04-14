@@ -20,7 +20,7 @@ struct EditGoalListView: View {
             navigationBar
             weekCalendar
                 .padding(.top, 4)
-            if let cards = store.cards, !cards.isEmpty {
+            if let cards = store.data.cards, !cards.isEmpty {
                 cardScrollView
                     .padding(.bottom, 1)
             }
@@ -30,54 +30,54 @@ struct EditGoalListView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay {
-            if store.isLoading {
+            if store.ui.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
-            if let cards = store.cards, cards.isEmpty {
+            if let cards = store.data.cards, cards.isEmpty {
                 emptyContent
             }
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            store.send(.onAppear)
+            store.send(.internal(.onAppear))
         }
         .onDisappear {
-            store.send(.onDisappear)
+            store.send(.internal(.onDisappear))
         }
         .onTapGesture {
-            guard store.selectedCardMenu != nil else { return }
-            store.send(.backgroundTapped)
+            guard store.data.selectedCardMenu != nil else { return }
+            store.send(.view(.backgroundTapped))
         }
         .txModal(
-            item: $store.modal,
+            item: $store.presentation.modal,
             onAction: { action in
                 if action == .confirm {
-                    store.send(.modalConfirmTapped)
+                    store.send(.view(.modalConfirmTapped))
                 }
             }
         )
-        .txToast(item: $store.toast)
+        .txToast(item: $store.presentation.toast)
     }
 }
 
 private extension EditGoalListView {
     var navigationBar: some View {
         TXNavigationBar(style: .subTitle(title: "편집", type: .back)) { _ in
-            store.send(.navigationBackButtonTapped)
+            store.send(.view(.navigationBackButtonTapped))
         }
     }
     
     var weekCalendar: some View {
         TXCalendar(
             mode: .weekly,
-            weeks: store.calendarWeeks,
+            weeks: store.data.calendarWeeks,
             onSelect: { item in
-                store.send(.calendarDateSelected(item))
+                store.send(.view(.calendarDateSelected(item)))
             },
             onSwipe: { swipe in
-                store.send(.weekCalendarSwipe(swipe))
+                store.send(.view(.weekCalendarSwipe(swipe)))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
@@ -86,7 +86,7 @@ private extension EditGoalListView {
     var cardScrollView: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(store.cards ?? []) { card in
+                ForEach(store.data.cards ?? []) { card in
                     GoalEditCardView(
                         item: .init(
                             id: card.id,
@@ -97,11 +97,11 @@ private extension EditGoalListView {
                             endDate: card.endDate
                         ),
                         onMenuTap: {
-                            store.send(.cardMenuButtonTapped(card))
+                            store.send(.view(.cardMenuButtonTapped(card)))
                         }
                     )
                     .overlay(alignment: .topTrailing) {
-                        if store.selectedCardMenu == card {
+                        if store.data.selectedCardMenu == card {
                             dropdown
                         }
                     }
@@ -114,7 +114,7 @@ private extension EditGoalListView {
 
     var dropdown: some View {
         TXDropdown(items: GoalDropList.allCases) { action in
-            store.send(.cardMenuItemSelected(action))
+            store.send(.view(.cardMenuItemSelected(action)))
         }
         .offset(x: -16, y: 48)
     }
