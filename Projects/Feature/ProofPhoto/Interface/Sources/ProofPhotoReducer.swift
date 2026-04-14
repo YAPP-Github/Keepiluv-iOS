@@ -27,10 +27,19 @@ public struct ProofPhotoReducer {
         public struct Data: Equatable {
             public var goalId: Int64
             public var verificationDate: String
-            public var imageData: Swift.Data?
+            public var imageData: Foundation.Data?
             public var selectedPhotoItem: PhotosPickerItem?
             public var commentText: String
             public var captureSession: AVCaptureSession?
+
+            public static func == (lhs: Self, rhs: Self) -> Bool {
+                lhs.goalId == rhs.goalId &&
+                lhs.verificationDate == rhs.verificationDate &&
+                lhs.imageData == rhs.imageData &&
+                lhs.selectedPhotoItem == rhs.selectedPhotoItem &&
+                lhs.commentText == rhs.commentText &&
+                lhs.captureSession === rhs.captureSession
+            }
 
             public init(
                 goalId: Int64,
@@ -115,11 +124,30 @@ public struct ProofPhotoReducer {
         // MARK: - Internal (Reducer 내부 Effect)
         public enum Internal: Equatable {
             case setupCaptureSessionCompleted(session: AVCaptureSession)
-            case captureCompleted(imageData: Swift.Data)
+            case captureCompleted(imageData: Foundation.Data)
             case captureFailed
-            case galleryPhotoLoaded(imageData: Swift.Data)
+            case galleryPhotoLoaded(imageData: Foundation.Data)
             case cameraSwitched
             case uploadFailed
+
+            public static func == (lhs: Self, rhs: Self) -> Bool {
+                switch (lhs, rhs) {
+                case (.setupCaptureSessionCompleted(let l), .setupCaptureSessionCompleted(let r)):
+                    return l === r
+                case (.captureCompleted(let l), .captureCompleted(let r)):
+                    return l == r
+                case (.captureFailed, .captureFailed):
+                    return true
+                case (.galleryPhotoLoaded(let l), .galleryPhotoLoaded(let r)):
+                    return l == r
+                case (.cameraSwitched, .cameraSwitched):
+                    return true
+                case (.uploadFailed, .uploadFailed):
+                    return true
+                default:
+                    return false
+                }
+            }
         }
 
         // MARK: - Presentation (프레젠테이션 관련)
@@ -133,7 +161,7 @@ public struct ProofPhotoReducer {
             case closeProofPhoto
             case completedUploadPhoto(
                 myPhotoLog: GoalDetail.CompletedGoal.PhotoLog,
-                editedImageData: Swift.Data?
+                editedImageData: Foundation.Data?
             )
         }
 
