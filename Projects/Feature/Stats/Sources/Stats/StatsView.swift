@@ -18,7 +18,7 @@ struct StatsView: View {
         VStack(spacing: 0) {
             navigationBar
             topTabBar
-            if store.isOngoing {
+            if store.ui.isOngoing {
                 monthNavigation
                     .padding(.top, 16)
                     .background(Color.Gray.gray50)
@@ -37,12 +37,12 @@ struct StatsView: View {
             }
         }
         .overlay {
-            if store.isLoading {
+            if store.ui.isLoading {
                 ProgressView()
             }
         }
-        .onAppear { store.send(.onAppear) }
-        .txToast(item: $store.toast)
+        .onAppear { store.send(.view(.onAppear)) }
+        .txToast(item: $store.presentation.toast)
     }
 }
 
@@ -57,7 +57,7 @@ private extension StatsView {
             style: .line(StatsTopTabItem.allCases),
             selectedItem: .ongoing,
             onSelect: { item in
-                store.send(.topTabBarSelected(item))
+                store.send(.view(.topTabBarSelected(item)))
             }
         )
         .background(Color.Common.white)
@@ -69,8 +69,8 @@ private extension StatsView {
             title: store.monthTitle,
             onTitleTap: { },
             isNextDisabled: store.isNextMonthDisabled,
-            onPrevious: { store.send(.previousMonthTapped) },
-            onNext: { store.send(.nextMonthTapped) }
+            onPrevious: { store.send(.view(.previousMonthTapped)) },
+            onNext: { store.send(.view(.nextMonthTapped)) }
         )
     }
     
@@ -82,12 +82,12 @@ private extension StatsView {
                         item: item,
                         isOngoing: store.isOngoing,
                         onTap: { goalId in
-                            store.send(.statsCardTapped(goalId: goalId))
+                            store.send(.view(.statsCardTapped(goalId: goalId)))
                         }
                     )
                 }
             }
-            .padding(.top, store.isOngoing ? 12 : 20)
+            .padding(.top, store.ui.isOngoing ? 12 : 20)
             .padding([.horizontal, .bottom], 20)
         }
         .background(Color.Gray.gray50)
@@ -95,7 +95,7 @@ private extension StatsView {
     
     var statsEmptyView: some View {
         Group {
-            if store.isOngoing {
+            if store.ui.isOngoing {
                 VStack(spacing: 8) {
                     Image.Illustration.scare
                     Text("아직 목표가 없어요!")
