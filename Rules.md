@@ -73,14 +73,49 @@ Feature
 - Interface에는 Reducer의 시그니처만 둡니다. (body는 외부 Reduce 주입)
 - Implementation에서 실제 Reduce를 구성하는 init을 제공합니다.
 - 다른 Feature에서 Reducer를 사용할 때는 Interface 타입만 의존합니다.
+- Action은 `View` / `Internal` / `Response` / `Presentation` / `Delegate` 중첩 enum으로 분리합니다.
+- State는 규모에 따라 `Data` / `UIState` / `Presentation` 중첩 struct로 분리합니다.
+- Implementation body는 `reduceView`, `reduceInternal`, `reduceResponse`, `reducePresentation` 자유 함수로 분리합니다.
 
 Interface 예시
 ```swift
 @Reducer
 public struct CounterReducer {
-    let reducer: Reduce<State, Action>
+    private let reducer: Reduce<State, Action>
+
+    @ObservableState
+    public struct State: Equatable {
+        public var count: Int = 0
+        public init() {}
+    }
+
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+
+        public enum View: Equatable {
+            case incrementButtonTapped
+            case decrementButtonTapped
+        }
+
+        public enum Response {
+            case incrementResponse(Result<Int, Error>)
+        }
+
+        public enum Delegate: Equatable {
+            case navigateBack
+        }
+
+        case view(View)
+        case response(Response)
+        case delegate(Delegate)
+    }
+
     public init(reducer: Reduce<State, Action>) { self.reducer = reducer }
-    public var body: some ReducerOf<Self> { reducer }
+
+    public var body: some ReducerOf<Self> {
+        BindingReducer()
+        reducer
+    }
 }
 ```
 
@@ -88,13 +123,36 @@ Implementation 예시
 ```swift
 extension CounterReducer {
     public init() {
-        self.init(reducer: Reduce { state, action in
-            // 실제 로직
-            return .none
-        })
+        let reducer = Reduce<State, Action> { state, action in
+            switch action {
+            case .view(let viewAction):
+                return reduceView(state: &state, action: viewAction)
+            case .response(let responseAction):
+                return reduceResponse(state: &state, action: responseAction)
+            case .binding, .delegate:
+                return .none
+            }
+        }
+        self.init(reducer: reducer)
+    }
+}
+
+private func reduceView(
+    state: inout CounterReducer.State,
+    action: CounterReducer.Action.View
+) -> Effect<CounterReducer.Action> {
+    switch action {
+    case .incrementButtonTapped:
+        state.count += 1
+        return .none
+    case .decrementButtonTapped:
+        state.count -= 1
+        return .none
     }
 }
 ```
+
+상세 패턴은 `docs/Architecture/ReducerPattern.md` 참고
 
 ## Feature Root에서의 조립
 Feature Root(Sources)에서 각 Feature의 구현체를 조립합니다.
