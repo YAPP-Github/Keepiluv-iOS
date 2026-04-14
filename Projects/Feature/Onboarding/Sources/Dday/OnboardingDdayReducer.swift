@@ -42,24 +42,33 @@ public struct OnboardingDdayReducer {
         // MARK: - Binding
         case binding(BindingAction<State>)
 
-        // MARK: - User Action
-        case backButtonTapped
-        case dateSelectorTapped
-        case completeButtonTapped
+        // MARK: - View (사용자 이벤트)
+        public enum View: Equatable {
+            case backButtonTapped
+            case dateSelectorTapped
+            case completeButtonTapped
+        }
 
-        // MARK: - Update State
-        case calendarCompleted
+        // MARK: - Internal (Reducer 내부 Effect)
+        public enum Internal: Equatable {
+            case calendarCompleted
+        }
 
-        // MARK: - API Response
-        case setAnniversaryResponse(Result<Void, Error>)
+        // MARK: - Response (비동기 응답)
+        public enum Response {
+            case setAnniversaryResponse(Result<Void, Error>)
+        }
 
-        // MARK: - Delegate
-        case delegate(Delegate)
-
+        // MARK: - Delegate (부모에게 알림)
         public enum Delegate: Equatable {
             case navigateBack
             case ddayCompleted
         }
+
+        case view(View)
+        case `internal`(Internal)
+        case response(Response)
+        case delegate(Delegate)
     }
 
     public init() {}
@@ -71,46 +80,88 @@ public struct OnboardingDdayReducer {
             case .binding:
                 return .none
 
-            case .backButtonTapped:
-                return .send(.delegate(.navigateBack))
+            case .view(let viewAction):
+                return reduceView(state: &state, action: viewAction)
 
-            case .dateSelectorTapped:
-                state.showCalendarSheet = true
-                return .none
+            case .internal(let internalAction):
+                return reduceInternal(state: &state, action: internalAction)
 
-            case .calendarCompleted:
-                state.showCalendarSheet = false
-                return .none
-
-            case .completeButtonTapped:
-                guard let date = state.selectedDate.date, !state.isLoading else { return .none }
-                state.isLoading = true
-                return .run { send in
-                    do {
-                        try await onboardingClient.setAnniversary(date)
-                        await send(.setAnniversaryResponse(.success(())))
-                    } catch {
-                        await send(.setAnniversaryResponse(.failure(error)))
-                    }
-                }
-
-            case .setAnniversaryResponse(.success):
-                state.isLoading = false
-                return .send(.delegate(.ddayCompleted))
-
-            case let .setAnniversaryResponse(.failure(error)):
-                state.isLoading = false
-                // 이미 온보딩이 완료된 경우 (G4000), 성공과 동일하게 처리
-                if let onboardingError = error as? OnboardingError,
-                   onboardingError == .alreadyOnboarded {
-                    return .send(.delegate(.ddayCompleted))
-                }
-                state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
-                return .none
+            case .response(let responseAction):
+                return reduceResponse(state: &state, action: responseAction)
 
             case .delegate:
                 return .none
             }
+        }
+    }
+}
+
+// MARK: - View
+
+private extension OnboardingDdayReducer {
+    func reduceView(
+        state: inout State,
+        action: Action.View
+    ) -> Effect<Action> {
+        switch action {
+        case .backButtonTapped:
+            return .send(.delegate(.navigateBack))
+
+        case .dateSelectorTapped:
+            state.showCalendarSheet = true
+            return .none
+
+        case .completeButtonTapped:
+            guard let date = state.selectedDate.date, !state.isLoading else { return .none }
+            state.isLoading = true
+            return .run { send in
+                do {
+                    try await onboardingClient.setAnniversary(date)
+                    await send(.response(.setAnniversaryResponse(.success(()))))
+                } catch {
+                    await send(.response(.setAnniversaryResponse(.failure(error))))
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Internal
+
+private extension OnboardingDdayReducer {
+    func reduceInternal(
+        state: inout State,
+        action: Action.Internal
+    ) -> Effect<Action> {
+        switch action {
+        case .calendarCompleted:
+            state.showCalendarSheet = false
+            return .none
+        }
+    }
+}
+
+// MARK: - Response
+
+private extension OnboardingDdayReducer {
+    func reduceResponse(
+        state: inout State,
+        action: Action.Response
+    ) -> Effect<Action> {
+        switch action {
+        case .setAnniversaryResponse(.success):
+            state.isLoading = false
+            return .send(.delegate(.ddayCompleted))
+
+        case let .setAnniversaryResponse(.failure(error)):
+            state.isLoading = false
+            // 이미 온보딩이 완료된 경우 (G4000), 성공과 동일하게 처리
+            if let onboardingError = error as? OnboardingError,
+               onboardingError == .alreadyOnboarded {
+                return .send(.delegate(.ddayCompleted))
+            }
+            state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
+            return .none
         }
     }
 }

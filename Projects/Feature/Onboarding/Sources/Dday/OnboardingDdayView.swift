@@ -21,7 +21,7 @@ public struct OnboardingDdayView: View {
         VStack(spacing: 0) {
             TXNavigationBar(style: .iconOnly(.back)) { action in
                 if action == .backTapped {
-                    store.send(.backButtonTapped)
+                    store.send(.view(.backButtonTapped))
                 }
             }
 
@@ -50,7 +50,7 @@ public struct OnboardingDdayView: View {
         ) {
             TXCalendarBottomSheet(
                 selectedDate: $store.selectedDate,
-                onComplete: { store.send(.calendarCompleted) },
+                onComplete: { store.send(.internal(.calendarCompleted)) },
                 isDateEnabled: { item in
                     guard let components = item.dateComponents,
                           let date = Calendar.current.date(from: components) else {
@@ -77,7 +77,7 @@ private extension OnboardingDdayView {
 
     var dateSelectorSection: some View {
         Button {
-            store.send(.dateSelectorTapped)
+            store.send(.view(.dateSelectorTapped))
         } label: {
             dateSelectorContent
         }
@@ -136,7 +136,7 @@ private extension OnboardingDdayView {
                 size: .l,
                 state: store.isDateSelected ? .standard : .disabled
             ),
-            onTap: { store.send(.completeButtonTapped) }
+            onTap: { store.send(.view(.completeButtonTapped)) }
         )
     }
 }
