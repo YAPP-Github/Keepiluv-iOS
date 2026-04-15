@@ -24,6 +24,9 @@ public struct AuthView: View {
             backgroundIllustration
             foregroundContent
         }
+        .overlay {
+            loadingView
+        }
         .background(Color.Common.white)
         .alert(
             "로그인 실패",
@@ -106,7 +109,6 @@ private extension AuthView {
             kakaoLoginButton
             googleLoginButton
             appleLoginButton
-            loadingView
         }
         .padding(.horizontal, Spacing.spacing8)
         .padding(.bottom, Spacing.spacing9)
@@ -193,7 +195,7 @@ private extension AuthView {
     var loadingView: some View {
         if store.isLoading {
             ProgressView()
-                .padding(.top, Spacing.spacing5)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

@@ -22,11 +22,11 @@ import SwiftUI
 /// TXCalendarBottomSheet(
 ///     selectedDate: $date
 /// ) { exitPickerModeIfNeeded in
-///     TXRoundedRectangleGroupButton(
-///         config: .modal(),
-///         layout: .calendarSheet,
-///         actionLeft: { /* 취소 */ },
-///         actionRight: {
+///     TXRectGroupButton(
+///         leftShape: .rect(style: .basic(text: "취소"), size: .l, state: .line),
+///         rightShape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
+///         onTapLeft: { /* 취소 */ },
+///         onTapRight: {
 ///             if !exitPickerModeIfNeeded() { /* 완료 */ }
 ///         }
 ///     )
@@ -49,11 +49,11 @@ public struct TXCalendarBottomSheet<ButtonContent: View>: View {
     /// TXCalendarBottomSheet(
     ///     selectedDate: $date
     /// ) { exitPickerModeIfNeeded in
-    ///     TXRoundedRectangleGroupButton(
-    ///         config: .modal(),
-    ///         layout: .calendarSheet,
-    ///         actionLeft: { /* 취소 */ },
-    ///         actionRight: {
+    ///     TXRectGroupButton(
+    ///         leftShape: .rect(style: .basic(text: "취소"), size: .l, state: .line),
+    ///         rightShape: .rect(style: .basic(text: "완료"), size: .l, state: .standard),
+    ///         onTapLeft: { /* 취소 */ },
+    ///         onTapRight: {
     ///             if !exitPickerModeIfNeeded() { /* 완료 */ }
     ///         }
     ///     )
@@ -155,12 +155,15 @@ public struct DefaultCalendarButton: View {
     let action: () -> Void
 
     public var body: some View {
-        TXRoundedRectangleButton(
-            config: .long(text: text, colorStyle: .black),
-            action: action
+        TXButton(
+            shape: .rect(
+                style: .basic(text: text),
+                size: .l,
+                state: .standard
+            ),
+            onTap: action
         )
         .padding(.horizontal, Spacing.spacing8)
-        .padding(.vertical, Spacing.spacing5)
     }
 }
 

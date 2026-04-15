@@ -35,13 +35,13 @@ public struct SettingsReducer {
         public var isEditing: Bool
         public var isLoading: Bool
 
-        // Language Modal
-        public var isLanguageModalPresented: Bool
-        public var selectedLanguage: String
+        // Language
+        public var selectedLanguage: TXLanguage
 
         // Account
         public var coupleCode: String
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
+        public var modalPurpose: ModalPurpose?
 
         // Info
         public var appVersion: String
@@ -60,7 +60,24 @@ public struct SettingsReducer {
         public static let minLength = 2
         public static let maxLength = 8
         // 로컬라이징 지원 이후 활성화 예정
-        public static let languageOptions = ["한국어"/*, "English", "日本語"*/]
+        public static let languageOptions = TXLanguage.allCases
+        // 로컬라이징 지원 이후 English, 日本語 추가 예정
+        
+        public enum ModalPurpose: Equatable {
+            case disconnectCouple
+            case withdraw
+        }
+        
+        // TODO: - 임시 임치
+        public enum TXLanguage: Equatable, CaseIterable {
+            case korean
+            
+            public var title: String {
+                switch self {
+                case .korean: "한국어"
+                }
+            }
+        }
 
         /// 상태를 생성합니다.
         ///
@@ -71,7 +88,7 @@ public struct SettingsReducer {
         public init(
             nickname: String = "",
             isEditing: Bool = false,
-            selectedLanguage: String = "한국어",
+            selectedLanguage: TXLanguage = .korean,
             coupleCode: String = "",
             appVersion: String = "",
             storeVersion: String = "",
@@ -83,9 +100,9 @@ public struct SettingsReducer {
             self.originalNickname = nickname
             self.isEditing = isEditing
             self.isLoading = false
-            self.isLanguageModalPresented = false
             self.selectedLanguage = selectedLanguage
             self.coupleCode = coupleCode
+            self.modalPurpose = nil
             self.appVersion = appVersion
             self.storeVersion = storeVersion
             self.isPokePushEnabled = isPokePushEnabled
@@ -117,7 +134,7 @@ public struct SettingsReducer {
 
         // MARK: - Internal
         case nicknameEditingEnded
-        case languageConfirmed
+        case languageConfirmed(Int)
         case storeVersionResponse(String?)
 
         // MARK: - Account Actions

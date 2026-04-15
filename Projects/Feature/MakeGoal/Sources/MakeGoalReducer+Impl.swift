@@ -83,11 +83,11 @@ extension MakeGoalReducer {
                 // MARK: - User Action
             case .emojiButtonTapped:
                 state.isGoalTitleFocused = false
-                state.modal = .gridButton(
-                    .selectIcon(
-                        icons: state.icons.map { $0.image },
-                        selectedIndex: state.selectedEmojiIndex
-                    )
+                state.modal = .selection(
+                    title: "아이콘 변경",
+                    icons: state.icons.map { $0.image },
+                    selectedIndex: state.selectedEmojiIndex,
+                    buttonTitle: "완료"
                 )
                 return .none
                 
@@ -101,6 +101,17 @@ extension MakeGoalReducer {
 
             case .dismissKeyboard:
                 state.isGoalTitleFocused = false
+                return .none
+
+            case let .periodTabSelected(item):
+                switch item {
+                case .daily:
+                    state.selectedPeriod = .daily
+                case .weekly:
+                    state.selectedPeriod = .weekly
+                case .monthly:
+                    state.selectedPeriod = .monthly
+                }
                 return .none
                 
             case .periodSelected:

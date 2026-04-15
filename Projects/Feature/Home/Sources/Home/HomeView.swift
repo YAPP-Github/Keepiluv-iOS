@@ -25,9 +25,10 @@ import SharedDesignSystem
 /// )
 /// ```
 public struct HomeView: View {
-    
+
     @Bindable public var store: StoreOf<HomeReducer>
     @Dependency(\.proofPhotoFactory) var proofPhotoFactory
+    @State private var emptyScrollHeight: CGFloat = 0
     
     /// HomeView를 생성합니다.
     ///
@@ -45,10 +46,8 @@ public struct HomeView: View {
             calendar
             if store.hasCards {
                 content
-            } else {
-                headerRow
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+            } else if store.isEmptyVisible {
+                emptyContent
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -56,15 +55,6 @@ public struct HomeView: View {
             if store.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            
-            if !store.hasCards {
-                goalEmptyView
-            }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            if !store.hasCards {
-                emptyArrow
             }
         }
         .onAppear {
@@ -115,6 +105,7 @@ public struct HomeView: View {
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -138,15 +129,13 @@ private extension HomeView {
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
+            currentDate: $store.calendarDate,
             weeks: store.calendarWeeks,
             config: .init(
                 dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
             ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
-            },
-            onSwipe: { swipe in
-                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
@@ -164,6 +153,38 @@ private extension HomeView {
         }
         .refreshable {
             store.send(.fetchGoals)
+        }
+    }
+
+    var emptyContent: some View {
+        VStack(spacing: 0) {
+            headerRow
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+
+            ScrollView {
+                goalEmptyView
+                    // 실제 가시 영역 기준으로 중앙 정렬되도록 탭바 높이만큼 차감
+                    .frame(maxWidth: .infinity, minHeight: max(0, emptyScrollHeight - 58))
+                    .padding(.bottom, 58)
+            }
+            .scrollIndicators(.hidden)
+            .refreshable {
+                store.send(.fetchGoals)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                emptyArrow
+            }
+            .frame(maxHeight: .infinity)
+            .background {
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { emptyScrollHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, newValue in
+                            emptyScrollHeight = newValue
+                        }
+                }
+            }
         }
     }
     
@@ -187,62 +208,64 @@ private extension HomeView {
     
     var cardList: some View {
         LazyVStack(spacing: 16) {
-            ForEach(store.cards) { card in
-                goalCard(for: card)
+            ForEach(store.items) { item in
+                goalCard(for: item)
             }
         }
         .padding(.top, 12)
     }
     
-    func goalCard(for card: GoalCardItem) -> some View {
+    func goalCard(for item: HomeGoalItem) -> some View {
         GoalCardView(
-            config: .goalCheck(
-                item: .init(
-                    id: card.id,
-                    goalName: card.goalName,
-                    goalEmoji: card.goalEmoji,
-                    myCard: card.myCard,
-                    yourCard: card.yourCard
-                ),
-                isMyChecked: card.myCard.isSelected,
-                isCoupleChecked: card.yourCard.isSelected,
-                action: {
-                    store.send(.goalCheckButtonTapped(id: card.id, isChecked: card.myCard.isSelected))
-                },
-                onHeaderTapped: {
-                    store.send(.headerTapped(card))
-                }
-            ),
-            actionLeft: {
-                store.send(.myCardTapped(card))
-            }, actionRight: {
-                store.send(.yourCardTapped(card))
-            }
+            item: item.card,
+            onHeaderTapped: { store.send(.headerTapped(item.card)) },
+            onCheckButtonTapped: {
+                store.send(.goalCheckButtonTapped(
+                    id: item.id,
+                    isChecked: item.card.myCard.isSelected
+                ))
+            },
+            actionLeft: { store.send(.myCardTapped(item.card)) },
+            actionRight: { store.send(.yourCardTapped(item.card)) }
         )
     }
     
+    @ViewBuilder
     var goalEmptyView: some View {
-        VStack(spacing: 0) {
-            Image.Illustration.emptyPoke
-                .frame(height: 116)
-            
-            Text("첫 목표를 세워볼까요?")
-                .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray400)
-                .padding(.top, 16)
-            
-            Text("+ 버튼을 눌러 목표를 추가해보세요")
-                .typography(.c1_12r)
-                .foregroundStyle(Color.Gray.gray300)
-                .padding(.top, 4)
+        Group {
+            if store.hadFirstGoal == true {
+                VStack(spacing: 8) {
+                    Image.Illustration.scare
+                        .resizable()
+                        .frame(width: 164, height: 164)
+                    
+                    Text("이 날은 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
+            } else if store.hadFirstGoal == false {
+                VStack(spacing: 0) {
+                    Image.Illustration.emptyPoke
+                        .frame(height: 116)
+                    
+                    Text("첫 목표를 세워볼까요?")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                        .padding(.top, 16)
+                    
+                    Text("+ 버튼을 눌러 목표를 추가해보세요")
+                        .typography(.c1_12r)
+                        .foregroundStyle(Color.Gray.gray300)
+                        .padding(.top, 4)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
     
     var emptyArrow: some View {
         Image.Illustration.arrow
-            .padding(.bottom, 71)
+            .padding(.bottom, 71 + 58)
             .padding(.trailing, 86)
             .ignoresSafeArea()
     }

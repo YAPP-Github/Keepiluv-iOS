@@ -15,7 +15,10 @@ import FeatureGoalDetailInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
-import SharedUtil
+
+private enum PokeCancelID: Hashable {
+    case poke(Int64)
+}
 
 private enum PokeCooldownManager {
     private static let userDefaultsKey = "pokeCooldownTimestamps"
@@ -48,6 +51,12 @@ private enum PokeCooldownManager {
     static func recordPoke(goalId: Int64) {
         var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
         timestamps[String(goalId)] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
+
+    static func removePoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps.removeValue(forKey: String(goalId))
         UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
     }
 }
@@ -92,6 +101,9 @@ extension GoalDetailReducer {
                 
                 // MARK: - Action
             case .bottomButtonTapped:
+                if state.currentCompletedGoal?.status == .completed {
+                    return .send(.showToast(.warning(message: "끝난 목표는 인증이 불가능해요!")))
+                }
                 let shouldGoToProofPhoto = (state.currentUser == .mySelf && !state.isCompleted) || state.isEditing
                 if shouldGoToProofPhoto {
                     return .run { send in
@@ -106,15 +118,17 @@ extension GoalDetailReducer {
                     return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
                 }
                 return .run { send in
+                    PokeCooldownManager.recordPoke(goalId: goalId)
                     do {
                         try await goalClient.pokePartner(goalId)
-                        PokeCooldownManager.recordPoke(goalId: goalId)
                         await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                     } catch {
+                        PokeCooldownManager.removePoke(goalId: goalId)
                         await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                     }
                 }
-                
+                .debounce(id: PokeCancelID.poke(goalId), for: .milliseconds(300), scheduler: DispatchQueue.main)
+
             case let .navigationBarTapped(action):
                 if case .backTapped = action {
                     return .send(.delegate(.navigateBack))
@@ -146,17 +160,13 @@ extension GoalDetailReducer {
                     }
                 )
                 
-            case .cardSwipeLeft:
-                state.currentUser = state.entryPoint == .home ? .mySelf : .you
+            case .cardSwiped:
+                state.currentUser = state.currentUser == .mySelf ? .you : .mySelf
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
                 
-            case .cardSwipeRight:
-                state.currentUser = state.entryPoint == .home ? .you : .mySelf
-                state.commentText = state.comment
-                state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                return .none
                 
             case let .focusChanged(isFocused):
                 state.isCommentFocused = isFocused
@@ -178,7 +188,9 @@ extension GoalDetailReducer {
                 }
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
+                
+                return .none
                 
             case .fetchGoalDetailFailed:
                 return .send(.showToast(.warning(message: "목표 상세 조회에 실패했어요")))
@@ -215,10 +227,6 @@ extension GoalDetailReducer {
 
             case let .showToast(toast):
                 state.toast = toast
-                return .none
-                
-            case let .setCreatedAt(text):
-                state.createdAt = text
                 return .none
                 
             case let .authorizationCompleted(isAuthorized):
@@ -300,7 +308,7 @@ extension GoalDetailReducer {
                 myPhotoLog.goalName = state.goalName
                 myPhotoLog.photologId = state.currentCard?.photologId
                 
-                return .none
+                return .send(.updateMyPhotoLog(myPhotoLog))
                 
             case .proofPhotoDismissed:
                 state.proofPhoto = nil
@@ -339,7 +347,9 @@ extension GoalDetailReducer {
                 
                 state.commentText = state.comment
                 state.selectedReactionEmoji = state.currentCard?.reaction.flatMap(ReactionEmoji.init(from:))
-                return .send(.setCreatedAt(timeFormatter.displayText(from: state.currentCard?.createdAt)))
+                state.createdAt = timeFormatter.displayText(from: state.currentCard?.createdAt)
+                
+                return .none
                 
             case .proofPhoto:
                 return .none

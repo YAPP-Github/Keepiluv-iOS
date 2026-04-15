@@ -115,10 +115,22 @@ extension StatsDetailReducer {
                     return .send(.delegate(.goToGoalEdit(goalId: state.goalId)))
                     
                 case .finish:
-                    state.modal = .info(.finishGoal(for: goalItem))
+                    state.modal = .info(
+                        image: goalItem.iconImage,
+                        title: "\(goalItem.goalName)\n목표를 이루셨나요?",
+                        subtitle: "이룬 목표에서 확인할 수 있어요",
+                        leftButtonText: "취소",
+                        rightButtonText: "이뤘어요"
+                    )
                     
                 case .delete:
-                    state.modal = .info(.editDeleteGoal(for: goalItem))
+                    state.modal = .info(
+                        image: goalItem.iconImage,
+                        title: "\(goalItem.goalName)\n목표를 삭제할까요?",
+                        subtitle: "저장된 인증샷은 모두 삭제됩니다.",
+                        leftButtonText: "취소",
+                        rightButtonText: "삭제"
+                    )
                 }
                 return .none
                 

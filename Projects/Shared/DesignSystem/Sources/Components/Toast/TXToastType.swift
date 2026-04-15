@@ -14,7 +14,7 @@ import SwiftUI
 /// let toast: TXToastType = .success(message: "목표를 달성했어요")
 /// ```
 public enum TXToastType: Equatable {
-    case success(message: String)
+    case success(message: String, buttonText: String)
     case delete(message: String)
     case poke(message: String)
     case warning(message: String)
@@ -27,7 +27,7 @@ public enum TXToastType: Equatable {
 public extension TXToastType {
     var message: String {
         switch self {
-        case let .success(message),
+        case let .success(message, _),
              let .delete(message),
              let .poke(message),
              let .warning(message),
@@ -82,6 +82,16 @@ public extension TXToastType {
             return .bottom
         }
     }
+    
+    var buttonText: String {
+        switch self {
+        case let .success(_, text):
+            return text
+        case .delete, .poke, .warning, .fit, .check:
+            return ""
+        }
+    }
+    
 
     var duration: TimeInterval? { 3.0 }
 }

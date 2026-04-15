@@ -58,7 +58,9 @@ struct EditGoalListView: View {
                 }
             }
         )
-        .txToast(item: $store.toast)
+        .txToast(item: $store.toast, onButtonTap: {
+            store.send(.toastButtonTapped)
+        })
     }
 }
 
@@ -72,12 +74,10 @@ private extension EditGoalListView {
     var weekCalendar: some View {
         TXCalendar(
             mode: .weekly,
+            currentDate: $store.calendarDate,
             weeks: store.calendarWeeks,
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
-            },
-            onSwipe: { swipe in
-                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
@@ -88,19 +88,17 @@ private extension EditGoalListView {
             LazyVStack(spacing: 16) {
                 ForEach(store.cards ?? []) { card in
                     GoalEditCardView(
-                        config: .goalEdit(
-                            item: .init(
-                                id: card.id,
-                                goalName: card.goalName,
-                                iconImage: card.iconImage,
-                                repeatCycle: card.repeatCycle,
-                                startDate: card.startDate,
-                                endDate: card.endDate
-                            ),
-                            action: {
-                                store.send(.cardMenuButtonTapped(card))
-                            }
-                        )
+                        item: .init(
+                            id: card.id,
+                            goalName: card.goalName,
+                            iconImage: card.iconImage,
+                            repeatCycle: card.repeatCycle,
+                            startDate: card.startDate,
+                            endDate: card.endDate
+                        ),
+                        onMenuTap: {
+                            store.send(.cardMenuButtonTapped(card))
+                        }
                     )
                     .overlay(alignment: .topTrailing) {
                         if store.selectedCardMenu == card {
@@ -110,12 +108,12 @@ private extension EditGoalListView {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16)
+            .padding(.vertical, 16)
         }
     }
 
     var dropdown: some View {
-        TXDropdown(config: .goal) { action in
+        TXDropdown(items: GoalDropList.allCases) { action in
             store.send(.cardMenuItemSelected(action))
         }
         .offset(x: -16, y: 48)

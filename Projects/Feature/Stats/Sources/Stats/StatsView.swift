@@ -18,9 +18,11 @@ struct StatsView: View {
         VStack(spacing: 0) {
             navigationBar
             topTabBar
-            monthNavigation
-                .padding(.top, store.isOngoing ? 16 : 20)
-                .background(Color.Gray.gray50)
+            if store.isOngoing {
+                monthNavigation
+                    .padding(.top, 16)
+                    .background(Color.Gray.gray50)
+            }
             
             if let items = store.items, !items.isEmpty {
                 cardList
@@ -41,6 +43,7 @@ struct StatsView: View {
         }
         .onAppear { store.send(.onAppear) }
         .txToast(item: $store.toast)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -51,8 +54,9 @@ private extension StatsView {
     }
     
     var topTabBar: some View {
-        TXTopTabBar(
-            config: .stats,
+        TXTab(
+            style: .line(StatsTopTabItem.allCases),
+            selectedItem: store.isOngoing ? .ongoing : .completed,
             onSelect: { item in
                 store.send(.topTabBarSelected(item))
             }
@@ -62,15 +66,13 @@ private extension StatsView {
     
     @ViewBuilder
     var monthNavigation: some View {
-        if store.isOngoing {
-            TXCalendarMonthNavigation(
-                title: store.monthTitle,
-                onTitleTap: { },
-                isNextDisabled: store.isNextMonthDisabled,
-                onPrevious: { store.send(.previousMonthTapped) },
-                onNext: { store.send(.nextMonthTapped) }
-            )
-        } else { EmptyView() }
+        TXCalendarMonthNavigation(
+            title: store.monthTitle,
+            onTitleTap: { },
+            isNextDisabled: store.isNextMonthDisabled,
+            onPrevious: { store.send(.previousMonthTapped) },
+            onNext: { store.send(.nextMonthTapped) }
+        )
     }
     
     var cardList: some View {
@@ -86,27 +88,31 @@ private extension StatsView {
                     )
                 }
             }
-            .padding(.top, 12)
+            .padding(.top, store.isOngoing ? 12 : 20)
             .padding([.horizontal, .bottom], 20)
         }
         .background(Color.Gray.gray50)
     }
     
     var statsEmptyView: some View {
-        if store.isOngoing {
-            VStack(spacing: 8) {
-                Image.Illustration.scare
-                Text("아직 목표가 없어요!")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray400)
-            }
-        } else {
-            VStack(spacing: 8) {
-                Image.Illustration.trash
-                Text("아직 끝낸 목표가 없어요!")
-                    .typography(.t2_16b)
-                    .foregroundStyle(Color.Gray.gray400)
+        Group {
+            if store.isOngoing {
+                VStack(spacing: 8) {
+                    Image.Illustration.scare
+                    Text("아직 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
+            } else {
+                VStack(spacing: 8) {
+                    Image.Illustration.trash
+                    Text("아직 끝낸 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }

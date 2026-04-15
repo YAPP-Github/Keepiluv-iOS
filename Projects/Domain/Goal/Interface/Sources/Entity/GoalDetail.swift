@@ -57,11 +57,18 @@ public struct GoalDetail: Equatable {
     /// ```
     public struct CompletedGoal: Equatable {
         public let goalName: String
+        public let status: Goal.Status
         public let myPhotoLog: PhotoLog?
         public let yourPhotoLog: PhotoLog?
         
-        public init(goalName: String, myPhotoLog: PhotoLog?, yourPhotoLog: PhotoLog?) {
+        public init(
+            goalName: String,
+            myPhotoLog: PhotoLog?,
+            yourPhotoLog: PhotoLog?,
+            status: Goal.Status? = nil
+        ) {
             self.goalName = goalName
+            self.status = status ?? .notStarted
             self.myPhotoLog = myPhotoLog
             self.yourPhotoLog = yourPhotoLog
         }
@@ -75,7 +82,6 @@ public struct GoalDetail: Equatable {
             public var comment: String?
             public var reaction: String?
             public let createdAt: String?
-            
             
             /// 목표 인증 모델을 생성합니다.
             ///
@@ -110,7 +116,6 @@ public struct GoalDetail: Equatable {
                 self.createdAt = createdAt
             }
         }
-        
     }
     
     /// 목표 인증 주체를 나타냅니다.

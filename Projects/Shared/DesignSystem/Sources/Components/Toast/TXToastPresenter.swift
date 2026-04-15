@@ -21,6 +21,7 @@ struct TXToastModifier: ViewModifier {
     let style: TXToastStyle
     let icon: Image?
     let message: String
+    let buttonText: String
     let showButton: Bool
     let onButtonTap: (() -> Void)?
     let position: TXToastPosition
@@ -55,7 +56,8 @@ private extension TXToastModifier {
         if style == .fit {
             TXToast(
                 style: .fit,
-                message: message
+                message: message,
+                buttonText: buttonText
             )
             .frame(maxWidth: .infinity)
             .safeAreaPadding(.horizontal, Constants.fitHorizontalInset)
@@ -67,6 +69,7 @@ private extension TXToastModifier {
                 style: .fixed,
                 icon: icon,
                 message: message,
+                buttonText: buttonText,
                 showButton: showButton,
                 onButtonTap: onButtonTap
             )
@@ -171,6 +174,7 @@ public extension View {
         style: TXToastStyle = .fixed,
         icon: Image? = nil,
         message: String,
+        buttonText: String,
         showButton: Bool = false,
         onButtonTap: (() -> Void)? = nil,
         position: TXToastPosition = .bottom,
@@ -183,6 +187,7 @@ public extension View {
                 style: style,
                 icon: icon,
                 message: message,
+                buttonText: buttonText,
                 showButton: showButton,
                 onButtonTap: onButtonTap,
                 position: position,
@@ -233,6 +238,7 @@ public extension View {
                 style: item.wrappedValue?.style ?? .fixed,
                 icon: item.wrappedValue?.icon,
                 message: item.wrappedValue?.message ?? "",
+                buttonText: item.wrappedValue?.buttonText ?? "",
                 showButton: item.wrappedValue?.showButton ?? false,
                 onButtonTap: onButtonTap,
                 position: position ?? item.wrappedValue?.position ?? .bottom,
@@ -246,14 +252,14 @@ public extension View {
 // MARK: - Preview
 #Preview("Success Toast") {
     struct PreviewWrapper: View {
-        @State private var toast: TXToastType? = .success(message: "목표를 달성했어요")
+        @State private var toast: TXToastType? = .success(message: "목표를 달성했어요", buttonText: "보러가기")
 
         var body: some View {
             ZStack {
                 Color.gray.opacity(0.3)
                 Button("Toggle Toast") {
                     if toast == nil {
-                        toast = .success(message: "목표를 달성했어요")
+                        toast = .success(message: "목표를 달성했어요", buttonText: "보러가기")
                     } else {
                         toast = nil
                     }

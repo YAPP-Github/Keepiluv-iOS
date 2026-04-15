@@ -23,11 +23,6 @@ public struct StatsCardView: View {
     
     private let item: StatsCardItem
     private let isOngoing: Bool
-    private let columns = Array(
-        repeating: GridItem(.flexible()),
-        count: Constants.gridColumnCount
-    )
-    
     private var onTap: (Int64) -> Void
     
     /// 통계 카드 구성값과 탭 액션을 받아 컴포넌트를 생성합니다.
@@ -53,7 +48,7 @@ public struct StatsCardView: View {
     public var body: some View {
         VStack(spacing: 0) {
             header
-            horizontalDivider
+            verticalDivider
             completionSection
         }
         .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius))
@@ -70,120 +65,63 @@ public struct StatsCardView: View {
 private extension StatsCardView {
     var header: some View {
         CardHeaderView(
-            config: .goalStats(
-                goalName: item.goalName,
-                iconImage: item.iconImage,
-                goalCount: item.goalCount,
-                isOngoing: isOngoing,
-                onHeaderTapped: { onTap(item.goalId) }
-            )
+            title: item.goalName,
+            iconImage: item.iconImage,
+            isBordered: false,
+            onTap: { onTap(item.goalId) },
+            rightContent: {
+                Text(headerSummaryText)
+                    .typography(Constants.headerTypography)
+            }
         )
     }
     
-    var horizontalDivider: some View {
-        Color.Gray.gray500
+    var verticalDivider: some View {
+        Constants.borderColor
             .frame(maxWidth: .infinity, maxHeight: Constants.borderLineWidth)
+            .padding(.bottom, -1)
     }
     
     var completionSection: some View {
         HStack(spacing: 0) {
             ForEach(Array(item.completionInfos.enumerated()), id: \.offset) { index, info in
-                completionCell(info: info)
+                StatsCardCompletionCell(
+                    info: info,
+                    stampIcon: item.stampIcon,
+                    goalCount: item.goalCount,
+                    showsStampGrid: isOngoing
+                )
                     .overlay(alignment: .trailing) {
                         if index < item.completionInfos.count - 1 {
-                            verticalDivider
+                            horizontalDivider
                         }
                     }
             }
         }
-        .background(Color.Common.white)
+        .background(Constants.backgroundColor)
     }
     
-    func completionCell(info: StatsCardItem.CompletionInfo) -> some View {
-        VStack(spacing: Constants.cellVerticalSpacing) {
-            HStack(spacing: 0) {
-                Text(info.name)
-                    .typography(.b4_12b)
-                    .foregroundStyle(Color.Gray.gray400)
-                
-                Spacer()
-                
-                Text("\(info.count)번 완료")
-                    .typography(.b4_12b)
-                    .foregroundStyle(Color.Gray.gray400)
-            }
-            
-            if isOngoing {
-                LazyVGrid(columns: columns, spacing: Constants.gridSpacing) {
-                    ForEach(0..<item.goalCount, id: \.self) { count in
-                        let isCompleted = count < info.count
-                        let stampColor = isCompleted
-                        ? info.stampColors.color(at: count) ?? Color.Chromatic.blue400
-                        : .clear
-                        let borderColor = isCompleted ? Color.Gray.gray500 : Color.Gray.gray200
-                        
-                        TXVector(
-                            icon: item.stampIcon,
-                            fillColor: stampColor,
-                            borderColor: borderColor
-                        )
-                        .frame(
-                            width: Constants.iconSize,
-                            height: Constants.iconSize
-                        )
-                    }
-                }
-            }
-        }
-        .padding(Constants.cellPadding)
-    }
-    
-    var verticalDivider: some View {
-        Color.Gray.gray500
+    var horizontalDivider: some View {
+        Constants.borderColor
             .frame(width: Constants.borderLineWidth)
     }
-}
 
-private extension Array where Element == StatsCardItem.StampColor {
-    func color(at index: Int) -> Color? {
-        guard indices.contains(index) else { return nil }
-        return self[index].color
-    }
-}
-
-private extension StatsCardItem.StampColor {
-    var color: Color {
-        switch self {
-        case .green400:
-            return Color.Chromatic.green400
-        case .blue400:
-            return Color.Chromatic.blue400
-        case .yellow400:
-            return Color.Chromatic.yellow400
-        case .pink400:
-            return Color.Chromatic.pink400
-        case .pink300:
-            return Color.Chromatic.pink300
-        case .pink200:
-            return Color.Chromatic.pink200
-        case .orange400:
-            return Color.Chromatic.orange400
-        case .purple400:
-            return Color.Chromatic.purple400
-        }
+    var headerSummaryText: String {
+        let statusPrefix = isOngoing ? Constants.ongoingStatusPrefix : Constants.totalStatusPrefix
+        return "\(statusPrefix) 목표 \(item.goalCount)번"
     }
 }
 
 // MARK: - Constants
 private extension StatsCardView {
     enum Constants {
-        static let gridColumnCount = 7
         static let cardCornerRadius: CGFloat = 12
         static let borderLineWidth: CGFloat = 1
-        static let cellVerticalSpacing: CGFloat = 12
-        static let gridSpacing: CGFloat = 4
-        static let iconSize: CGFloat = 18
-        static let cellPadding: CGFloat = 16
+        static let headerTypography = TypographyToken.b1_14b
+        static let borderColor = Color.Gray.gray500
+        static let backgroundColor = Color.Common.white
+        static let ongoingStatusPrefix = "이번달"
+        static let totalStatusPrefix = "총"
     }
 }
 

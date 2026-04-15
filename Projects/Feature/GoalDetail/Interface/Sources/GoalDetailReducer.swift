@@ -21,13 +21,7 @@ public struct GoalDetailReducer {
     /// GoalDetail 화면 렌더링에 필요한 상태입니다.
     @ObservableState
     public struct State: Equatable {
-        public enum EntryPoint: Equatable {
-            case home
-            case stats
-        }
-        
         public let goalId: Int64
-        public let entryPoint: EntryPoint
         public var item: GoalDetail?
         public var currentGoalIndex: Int = 0
         public var currentUser: GoalDetail.Owner
@@ -43,37 +37,23 @@ public struct GoalDetailReducer {
         }
         
         public var currentCard: GoalDetail.CompletedGoal.PhotoLog? {
-            switch currentUser {
-            case .mySelf:
-                return currentCompletedGoal?.myPhotoLog
-                
-            case .you:
-                return currentCompletedGoal?.yourPhotoLog
-            }
+            isFrontMyCard ? currentCompletedGoal?.myPhotoLog : currentCompletedGoal?.yourPhotoLog
+        }
+
+        public var myCard: GoalDetail.CompletedGoal.PhotoLog? {
+            currentCompletedGoal?.myPhotoLog
+        }
+
+        public var partnerCard: GoalDetail.CompletedGoal.PhotoLog? {
+            currentCompletedGoal?.yourPhotoLog
         }
         
-        public var currentEditedImageData: Data? {
-            currentUser == .mySelf ? pendingEditedImageData : nil
+        public var myCardIsCompleted: Bool {
+            pendingEditedImageData != nil || myCard?.imageUrl != nil
         }
-        
-        public var canSwipeLeft: Bool {
-            switch entryPoint {
-            case .home:
-                return !isEditing && currentUser == .you
-                
-            case .stats:
-                return !isEditing && currentUser == .mySelf
-            }
-        }
-        
-        public var canSwipeRight: Bool {
-            switch entryPoint {
-            case .home:
-                return !isEditing && currentUser == .mySelf
-                
-            case .stats:
-                return !isEditing && currentUser == .you
-            }
+
+        public var partnerCardIsCompleted: Bool {
+            partnerCard?.imageUrl != nil
         }
         
         public var goalName: String {
@@ -93,11 +73,12 @@ public struct GoalDetailReducer {
         }
         
         public var isCompleted: Bool {
-            currentEditedImageData != nil || currentCard?.imageUrl != nil
+            pendingEditedImageData != nil || currentCard?.imageUrl != nil
         }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
-            if case .mySelf = currentUser, isCompleted {
+            guard currentCompletedGoal?.status != .completed else { return "" }
+            if isFrontMyCard, isCompleted {
                 return isEditing ? "저장" : "수정"
             } else {
                 return ""
@@ -109,8 +90,8 @@ public struct GoalDetailReducer {
         public var isCameraPermissionAlertPresented: Bool = false
         
         public var selectedReactionEmoji: ReactionEmoji?
-        public var myHasEmoji: Bool { currentUser == .mySelf && selectedReactionEmoji != nil }
-        public var isShowReactionBar: Bool { currentUser == .you && isCompleted }
+        public var myHasEmoji: Bool { isFrontMyCard && selectedReactionEmoji != nil }
+        public var isShowReactionBar: Bool { !isFrontMyCard && isCompleted }
         public var isLoading: Bool { item == nil }
         public var isEditing: Bool = false
         public var isSavingPhotoLog: Bool = false
@@ -119,6 +100,10 @@ public struct GoalDetailReducer {
         public var isCommentFocused: Bool = false
         public var toast: TXToastType?
         public var createdAt: String = ""
+
+        public var isFrontMyCard: Bool {
+            currentUser == .mySelf
+        }
         
         /// 기본 상태를 생성합니다.
         ///
@@ -132,12 +117,10 @@ public struct GoalDetailReducer {
         /// ```
         public init(
             currentUser: GoalDetail.Owner,
-            entryPoint: EntryPoint,
             id: Int64,
             verificationDate: String
         ) {
             self.currentUser = currentUser
-            self.entryPoint = entryPoint
             self.goalId = id
             self.verificationDate = verificationDate
         }
@@ -155,8 +138,7 @@ public struct GoalDetailReducer {
         case bottomButtonTapped
         case navigationBarTapped(TXNavigationBar.Action)
         case reactionEmojiTapped(ReactionEmoji)
-        case cardSwipeLeft
-        case cardSwipeRight
+        case cardSwiped
         case focusChanged(Bool)
         case dimmedBackgroundTapped
         case updateMyPhotoLog(GoalDetail.CompletedGoal.PhotoLog)
@@ -168,7 +150,6 @@ public struct GoalDetailReducer {
         case updateCurrentCardReaction(String?)
         case reactionUpdateFailed(previousReaction: String?)
         case showToast(TXToastType)
-        case setCreatedAt(String)
         case proofPhotoDismissed
         case cameraPermissionAlertDismissed
         case updatePhotoLog
@@ -212,23 +193,24 @@ public struct GoalDetailReducer {
 }
 
 extension GoalDetailReducer.State {
-    public var explainText: String {
-        switch currentUser {
-        case .you:
+    public var emptyCardText: String {
+        let isCompleted = currentCompletedGoal?.status == .completed
+        guard !isCompleted else { return "인증샷이\n없어요!" }
+        
+        if isFrontMyCard {
+            return  "인증샷을\n올려보세요!"
+        } else {
             guard let nickname = item?.partnerNickname else { return "" }
-            return "\(nickname)\n님은 아직인가봐요!"
-            
-        case .mySelf:
-            return "인증샷을\n올려보세요!"
+            return "\(nickname)님은\n아직..."
         }
     }
     
     public var bottomButtonText: String {
-        switch currentUser {
-        case .mySelf:
+        switch isFrontMyCard {
+        case true:
             return isEditing ? "다시 찍기" : "업로드하기"
             
-        case .you:
+        case false:
             return "찌르기"
         }
     }

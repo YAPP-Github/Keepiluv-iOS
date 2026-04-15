@@ -37,27 +37,28 @@ public struct HomeReducer {
     /// let state = HomeReducer.State()
     /// ```
     public struct State: Equatable {
-        public var cards: [GoalCardItem] = []
+        public var items: [HomeGoalItem] = []
         public var isLoading: Bool = true
         public var mainTitle: String = "KEEPILUV"
         public var calendarMonthTitle: String = ""
         public var calendarWeeks: [[TXCalendarDateItem]] = []
         public var calendarDate: TXCalendarDate = .init()
         public var calendarSheetDate: TXCalendarDate = .init()
-        public var goalsCache: [String: [GoalCardItem]] = [:]
+        public var goalsCache: [String: [HomeGoalItem]] = [:]
         public var isRefreshHidden: Bool = true
         public var isCalendarSheetPresented: Bool = false
         public var pendingDeleteGoalID: Int64?
         public var pendingDeletePhotologID: Int64?
-        public var hasCards: Bool { !cards.isEmpty }
+        public var hasCards: Bool { !items.isEmpty }
+        public var isEmptyVisible: Bool { !isLoading && items.isEmpty }
         public let nowDate = CalendarNow()
         public var toast: TXToastType?
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var isProofPhotoPresented: Bool = false
         public var isAddGoalPresented: Bool = false
         public var isCameraPermissionAlertPresented: Bool = false
         public var hasUnreadNotification: Bool = false
-        
+        public var hadFirstGoal: Bool?
         public var goalSectionTitle: String {
             let now = CalendarNow()
             let today = TXCalendarDate(year: now.year, month: now.month, day: now.day)
@@ -112,7 +113,7 @@ public struct HomeReducer {
         
         // MARK: - Update State
         case fetchGoals
-        case fetchGoalsCompleted([GoalCardItem], date: TXCalendarDate)
+        case fetchGoalsCompleted(GoalList, date: TXCalendarDate)
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)

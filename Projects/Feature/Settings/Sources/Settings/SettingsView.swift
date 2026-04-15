@@ -35,7 +35,7 @@ public struct SettingsView: View {
                     settingsListSection
                         .padding(.horizontal, Spacing.spacing8)
                 }
-                .padding(.top, Spacing.spacing9)
+                .padding(.top, Spacing.spacing8)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -48,19 +48,15 @@ public struct SettingsView: View {
                 store.send(.nicknameEditingEnded)
             }
         }
-        .onChange(of: store.isLanguageModalPresented) { _, newValue in
-            if newValue {
-                dismissKeyboard()
+        .txModal(item: $store.modal) { action in
+            switch action {
+            case let .confirmWithIndex(index):
+                store.send(.languageConfirmed(index))
+            case .confirm:
+                store.send(.modalConfirmTapped)
+            default:
+                break
             }
-        }
-        .txSelectionModal(
-            isPresented: $store.isLanguageModalPresented,
-            title: "언어 설정",
-            subtitle: "이미 앱 내에 저장된 언어는 변경되지 않아요",
-            options: SettingsReducer.State.languageOptions,
-            selectedOption: $store.selectedLanguage
-        ) {
-            store.send(.languageConfirmed)
         }
         .onAppear {
             store.send(.onAppear)
@@ -190,6 +186,7 @@ private extension SettingsView {
             title: "언어 설정",
             trailing: { languageTrailing }
         ) {
+            dismissKeyboard()
             store.send(.languageSettingTapped)
         }
     }
@@ -271,7 +268,7 @@ private extension SettingsView {
     @ViewBuilder
     var languageTrailing: some View {
         HStack(spacing: Spacing.spacing5) {
-            Text(store.selectedLanguage)
+            Text(store.selectedLanguage.title)
                 .typography(.b2_14r)
                 .foregroundStyle(Color.Gray.gray500)
 

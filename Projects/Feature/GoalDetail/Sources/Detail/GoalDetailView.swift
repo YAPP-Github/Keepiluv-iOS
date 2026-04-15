@@ -37,6 +37,8 @@ public struct GoalDetailView: View {
     @State private var keyboardFrame: CGRect = .zero
     @StateObject private var myEmojiFlyingReactionEmitter = FlyingReactionEmitter()
     @State private var didPlayMyEmojiAppearAnimation = false
+    @State private var cardOffset: CGFloat = .zero
+    @State private var isCrossingDuringDrag: Bool = false
     
     /// GoalDetailView를 생성합니다.
     ///
@@ -69,7 +71,7 @@ public struct GoalDetailView: View {
                 
                 if store.isCompleted {
                     completedBottomContent
-                } else {
+                } else if store.currentCompletedGoal?.status != .completed {
                     bottomButton
                         .padding(.top, 105)
                         .overlay(alignment: .bottomLeading) {
@@ -126,8 +128,8 @@ private extension GoalDetailView {
                 .init(
                     title: store.goalName,
                     rightContent: store.naviBarRightText.isEmpty
-                        ? nil
-                        : .text(store.naviBarRightText)
+                    ? nil
+                    : .text(store.naviBarRightText)
                 )
             ),
             onAction: { action in
@@ -138,64 +140,69 @@ private extension GoalDetailView {
     }
     
     var cardView: some View {
-        SwipeableCardView(
-            canSwipeLeft: store.canSwipeLeft,
-            canSwipeRight: store.canSwipeRight,
-            onSwipeLeft: { store.send(.cardSwipeLeft) },
-            onSwipeRight: { store.send(.cardSwipeRight) },
-            content: { currentCardView }
+        ZStack {
+            myCard
+                .zIndex(effectiveIsFrontMyCard ? 1 : 0)
+            
+            partnerCard
+                .zIndex(effectiveIsFrontMyCard ? 0 : 1)
+        }
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    let translation = value.translation
+                    let width = resistedDragWidth(
+                        for: translation.width,
+                        velocity: value.velocity.width
+                    )
+                    guard abs(width) >= abs(translation.height) else {
+                        resetDragState()
+                        return
+                    }
+                    
+                    let maxOffset = Constants.maxCardOffset * 2
+                    
+                    guard (-maxOffset...maxOffset).contains(width) else {
+                        return
+                    }
+                    
+                    cardOffset = repeatedCardOffset(for: width)
+                    isCrossingDuringDrag = shouldCrossCards(for: width)
+                }
+                .onEnded { _ in
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.94)) {
+                        resetDragState()
+                        store.send(.cardSwiped)
+                    }
+                }
         )
-        .background(backgroundRect)
-    }
-    
-    var currentCardView: some View {
-        Group {
-            if store.isCompleted {
-                completedImageCard
-            } else {
-                nonCompletedCard
-                    .overlay(nonCompletedText)
-            }
-        }
-        .animation(.spring(response: 0.36, dampingFraction: 0.86), value: store.currentUser)
     }
     
     @ViewBuilder
-    var backgroundRect: some View {
-        if !store.isEditing {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.Gray.gray200)
-                .insideBorder(
-                    Color.Gray.gray500,
-                    shape: RoundedRectangle(cornerRadius: 20),
-                    lineWidth: 1.6
-                )
-                .frame(width: 336, height: 336)
-                .overlay(dimmedView)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .rotationEffect(.degrees(degree(isBackground: true)))
-        }
+    var myCard: some View {
+        cardFace(
+            isFront: effectiveIsFrontMyCard,
+            isCompleted: store.myCardIsCompleted,
+            imageData: store.pendingEditedImageData,
+            imageURL: store.myCard?.imageUrl,
+            comment: store.myCard?.comment ?? "",
+            showsMyEmoji: effectiveIsFrontMyCard && store.selectedReactionEmoji != nil
+        )
+        .offset(x: cardOffset * (effectiveIsFrontMyCard ? 1 : -1))
     }
     
     @ViewBuilder
-    var completedImageCard: some View {
-        if let editImageData = store.currentEditedImageData,
-           let editedImage = UIImage(data: editImageData) {
-            completedImageCardContainer {
-                Image(uiImage: editedImage)
-                    .resizable()
-                    .scaledToFill()
-            }
-        } else if let imageUrl = store.currentCard?.imageUrl,
-                  let url = URL(string: imageUrl) {
-            completedImageCardContainer {
-                KFImage(url)
-                    .resizable()
-                    .scaledToFill()
-            }
-        } else {
-            EmptyView()
-        }
+    var partnerCard: some View {
+        cardFace(
+            isFront: !effectiveIsFrontMyCard,
+            isCompleted: store.partnerCardIsCompleted,
+            imageData: nil,
+            imageURL: store.partnerCard?.imageUrl,
+            comment: store.partnerCard?.comment ?? "",
+            showsMyEmoji: false
+        )
+        .offset(x: cardOffset * (effectiveIsFrontMyCard ? -1 : 1))
+        .rotationEffect(.degrees(-8))
     }
     
     @ViewBuilder
@@ -233,6 +240,68 @@ private extension GoalDetailView {
         )
     }
     
+    var backgroundCard: some View {
+        let shape = RoundedRectangle(cornerRadius: 20)
+        
+        return shape
+            .fill(Color.Gray.gray200)
+            .insideBorder(
+                Color.Gray.gray500,
+                shape: shape,
+                lineWidth: 1.6
+            )
+            .frame(width: 336, height: 336)
+            .overlay(dimmedView)
+            .clipShape(shape)
+    }
+    
+    @ViewBuilder
+    func cardFace(
+        isFront: Bool,
+        isCompleted: Bool,
+        imageData: Data?,
+        imageURL: String?,
+        comment: String,
+        showsMyEmoji: Bool
+    ) -> some View {
+        ZStack {
+            backgroundCard
+                .opacity(isFront ? 0 : 1)
+            
+            frontCardContent(
+                isCompleted: isCompleted,
+                imageData: imageData,
+                imageURL: imageURL,
+                comment: comment,
+                showsMyEmoji: showsMyEmoji
+            )
+            .opacity(isFront ? 1 : 0)
+        }
+    }
+    
+    @ViewBuilder
+    func frontCardContent(
+        isCompleted: Bool,
+        imageData: Data?,
+        imageURL: String?,
+        comment: String,
+        showsMyEmoji: Bool
+    ) -> some View {
+        if isCompleted {
+            completedImageCard(
+                imageData: imageData,
+                imageURL: imageURL,
+                comment: comment,
+                showsMyEmoji: showsMyEmoji
+            )
+        } else {
+            nonCompletedCard
+                .overlay {
+                    nonCompletedText
+                }
+        }
+    }
+
     var nonCompletedCard: some View {
         let shape = RoundedRectangle(cornerRadius: 20)
 
@@ -250,11 +319,37 @@ private extension GoalDetailView {
                 shape: shape,
                 lineWidth: 1.6
             )
-            .rotationEffect(.degrees(degree(isBackground: false)))
+            .overlay(dimmedView)
+    }
+
+    @ViewBuilder
+    func completedImageCard(
+        imageData: Data?,
+        imageURL: String?,
+        comment: String,
+        showsMyEmoji: Bool
+    ) -> some View {
+        if let imageData,
+           let editedImage = UIImage(data: imageData) {
+            completedImageCardContainer(comment: comment, showsMyEmoji: showsMyEmoji) {
+                Image(uiImage: editedImage)
+                    .resizable()
+                    .scaledToFill()
+            }
+        } else if let imageURL,
+                  let url = URL(string: imageURL) {
+            completedImageCardContainer(comment: comment, showsMyEmoji: showsMyEmoji) {
+                KFImage(url)
+                    .resizable()
+                    .scaledToFill()
+            }
+        } else {
+            backgroundCard
+        }
     }
     
     var nonCompletedText: some View {
-        Text(store.explainText)
+        Text(store.emptyCardText)
             .typography(.h2_24r)
             .foregroundStyle(Color.Gray.gray500)
             .multilineTextAlignment(.center)
@@ -267,19 +362,23 @@ private extension GoalDetailView {
     }
 
     var bottomButton: some View {
-        TXShadowButton(
-            config: store.isEditing ? .long(text: store.bottomButtonText) : .medium(text: store.bottomButtonText),
-            colorStyle: .white
-        ) {
-            store.send(.bottomButtonTapped)
-        }
+        TXButton(
+            shape: .round(
+                style: .illustLight(text: store.bottomButtonText),
+                size: store.isEditing ? .l : .m,
+                state: .standard
+            ),
+            onTap: {
+                store.send(.bottomButtonTapped)
+            }
+        )
     }
     
     @ViewBuilder
-    var commentCircle: some View {
+    func commentCircle(comment: String) -> some View {
         let keyboardInset = max(0, rectFrame.maxY - keyboardFrame.minY)
         TXCommentCircle(
-            commentText: store.isEditing ? $store.commentText : .constant(store.comment),
+            commentText: store.isEditing ? $store.commentText : .constant(comment),
             isEditable: store.isEditing,
             keyboardInset: keyboardInset,
             isFocused: $store.isCommentFocused,
@@ -303,6 +402,8 @@ private extension GoalDetailView {
     }
 
     func completedImageCardContainer<Content: View>(
+        comment: String,
+        showsMyEmoji: Bool,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         let shape = RoundedRectangle(cornerRadius: 20)
@@ -318,8 +419,8 @@ private extension GoalDetailView {
             .overlay(dimmedView)
             .clipShape(shape)
             .overlay(alignment: .bottom) {
-                if let comment = store.currentCard?.comment, !comment.isEmpty {
-                    commentCircle
+                if !comment.isEmpty {
+                    commentCircle(comment: comment)
                         .padding(.bottom, 26)
                 }
             }
@@ -329,15 +430,15 @@ private extension GoalDetailView {
                 lineWidth: 1.6
             )
             .overlay(alignment: .topTrailing) {
-                myEmoji
+                if showsMyEmoji {
+                    myEmoji
+                }
             }
-            .rotationEffect(.degrees(degree(isBackground: false)))
     }
     
     @ViewBuilder
     var myEmoji: some View {
-        if store.myHasEmoji,
-           let emoji = store.selectedReactionEmoji?.image {
+        if let emoji = store.selectedReactionEmoji?.image {
             emoji
                 .resizable()
                 .frame(width: 52, height: 52)
@@ -393,21 +494,56 @@ private extension GoalDetailView {
     }
 }
 
-// MARK: - Constants
+// MARK: - Methods
 private extension GoalDetailView {
-    func degree(isBackground: Bool) -> Double {
-        switch store.currentUser {
-        case .mySelf:
-            return isBackground ? -8 : 0
-            
-        case .you:
-            return isBackground ? 0 : -8
+    var effectiveIsFrontMyCard: Bool {
+        isCrossingDuringDrag ? !store.isFrontMyCard : store.isFrontMyCard
+    }
+
+    func repeatedCardOffset(for width: CGFloat) -> CGFloat {
+        let maxOffset = Constants.maxCardOffset
+        let direction: CGFloat = width >= 0 ? 1 : -1
+        let progress = abs(width).truncatingRemainder(dividingBy: maxOffset * 2)
+        let offset = progress <= maxOffset ? progress : maxOffset * 2 - progress
+        
+        return offset * direction
+    }
+
+    func shouldCrossCards(for width: CGFloat) -> Bool {
+        abs(width).truncatingRemainder(dividingBy: Constants.maxCardOffset * 2) > Constants.maxCardOffset
+    }
+
+    func resistedDragWidth(for proposedWidth: CGFloat, velocity: CGFloat) -> CGFloat {
+        let speed = abs(velocity)
+        guard speed > Constants.dragVelocityThreshold else {
+            return proposedWidth
         }
+
+        let overflow = min(
+            (speed - Constants.dragVelocityThreshold) / Constants.dragVelocityThreshold,
+            1
+        )
+        let resistance = 1 - (overflow * (1 - Constants.minimumDragResistance))
+        return proposedWidth * resistance
+    }
+
+    func resetDragState() {
+        cardOffset = .zero
+        isCrossingDuringDrag = false
     }
     
     // 다른곳에서도 쓸 때 Util로 빼기
     private var isSEDevice: Bool {
         UIScreen.main.bounds.height <= 667
+    }
+}
+
+// MARK: - Constants
+private extension GoalDetailView {
+    enum Constants {
+        static let maxCardOffset: CGFloat = 100
+        static let dragVelocityThreshold: CGFloat = 1200
+        static let minimumDragResistance: CGFloat = 0.35
     }
 }
 
@@ -437,7 +573,6 @@ private extension FlyingReactionConfig {
         store: Store(
             initialState: GoalDetailReducer.State(
                 currentUser: .mySelf,
-                entryPoint: .home,
                 id: 1,
                 verificationDate: "2026-02-07"
             ),

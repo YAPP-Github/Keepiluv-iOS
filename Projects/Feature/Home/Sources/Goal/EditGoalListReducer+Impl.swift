@@ -92,12 +92,24 @@ extension EditGoalListReducer {
                 case .finish:
                     state.pendingGoalId = card.id
                     state.pendingAction = .complete
-                    state.modal = .info(.finishGoal(for: card))
+                    state.modal = .info(
+                        image: card.iconImage,
+                        title: "\(card.goalName)\n목표를 이루셨나요?",
+                        subtitle: "이룬 목표에서 확인할 수 있어요",
+                        leftButtonText: "취소",
+                        rightButtonText: "이뤘어요"
+                    )
                     
                 case .delete:
                     state.pendingGoalId = card.id
                     state.pendingAction = .delete
-                    state.modal = .info(.editDeleteGoal(for: card))
+                    state.modal = .info(
+                        image: card.iconImage,
+                        title: "\(card.goalName)\n목표를 삭제할까요?",
+                        subtitle: "저장된 인증샷은 모두 삭제됩니다.",
+                        leftButtonText: "취소",
+                        rightButtonText: "삭제"
+                    )
                 }
                 
                 state.selectedCardMenu = nil
@@ -138,6 +150,9 @@ extension EditGoalListReducer {
                         }
                     }
                 }
+                
+            case .toastButtonTapped:
+                return .send(.delegate(.goToCompletedStats))
                 
                 // MARK: - Update State
             case let .setCalendarDate(date):
@@ -193,7 +208,7 @@ extension EditGoalListReducer {
                 state.pendingGoalId = nil
                 state.pendingAction = nil
                 state.cards?.removeAll { $0.id == goalId }
-                return .send(.showToast(.success(message: "목표를 달성했어요!")))
+                return .send(.showToast(.success(message: "목표를 이뤘어요", buttonText: "보러가기")))
 
             case let .apiError(message):
                 state.isLoading = false

@@ -15,10 +15,10 @@ import CoreNetworkInterface
 /// ## 사용 예시
 /// ```swift
 /// @Dependency(\.goalClient) var goalClient
-/// let goals = try await goalClient.fetchGoals("2026-02-06")
+/// let goalList = try await goalClient.fetchGoals("2026-02-06")
 /// ```
 public struct GoalClient {
-    public var fetchGoals: (String) async throws -> [Goal]
+    public var fetchGoals: (String) async throws -> GoalList
     public var createGoal: (GoalCreateRequestDTO) async throws -> Goal
     public var fetchGoalDetail: (String, Int64) async throws -> GoalDetail
     public var fetchGoalById: (Int64) async throws -> Goal
@@ -34,12 +34,12 @@ public struct GoalClient {
     /// ```swift
     /// let client = GoalClient(
     ///     fetchGoals: { _ in
-    ///         return []
+    ///         return .init(hasEverRegisteredGoal: false, goals: [])
     ///     }
     /// )
     /// ```
     public init(
-        fetchGoals: @escaping (String) async throws -> [Goal],
+        fetchGoals: @escaping (String) async throws -> GoalList,
         createGoal: @escaping (GoalCreateRequestDTO) async throws -> Goal,
         fetchGoalDetail: @escaping (String, Int64) async throws -> GoalDetail,
         fetchGoalById: @escaping (Int64) async throws -> Goal,
@@ -65,7 +65,7 @@ extension GoalClient: TestDependencyKey {
     public static var testValue: GoalClient = Self(
         fetchGoals: { _ in
             assertionFailure("GoalClient.fetchGoals이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
-            return []
+            return .init(hasEverRegisteredGoal: false, goals: [])
         },
         createGoal: { _ in
             assertionFailure("GoalClient.createGoal이 구현되지 않았습니다. withDependencies로 mock을 주입하세요.")
@@ -142,50 +142,53 @@ extension GoalClient: TestDependencyKey {
     
     public static var previewValue: GoalClient = Self(
         fetchGoals: { _ in
-            [
-                Goal(
-                    id: 1,
-                    goalIcon: "ICON_EXERCISE",
-                    title: "운동하기",
-                    myVerification: .init(
-                        photologId: 101,
-                        isCompleted: true,
-                        imageURL: "https://picsum.photos/400",
-                        emoji: nil
+            .init(
+                hasEverRegisteredGoal: true,
+                goals: [
+                    Goal(
+                        id: 1,
+                        goalIcon: "ICON_EXERCISE",
+                        title: "운동하기",
+                        myVerification: .init(
+                            photologId: 101,
+                            isCompleted: true,
+                            imageURL: "https://picsum.photos/400",
+                            emoji: nil
+                        ),
+                        yourVerification: .init(
+                            photologId: 201,
+                            isCompleted: true,
+                            imageURL: "https://picsum.photos/400",
+                            emoji: "LOVE"
+                        ),
+                        repeatCycle: .daily,
+                        repeatCount: 1,
+                        startDate: "2026-02-01",
+                        endDate: nil
                     ),
-                    yourVerification: .init(
-                        photologId: 201,
-                        isCompleted: true,
-                        imageURL: "https://picsum.photos/400",
-                        emoji: "LOVE"
-                    ),
-                    repeatCycle: .daily,
-                    repeatCount: 1,
-                    startDate: "2026-02-01",
-                    endDate: nil
-                ),
-                Goal(
-                    id: 2,
-                    goalIcon: "ICON_BOOK",
-                    title: "독서하기",
-                    myVerification: .init(
-                        photologId: nil,
-                        isCompleted: false,
-                        imageURL: nil,
-                        emoji: nil
-                    ),
-                    yourVerification: .init(
-                        photologId: 202,
-                        isCompleted: true,
-                        imageURL: "https://picsum.photos/400",
-                        emoji: nil
-                    ),
-                    repeatCycle: .weekly,
-                    repeatCount: 3,
-                    startDate: "2026-01-01",
-                    endDate: "2026-12-31"
-                )
-            ]
+                    Goal(
+                        id: 2,
+                        goalIcon: "ICON_BOOK",
+                        title: "독서하기",
+                        myVerification: .init(
+                            photologId: nil,
+                            isCompleted: false,
+                            imageURL: nil,
+                            emoji: nil
+                        ),
+                        yourVerification: .init(
+                            photologId: 202,
+                            isCompleted: true,
+                            imageURL: "https://picsum.photos/400",
+                            emoji: nil
+                        ),
+                        repeatCycle: .weekly,
+                        repeatCount: 3,
+                        startDate: "2026-01-01",
+                        endDate: "2026-12-31"
+                    )
+                ]
+            )
         },
         createGoal: { _ in
             Goal(

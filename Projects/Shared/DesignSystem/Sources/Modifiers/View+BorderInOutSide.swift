@@ -15,15 +15,20 @@ extension View {
     /// Text("Label")
     ///     .insideBorder(.gray, shape: RoundedRectangle(cornerRadius: 8), lineWidth: 1)
     /// ```
+    @ViewBuilder
     public func insideBorder(
         _ content: some ShapeStyle,
         shape: some InsettableShape,
-        lineWidth: CGFloat
+        lineWidth: CGFloat?
     ) -> some View {
-        overlay(
-            shape
-                .strokeBorder(content, lineWidth: lineWidth)
-        )
+        if let lineWidth {
+            overlay(
+                shape
+                    .strokeBorder(content, lineWidth: lineWidth)
+            )
+        } else {
+            self
+        }
     }
     
     /// 뷰의 외부에 보더를 그립니다.
@@ -33,16 +38,21 @@ extension View {
     /// Text("Label")
     ///     .outsideBorder(.gray, shape: RoundedRectangle(cornerRadius: 8), lineWidth: 1)
     /// ```
+    @ViewBuilder
     public func outsideBorder(
         _ content: some ShapeStyle,
         shape: some InsettableShape,
-        lineWidth: CGFloat
+        lineWidth: CGFloat?
     ) -> some View {
-        overlay(
-            shape
-                .stroke(content, lineWidth: lineWidth * 2)
-                .overlay(self)
-        )
+        if let lineWidth {
+            overlay(
+                shape
+                    .stroke(content, lineWidth: lineWidth * 2)
+                    .overlay(self)
+            )
+        } else {
+            self
+        }
     }
     
     /// 사각형 뷰의 특정 엣지에만 보더를 그립니다.

@@ -130,11 +130,20 @@ private extension TXTextField {
     }
 
     var clearButton: some View {
-        TXCircleButton(
-            config: .clear(colorStyle: .gray200)
-        ) {
-            text = ""
-        }
+        TXButton(
+            shape: .circle(
+                style: .basic(icon: Image.Icon.Symbol.closeS),
+                size: .custom(
+                    frameSize: .init(width: 18, height: 18),
+                    iconSize: .init(width: 24, height: 24)
+                ),
+                state: .custom(
+                    foregroundColor: Color.Common.white,
+                    backgroundColor: Color.Gray.gray200
+                )
+            ),
+            onTap: { text = "" }
+        )
         .frame(width: 24, height: 24)
         .frame(width: 44, height: 44)
     }

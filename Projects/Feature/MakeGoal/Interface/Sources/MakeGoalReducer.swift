@@ -69,7 +69,7 @@ public struct MakeGoalReducer {
         public var isInvalidTitle: Bool { isValidTitleLength }
         public var isValidTitleLength: Bool { 2 <= goalTitle.count && goalTitle.count <= 14 }
         
-        public var modal: TXModalType?
+        public var modal: TXModalStyle?
         public var toast: TXToastType?
         public var isLoading: Bool = false
 
@@ -144,6 +144,7 @@ public struct MakeGoalReducer {
         case emojiButtonTapped
         case goalTitleFocusChanged(Bool)
         case dismissKeyboard
+        case periodTabSelected(PeriodItem)
         case periodSelected
         case periodSheetWeeklyTapped
         case periodSheetMonthlyTapped

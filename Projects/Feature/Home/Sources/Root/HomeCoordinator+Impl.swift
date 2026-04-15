@@ -33,7 +33,6 @@ extension HomeCoordinator {
                 state.routes.append(.detail)
                 state.goalDetail = .init(
                     currentUser: owner,
-                    entryPoint: .home,
                     id: id,
                     verificationDate: verificationDate
                 )
@@ -92,14 +91,21 @@ extension HomeCoordinator {
                 return .none
                 
             case .editGoalList(.delegate(.navigateBack)):
-                state.editGoalList = nil
                 popLastRoute(&state.routes)
                 return .none
-                
+
+            case .editGoalList(.onDisappear):
+                state.editGoalList = nil
+                return .none
+
             case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
                 state.routes.append(.makeGoal)
                 state.makeGoal = .init(category: .custom, mode: .edit, editingGoalId: goalId)
                 return .none
+
+            case .editGoalList(.delegate(.goToCompletedStats)):
+                popLastRoute(&state.routes)
+                return .send(.delegate(.goToCompletedStats))
                 
             case .home:
                 return .none
@@ -173,7 +179,6 @@ extension HomeCoordinator {
                 state.routes.append(.detail)
                 state.goalDetail = .init(
                     currentUser: owner,
-                    entryPoint: .stats,
                     id: id,
                     verificationDate: date
                 )
