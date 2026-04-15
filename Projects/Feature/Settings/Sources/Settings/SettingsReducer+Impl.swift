@@ -202,8 +202,15 @@ private func reduceCore(
 
         switch state.modalPurpose {
         case .disconnectCouple:
-            // TODO: 커플 끊기 API 호출
-            break
+            state.isLoading = true
+            return .run { send in
+                do {
+                    try await authClient.withdraw()
+                    await send(.withdrawResponse(.success(())))
+                } catch {
+                    await send(.withdrawResponse(.failure(error)))
+                }
+            }
         case .withdraw:
             state.isLoading = true
             return .run { send in
