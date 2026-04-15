@@ -18,6 +18,12 @@ import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
 
+// MARK: - Cancel IDs
+
+private enum PokeCancelID: Hashable {
+    case poke(Int64)
+}
+
 // MARK: - Poke Cooldown Manager
 
 private enum PokeCooldownManager {
@@ -59,6 +65,14 @@ private enum PokeCooldownManager {
     static func recordPoke(goalId: Int64) {
         var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
         timestamps[String(goalId)] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
+
+    /// 찌르기 기록을 제거합니다. API 실패 시 쿨다운을 롤백합니다.
+    /// - Parameter goalId: 목표 ID
+    static func removePoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps.removeValue(forKey: String(goalId))
         UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
     }
 }
@@ -207,24 +221,39 @@ extension HomeReducer {
                 
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
+                    if let item = state.items.first(where: { $0.id == card.id }),
+                       case .completed = item.goal.status {
+                        return .send(.showToast(.warning(message: "끝난 목표는 인증이 불가능해요!")))
+                    }
                     // 쿨다운 확인 (3시간 이내 재요청 방지)
                     if let remaining = PokeCooldownManager.remainingCooldown(goalId: card.id) {
                         let timeText = PokeCooldownManager.formatRemainingTime(remaining)
                         return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
                     }
                     // 상대방 미인증 시 찌르기 API 호출
+                    let goalId = card.id
                     return .run { send in
+                        PokeCooldownManager.recordPoke(goalId: goalId)
                         do {
-                            try await goalClient.pokePartner(card.id)
-                            PokeCooldownManager.recordPoke(goalId: card.id)
+                            try await goalClient.pokePartner(goalId)
                             await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                         } catch {
+                            PokeCooldownManager.removePoke(goalId: goalId)
                             await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                         }
                     }
+                    .debounce(id: PokeCancelID.poke(goalId), for: .milliseconds(300), scheduler: DispatchQueue.main)
                 } else {
                     let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
-                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
+                    return .send(
+                        .delegate(
+                            .goToGoalDetail(
+                                id: card.id,
+                                owner: .you,
+                                verificationDate: verificationDate
+                            )
+                        )
+                    )
                 }
                 
             case let .myCardTapped(card):
@@ -424,7 +453,7 @@ extension HomeReducer {
                 
             case .deletePhotoLogFailed:
                 return .send(.showToast(.warning(message: "해제에 실패했어요")))
-                
+
             case let .fetchUnreadResponse(hasUnread):
                 state.hasUnreadNotification = hasUnread
                 return .none

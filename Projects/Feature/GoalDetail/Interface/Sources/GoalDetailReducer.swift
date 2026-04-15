@@ -77,6 +77,7 @@ public struct GoalDetailReducer {
         }
         public var comment: String { currentCard?.comment ?? "" }
         public var naviBarRightText: String {
+            guard currentCompletedGoal?.status != .completed else { return "" }
             if isFrontMyCard, isCompleted {
                 return isEditing ? "저장" : "수정"
             } else {
@@ -194,13 +195,13 @@ public struct GoalDetailReducer {
 extension GoalDetailReducer.State {
     public var emptyCardText: String {
         let isCompleted = currentCompletedGoal?.status == .completed
-        guard !isCompleted else { return "인증샷이 없어요" }
+        guard !isCompleted else { return "인증샷이\n없어요!" }
         
         if isFrontMyCard {
             return  "인증샷을\n올려보세요!"
         } else {
             guard let nickname = item?.partnerNickname else { return "" }
-            return "\(nickname)\n님은 아직인가봐요!"
+            return "\(nickname)님은\n아직..."
         }
     }
     
