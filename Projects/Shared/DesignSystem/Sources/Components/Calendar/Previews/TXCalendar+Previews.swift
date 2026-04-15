@@ -123,10 +123,22 @@ private func previewSection(
 
         TXCalendarWeekSelector(items: PreviewData.weekSelectorItems)
         TXCalendarMonthNavigation(title: "2026.12")
-        TXCalendar(mode: .weekly, weeks: PreviewData.weeklyDates)
+        WeeklyPagingPreview()
         TXCalendar(mode: .monthly, weeks: PreviewData.monthlyDates)
     }
     .frame(width: width)
+}
+
+private struct WeeklyPagingPreview: View {
+    @State private var currentDate = TXCalendarDate(year: 2026, month: 1, day: 1)
+
+    var body: some View {
+        TXCalendar(
+            mode: .weekly,
+            currentDate: $currentDate,
+            weeks: TXCalendarDataGenerator.generateWeekData(for: currentDate)
+        )
+    }
 }
 
 private enum PreviewData {
@@ -139,17 +151,6 @@ private enum PreviewData {
         (weekday: "금", date: .init(text: "16")),
         (weekday: "토", date: .init(text: "17"))
     ]
-
-    static let weeklyDates: [[TXCalendarDateItem]] = [[
-        .init(text: "11"),
-        .init(text: "12"),
-        .init(text: "13"),
-        .init(text: "14", status: .selectedLine),
-        .init(text: "15"),
-        .init(text: "16"),
-        .init(text: "17")
-    ]]
-
     static let monthlyDates: [[TXCalendarDateItem]] = [
         [
             .init(text: "26", status: .lastDate),
