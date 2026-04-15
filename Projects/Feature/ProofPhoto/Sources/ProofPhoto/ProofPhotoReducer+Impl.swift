@@ -103,7 +103,6 @@ extension ProofPhotoReducer {
                     guard let imageData = state.imageData else {
                         return .none
                     }
-                    state.isUploading = true
 
                     let goalId = state.goalId
                     let comment = state.commentText
@@ -129,6 +128,9 @@ extension ProofPhotoReducer {
                             )
                         )
                     }
+                    
+                    state.isUploading = true
+                    
                     return .run { send in
                         do {
                             let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
