@@ -207,6 +207,10 @@ extension HomeReducer {
                 
             case let .yourCardTapped(card):
                 if !card.yourCard.isSelected {
+                    if let item = state.items.first(where: { $0.id == card.id }),
+                       case .completed = item.goal.status {
+                        return .send(.showToast(.warning(message: "끝난 목표는 인증이 불가능해요!")))
+                    }
                     // 쿨다운 확인 (3시간 이내 재요청 방지)
                     if let remaining = PokeCooldownManager.remainingCooldown(goalId: card.id) {
                         let timeText = PokeCooldownManager.formatRemainingTime(remaining)
@@ -224,7 +228,15 @@ extension HomeReducer {
                     }
                 } else {
                     let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
-                    return .send(.delegate(.goToGoalDetail(id: card.id, owner: .you, verificationDate: verificationDate)))
+                    return .send(
+                        .delegate(
+                            .goToGoalDetail(
+                                id: card.id,
+                                owner: .you,
+                                verificationDate: verificationDate
+                            )
+                        )
+                    )
                 }
                 
             case let .myCardTapped(card):
@@ -424,7 +436,7 @@ extension HomeReducer {
                 
             case .deletePhotoLogFailed:
                 return .send(.showToast(.warning(message: "해제에 실패했어요")))
-                
+
             case let .fetchUnreadResponse(hasUnread):
                 state.hasUnreadNotification = hasUnread
                 return .none
