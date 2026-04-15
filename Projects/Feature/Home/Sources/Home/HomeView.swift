@@ -209,20 +209,35 @@ private extension HomeView {
         )
     }
     
+    @ViewBuilder
     var goalEmptyView: some View {
-        VStack(spacing: 0) {
-            Image.Illustration.emptyPoke
-                .frame(height: 116)
-            
-            Text("첫 목표를 세워볼까요?")
-                .typography(.t2_16b)
-                .foregroundStyle(Color.Gray.gray400)
-                .padding(.top, 16)
-            
-            Text("+ 버튼을 눌러 목표를 추가해보세요")
-                .typography(.c1_12r)
-                .foregroundStyle(Color.Gray.gray300)
-                .padding(.top, 4)
+        Group {
+            if store.hadFirstGoal == true {
+                VStack(spacing: 8) {
+                    Image.Illustration.scare
+                        .resizable()
+                        .frame(width: 164, height: 164)
+                    
+                    Text("이 날은 목표가 없어요!")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                }
+            } else if store.hadFirstGoal == false {
+                VStack(spacing: 0) {
+                    Image.Illustration.emptyPoke
+                        .frame(height: 116)
+                    
+                    Text("첫 목표를 세워볼까요?")
+                        .typography(.t2_16b)
+                        .foregroundStyle(Color.Gray.gray400)
+                        .padding(.top, 16)
+                    
+                    Text("+ 버튼을 눌러 목표를 추가해보세요")
+                        .typography(.c1_12r)
+                        .foregroundStyle(Color.Gray.gray300)
+                        .padding(.top, 4)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()

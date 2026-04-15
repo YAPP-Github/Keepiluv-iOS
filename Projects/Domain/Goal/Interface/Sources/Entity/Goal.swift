@@ -7,6 +7,19 @@
 
 import Foundation
 
+public struct GoalList: Equatable {
+    public let hasEverRegisteredGoal: Bool
+    public let goals: [Goal]
+
+    public init(
+        hasEverRegisteredGoal: Bool,
+        goals: [Goal]
+    ) {
+        self.hasEverRegisteredGoal = hasEverRegisteredGoal
+        self.goals = goals
+    }
+}
+
 /// 목표 카드에 표시할 목표 데이터 모델입니다.
 ///
 /// ## 사용 예시
