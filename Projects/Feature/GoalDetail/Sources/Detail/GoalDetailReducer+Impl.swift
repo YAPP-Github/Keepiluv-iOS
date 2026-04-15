@@ -16,6 +16,10 @@ import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
 
+private enum PokeCancelID: Hashable {
+    case poke(Int64)
+}
+
 private enum PokeCooldownManager {
     private static let userDefaultsKey = "pokeCooldownTimestamps"
     private static let cooldownInterval: TimeInterval = 3 * 60 * 60
@@ -113,8 +117,8 @@ extension GoalDetailReducer {
                     let timeText = PokeCooldownManager.formatRemainingTime(remaining)
                     return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
                 }
-                PokeCooldownManager.recordPoke(goalId: goalId)
                 return .run { send in
+                    PokeCooldownManager.recordPoke(goalId: goalId)
                     do {
                         try await goalClient.pokePartner(goalId)
                         await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
@@ -123,7 +127,8 @@ extension GoalDetailReducer {
                         await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                     }
                 }
-                
+                .debounce(id: PokeCancelID.poke(goalId), for: .milliseconds(300), scheduler: DispatchQueue.main)
+
             case let .navigationBarTapped(action):
                 if case .backTapped = action {
                     return .send(.delegate(.navigateBack))

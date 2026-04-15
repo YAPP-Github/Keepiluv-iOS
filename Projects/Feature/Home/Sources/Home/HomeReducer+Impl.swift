@@ -18,6 +18,12 @@ import FeatureProofPhotoInterface
 import SharedDesignSystem
 import SharedUtil
 
+// MARK: - Cancel IDs
+
+private enum PokeCancelID: Hashable {
+    case poke(Int64)
+}
+
 // MARK: - Poke Cooldown Manager
 
 private enum PokeCooldownManager {
@@ -226,8 +232,8 @@ extension HomeReducer {
                     }
                     // 상대방 미인증 시 찌르기 API 호출
                     let goalId = card.id
-                    PokeCooldownManager.recordPoke(goalId: goalId)
                     return .run { send in
+                        PokeCooldownManager.recordPoke(goalId: goalId)
                         do {
                             try await goalClient.pokePartner(goalId)
                             await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
@@ -236,6 +242,7 @@ extension HomeReducer {
                             await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                         }
                     }
+                    .debounce(id: PokeCancelID.poke(goalId), for: .milliseconds(300), scheduler: DispatchQueue.main)
                 } else {
                     let verificationDate = TXCalendarUtil.apiDateString(for: state.calendarDate)
                     return .send(
