@@ -91,6 +91,9 @@ extension GoalDetailReducer {
                 
                 // MARK: - Action
             case .bottomButtonTapped:
+                if state.currentCompletedGoal?.status == .completed {
+                    return .send(.showToast(.warning(message: "끝난 목표는 인증이 불가능해요!")))
+                }
                 let shouldGoToProofPhoto = (state.currentUser == .mySelf && !state.isCompleted) || state.isEditing
                 if shouldGoToProofPhoto {
                     return .run { send in
