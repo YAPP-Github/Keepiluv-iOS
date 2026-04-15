@@ -61,6 +61,14 @@ private enum PokeCooldownManager {
         timestamps[String(goalId)] = Date().timeIntervalSince1970
         UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
     }
+
+    /// 찌르기 기록을 제거합니다. API 실패 시 쿨다운을 롤백합니다.
+    /// - Parameter goalId: 목표 ID
+    static func removePoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps.removeValue(forKey: String(goalId))
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
 }
 
 extension HomeReducer {
@@ -217,12 +225,14 @@ extension HomeReducer {
                         return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
                     }
                     // 상대방 미인증 시 찌르기 API 호출
+                    let goalId = card.id
+                    PokeCooldownManager.recordPoke(goalId: goalId)
                     return .run { send in
                         do {
-                            try await goalClient.pokePartner(card.id)
-                            PokeCooldownManager.recordPoke(goalId: card.id)
+                            try await goalClient.pokePartner(goalId)
                             await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                         } catch {
+                            PokeCooldownManager.removePoke(goalId: goalId)
                             await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                         }
                     }

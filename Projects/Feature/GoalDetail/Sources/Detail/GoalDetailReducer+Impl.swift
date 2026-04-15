@@ -49,6 +49,12 @@ private enum PokeCooldownManager {
         timestamps[String(goalId)] = Date().timeIntervalSince1970
         UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
     }
+
+    static func removePoke(goalId: Int64) {
+        var timestamps = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: TimeInterval] ?? [:]
+        timestamps.removeValue(forKey: String(goalId))
+        UserDefaults.standard.set(timestamps, forKey: userDefaultsKey)
+    }
 }
 
 extension GoalDetailReducer {
@@ -107,12 +113,13 @@ extension GoalDetailReducer {
                     let timeText = PokeCooldownManager.formatRemainingTime(remaining)
                     return .send(.showToast(.warning(message: "\(timeText) 뒤에 다시 찌를 수 있어요")))
                 }
+                PokeCooldownManager.recordPoke(goalId: goalId)
                 return .run { send in
                     do {
                         try await goalClient.pokePartner(goalId)
-                        PokeCooldownManager.recordPoke(goalId: goalId)
                         await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                     } catch {
+                        PokeCooldownManager.removePoke(goalId: goalId)
                         await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                     }
                 }
