@@ -58,7 +58,9 @@ struct EditGoalListView: View {
                 }
             }
         )
-        .txToast(item: $store.toast)
+        .txToast(item: $store.toast, onButtonTap: {
+            store.send(.toastButtonTapped)
+        })
     }
 }
 
@@ -108,7 +110,7 @@ private extension EditGoalListView {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16)
+            .padding(.vertical, 16)
         }
     }
 

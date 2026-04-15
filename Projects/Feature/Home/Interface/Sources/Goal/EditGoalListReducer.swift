@@ -78,6 +78,7 @@ public struct EditGoalListReducer {
         case cardMenuItemSelected(GoalDropList)
         case backgroundTapped
         case modalConfirmTapped
+        case toastButtonTapped
         
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
@@ -94,6 +95,7 @@ public struct EditGoalListReducer {
         public enum Delegate {
             case navigateBack
             case goToGoalEdit(goalId: Int64)
+            case goToCompletedStats
         }
     }
     

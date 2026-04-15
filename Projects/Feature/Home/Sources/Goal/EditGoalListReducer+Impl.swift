@@ -151,6 +151,9 @@ extension EditGoalListReducer {
                     }
                 }
                 
+            case .toastButtonTapped:
+                return .send(.delegate(.goToCompletedStats))
+                
                 // MARK: - Update State
             case let .setCalendarDate(date):
                 if date == state.calendarDate {
@@ -205,7 +208,7 @@ extension EditGoalListReducer {
                 state.pendingGoalId = nil
                 state.pendingAction = nil
                 state.cards?.removeAll { $0.id == goalId }
-                return .send(.showToast(.success(message: "목표를 달성했어요!")))
+                return .send(.showToast(.success(message: "목표를 이뤘어요", buttonText: "보러가기")))
 
             case let .apiError(message):
                 state.isLoading = false

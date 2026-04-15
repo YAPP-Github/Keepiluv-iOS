@@ -71,7 +71,7 @@ public struct GoalDetailView: View {
                 
                 if store.isCompleted {
                     completedBottomContent
-                } else {
+                } else if store.currentCompletedGoal?.status != .completed {
                     bottomButton
                         .padding(.top, 105)
                         .overlay(alignment: .bottomLeading) {
@@ -187,7 +187,7 @@ private extension GoalDetailView {
             imageURL: store.myCardImageURL,
             comment: store.myCardComment,
             showsMyEmoji: effectiveIsFrontMyCard && store.selectedReactionEmoji != nil,
-            emptyText: "인증샷을\n올려보세요!"
+            emptyText: store.emptyCardText
         )
         .offset(x: cardOffset * (effectiveIsFrontMyCard ? 1 : -1))
     }
@@ -201,7 +201,7 @@ private extension GoalDetailView {
             imageURL: store.partnerCardImageURL,
             comment: store.partnerCardComment,
             showsMyEmoji: false,
-            emptyText: store.partnerEmptyText
+            emptyText: store.emptyCardText
         )
         .offset(x: cardOffset * (effectiveIsFrontMyCard ? -1 : 1))
         .rotationEffect(.degrees(-8))

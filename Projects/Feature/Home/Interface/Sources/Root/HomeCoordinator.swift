@@ -92,6 +92,7 @@ public struct HomeCoordinator {
             case withdrawCompleted
             case sessionExpired
             case notificationItemTapped(NotificationItem)
+            case goToCompletedStats
         }
     }
 
