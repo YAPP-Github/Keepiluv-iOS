@@ -25,9 +25,10 @@ import SharedDesignSystem
 /// )
 /// ```
 public struct HomeView: View {
-    
+
     @Bindable public var store: StoreOf<HomeReducer>
     @Dependency(\.proofPhotoFactory) var proofPhotoFactory
+    @State private var emptyScrollHeight: CGFloat = 0
     
     /// HomeView를 생성합니다.
     ///
@@ -46,9 +47,7 @@ public struct HomeView: View {
             if store.hasCards {
                 content
             } else if store.isEmptyVisible {
-                headerRow
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                emptyContent
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -56,15 +55,6 @@ public struct HomeView: View {
             if store.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            
-            if store.isEmptyVisible {
-                goalEmptyView
-            }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            if store.isEmptyVisible {
-                emptyArrow
             }
         }
         .onAppear {
@@ -115,6 +105,7 @@ public struct HomeView: View {
             onDismiss: { store.send(.cameraPermissionAlertDismissed) }
         )
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -166,6 +157,38 @@ private extension HomeView {
             store.send(.fetchGoals)
         }
     }
+
+    var emptyContent: some View {
+        VStack(spacing: 0) {
+            headerRow
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+
+            ScrollView {
+                goalEmptyView
+                    // 실제 가시 영역 기준으로 중앙 정렬되도록 탭바 높이만큼 차감
+                    .frame(maxWidth: .infinity, minHeight: max(0, emptyScrollHeight - 58))
+                    .padding(.bottom, 58)
+            }
+            .scrollIndicators(.hidden)
+            .refreshable {
+                store.send(.fetchGoals)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                emptyArrow
+            }
+            .frame(maxHeight: .infinity)
+            .background {
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { emptyScrollHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, newValue in
+                            emptyScrollHeight = newValue
+                        }
+                }
+            }
+        }
+    }
     
     var headerRow: some View {
         HStack(spacing: 0) {
@@ -202,7 +225,7 @@ private extension HomeView {
                 store.send(.goalCheckButtonTapped(
                     id: item.id,
                     isChecked: item.card.myCard.isSelected
-                ))         
+                ))
             },
             actionLeft: { store.send(.myCardTapped(item.card)) },
             actionRight: { store.send(.yourCardTapped(item.card)) }
@@ -240,12 +263,11 @@ private extension HomeView {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
     
     var emptyArrow: some View {
         Image.Illustration.arrow
-            .padding(.bottom, 71)
+            .padding(.bottom, 71 + 58)
             .padding(.trailing, 86)
             .ignoresSafeArea()
     }

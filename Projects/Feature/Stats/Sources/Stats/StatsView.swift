@@ -43,6 +43,7 @@ struct StatsView: View {
         }
         .onAppear { store.send(.onAppear) }
         .txToast(item: $store.toast)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 

@@ -27,6 +27,13 @@ struct AccountView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Common.white)
         .navigationBarBackButtonHidden(true)
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.Common.white.opacity(0.4))
+            }
+        }
         .txModal(item: $store.modal) { action in
             if action == .confirm {
                 store.send(.modalConfirmTapped)

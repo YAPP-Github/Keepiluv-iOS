@@ -91,17 +91,19 @@ extension HomeCoordinator {
                 return .none
                 
             case .editGoalList(.delegate(.navigateBack)):
-                state.editGoalList = nil
                 popLastRoute(&state.routes)
                 return .none
-                
+
+            case .editGoalList(.onDisappear):
+                state.editGoalList = nil
+                return .none
+
             case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
                 state.routes.append(.makeGoal)
                 state.makeGoal = .init(category: .custom, mode: .edit, editingGoalId: goalId)
                 return .none
 
             case .editGoalList(.delegate(.goToCompletedStats)):
-                state.editGoalList = nil
                 popLastRoute(&state.routes)
                 return .send(.delegate(.goToCompletedStats))
                 
