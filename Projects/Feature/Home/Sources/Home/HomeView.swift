@@ -138,15 +138,13 @@ private extension HomeView {
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
+            currentDate: $store.calendarDate,
             weeks: store.calendarWeeks,
             config: .init(
                 dateStyle: .init(lastDateTextColor: Color.Gray.gray500)
             ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
-            },
-            onSwipe: { swipe in
-                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
