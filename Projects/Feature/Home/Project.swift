@@ -10,6 +10,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
+                    .feature(interface: .common),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
                     .feature(interface: .notification),

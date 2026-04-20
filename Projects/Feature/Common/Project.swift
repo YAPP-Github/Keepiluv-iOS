@@ -8,7 +8,8 @@ let project = Project.makeModule(
             interface: .common,
             config: .init(
                 dependencies: [
-                    .domain(interface: .common)
+                    .domain(interface: .common),
+                    .shared(implements: .designSystem)
                 ]
             )
         ),

@@ -11,7 +11,14 @@ import SwiftUI
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXTab(style: .line(StatsTopTabItem.allCases), selectedItem: .ongoing) { item in print(item) }
+/// enum TopTabItem: String, TXItem {
+///     case first
+///     case second
+///
+///     var title: String { rawValue }
+/// }
+///
+/// TXTab(style: .line(TopTabItem.allCases), selectedItem: .first) { item in print(item) }
 /// ```
 struct TXTopTabBar<Item: TXItem>: View {
     private let selectedItem: Item?
@@ -74,10 +81,17 @@ private enum Constants {
 #Preview {
     VStack {
         TXTopTabBar(
-            items: StatsTopTabItem.allCases,
-            selectedItem: .ongoing
+            items: PreviewTopTabItem.allCases,
+            selectedItem: .first
         )
         
         Spacer()
     }
+}
+
+private enum PreviewTopTabItem: String, TXItem {
+    case first = "first"
+    case second = "second"
+
+    var title: String { rawValue }
 }

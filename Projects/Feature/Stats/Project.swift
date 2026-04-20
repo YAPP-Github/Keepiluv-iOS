@@ -9,6 +9,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .domain(interface: .stats),
+                    .feature(interface: .common),
                     .shared(implements: .designSystem),
                     .feature(interface: .goalDetail),
                     .feature(interface: .makeGoal),

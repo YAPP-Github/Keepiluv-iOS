@@ -15,10 +15,15 @@ public protocol TXItem: CaseIterable, Equatable, Hashable {
 ///
 /// ## 사용 예시
 /// ```swift
-/// TXDropdown(items: GoalDropDownItem.allCases) { item in
-///     if item == .edit {
-///         print("수정하기 선택")
-///     }
+/// enum MenuItem: String, TXItem {
+///     case first
+///     case second
+///
+///     var title: String { rawValue }
+/// }
+///
+/// TXDropdown(items: MenuItem.allCases) { item in
+///     print(item)
 /// }
 /// ```
 public struct TXDropdown<Item: TXItem>: View {
@@ -113,6 +118,13 @@ private enum Constants {
 
 #Preview {
     VStack {
-        TXDropdown(items: GoalDropList.allCases, onSelect: { print($0) })
+        TXDropdown(items: PreviewDropdownItem.allCases, onSelect: { print($0) })
     }
+}
+
+private enum PreviewDropdownItem: String, TXItem {
+    case first = "first"
+    case second = "second"
+
+    var title: String { rawValue }
 }
