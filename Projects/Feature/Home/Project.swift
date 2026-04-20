@@ -29,6 +29,7 @@ let project = Project.makeModule(
                     .domain(interface: .notification),
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
+                    .feature(interface: .common),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
                     .feature(interface: .notification),
@@ -62,6 +63,7 @@ let project = Project.makeModule(
             example: .home,
             config: .init(
                 dependencies: [
+                    .feature(interface: .common),
                     .feature(implements: .home),
                     .feature(interface: .home),
                     .domain(interface: .goal),

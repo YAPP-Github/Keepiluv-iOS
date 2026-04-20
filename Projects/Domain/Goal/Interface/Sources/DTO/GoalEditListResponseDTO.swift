@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 public struct GoalEditListResponseDTO: Decodable {
     public let goals: [GoalEditResponseDTO]
@@ -29,7 +30,7 @@ extension GoalEditListResponseDTO {
                 title: $0.goalName,
                 myVerification: nil,
                 yourVerification: nil,
-                repeatCycle: Goal.RepeatCycle(rawValue: $0.repeatCycle),
+                repeatCycle: RepeatCycle(rawValue: $0.repeatCycle),
                 startDate: $0.startDate,
                 endDate: $0.endDate
             )

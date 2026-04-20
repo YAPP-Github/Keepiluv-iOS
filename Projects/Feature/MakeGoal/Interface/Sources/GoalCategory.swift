@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DomainCommonInterface
 import DomainGoalInterface
 import SharedDesignSystem
 
@@ -52,7 +53,7 @@ extension GoalCategory {
         }
     }
     
-    public var repeatCycle: Goal.RepeatCycle {
+    public var repeatCycle: RepeatCycle {
         switch self {
         case .custom: .daily
         case .health: .weekly

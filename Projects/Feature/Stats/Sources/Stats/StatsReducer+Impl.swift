@@ -8,7 +8,9 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainCommonInterface
 import DomainStatsInterface
+import FeatureCommonInterface
 import FeatureStatsInterface
 import SharedDesignSystem
 
@@ -131,7 +133,7 @@ extension StatsReducer {
     }
 }
 
-private extension Stats.StatsItem.StampColor {
+private extension StampColor {
     var statsCardStampColor: StatsCardItem.StampColor {
         switch self {
         case .green400: .green400

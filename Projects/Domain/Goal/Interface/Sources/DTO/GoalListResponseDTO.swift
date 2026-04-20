@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 /// 목표 목록 API 응답 DTO입니다.
 ///
@@ -67,11 +68,11 @@ public extension GoalListResponseDTO {
                     imageURL: $0.partnerVerification?.imageUrl,
                     emoji: $0.partnerVerification?.reaction
                 ),
-                repeatCycle: $0.repeatCycle.flatMap { Goal.RepeatCycle(rawValue: $0) },
+                repeatCycle: $0.repeatCycle.flatMap(RepeatCycle.init(rawValue:)),
                 repeatCount: $0.repeatCount,
                 startDate: $0.startDate,
                 endDate: $0.endDate,
-                status: .init(rawValue: $0.goalStatus)
+                status: GoalStatus(rawValue: $0.goalStatus)
             )
         }
 
