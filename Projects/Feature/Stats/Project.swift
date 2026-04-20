@@ -9,6 +9,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .domain(interface: .stats),
+                    .feature(interface: .common),
                     .shared(implements: .designSystem),
                     .feature(interface: .goalDetail),
                     .feature(interface: .makeGoal),
@@ -20,6 +21,8 @@ let project = Project.makeModule(
             implements: .stats,
             config: .init(
                 dependencies: [
+                    .domain(interface: .common),
+                    .feature(interface: .common),
                     .feature(interface: .stats),
                     .feature(interface: .goalDetail),
                     .feature(interface: .makeGoal),
@@ -53,6 +56,7 @@ let project = Project.makeModule(
                     "UIUserInterfaceStyle": "Light"
                 ]),
                 dependencies: [
+                    .feature(interface: .common),
                     .feature(interface: .stats),
                     .feature(implements: .stats),
                     .feature(interface: .goalDetail),

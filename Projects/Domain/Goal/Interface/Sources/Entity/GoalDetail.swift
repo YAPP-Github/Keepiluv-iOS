@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DomainCommonInterface
 
 /// 목표 상세 정보를 나타내는 모델입니다.
 ///
@@ -57,7 +58,7 @@ public struct GoalDetail: Equatable {
     /// ```
     public struct CompletedGoal: Equatable {
         public let goalName: String
-        public let status: Goal.Status
+        public let status: GoalStatus
         public let myPhotoLog: PhotoLog?
         public let yourPhotoLog: PhotoLog?
         
@@ -65,7 +66,7 @@ public struct GoalDetail: Equatable {
             goalName: String,
             myPhotoLog: PhotoLog?,
             yourPhotoLog: PhotoLog?,
-            status: Goal.Status? = nil
+            status: GoalStatus? = nil
         ) {
             self.goalName = goalName
             self.status = status ?? .notStarted

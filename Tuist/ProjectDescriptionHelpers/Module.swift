@@ -49,6 +49,7 @@ public extension Module {
     /// 화면 단위 또는 사용자 플로우 단위로 구성되며,
     /// UI와 사용자 상호작용 로직을 중심으로 설계됩니다.
     enum Feature: String, CaseIterable {
+        case common = "Common"
         case makeGoal = "MakeGoal"
         case notification = "Notification"
         case stats = "Stats"
@@ -71,6 +72,7 @@ public extension Module {
     /// 앱의 핵심 규칙과 정책을 담으며,
     /// Feature에 의존하지 않고 독립적으로 설계되는 것이 원칙입니다.
     enum Domain: String, CaseIterable {
+        case common = "Common"
         case notification = "Notification"
         case stats = "Stats"
         case photoLog = "PhotoLog"

@@ -8,7 +8,9 @@
 import SwiftUI
 
 import ComposableArchitecture
+import DomainCommonInterface
 import DomainGoalInterface
+import FeatureCommonInterface
 import SharedDesignSystem
 import SharedUtil
 
@@ -39,15 +41,15 @@ public struct MakeGoalReducer {
         public let weeklyMaximumPeriodCount = 6
         public let monthlyMaximumPeriodCount = 25
         public let icons: [GoalIcon] = GoalIcon.allCases
-        public let dailyPeriodText: String = Goal.RepeatCycle.daily.text
-        public let weeklyPeriodText: String = Goal.RepeatCycle.weekly.text
-        public let monthlyPeriodText: String = Goal.RepeatCycle.monthly.text
+        public let dailyPeriodText: String = RepeatCycle.daily.text
+        public let weeklyPeriodText: String = RepeatCycle.weekly.text
+        public let monthlyPeriodText: String = RepeatCycle.monthly.text
         
         public var mode: Mode
         public var editingGoalId: Int64?
         public var category: GoalCategory
         public var goalTitle: String
-        public var selectedPeriod: Goal.RepeatCycle
+        public var selectedPeriod: RepeatCycle
         public var weeklyPeriodCount: Int = 1
         public var monthlyPeriodCount: Int = 1
         public var startDate: TXCalendarDate
@@ -255,16 +257,6 @@ public extension MakeGoalReducer.State.Mode {
         switch self {
         case .add: return "직접 만들기"
         case .edit: return "목표 수정"
-        }
-    }
-}
-
-extension Goal.RepeatCycle {
-    public var text: String {
-        switch self {
-        case .daily: return "매일"
-        case .weekly: return "매주"
-        case .monthly: return "매월"
         }
     }
 }

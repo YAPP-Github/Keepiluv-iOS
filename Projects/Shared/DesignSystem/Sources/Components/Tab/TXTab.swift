@@ -43,5 +43,12 @@ public struct TXTab<Item: TXItem>: View {
 }
 
 #Preview {
-    TXTab(style: .button(GoalDropList.allCases), onSelect: { _ in })
+    TXTab(style: .button(PreviewTabItem.allCases), onSelect: { _ in })
+}
+
+private enum PreviewTabItem: String, TXItem {
+    case first = "first"
+    case second = "second"
+
+    var title: String { rawValue }
 }

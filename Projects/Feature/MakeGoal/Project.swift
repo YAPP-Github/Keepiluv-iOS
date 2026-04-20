@@ -8,7 +8,9 @@ let project = Project.makeModule(
             interface: .makeGoal,
             config: .init(
                 dependencies: [
+                    .domain(interface: .common),
                     .domain(interface: .goal),
+                    .feature(interface: .common),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
@@ -20,6 +22,7 @@ let project = Project.makeModule(
             config: .init(
                 dependencies: [
                     .feature(interface: .makeGoal),
+                    .feature(interface: .common),
                     .domain(interface: .goal),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
