@@ -72,6 +72,7 @@ public struct OnboardingCodeInputView: View {
             isTextFieldFocused = false
         }
         .txToast(item: $store.toast, customPadding: 76)
+        .txLoading(isPresented: $store.isLoading)
     }
 }
 

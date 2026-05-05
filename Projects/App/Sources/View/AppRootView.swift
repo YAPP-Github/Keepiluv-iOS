@@ -26,9 +26,7 @@ struct AppRootView: View {
         let routeStore = store.scope(state: \.route, action: \.route)
 
         ZStack {
-            if store.isCheckingAuth {
-                ProgressView()
-            } else {
+            if !store.isCheckingAuth {
                 switch routeStore.state {
                 case .auth:
                     if let authStore = routeStore.scope(state: \.auth, action: \.auth) {
@@ -51,6 +49,7 @@ struct AppRootView: View {
             }
         }
         .animation(.easeInOut(duration: Constants.transitionDuration), value: store.route)
+        .txLoading(isPresented: .constant(store.isCheckingAuth))
         .onAppear {
             store.send(.onAppear)
         }
