@@ -66,6 +66,14 @@ public struct MainTabView: View {
             item: $store.home.home.toast,
             customPadding: Constants.tabBarHeight
         )
+        .txLoading(isPresented: .constant(isTabLoading))
+    }
+}
+
+private extension MainTabView {
+    var isTabLoading: Bool {
+        (store.selectedTab == .home && store.home.routes.isEmpty && store.home.home.isLoading) ||
+        (store.selectedTab == .statistics && store.stats.routes.isEmpty && store.stats.stats.isLoading)
     }
 }
 

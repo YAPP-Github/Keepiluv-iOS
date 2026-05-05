@@ -31,11 +31,6 @@ struct EditGoalListView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            
             if let cards = store.cards, cards.isEmpty {
                 emptyContent
             }
@@ -62,6 +57,7 @@ struct EditGoalListView: View {
         .txToast(item: $store.toast, onButtonTap: {
             store.send(.toastButtonTapped)
         })
+        .txLoading(isPresented: $store.isLoading)
     }
 }
 
