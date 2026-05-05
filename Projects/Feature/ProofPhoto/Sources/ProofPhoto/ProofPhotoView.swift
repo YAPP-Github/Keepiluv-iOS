@@ -65,9 +65,6 @@ public struct ProofPhotoView: View {
                 floatingCommentOverlay
             }
 
-            if store.isUploading {
-                ProofPhotoLoadingView()
-            }
         }
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -77,6 +74,7 @@ public struct ProofPhotoView: View {
             store.send(.onAppear)
         }
         .txToast(item: $store.toast, customPadding: 75)
+        .txLoading(isPresented: $store.isUploading, message: "업로드 중...")
     }
 }
 
