@@ -6,6 +6,9 @@
 //
 
 import ComposableArchitecture
+import CoreAnalytics
+import CoreAnalyticsInterface
+import CoreLogging
 import CoreNetworkInterface
 import CorePushInterface
 import DomainAuthInterface
@@ -32,6 +35,8 @@ struct AppCoordinator {
     @Dependency(\.notificationClient)
     var notificationClient
 
+    @Dependency(\.analyticsClient) var analyticsClient
+
     private let authReducer: AuthReducer
     private let onboardingCoordinator: OnboardingCoordinator
     private let mainTabReducer: MainTabReducer
@@ -42,6 +47,7 @@ struct AppCoordinator {
         var isCheckingAuth: Bool = true
         var pendingInviteCode: String?
         var pendingNotificationDeepLink: NotificationDeepLink?
+        var userProfile: UserProfile?
 
         public init() { }
     }
@@ -95,6 +101,9 @@ struct AppCoordinator {
         // MARK: - FCM Token
         case registerFCMTokenCompleted
         case fcmTokenRefreshed(String)
+
+        // MARK: - User Profile
+        case fetchMyProfileCompleted(UserProfile)
     }
 
     @CasePathable
@@ -161,6 +170,10 @@ struct AppCoordinator {
                             notificationClient: notificationClient
                         )
                     ]
+
+                    if state.userProfile == nil {
+                        effects.append(fetchUserProfile(client: authClient))
+                    }
 
                     // pending 딥링크가 있으면 처리
                     if let pendingDeepLink = state.pendingNotificationDeepLink {
@@ -251,7 +264,8 @@ struct AppCoordinator {
                     subscribeTokenRefreshEffect(
                         pushClient: pushClient,
                         notificationClient: notificationClient
-                    )
+                    ),
+                    fetchUserProfile(client: authClient)
                 ]
 
                 if let pendingDeepLink = state.pendingNotificationDeepLink {
@@ -271,6 +285,13 @@ struct AppCoordinator {
                  .route(.mainTab(.delegate(.withdrawCompleted))),
                  .route(.mainTab(.delegate(.sessionExpired))):
                 state.route = .auth(AuthReducer.State())
+                state.userProfile = nil
+                analyticsClient.setUserProfile(
+                    (
+                        id: nil,
+                        name: nil
+                    )
+                )
                 return .none
 
             case .route:
@@ -287,6 +308,17 @@ struct AppCoordinator {
                     }
                     try? await notificationClient.registerFCMToken(token, deviceId)
                 }
+
+            case let .fetchMyProfileCompleted(profile):
+                state.userProfile = profile
+                analyticsClient.setUserProfile(
+                    (
+                        id: Int64(profile.id),
+                        name: profile.name
+                    )
+                )
+
+                return .none
             }
         }
         .ifLet(\.route.auth, action: \.route.auth) {
@@ -334,6 +366,17 @@ private func subscribeTokenRefreshEffect(
     .run { send in
         for await token in pushClient.tokenRefreshStream() {
             await send(.fcmTokenRefreshed(token))
+        }
+    }
+}
+
+private func fetchUserProfile(client: AuthClient) -> Effect<AppCoordinator.Action> {
+    .run { send in
+        do {
+            let profile = try await client.fetchMyProfile()
+            await send(.fetchMyProfileCompleted(profile))
+        } catch {
+            TXLogger(label: "Analytics").error("Failed to fetch user profile for analytics: \(error)")
         }
     }
 }
