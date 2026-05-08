@@ -32,7 +32,7 @@ struct AccountView: View {
                 store.send(.modalConfirmTapped)
             }
         }
-        .txLoading(isPresented: $store.isLoading)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 

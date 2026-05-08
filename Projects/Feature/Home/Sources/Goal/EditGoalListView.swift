@@ -56,7 +56,7 @@ struct EditGoalListView: View {
         .txToast(item: $store.toast, onButtonTap: {
             store.send(.toastButtonTapped)
         })
-        .txLoading(isPresented: $store.isLoading)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 

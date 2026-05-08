@@ -63,7 +63,7 @@ struct StatsDetailView: View {
             }
         }
         .txToast(item: $store.toast)
-        .txLoading(isPresented: $store.isLoading)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 

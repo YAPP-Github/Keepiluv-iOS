@@ -112,7 +112,7 @@ public struct GoalDetailView: View {
             myEmojiFlyingReactionOverlay
         }
         .txToast(item: $store.toast, customPadding: 54)
-        .txLoading(isPresented: $store.isSavingPhotoLog)
+        .txLoading(isPresented: store.isSavingPhotoLog)
     }
 }
 

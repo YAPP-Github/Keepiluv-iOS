@@ -25,7 +25,7 @@ public struct AuthView: View {
             foregroundContent
         }
             .background(Color.Common.white)
-        .txLoading(isPresented: .constant(store.isLoading))
+        .txLoading(isPresented: store.isLoading)
         .alert(
             "로그인 실패",
             isPresented: Binding(

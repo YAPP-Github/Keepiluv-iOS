@@ -37,7 +37,7 @@ public struct NotificationView: View {
             store.send(.onAppear)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .txLoading(isPresented: .constant(store.isLoading && store.notifications.isEmpty))
+        .txLoading(isPresented: store.isLoading && store.notifications.isEmpty)
     }
 }
 
