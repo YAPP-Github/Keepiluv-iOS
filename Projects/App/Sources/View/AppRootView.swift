@@ -49,7 +49,7 @@ struct AppRootView: View {
             }
         }
         .animation(.easeInOut(duration: Constants.transitionDuration), value: store.route)
-        .txLoading(isPresented: .constant(store.isCheckingAuth))
+        .txLoading(isPresented: store.isCheckingAuth)
         .onAppear {
             store.send(.onAppear)
         }

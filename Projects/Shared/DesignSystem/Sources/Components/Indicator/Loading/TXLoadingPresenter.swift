@@ -45,40 +45,21 @@ public extension View {
     /// ## 사용 예시
     /// ```swift
     /// VStack { ... }
-    ///     .txLoading(isPresented: $isLoading)
+    ///     .txLoading(isPresented: store.isLoading)
     /// ```
-    func txLoading(isPresented: Binding<Bool>) -> some View {
-        self.modifier(TXLoadingModifier(isPresented: isPresented.wrappedValue, message: nil))
-    }
-
-    /// 중앙 캡슐 로딩 뷰를 dimmed70 배경과 함께 표시합니다.
-    ///
-    /// ## 사용 예시
-    /// ```swift
-    /// VStack { ... }
-    ///     .txLoading(isPresented: $isLoading, message: "저장 중...")
-    /// ```
-    func txLoading(isPresented: Binding<Bool>, message: String) -> some View {
-        self.modifier(TXLoadingModifier(isPresented: isPresented.wrappedValue, message: message))
+    func txLoading(isPresented: Bool) -> some View {
+        self.modifier(TXLoadingModifier(isPresented: isPresented, message: nil))
     }
 
     /// 중앙 캡슐 로딩 뷰를 `String?` item 기반으로 표시합니다.
     ///
     /// ## 사용 예시
     /// ```swift
-    /// @State private var loadingMessage: String?
-    ///
     /// VStack { ... }
-    ///     .txLoading(item: $loadingMessage)
-    ///
-    /// // 표시
-    /// loadingMessage = "업로드 중..."
-    ///
-    /// // 숨김
-    /// loadingMessage = nil
+    ///     .txLoading(item: store.loadingMessage)
     /// ```
-    func txLoading(item: Binding<String?>) -> some View {
-        self.modifier(TXLoadingModifier(isPresented: item.wrappedValue != nil, message: item.wrappedValue))
+    func txLoading(item: String?) -> some View {
+        self.modifier(TXLoadingModifier(isPresented: item != nil, message: item))
     }
 }
 
@@ -89,20 +70,7 @@ public extension View {
 
         var body: some View {
             Button("토글") { isLoading.toggle() }
-                .txLoading(isPresented: $isLoading)
-        }
-    }
-
-    return PreviewWrapper()
-}
-
-#Preview("캡슐 - isPresented") {
-    struct PreviewWrapper: View {
-        @State private var isLoading = false
-
-        var body: some View {
-            Button("토글") { isLoading.toggle() }
-                .txLoading(isPresented: $isLoading, message: "저장 중...")
+                .txLoading(isPresented: isLoading)
         }
     }
 
@@ -119,7 +87,7 @@ public extension View {
                 Button("저장") { loadingMessage = "저장 중..." }
                 Button("숨기기") { loadingMessage = nil }
             }
-            .txLoading(item: $loadingMessage)
+            .txLoading(item: loadingMessage)
         }
     }
 

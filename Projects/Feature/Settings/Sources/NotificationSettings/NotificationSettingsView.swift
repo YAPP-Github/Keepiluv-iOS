@@ -42,7 +42,7 @@ struct NotificationSettingsView: View {
                 store.send(.notificationSettingsOnAppear)
             }
         }
-        .txLoading(isPresented: $store.isNotificationSettingsLoading)
+        .txLoading(isPresented: store.isNotificationSettingsLoading)
     }
 }
 

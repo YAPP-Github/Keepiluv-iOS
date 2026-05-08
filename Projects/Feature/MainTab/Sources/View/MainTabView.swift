@@ -66,7 +66,7 @@ public struct MainTabView: View {
             item: $store.home.home.toast,
             customPadding: Constants.tabBarHeight
         )
-        .txLoading(isPresented: .constant(isTabLoading))
+        .txLoading(isPresented: isTabLoading)
     }
 }
 

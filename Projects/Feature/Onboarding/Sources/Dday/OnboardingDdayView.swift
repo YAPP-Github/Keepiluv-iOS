@@ -59,7 +59,7 @@ public struct OnboardingDdayView: View {
                 }
             )
         }
-        .txLoading(isPresented: $store.isLoading)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 

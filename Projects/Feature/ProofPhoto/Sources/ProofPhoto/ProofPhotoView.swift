@@ -74,7 +74,7 @@ public struct ProofPhotoView: View {
             store.send(.onAppear)
         }
         .txToast(item: $store.toast, customPadding: 75)
-        .txLoading(isPresented: $store.isUploading, message: "업로드 중...")
+        .txLoading(item: store.isUploading ? "업로드 중..." : nil)
     }
 }
 

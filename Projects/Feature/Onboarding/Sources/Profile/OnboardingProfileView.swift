@@ -45,7 +45,7 @@ public struct OnboardingProfileView: View {
             isTextFieldFocused = false
         }
         .txToast(item: $store.toast, customPadding: 76)
-        .txLoading(isPresented: $store.isLoading)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 
