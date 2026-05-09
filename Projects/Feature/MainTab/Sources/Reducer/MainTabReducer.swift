@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreLogging
 import CorePushInterface
 import DomainNotificationInterface
@@ -102,6 +103,7 @@ public struct MainTabReducer {
     public init() { }
 
     @Dependency(\.notificationClient) var notificationClient
+    @Dependency(\.analyticsClient) var analyticsClient
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
@@ -147,7 +149,8 @@ public struct MainTabReducer {
             case let .notificationDeepLinkReceived(deepLink):
                 state.selectedTab = .home
                 state.home.routes = []
-
+                analyticsClient.logEvent(MainTabAnalyticsEvent.openedByPush(type: deepLink.analyticsType))
+                
                 let notificationIdString = deepLink.notificationId
                 let markAsReadEffect: Effect<Action> = .run { [notificationClient] _ in
                     guard let notificationId = Int64(notificationIdString) else { return }
