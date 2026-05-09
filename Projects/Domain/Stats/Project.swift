@@ -8,7 +8,6 @@ let project = Project.makeModule(
             interface: .stats,
             config: .init(
                 dependencies: [
-                    .domain(interface: .common),
                     .core(interface: .network),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -18,7 +17,6 @@ let project = Project.makeModule(
             implements: .stats,
             config: .init(
                 dependencies: [
-                    .domain(interface: .common),
                     .domain(interface: .stats),
                     .core(interface: .network),
                     .external(dependency: .ComposableArchitecture)
