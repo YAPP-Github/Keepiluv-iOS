@@ -7,6 +7,7 @@
 
 import AVFoundation
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreCaptureSessionInterface
 import DomainGoalInterface
 import DomainPhotoLogInterface
@@ -26,6 +27,7 @@ extension ProofPhotoReducer {
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
+        @Dependency(\.analyticsClient) var analyticsClient
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
@@ -154,6 +156,13 @@ extension ProofPhotoReducer {
                                 reaction: nil,
                                 createdAt: "방금"
                             )
+                            analyticsClient
+                                .logEvent(
+                                    ProofPhotoAnalyticsEvent.uploaded(
+                                        goalId: goalId,
+                                        targetDate: photoLog.verificationDate
+                                    )
+                                )
                             await send(
                                 .delegate(
                                     .completedUploadPhoto(
