@@ -24,6 +24,9 @@ public struct AuthView: View {
             backgroundIllustration
             foregroundContent
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .overlay {
             loadingView
         }
