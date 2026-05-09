@@ -77,7 +77,7 @@ let project = Project(
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],
                 dependencies: commonDependencies + [
-                    .core(.analytics)
+                    .core(implements: .analytics)
                 ],
                 settings: .settings(
                     base: commonBuildSettings.merging([

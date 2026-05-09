@@ -20,13 +20,7 @@ extension AnalyticsClient: @retroactive DependencyKey {
         logEvent: { event in
             Analytics.logEvent(
                 event.name,
-                parameters: nil
-            )
-        },
-        logEventParameter: { event, parameters in
-            Analytics.logEvent(
-                event.name,
-                parameters: parameters
+                parameters: event.parameters
             )
         }
     )
