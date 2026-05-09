@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import DomainCommonInterface
 import DomainStatsInterface
 import FeatureCommonInterface
@@ -24,12 +25,14 @@ extension StatsReducer {
     // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.statsClient) var statsClient
+        @Dependency(\.analyticsClient) var analyticsClient
         
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
+                analyticsClient.logEvent(StatsAnalyticsEvent.viewed)
                 return .send(.fetchStats)
                 
                 // MARK: - UserAction
