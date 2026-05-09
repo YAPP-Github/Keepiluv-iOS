@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreCaptureSessionInterface
 import DomainGoalInterface
 import DomainPhotoLogInterface
@@ -77,6 +78,8 @@ extension GoalDetailReducer {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.goalClient) var goalClient
         @Dependency(\.photoLogClient) var photoLogClient
+        @Dependency(\.analyticsClient) var analyticsClient
+        
         let timeFormatter = RelativeTimeFormatter()
         
         // swiftlint: disable closure_body_length
@@ -121,6 +124,7 @@ extension GoalDetailReducer {
                     PokeCooldownManager.recordPoke(goalId: goalId)
                     do {
                         try await goalClient.pokePartner(goalId)
+                        analyticsClient.logEvent(GoalDetailAnalyticsEvent.pokeSent)
                         await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                     } catch {
                         PokeCooldownManager.removePoke(goalId: goalId)
@@ -154,6 +158,10 @@ extension GoalDetailReducer {
                         do {
                             let request = PhotoLogUpdateReactionRequestDTO(reaction: reactionEmoji.rawValue)
                             _ = try await photoLogClient.updateReaction(photoLogId, request)
+                            analyticsClient
+                                .logEvent(
+                                    GoalDetailAnalyticsEvent.emojiReactionSent(emoji: reactionEmoji.rawValue)
+                                )
                         } catch {
                             await send(.reactionUpdateFailed(previousReaction: previousReaction))
                         }

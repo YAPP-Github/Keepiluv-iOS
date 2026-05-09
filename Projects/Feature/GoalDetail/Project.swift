@@ -20,6 +20,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .feature(interface: .goalDetail),
                     .feature(interface: .proofPhoto),
+                    .core(interface: .analytics),
                     .core(interface: .captureSession),
                     .domain(interface: .photoLog),
                     .shared(implements: .designSystem),
