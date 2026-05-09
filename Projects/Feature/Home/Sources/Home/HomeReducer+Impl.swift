@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreCaptureSessionInterface
 import DomainGoalInterface
 import DomainNotificationInterface
@@ -93,6 +94,7 @@ extension HomeReducer {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
         @Dependency(\.notificationClient) var notificationClient
+        @Dependency(\.analyticsClient) var analyticsClient
         
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
@@ -269,6 +271,7 @@ extension HomeReducer {
                 
             case let .addGoalButtonTapped(category):
                 state.isAddGoalPresented = false
+                analyticsClient.logEvent(HomeAnalyticsEvent.recommendGoalClicked(kind: category.rawValue))
                 return .send(.delegate(.goToMakeGoal(category)))
                 
             case .editButtonTapped:
