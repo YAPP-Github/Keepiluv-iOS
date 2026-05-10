@@ -66,6 +66,15 @@ extension HomeCoordinator {
             case .statsDetail(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 return .none
+                
+            case let .statsDetail(.delegate(.goToGoalEdit(goalId))):
+                state.routes.append(.makeGoal)
+                state.makeGoal = .init(
+                    category: .custom,
+                    mode: .edit,
+                    editingGoalId: goalId
+                )
+                return .none
 
             case .statsDetail(.onDisappear):
                 state.statsDetail = nil
