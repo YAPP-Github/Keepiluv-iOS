@@ -23,6 +23,14 @@ public struct AnalyticsClient {
     public var logEvent: (any AnalyticsEvent) -> Void
 
     /// 분석 클라이언트의 동작을 클로저로 주입합니다.
+    ///
+    /// ## 사용 예시
+    /// ```swift
+    /// let client = AnalyticsClient(
+    ///     setUserProfile: { _ in },
+    ///     logEvent: { _ in }
+    /// )
+    /// ```
     public init(
         setUserProfile: @escaping ((id: Int64?, name: String?)) -> Void,
         logEvent: @escaping (any AnalyticsEvent) -> Void
