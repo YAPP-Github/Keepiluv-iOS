@@ -107,14 +107,7 @@ extension MakeGoalReducer {
                 return .none
 
             case let .periodTabSelected(item):
-                switch item {
-                case .daily:
-                    state.selectedPeriod = .daily
-                case .weekly:
-                    state.selectedPeriod = .weekly
-                case .monthly:
-                    state.selectedPeriod = .monthly
-                }
+                state.selectedPeriod = item.repeatCycle
                 return .none
                 
             case .periodSelected:
