@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainStatsInterface
+import FeatureCommonInterface
 import SharedDesignSystem
 
 /// 통계 상세 화면의 상태와 액션을 관리하는 Reducer입니다.

@@ -10,6 +10,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import DomainGoalInterface
+import FeatureCommonInterface
 import FeatureHomeInterface
 import SharedDesignSystem
 import SharedUtil

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 /// 통계 화면에서 사용하는 사용자별 목표 달성 통계 모델입니다.
 ///
@@ -20,13 +21,6 @@ import Foundation
 /// )
 /// ```
 public struct Stats: Equatable {
-    /// 목표 반복 주기 타입입니다.
-    public enum RepeatCycle: String, Equatable {
-        case daily = "DAILY"
-        case weekly = "WEEKLY"
-        case monthly = "MONTHLY"
-    }
-
     public let myNickname: String
     public let partnerNickname: String
     public let stats: [StatsItem]
@@ -105,18 +99,6 @@ public struct Stats: Equatable {
             self.partnerStamp = partnerStamp
         }
 
-        /// 통계 스탬프에서 사용하는 색상 타입입니다.
-        public enum StampColor: String, Equatable, CaseIterable {
-            case green400 = "GREEN400"
-            case blue400 = "BLUE400"
-            case yellow400 = "YELLOW400"
-            case pink400 = "PINK400"
-            case pink300 = "PINK300"
-            case pink200 = "PINK200"
-            case orange400 = "ORANGE400"
-            case purple400 = "PURPLE400"
-        }
-        
         public struct Stamp: Equatable {
             public let completedCount: Int
             public let stampColors: [StampColor]

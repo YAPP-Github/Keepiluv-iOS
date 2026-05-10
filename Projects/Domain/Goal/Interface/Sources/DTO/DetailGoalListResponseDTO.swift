@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 /// 날짜별 목표 인증 목록 응답 DTO입니다.
 public struct DetailGoalListResponseDTO: Decodable {
@@ -67,7 +68,7 @@ public extension DetailGoalListResponseDTO {
                             createdAt: $0.uploadedAt
                         )
                     },
-                    status: Goal.Status(rawValue: photolog.goalStatus)
+                    status: GoalStatus(rawValue: photolog.goalStatus)
                 )
             }
         )

@@ -360,10 +360,6 @@ private extension MakeGoalView {
     }
     
     var selectedPeriodItem: PeriodItem {
-        switch store.selectedPeriod {
-        case .daily: return .daily
-        case .weekly: return .weekly
-        case .monthly: return .monthly
-        }
+        PeriodItem(repeatCycle: store.selectedPeriod)
     }
 }

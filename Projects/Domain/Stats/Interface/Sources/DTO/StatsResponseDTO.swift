@@ -6,6 +6,7 @@
 //
 
 import CoreNetworkInterface
+import DomainCommonInterface
 
 /// 통계 목록 조회 응답을 디코딩하는 DTO입니다.
 public struct StatsResponseDTO: Decodable {
@@ -61,13 +62,13 @@ extension StatsResponseDTO {
                     myStamp: .init(
                         completedCount: $0.myStats.endCount,
                         stampColors: isInProgress
-                        ? $0.myStats.stampColors.compactMap { Stats.StatsItem.StampColor.init(rawValue: $0) }
+                        ? $0.myStats.stampColors.compactMap { StampColor(rawValue: $0) }
                         : []
                     ),
                     partnerStamp: .init(
                         completedCount: $0.partnerStats.endCount,
                         stampColors: isInProgress
-                        ? $0.partnerStats.stampColors.compactMap { Stats.StatsItem.StampColor.init(rawValue: $0) }
+                        ? $0.partnerStats.stampColors.compactMap { StampColor(rawValue: $0) }
                         : []
                     )
                 )
