@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureCommonInterface
 import FeatureHomeInterface
 import SharedDesignSystem
 

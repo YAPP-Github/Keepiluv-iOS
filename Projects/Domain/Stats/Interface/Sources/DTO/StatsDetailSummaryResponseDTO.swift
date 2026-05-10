@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 public struct StatsDetailSummaryResponseDTO: Decodable {
     let myNickname: String

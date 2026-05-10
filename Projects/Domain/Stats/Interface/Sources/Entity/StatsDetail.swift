@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 /// 통계 상세 화면에서 사용하는 목표 상세 정보 모델입니다.
 ///
@@ -31,7 +32,7 @@ public struct StatsDetail: Equatable {
         public let totalCount: Int
         public let myCompletedCount: Int
         public let partnerCompltedCount: Int
-        public let repeatCycle: Stats.RepeatCycle
+        public let repeatCycle: RepeatCycle
         public let startDate: String
         public let endDate: String?
     }

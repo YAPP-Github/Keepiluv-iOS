@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 public struct GoalList: Equatable {
     public let hasEverRegisteredGoal: Bool
@@ -33,18 +34,6 @@ public struct GoalList: Equatable {
 /// )
 /// ```
 public struct Goal: Equatable {
-    public enum RepeatCycle: String, Equatable {
-        case daily = "DAILY"
-        case weekly = "WEEKLY"
-        case monthly = "MONTHLY"
-    }
-    
-    public enum Status: String, Equatable {
-        case notStarted = "NOT_STARTED"
-        case inProgressed = "IN_PROGRESSED"
-        case completed = "COMPLETED"
-    }
-    
     public let id: Int64
     public let goalIcon: String
     public let title: String
@@ -54,7 +43,7 @@ public struct Goal: Equatable {
     public let repeatCount: Int?
     public let startDate: String?
     public let endDate: String?
-    public let status: Status
+    public let status: GoalStatus
     
     /// 목표 인증 상태를 나타내는 모델입니다.
     ///
@@ -119,7 +108,7 @@ public struct Goal: Equatable {
         repeatCount: Int? = nil,
         startDate: String? = nil,
         endDate: String? = nil,
-        status: Status? = nil
+        status: GoalStatus? = nil
     ) {
         self.id = id
         self.goalIcon = goalIcon

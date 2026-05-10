@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import DomainStatsInterface
+import FeatureCommonInterface
 import FeatureStatsInterface
 import SharedDesignSystem
 
