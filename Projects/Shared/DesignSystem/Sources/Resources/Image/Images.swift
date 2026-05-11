@@ -50,6 +50,14 @@ public extension Image.Icon.Illustration {
     static let health = IllustrationAsset.iconHealth.swiftUIImage
     static let heartDouble = IllustrationAsset.iconHeartDouble.swiftUIImage
     static let laptop = IllustrationAsset.iconLaptop.swiftUIImage
+    static let defaultThin = IllustrationAsset.iconDefaultThin.swiftUIImage
+    static let cleanThin = IllustrationAsset.iconCleanThin.swiftUIImage
+    static let bookThin = IllustrationAsset.iconBookThin.swiftUIImage
+    static let pencilThin = IllustrationAsset.iconPencilThin.swiftUIImage
+    static let healthThin = IllustrationAsset.iconHealthThin.swiftUIImage
+    static let heartDoubleThin = IllustrationAsset.iconHeartDoubleThin.swiftUIImage
+    static let laptopThin = IllustrationAsset.iconLaptopThin.swiftUIImage
+    static let exerciseThin = IllustrationAsset.iconExerciseThin.swiftUIImage
     static let profile = IllustrationAsset.iconProfile.swiftUIImage
     static let modalWarning = IllustrationAsset.iconModalWarning.swiftUIImage
 }
