@@ -45,7 +45,8 @@ private let commonDependencies: [TargetDependency] = [
     .external(dependency: .GoogleSignIn),
     .external(dependency: .FirebaseCore),
     .external(dependency: .FirebaseMessaging),
-    .external(dependency: .FirebaseRemoteConfig)
+    .external(dependency: .FirebaseRemoteConfig),
+    .core(implements: .crashlytics)
 ]
 
 private let commonBuildSettings: SettingsDictionary = [
@@ -75,7 +76,7 @@ let project = Project(
             config: .init(
                 infoPlist: .extendingDefault(with: commonInfoPlist),
                 entitlements: .file(path: "Support/Twix.entitlements"),
-                scripts: [.swiftLint],
+                scripts: [.swiftLint, .crashlyticsUploadSymbols],
                 dependencies: commonDependencies + [
                     .core(implements: .analytics)
                 ],
