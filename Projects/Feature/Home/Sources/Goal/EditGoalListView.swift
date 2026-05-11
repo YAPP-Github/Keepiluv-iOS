@@ -75,6 +75,9 @@ private extension EditGoalListView {
             weeks: store.calendarWeeks,
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
+            },
+            onSwipe: { swipe in
+                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
