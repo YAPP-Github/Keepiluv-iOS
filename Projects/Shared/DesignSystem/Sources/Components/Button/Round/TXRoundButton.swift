@@ -110,8 +110,7 @@ private extension TXButtonShape.TXRoundSize {
     
     var yOffset: CGFloat {
         switch self {
-        case .l, .m: 4
-        case .s: 1
+        case .s, .l, .m: 4
         }
     }
     
