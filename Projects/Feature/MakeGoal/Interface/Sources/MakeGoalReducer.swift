@@ -74,6 +74,7 @@ public struct MakeGoalReducer {
         public var modal: TXModalStyle?
         public var toast: TXToastType?
         public var isLoading: Bool = false
+        public var submitMessage: String? = nil
 
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {

@@ -79,6 +79,8 @@ public struct MakeGoalView: View {
             }
         )
         .txToast(item: $store.toast, customPadding: 70)
+        .txLoading(isPresented: store.isLoading && store.submitMessage == nil)
+        .txLoading(item: store.submitMessage)
     }
 }
 

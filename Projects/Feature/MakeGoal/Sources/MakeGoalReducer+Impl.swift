@@ -74,10 +74,12 @@ extension MakeGoalReducer {
 
             case .createGoalFailed:
                 state.isLoading = false
+                state.submitMessage = nil
                 return .send(.showToast(.warning(message: "목표 생성에 실패했어요")))
 
             case .updateGoalFailed:
                 state.isLoading = false
+                state.submitMessage = nil
                 return .send(.showToast(.warning(message: "이미 완료한 목표입니다!")))
 
                 // MARK: - User Action
@@ -198,7 +200,7 @@ extension MakeGoalReducer {
                 guard !state.completeButtonDisabled  else {
                     return .send(.showToast(.warning(message: "목표 이름은 14글자 이내로 입력해 주세요!")))
                 }
-                
+
                 state.isLoading = true
                 let endDateString: String? = state.isEndDateOn
                     ? TXCalendarUtil.apiDateString(for: state.endDate)
@@ -206,6 +208,7 @@ extension MakeGoalReducer {
 
                 switch state.mode {
                 case .add:
+                    state.submitMessage = "등록 중..."
                     let request = GoalCreateRequestDTO(
                         name: state.goalTitle,
                         icon: state.selectedEmoji.rawValue,
@@ -224,8 +227,10 @@ extension MakeGoalReducer {
                     }
 
                 case .edit:
+                    state.submitMessage = "수정 중..."
                     guard let goalId = state.editingGoalId else {
                         state.isLoading = false
+                        state.submitMessage = nil
                         return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
                     }
                     let request = GoalUpdateRequestDTO(

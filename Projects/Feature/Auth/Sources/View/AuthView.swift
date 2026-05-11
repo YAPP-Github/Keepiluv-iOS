@@ -24,10 +24,8 @@ public struct AuthView: View {
             backgroundIllustration
             foregroundContent
         }
-        .overlay {
-            loadingView
-        }
-        .background(Color.Common.white)
+            .background(Color.Common.white)
+        .txLoading(isPresented: store.isLoading)
         .alert(
             "로그인 실패",
             isPresented: Binding(
@@ -192,13 +190,6 @@ private extension AuthView {
         .disabled(store.isLoading)
     }
 
-    @ViewBuilder
-    var loadingView: some View {
-        if store.isLoading {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-    }
 }
 
 // swiftlint:enable no_magic_numbers
