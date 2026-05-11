@@ -97,6 +97,7 @@ public extension Module {
         case network = "Network"
         case logging = "Logging"
         case storage = "Storage"
+        case crashlytics = "Crashlytics"
 
         /// Core 타겟 이름의 기본 prefix입니다.
         public static let name: String = "Core"
