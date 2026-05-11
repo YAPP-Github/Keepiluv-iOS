@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
 import CoreLogging
 import DomainAuthInterface
 import Foundation
@@ -92,6 +93,9 @@ private extension AuthReducer {
     @Dependency(\.authClient)
     static var authClient
 
+    @Dependency(\.crashlyticsClient)
+    static var crashlytics
+
     @Dependency(\.authLogger)
     static var logger
 
@@ -139,6 +143,10 @@ private extension AuthReducer {
         state.errorMessage = errorMessage(for: error)
         #if DEBUG
         logger.error("로그인 실패 - \(error.localizedDescription)")
+        #else
+        crashlytics.record(error, [
+            CrashlyticsKey.authErrorType: (error as? AuthLoginError)?.caseName ?? String(describing: error)
+        ])
         #endif
         return .none
     }
