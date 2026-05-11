@@ -89,6 +89,7 @@ public extension Image.Icon.Symbol {
     static let meatball = SymbolAsset.icMeatball.swiftUIImage
     static let minus = SymbolAsset.icMinus.swiftUIImage
     static let plus = SymbolAsset.icPlus.swiftUIImage
+    static let plusL = SymbolAsset.icPlusL.swiftUIImage
     static let icReturn = SymbolAsset.icReturn.swiftUIImage
     static let setting = SymbolAsset.icSetting.swiftUIImage
     static let turn = SymbolAsset.icTurn.swiftUIImage
