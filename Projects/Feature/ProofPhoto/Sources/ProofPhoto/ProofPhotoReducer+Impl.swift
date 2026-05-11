@@ -9,6 +9,7 @@ import AVFoundation
 import ComposableArchitecture
 import CoreAnalyticsInterface
 import CoreCaptureSessionInterface
+import CoreCrashlyticsInterface
 import DomainGoalInterface
 import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
@@ -29,6 +30,7 @@ extension ProofPhotoReducer {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
         @Dependency(\.analyticsClient) var analyticsClient
+        @Dependency(\.crashlyticsClient) var crashlytics
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
@@ -54,10 +56,14 @@ extension ProofPhotoReducer {
                 return .run { send in
                     do {
                         let imageData = try await captureSessionClient.capturePhoto()
-                        
+
                         await send(.captureCompleted(imageData: imageData))
                         captureSessionClient.stopRunning()
                     } catch {
+                        crashlytics.record(error, [
+                            CrashlyticsKey.captureErrorType: String(describing: error),
+                            CrashlyticsKey.screen: "proof_photo_camera"
+                        ])
                         await send(.captureFailed)
                     }
                 }
@@ -135,12 +141,20 @@ extension ProofPhotoReducer {
                     state.isUploading = true
                     
                     return .run { send in
+                        let originalSize = imageData.count
+                        var uploadStep = "fetchURL"
                         do {
                             let uploadStartedAt = Date()
                             let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
+                            crashlytics.log("upload_step: fetchURL, goalId=\(goalId)")
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
+
+                            uploadStep = "uploadS3"
+                            crashlytics.log("upload_step: uploadS3, size=\(optimizedImageData.count)")
                             try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
-                            
+
+                            uploadStep = "createLog"
+                            crashlytics.log("upload_step: createLog")
                             let createRequest = PhotoLogCreateRequestDTO(
                                 goalId: goalId,
                                 fileName: uploadResponse.fileName,
@@ -178,6 +192,12 @@ extension ProofPhotoReducer {
                                 )
                             )
                         } catch {
+                            crashlytics.record(error, [
+                                CrashlyticsKey.uploadStep: uploadStep,
+                                CrashlyticsKey.goalId: "\(goalId)",
+                                CrashlyticsKey.originalImageBytes: "\(originalSize)",
+                                CrashlyticsKey.screen: "proof_photo_upload"
+                            ])
                             await send(.uploadFailed)
                         }
                     }
