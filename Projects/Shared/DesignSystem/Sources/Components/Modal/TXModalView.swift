@@ -51,9 +51,10 @@ struct TXModalView: View {
                 modalContent
                 actionButtons
             }
-            .frame(width: Constants.width)
+            .frame(maxWidth: .infinity)
             .background(Constants.backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: Constants.radius))
+            .padding(.horizontal, Constants.rootVStackHorizontalPadding)
         }
     }
 }
@@ -61,7 +62,7 @@ struct TXModalView: View {
 // MARK: - Constants
 private enum Constants {
     static let rootVStackSpacing: CGFloat = 0
-    static let width: CGFloat = 350
+    static let rootVStackHorizontalPadding: CGFloat = Spacing.spacing8
     static let backgroundColor: Color = Color.Common.white
     static let radius: CGFloat = 20
 }
