@@ -35,4 +35,17 @@ public extension GoalIcon {
         case .laptop: .Icon.Illustration.laptop
         }
     }
+    
+    var thinImage: Image {
+        switch self {
+        case .default: .Icon.Illustration.defaultThin
+        case .clean: .Icon.Illustration.cleanThin
+        case .exercise: .Icon.Illustration.exerciseThin
+        case .book: .Icon.Illustration.bookThin
+        case .pencil: .Icon.Illustration.pencilThin
+        case .health: .Icon.Illustration.healthThin
+        case .heartDouble: .Icon.Illustration.heartDoubleThin
+        case .laptop: .Icon.Illustration.laptopThin
+        }
+    }
 }
