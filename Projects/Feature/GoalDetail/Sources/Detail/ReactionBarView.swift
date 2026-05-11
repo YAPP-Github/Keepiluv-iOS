@@ -25,43 +25,61 @@ struct ReactionBarView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            HStack(spacing: 0) {
-                ForEach(ReactionEmoji.allCases, id: \.self) { emoji in
-                    Button {
-                        onSelect(emoji)
-                        flyingReactionEmitter.emit(
-                            emoji: emoji,
-                            config: .reactionBar(width: proxy.size.width)
-                        )
-                    } label: {
-                        emoji.image
-                            .padding(.horizontal, 8)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(selectedEmoji == emoji ? Color.Gray.gray300 : Color.clear)
-                    
-                    if emoji != ReactionEmoji.allCases.last {
-                        Rectangle()
-                            .frame(width: 1)
-                    }
-                }
+            ZStack(alignment: .top) {
+                shadowView(proxy: proxy)
+                    .offset(y: 10)
+
+                reactionBar(proxy: proxy)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 67)
-        .background(Color.Gray.gray100)
-        .clipShape(.capsule)
-        .overlay(
-            Capsule()
-                .stroke(Color.black, lineWidth: 1)
-        )
+        .frame(height: 77)
         .overlay(alignment: .bottomLeading) {
             FlyingReactionOverlay(
                 reactions: flyingReactionEmitter.reactions,
                 alignment: .bottomLeading
             )
         }
+    }
+}
+
+// MARK: - SubViews
+
+private extension ReactionBarView {
+    func shadowView(proxy: GeometryProxy) -> some View {
+        Color.Gray.gray200
+            .frame(width: proxy.size.width, height: 67)
+            .clipShape(.capsule)
+    }
+    
+    func reactionBar(proxy: GeometryProxy) -> some View {
+        HStack(spacing: 0) {
+            ForEach(ReactionEmoji.allCases, id: \.self) { emoji in
+                Button {
+                    onSelect(emoji)
+                    flyingReactionEmitter.emit(
+                        emoji: emoji,
+                        config: .reactionBar(width: proxy.size.width)
+                    )
+                } label: {
+                    emoji.image
+                        .padding(.horizontal, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(selectedEmoji == emoji ? Color.Gray.gray300 : Color.clear)
+                
+                if emoji != ReactionEmoji.allCases.last {
+                    Rectangle()
+                        .frame(width: 1)
+                }
+            }
+        }
+        .background(Color.Gray.gray100)
+        .frame(width: proxy.size.width, height: 68)
+        .clipShape(.capsule)
+        .overlay(
+            Capsule()
+                .stroke(Color.Gray.gray500, lineWidth: 1)
+        )
     }
 }
 
