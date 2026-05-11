@@ -17,6 +17,7 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
     private let photoOutput = AVCapturePhotoOutput()
     private var continuation: CheckedContinuation<Data, Error>?
     private var flashMode: AVCaptureDevice.FlashMode = .off
+    private var currentPosition: AVCaptureDevice.Position = .back
     
     func requestAuthorization() async -> Bool {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -40,6 +41,7 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
         await performOnSessionQueue { [weak self] in
             guard let self else { return }
             
+            self.currentPosition = position
             self.session.beginConfiguration()
             self.session.sessionPreset = .photo
             self.session.inputs.forEach { self.session.removeInput($0) }
@@ -86,6 +88,11 @@ final class CaptureSessionManager: NSObject, @unchecked Sendable {
                 }
 
                 self.continuation = continuation
+
+                if let connection = self.photoOutput.connection(with: .video), connection.isVideoMirroringSupported {
+                    connection.isVideoMirrored = self.currentPosition == .front
+                }
+
                 let settings = AVCapturePhotoSettings()
                 if self.photoOutput.supportedFlashModes.contains(self.flashMode) {
                     settings.flashMode = self.flashMode

@@ -63,6 +63,7 @@ public struct GoalDetailView: View {
     public var body: some View {
         VStack(spacing: 0) {
             navigationBar
+                .zIndex(1)
             
             if store.item != nil {
                 cardView
