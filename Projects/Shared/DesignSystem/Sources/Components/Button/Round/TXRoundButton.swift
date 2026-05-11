@@ -12,27 +12,32 @@ struct TXRoundButton: View {
     let onTap: () -> Void
     
     public var body: some View {
-        if case let .round(style, size, _) = shape {
-            Button(action: onTap) {
+        if case let .round(style, size, state) = shape {
+            Button {
+                if state != .disabled {
+                    onTap()
+                }
+            } label: {
                 ZStack {
                     Capsule()
-                        .fill(style.backgroundColor)
+                        .fill(style.backgroundColor(state: state))
                         .frame(maxWidth: size.frameWidth)
-                        .frame(height: size.backgroundHeight)
-                        .padding(.top, size.yOffset)
+                        .frame(height: size.backgroundHeight(state: state))
+                        .padding(.top, size.bottomYOffset(state: state))
                     
                     Text(style.text)
                         .typography(size.typography)
-                        .foregroundStyle(style.fontColor)
+                        .foregroundStyle(style.fontColor(state: state))
                         .frame(maxWidth: size.frameWidth)
                         .frame(height: size.foregroundHeight)
                         .insideBorder(
-                            style.borderColor,
+                            style.borderColor(state: state),
                             shape: .capsule,
                             lineWidth: size.borderWidth
                         )
-                        .background(style.foregroundColor, in: .capsule)
+                        .background(style.foregroundColor(state: state), in: .capsule)
                 }
+                .padding(.top, size.topYOffset(state: state))
             }
             .buttonStyle(.plain)
         } else {
@@ -49,31 +54,39 @@ private extension TXButtonShape.TXRoundStyle {
         }
     }
     
-    var foregroundColor: Color {
-        switch self {
-        case .illustLight: Color.Common.white
-        case .lillustDark: Color.Gray.gray500
+    func foregroundColor(state: TXButtonShape.TXRoundState) -> Color {
+        switch (self, state) {
+        case (.illustLight, .standard): Color.Common.white
+        case (.lillustDark, .standard): Color.Gray.gray500
+        case (.illustLight, .disabled): Color.Gray.gray50
+        case (.lillustDark, .disabled): .clear
         }
     }
     
-    var backgroundColor: Color {
-        switch self {
-        case .illustLight: Color.Gray.gray500
-        case .lillustDark: Color.Common.white
+    func backgroundColor(state: TXButtonShape.TXRoundState) -> Color {
+        switch (self, state) {
+        case (.illustLight, .standard): Color.Gray.gray500
+        case (.lillustDark, .standard): Color.Common.white
+        case (.illustLight, .disabled): Color.Gray.gray200
+        case (.lillustDark, .disabled): .clear
         }
     }
     
-    var fontColor: Color {
-        switch self {
-        case .illustLight: Color.Gray.gray500
-        case .lillustDark: Color.Common.white
+    func fontColor(state: TXButtonShape.TXRoundState) -> Color {
+        switch (self, state) {
+        case (.illustLight, .standard): Color.Gray.gray500
+        case (.lillustDark, .standard): Color.Common.white
+        case (.illustLight, .disabled): Color.Gray.gray200
+        case (.lillustDark, .disabled): .clear
         }
     }
     
-    var borderColor: Color {
-        switch self {
-        case .illustLight: Color.Gray.gray500
-        case .lillustDark: Color.Common.white
+    func borderColor(state: TXButtonShape.TXRoundState) -> Color {
+        switch (self, state) {
+        case (.illustLight, .standard): Color.Gray.gray500
+        case (.lillustDark, .standard): Color.Common.white
+        case (.illustLight, .disabled): Color.Gray.gray200
+        case (.lillustDark, .disabled): .clear
         }
     }
 }
@@ -101,16 +114,35 @@ private extension TXButtonShape.TXRoundSize {
         }
     }
     
-    var backgroundHeight: CGFloat {
+    func backgroundHeight(state: TXButtonShape.TXRoundState) -> CGFloat {
         switch self {
         case .l, .m: 70
-        case .s: 31
+            
+        case .s:
+            switch state {
+            case .standard: 31
+            case .disabled: 28
+            }
         }
     }
     
-    var yOffset: CGFloat {
+    func bottomYOffset(state: TXButtonShape.TXRoundState) -> CGFloat {
         switch self {
-        case .s, .l, .m: 4
+        case .s, .l, .m:
+            switch state {
+            case .standard: 4
+            case .disabled: 1
+            }
+        }
+    }
+    
+    func topYOffset(state: TXButtonShape.TXRoundState) -> CGFloat {
+        switch self {
+        case .s, .l, .m:
+            switch state {
+            case .standard: 0
+            case .disabled: 3
+            }
         }
     }
     
@@ -121,7 +153,6 @@ private extension TXButtonShape.TXRoundSize {
         }
     }
 }
-
 
 #Preview {
     VStack(alignment: .leading, spacing: Spacing.spacing7) {
