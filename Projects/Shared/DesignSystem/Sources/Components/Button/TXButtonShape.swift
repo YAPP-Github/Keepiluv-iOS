@@ -104,6 +104,7 @@ public enum TXButtonShape {
     /// 캡슐 형태의 라운드 버튼 상태를 정의하는 타입입니다.
     public enum TXRoundState {
         case standard
+        case disabled
     }
     
     // MARK: - Circle
