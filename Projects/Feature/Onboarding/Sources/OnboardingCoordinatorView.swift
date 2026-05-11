@@ -56,6 +56,7 @@ public struct OnboardingCoordinatorView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .txToast(item: $store.toast)
         .fullScreenCover(isPresented: $store.isNotificationModalPresented) {
             notificationPermissionModal
         }
