@@ -64,12 +64,6 @@ extension StatsCoordinator {
                 state.routes.removeLast()
                 return .none
 
-            case .statsDetail(.onDisappear):
-                if !state.routes.contains(.statsDetail) {
-                    state.statsDetail = nil
-                }
-                return .none
-                
             case .goalDetail(.onDisappear):
                 if !state.routes.contains(.goalDetail) {
                     state.goalDetail = nil

@@ -57,12 +57,12 @@ extension HomeCoordinator {
                 state.routes.append(.notification)
                 state.notification = .init()
                 return .none
-
+                
             case let .home(.delegate(.goToStatsDetail(id))):
                 state.routes.append(.statsDetail)
                 state.statsDetail = .init(goalId: id)
                 return .none
-
+                
             case .statsDetail(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 return .none
@@ -75,11 +75,13 @@ extension HomeCoordinator {
                     editingGoalId: goalId
                 )
                 return .none
-
+                
             case .statsDetail(.onDisappear):
-                state.statsDetail = nil
+                if !state.routes.contains(.statsDetail) {
+                    state.statsDetail = nil
+                }
                 return .none
-
+                
             case .statsDetail:
                 return .none
 
@@ -95,16 +97,18 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
                 
+            case .editGoalList(.onDisappear):
+                if !state.routes.contains(.editGoalList) {
+                    state.editGoalList = nil
+                }
+                return .none
+                
             case .makeGoal(.onDisappear):
                 state.makeGoal = nil
                 return .none
                 
             case .editGoalList(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
-                return .none
-
-            case .editGoalList(.onDisappear):
-                state.editGoalList = nil
                 return .none
 
             case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
