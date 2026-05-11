@@ -81,7 +81,7 @@ private extension MainTabView {
     var homeFloatingButton: some View {
         TXButton(
             shape: .circle(
-                style: .basic(icon: Image.Icon.Symbol.plus),
+                style: .basic(icon: Image.Icon.Symbol.plusL),
                 size: .m,
                 state: .standard
             ),
