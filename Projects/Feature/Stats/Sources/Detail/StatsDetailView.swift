@@ -36,11 +36,6 @@ struct StatsDetailView: View {
             }
         }
         .background(Color.Gray.gray50)
-        .overlay {
-            if store.isLoading {
-                ProgressView()
-            }
-        }
         .overlay(alignment: .topTrailing) {
             if store.isDropdownPresented {
                 TXDropdown(
@@ -69,6 +64,7 @@ struct StatsDetailView: View {
             }
         }
         .txToast(item: $store.toast)
+        .txLoading(isPresented: store.isLoading)
     }
 }
 

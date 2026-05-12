@@ -23,9 +23,7 @@ public struct NotificationView: View {
             navigationBar
 
             ZStack {
-                if store.isLoading && store.notifications.isEmpty {
-                    loadingView
-                } else if filteredNotifications.isEmpty {
+                if filteredNotifications.isEmpty {
                     emptyView
                 } else {
                     contentView
@@ -39,6 +37,7 @@ public struct NotificationView: View {
             store.send(.onAppear)
         }
         .toolbar(.hidden, for: .navigationBar)
+        .txLoading(isPresented: store.isLoading && store.notifications.isEmpty)
     }
 }
 
@@ -71,19 +70,6 @@ private extension NotificationView {
             .padding(.top, Spacing.spacing6)
             .padding(.horizontal, Spacing.spacing8)
             .padding(.bottom, Spacing.spacing8)
-        }
-    }
-}
-
-// MARK: - Loading View
-
-private extension NotificationView {
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
-            Spacer()
         }
     }
 }

@@ -36,11 +36,6 @@ struct StatsView: View {
                statsEmptyView
             }
         }
-        .overlay {
-            if store.isLoading {
-                ProgressView()
-            }
-        }
         .onAppear { store.send(.onAppear) }
         .txToast(item: $store.toast)
         .toolbar(.hidden, for: .tabBar)

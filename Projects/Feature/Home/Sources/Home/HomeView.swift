@@ -51,12 +51,6 @@ public struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .overlay {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
         .onAppear {
             store.send(.onAppear)
         }

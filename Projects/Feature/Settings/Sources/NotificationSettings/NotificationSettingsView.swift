@@ -20,9 +20,7 @@ struct NotificationSettingsView: View {
             navigationBar
 
             ZStack {
-                if store.isNotificationSettingsLoading {
-                    loadingView
-                } else if !store.isSystemNotificationEnabled {
+                if !store.isSystemNotificationEnabled {
                     disabledView
                 } else {
                     ScrollView {
@@ -44,6 +42,7 @@ struct NotificationSettingsView: View {
                 store.send(.notificationSettingsOnAppear)
             }
         }
+        .txLoading(isPresented: store.isNotificationSettingsLoading)
     }
 }
 
@@ -55,19 +54,6 @@ private extension NotificationSettingsView {
             if action == .backTapped {
                 store.send(.subViewBackButtonTapped)
             }
-        }
-    }
-}
-
-// MARK: - Loading View
-
-private extension NotificationSettingsView {
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
-            Spacer()
         }
     }
 }

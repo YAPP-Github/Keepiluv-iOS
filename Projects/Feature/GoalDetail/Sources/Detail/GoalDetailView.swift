@@ -111,12 +111,8 @@ public struct GoalDetailView: View {
         .overlay(alignment: .bottom) {
             myEmojiFlyingReactionOverlay
         }
-        .overlay {
-            if store.isSavingPhotoLog {
-                ProgressView()
-            }
-        }
         .txToast(item: $store.toast, customPadding: 54)
+        .txLoading(isPresented: store.isSavingPhotoLog)
     }
 }
 
