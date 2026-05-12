@@ -14,8 +14,8 @@ import Foundation
 extension AnalyticsClient: @retroactive DependencyKey {
     public static let liveValue = AnalyticsClient(
         setUserProfile: { profile in
-            Analytics.setUserID(profile.id.map(String.init))
-            Analytics.setUserProperty(profile.name, forName: "name")
+            Analytics.setUserID(profile.map { String($0.id) })
+            Analytics.setUserProperty(profile?.name, forName: "name")
         },
         logEvent: { event in
             Analytics.logEvent(

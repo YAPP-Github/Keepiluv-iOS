@@ -132,23 +132,4 @@ extension NotificationDeepLink {
             return id
         }
     }
-    
-    public var analyticsType: String {
-        switch self {
-        case .partnerConnected:
-            "partner_connected"
-        case .poke:
-            "poke"
-        case .goalCompleted:
-            "goal_completed"
-        case .reaction:
-            "reaction"
-        case .dailyGoalAchieved:
-            "daily_goal_achieved"
-        case .goalEnded:
-            "goal_ended"
-        case .marketing:
-            "marketing"
-        }
-    }
 }

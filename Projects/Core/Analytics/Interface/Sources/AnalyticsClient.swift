@@ -19,7 +19,7 @@ import ComposableArchitecture
 /// analyticsClient.logEvent(event)
 /// ```
 public struct AnalyticsClient {
-    public var setUserProfile: ((id: Int64?, name: String?)) -> Void
+    public var setUserProfile: (AnalyticsUserProfile?) -> Void
     public var logEvent: (any AnalyticsEvent) -> Void
 
     /// 분석 클라이언트의 동작을 클로저로 주입합니다.
@@ -32,7 +32,7 @@ public struct AnalyticsClient {
     /// )
     /// ```
     public init(
-        setUserProfile: @escaping ((id: Int64?, name: String?)) -> Void,
+        setUserProfile: @escaping (AnalyticsUserProfile?) -> Void,
         logEvent: @escaping (any AnalyticsEvent) -> Void
     ) {
         self.setUserProfile = setUserProfile

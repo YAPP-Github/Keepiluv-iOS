@@ -2,7 +2,7 @@
 //  HomeGoalItem.swift
 //  FeatureHomeInterface
 //
-//  Created by Codex on 4/10/26.
+//  Created by Jihun on 4/10/26.
 //
 
 import Foundation

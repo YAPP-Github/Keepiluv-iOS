@@ -2,7 +2,7 @@
 //  ProofPhotoAnalyticsEvent.swift
 //  FeatureProofPhoto
 //
-//  Created by Codex on 5/9/26.
+//  Created by Jihun on 5/9/26.
 //
 
 import CoreAnalyticsInterface
@@ -23,7 +23,7 @@ enum ProofPhotoAnalyticsEvent: AnalyticsEvent {
         case let .uploaded(goalId, targetDate):
             [
                 "goal_id": "\(goalId)",
-                "targetDate": targetDate
+                "target_Date": targetDate
             ]
         }
     }

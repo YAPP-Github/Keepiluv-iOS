@@ -2,7 +2,7 @@
 //  FlyingReactionSupport.swift
 //  FeatureGoalDetail
 //
-//  Created by Codex on 2/25/26.
+//  Created by Jihun on 2/25/26.
 //
 
 import SwiftUI

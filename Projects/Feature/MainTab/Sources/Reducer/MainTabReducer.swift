@@ -149,7 +149,7 @@ public struct MainTabReducer {
             case let .notificationDeepLinkReceived(deepLink):
                 state.selectedTab = .home
                 state.home.routes = []
-                analyticsClient.logEvent(MainTabAnalyticsEvent.openedByPush(type: deepLink.analyticsType))
+                analyticsClient.logEvent(MainTabAnalyticsEvent.openedByPush(deepLink: deepLink))
                 
                 let notificationIdString = deepLink.notificationId
                 let markAsReadEffect: Effect<Action> = .run { [notificationClient] _ in

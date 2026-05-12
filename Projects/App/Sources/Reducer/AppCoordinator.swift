@@ -121,7 +121,9 @@ struct AppCoordinator {
 
     var body: some ReducerOf<Self> {
         // swiftlint:disable:next closure_body_length
-        Reduce { state, action in
+        Reduce {
+            state,
+            action in
             switch action {
             case .onAppear:
                 return .run { send in
@@ -132,7 +134,7 @@ struct AppCoordinator {
                         await send(.checkAuthResult(.failure(error)))
                     }
                 }
-
+                
             case .checkAuthResult(.success(let token)):
                 if token != nil {
                     return .run { send in
@@ -148,12 +150,12 @@ struct AppCoordinator {
                     state.route = .auth(AuthReducer.State())
                 }
                 return .none
-
+                
             case .checkAuthResult(.failure):
                 state.isCheckingAuth = false
                 state.route = .auth(AuthReducer.State())
                 return .none
-
+                
             case let .checkOnboardingStatusResult(.success(status)):
                 state.isCheckingAuth = false
                 switch status {
@@ -170,20 +172,22 @@ struct AppCoordinator {
                             notificationClient: notificationClient
                         )
                     ]
-
+                    
                     if state.userProfile == nil {
                         effects.append(fetchUserProfile(client: authClient))
                     }
-
+                    
                     // pending 딥링크가 있으면 처리
                     if let pendingDeepLink = state.pendingNotificationDeepLink {
                         state.pendingNotificationDeepLink = nil
                         effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
                     }
-
+                    
                     return .merge(effects)
-
-                case .coupleConnection, .profileSetup, .anniversarySetup:
+                    
+                case .coupleConnection,
+                        .profileSetup,
+                        .anniversarySetup:
                     state.route = .onboarding(OnboardingCoordinator.State(
                         initialStatus: status,
                         pendingReceivedCode: state.pendingInviteCode
@@ -191,7 +195,7 @@ struct AppCoordinator {
                     state.pendingInviteCode = nil
                 }
                 return .none
-
+                
             case let .checkOnboardingStatusResult(.failure(error)):
                 state.isCheckingAuth = false
                 if let networkError = error as? NetworkError,
@@ -199,31 +203,31 @@ struct AppCoordinator {
                     state.route = .auth(AuthReducer.State())
                     return .none
                 }
-
+                
                 state.route = .onboarding(OnboardingCoordinator.State(
                     pendingReceivedCode: state.pendingInviteCode
                 ))
                 state.pendingInviteCode = nil
                 return .none
-
+                
             case let .deepLinkReceived(code):
                 state.pendingInviteCode = code
-
+                
                 if case .onboarding = state.route {
                     return .send(.route(.onboarding(.deepLinkReceived(code: code))))
                 }
                 return .none
-
+                
             case let .notificationDeepLinkReceived(deepLink):
                 // 메인탭 상태가 아니면 pending으로 저장
                 guard case .mainTab = state.route else {
                     state.pendingNotificationDeepLink = deepLink
                     return .none
                 }
-
+                
                 state.pendingNotificationDeepLink = nil
                 return .send(.route(.mainTab(.notificationDeepLinkReceived(deepLink))))
-
+                
             case .route(.auth(.delegate(.loginSucceeded))):
                 return .merge(
                     // 1. 온보딩 상태 체크
@@ -241,7 +245,7 @@ struct AppCoordinator {
                         notificationClient: notificationClient
                     )
                 )
-
+                
             case let .route(.onboarding(.delegate(.onboardingCompleted(isPushEnabled, isMarketingEnabled, isNightEnabled)))):
                 state.route = .mainTab(MainTabReducer.State())
                 // 온보딩 완료 시: initSettings + FCM 토큰 등록
@@ -250,7 +254,7 @@ struct AppCoordinator {
                     .run { [pushClient, notificationClient] _ in
                         // 1. 권한 결과 + 사용자 선택값으로 initSettings 호출
                         _ = try? await notificationClient.initSettings(isPushEnabled, isMarketingEnabled, isNightEnabled)
-
+                        
                         // 2. 권한 허용 시 FCM 토큰 등록
                         if isPushEnabled {
                             await pushClient.registerForRemoteNotifications()
@@ -267,31 +271,26 @@ struct AppCoordinator {
                     ),
                     fetchUserProfile(client: authClient)
                 ]
-
+                
                 if let pendingDeepLink = state.pendingNotificationDeepLink {
                     state.pendingNotificationDeepLink = nil
                     effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
                 }
-
+                
                 return .merge(effects)
-
+                
             case .route(.onboarding(.delegate(.logoutRequested))):
                 return .run { [authClient] send in
                     try? await authClient.signOut()
                     await send(.checkAuthResult(.failure(NSError(domain: "Logout", code: 0))))
                 }
-
+                
             case .route(.mainTab(.delegate(.logoutCompleted))),
-                 .route(.mainTab(.delegate(.withdrawCompleted))),
-                 .route(.mainTab(.delegate(.sessionExpired))):
+                    .route(.mainTab(.delegate(.withdrawCompleted))),
+                    .route(.mainTab(.delegate(.sessionExpired))):
                 state.route = .auth(AuthReducer.State())
                 state.userProfile = nil
-                analyticsClient.setUserProfile(
-                    (
-                        id: nil,
-                        name: nil
-                    )
-                )
+                analyticsClient.setUserProfile(nil)
                 return .none
 
             case .route:
@@ -312,7 +311,7 @@ struct AppCoordinator {
             case let .fetchMyProfileCompleted(profile):
                 state.userProfile = profile
                 analyticsClient.setUserProfile(
-                    (
+                    AnalyticsUserProfile(
                         id: Int64(profile.id),
                         name: profile.name
                     )

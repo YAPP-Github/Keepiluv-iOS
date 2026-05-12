@@ -2,7 +2,7 @@
 //  GoalDetailAnalyticsEvent.swift
 //  FeatureGoalDetail
 //
-//  Created by Codex on 5/9/26.
+//  Created by Jihun on 5/9/26.
 //
 
 import CoreAnalyticsInterface
