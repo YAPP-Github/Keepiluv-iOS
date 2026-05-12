@@ -121,9 +121,7 @@ struct AppCoordinator {
 
     var body: some ReducerOf<Self> {
         // swiftlint:disable:next closure_body_length
-        Reduce {
-            state,
-            action in
+        Reduce { state, action in
             switch action {
             case .onAppear:
                 return .run { send in
@@ -134,7 +132,7 @@ struct AppCoordinator {
                         await send(.checkAuthResult(.failure(error)))
                     }
                 }
-                
+
             case .checkAuthResult(.success(let token)):
                 if token != nil {
                     return .run { send in
@@ -150,7 +148,7 @@ struct AppCoordinator {
                     state.route = .auth(AuthReducer.State())
                 }
                 return .none
-                
+
             case .checkAuthResult(.failure):
                 state.isCheckingAuth = false
                 state.route = .auth(AuthReducer.State())

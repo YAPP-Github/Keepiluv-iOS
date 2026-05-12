@@ -9,22 +9,30 @@ import CoreAnalyticsInterface
 import Foundation
 
 enum ProofPhotoAnalyticsEvent: AnalyticsEvent {
-    case uploaded(goalId: Int64, targetDate: String)
+    case uploaded(Upload)
+    case opened
 
     var name: String {
         switch self {
         case .uploaded:
             "photo_uploaded"
+            
+        case .opened:
+            "proof_photo_opened"
         }
     }
 
     var parameters: [String: Any]? {
         switch self {
-        case let .uploaded(goalId, targetDate):
+        case let .uploaded(parameter):
             [
-                "goal_id": "\(goalId)",
-                "target_Date": targetDate
+                "goal_id": "\(parameter.goalId)",
+                "target_Date": parameter.targetDate,
+                "duration_ms": parameter.durationMS,
+                "file_size_kb": parameter.fileSizeKB
             ]
+            
+        case .opened: nil
         }
     }
 }

@@ -12,6 +12,7 @@ import CoreCaptureSessionInterface
 import DomainGoalInterface
 import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
+import Foundation
 import PhotosUI
 import SharedDesignSystem
 import SharedUtil
@@ -38,7 +39,7 @@ extension ProofPhotoReducer {
                 return .run { [isFlashOn = state.isFlashOn] send in
                     captureSessionClient.setFlashEnabled(isFlashOn)
                     let session = await captureSessionClient.setUpCaptureSession(.back)
-                    
+                    analyticsClient.logEvent(ProofPhotoAnalyticsEvent.opened)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
@@ -135,6 +136,7 @@ extension ProofPhotoReducer {
                     
                     return .run { send in
                         do {
+                            let uploadStartedAt = Date()
                             let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
                             try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
@@ -159,8 +161,12 @@ extension ProofPhotoReducer {
                             analyticsClient
                                 .logEvent(
                                     ProofPhotoAnalyticsEvent.uploaded(
-                                        goalId: goalId,
-                                        targetDate: photoLog.verificationDate
+                                        .init(
+                                            goalId: goalId,
+                                            targetDate: verificationDate,
+                                            durationMS: Date().timeIntervalSince(uploadStartedAt) * 1000,
+                                            fileSizeKB: Double(optimizedImageData.count) / 1024
+                                        )
                                     )
                                 )
                             await send(
