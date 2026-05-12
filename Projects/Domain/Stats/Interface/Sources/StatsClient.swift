@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreNetworkInterface
+import DomainCommonInterface
 
 /// 통계 데이터 조회 API를 추상화한 클라이언트입니다.
 ///

@@ -19,6 +19,7 @@ let project = Project.makeModule(
                     .feature(interface: .makeGoal),
                     .core(implements: .logging),
                     .core(interface: .push),
+                    .core(interface: .analytics),
                     .external(dependency: .ComposableArchitecture)
                 ] + Module.Feature.allCases.filter { $0 != .mainTab }.map {  .feature(implements: $0) }
             )

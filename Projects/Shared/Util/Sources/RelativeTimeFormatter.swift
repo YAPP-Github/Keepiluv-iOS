@@ -2,7 +2,7 @@
 //  RelativeTimeFormatter.swift
 //  SharedUtil
 //
-//  Created by Codex on 02/09/26.
+//  Created by Jihun on 02/09/26.
 //
 
 import Foundation

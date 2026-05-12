@@ -7,10 +7,12 @@
 
 import AVFoundation
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreCaptureSessionInterface
 import DomainGoalInterface
 import DomainPhotoLogInterface
 import FeatureProofPhotoInterface
+import Foundation
 import PhotosUI
 import SharedDesignSystem
 import SharedUtil
@@ -26,6 +28,7 @@ extension ProofPhotoReducer {
     public init() {
         @Dependency(\.captureSessionClient) var captureSessionClient
         @Dependency(\.photoLogClient) var photoLogClient
+        @Dependency(\.analyticsClient) var analyticsClient
         
         // swiftlint: disable closure_body_length
         let reducer = Reduce<ProofPhotoReducer.State, ProofPhotoReducer.Action> { state, action in
@@ -36,7 +39,7 @@ extension ProofPhotoReducer {
                 return .run { [isFlashOn = state.isFlashOn] send in
                     captureSessionClient.setFlashEnabled(isFlashOn)
                     let session = await captureSessionClient.setUpCaptureSession(.back)
-                    
+                    analyticsClient.logEvent(ProofPhotoAnalyticsEvent.opened)
                     await send(.setupCaptureSessionCompleted(session: session))
                 }
                 
@@ -133,6 +136,7 @@ extension ProofPhotoReducer {
                     
                     return .run { send in
                         do {
+                            let uploadStartedAt = Date()
                             let optimizedImageData = ImageUploadOptimizer.optimizedJPEGData(from: imageData)
                             let uploadResponse = try await photoLogClient.fetchUploadURL(goalId)
                             try await photoLogClient.uploadImageData(optimizedImageData, uploadResponse.uploadUrl)
@@ -154,6 +158,17 @@ extension ProofPhotoReducer {
                                 reaction: nil,
                                 createdAt: "방금"
                             )
+                            analyticsClient
+                                .logEvent(
+                                    ProofPhotoAnalyticsEvent.uploaded(
+                                        .init(
+                                            goalId: goalId,
+                                            targetDate: verificationDate,
+                                            durationMS: Date().timeIntervalSince(uploadStartedAt) * 1000,
+                                            fileSizeKB: Double(optimizedImageData.count) / 1024
+                                        )
+                                    )
+                                )
                             await send(
                                 .delegate(
                                     .completedUploadPhoto(

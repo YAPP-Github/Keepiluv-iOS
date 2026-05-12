@@ -24,7 +24,7 @@ public struct AuthView: View {
             backgroundIllustration
             foregroundContent
         }
-            .background(Color.Common.white)
+        .background(Color.Common.white)
         .txLoading(isPresented: store.isLoading)
         .alert(
             "로그인 실패",

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import CoreLogging
 import DomainAuthInterface
 import Foundation
@@ -24,6 +25,8 @@ import Foundation
 /// ```
 @Reducer
 public struct AuthReducer {
+    @Dependency(\.analyticsClient) var analyticsClient
+    
     @ObservableState
     public struct State: Equatable {
         public var isLoading = false
@@ -34,6 +37,7 @@ public struct AuthReducer {
     }
 
     public enum Action {
+        case onAppear
         case appleLoginButtonTapped
         case kakaoLoginButtonTapped
         case googleLoginButtonTapped
@@ -52,6 +56,10 @@ public struct AuthReducer {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                analyticsClient.logEvent(AuthAnalyticsEvent.loginViewed)
+                return .none
+                
             case .appleLoginButtonTapped:
                 return Self.handleLogin(provider: .apple, state: &state)
 

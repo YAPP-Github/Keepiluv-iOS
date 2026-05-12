@@ -18,7 +18,7 @@ import SharedDesignSystem
 /// let category = GoalCategory.health
 /// print(category.title)
 /// ```
-public enum GoalCategory: CaseIterable, Equatable {
+public enum GoalCategory: String, CaseIterable, Equatable {
     case custom
     case health
     case vitamin

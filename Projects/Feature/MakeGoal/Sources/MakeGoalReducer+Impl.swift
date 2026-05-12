@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import DomainGoalInterface
 import FeatureMakeGoalInterface
 import SharedDesignSystem
@@ -16,12 +17,14 @@ extension MakeGoalReducer {
     // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.goalClient) var goalClient
+        @Dependency(\.analyticsClient) var analyticsClient
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                if case .edit = state.mode, let goalId = state.editingGoalId {
+                if case .edit = state.mode,
+                   let goalId = state.editingGoalId {
                     state.isLoading = true
                     return .run { send in
                         do {
@@ -36,7 +39,7 @@ extension MakeGoalReducer {
 
             case .onDisappear:
                 return .none
-
+                
             case let .fetchGoalCompleted(goal):
                 state.isLoading = false
                 state.goalTitle = goal.title
@@ -67,7 +70,7 @@ extension MakeGoalReducer {
                     state.isEndDateOn = true
                 }
                 return .send(.updateDateText)
-
+                
             case .fetchGoalFailed:
                 state.isLoading = false
                 return .send(.showToast(.warning(message: "목표 정보를 불러오지 못했어요")))
@@ -203,11 +206,11 @@ extension MakeGoalReducer {
 
                 state.isLoading = true
                 let endDateString: String? = state.isEndDateOn
-                    ? TXCalendarUtil.apiDateString(for: state.endDate)
-                    : nil
-
+                ? TXCalendarUtil.apiDateString(for: state.endDate)
+                : nil
                 switch state.mode {
                 case .add:
+                    let category = state.category.rawValue
                     state.submitMessage = "등록 중..."
                     let request = GoalCreateRequestDTO(
                         name: state.goalTitle,
@@ -219,7 +222,11 @@ extension MakeGoalReducer {
                     )
                     return .run { send in
                         do {
-                            _ = try await goalClient.createGoal(request)
+                            let goal = try await goalClient.createGoal(request)
+                            analyticsClient
+                                .logEvent(
+                                    MakeGoalAnalyticsEvent.created(goalId: goal.id, kind: category)
+                                )
                             await send(.delegate(.navigateBack))
                         } catch {
                             await send(.createGoalFailed)
