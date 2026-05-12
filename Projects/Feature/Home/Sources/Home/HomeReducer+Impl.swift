@@ -271,7 +271,7 @@ extension HomeReducer {
                 
             case let .addGoalButtonTapped(category):
                 state.isAddGoalPresented = false
-                analyticsClient.logEvent(HomeAnalyticsEvent.recommendGoalClicked(kind: category.rawValue))
+                analyticsClient.logEvent(HomeAnalyticsEvent.selectGoalClicked(kind: category.rawValue))
                 return .send(.delegate(.goToMakeGoal(category)))
                 
             case .editButtonTapped:
