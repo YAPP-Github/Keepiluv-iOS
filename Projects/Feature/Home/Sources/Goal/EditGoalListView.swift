@@ -46,6 +46,9 @@ struct EditGoalListView: View {
             guard store.selectedCardMenu != nil else { return }
             store.send(.backgroundTapped)
         }
+        .transaction { transaction in
+            transaction.animation = nil
+        }
         .txModal(
             item: $store.modal,
             onAction: { action in

@@ -24,17 +24,26 @@ struct TXLoadingModifier: ViewModifier {
         ZStack {
             content
                 .disabled(isPresented)
+            
+            dimColor
+                .ignoresSafeArea()
+                .opacity(isPresented ? 1 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isPresented)
+            
             if isPresented {
-                dimColor
-                    .ignoresSafeArea()
-                if let message {
-                    TXLoadingStatusView(message: message)
-                } else {
-                    TXLoadingIndicator()
-                }
+                loadingContent
             }
         }
         .animation(.easeInOut(duration: 0.2), value: isPresented)
+    }
+    
+    @ViewBuilder
+    private var loadingContent: some View {
+        if let message {
+            TXLoadingStatusView(message: message)
+        } else {
+            TXLoadingIndicator()
+        }
     }
 }
 
