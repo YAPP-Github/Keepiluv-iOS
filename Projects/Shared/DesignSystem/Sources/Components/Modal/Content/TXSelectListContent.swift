@@ -2,7 +2,7 @@
 //  TXSelectListContent.swift
 //  SharedDesignSystem
 //
-//  Created by Codex on 4/7/26.
+//  Created by Jihun on 4/7/26.
 //
 
 import SwiftUI

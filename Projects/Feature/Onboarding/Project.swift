@@ -14,6 +14,7 @@ let project = Project.makeModule(
                 resources: ["Resources/**"],
                 dependencies: [
                     .feature(interface: .onboarding),
+                    .core(interface: .analytics),
                     .domain(interface: .onboarding),
                     .core(interface: .push),
                     .shared(implements: .designSystem),

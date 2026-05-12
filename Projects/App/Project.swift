@@ -76,7 +76,9 @@ let project = Project(
                 infoPlist: .extendingDefault(with: commonInfoPlist),
                 entitlements: .file(path: "Support/Twix.entitlements"),
                 scripts: [.swiftLint],
-                dependencies: commonDependencies,
+                dependencies: commonDependencies + [
+                    .core(implements: .analytics)
+                ],
                 settings: .settings(
                     base: commonBuildSettings.merging([
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)"

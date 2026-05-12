@@ -17,6 +17,7 @@ let project = Project.makeModule(
                     .feature(interface: .makeGoal),
                     .feature(interface: .settings),
                     .feature(interface: .stats),
+                    .core(interface: .analytics),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -38,6 +39,7 @@ let project = Project.makeModule(
                     .feature(interface: .settings),
                     .feature(interface: .stats),
                     .feature(interface: .home),
+                    .core(interface: .analytics),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)

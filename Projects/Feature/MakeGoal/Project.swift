@@ -23,6 +23,7 @@ let project = Project.makeModule(
                 dependencies: [
                     .feature(interface: .makeGoal),
                     .feature(interface: .common),
+                    .core(interface: .analytics),
                     .domain(interface: .goal),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
