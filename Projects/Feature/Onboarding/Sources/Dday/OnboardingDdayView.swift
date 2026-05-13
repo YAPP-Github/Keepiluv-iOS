@@ -59,6 +59,9 @@ public struct OnboardingDdayView: View {
                 }
             )
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .txLoading(isPresented: store.isLoading)
         .txModal(item: $store.modal) { _ in
             store.send(.modalConfirmTapped)
