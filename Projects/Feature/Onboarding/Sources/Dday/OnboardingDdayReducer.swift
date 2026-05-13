@@ -25,6 +25,12 @@ import SharedDesignSystem
 public struct OnboardingDdayReducer {
     @Dependency(\.onboardingClient)
     private var onboardingClient
+    @Dependency(\.continuousClock)
+    private var clock
+
+    public enum CancelID: Hashable {
+        case polling
+    }
 
     @ObservableState
     public struct State: Equatable {
@@ -43,6 +49,9 @@ public struct OnboardingDdayReducer {
         // MARK: - Binding
         case binding(BindingAction<State>)
 
+        // MARK: - LifeCycle
+        case onAppear
+
         // MARK: - User Action
         case backButtonTapped
         case dateSelectorTapped
@@ -53,6 +62,10 @@ public struct OnboardingDdayReducer {
 
         // MARK: - API Response
         case setAnniversaryResponse(Result<Void, Error>)
+
+        // MARK: - Partner Polling
+        case pollingTick
+        case pollingResult(Result<OnboardingStatus, Error>)
 
         // MARK: - Modal
         case modalConfirmTapped
@@ -75,6 +88,14 @@ public struct OnboardingDdayReducer {
             case .binding:
                 return .none
 
+            case .onAppear:
+                return .run { [clock] send in
+                    for await _ in clock.timer(interval: .seconds(3)) {
+                        await send(.pollingTick)
+                    }
+                }
+                .cancellable(id: CancelID.polling, cancelInFlight: true)
+
             case .backButtonTapped:
                 return .send(.delegate(.navigateBack))
 
@@ -89,14 +110,17 @@ public struct OnboardingDdayReducer {
             case .completeButtonTapped:
                 guard let date = state.selectedDate.date, !state.isLoading else { return .none }
                 state.isLoading = true
-                return .run { send in
-                    do {
-                        try await onboardingClient.setAnniversary(date)
-                        await send(.setAnniversaryResponse(.success(())))
-                    } catch {
-                        await send(.setAnniversaryResponse(.failure(error)))
+                return .merge(
+                    .cancel(id: CancelID.polling),
+                    .run { send in
+                        do {
+                            try await onboardingClient.setAnniversary(date)
+                            await send(.setAnniversaryResponse(.success(())))
+                        } catch {
+                            await send(.setAnniversaryResponse(.failure(error)))
+                        }
                     }
-                }
+                )
 
             case .setAnniversaryResponse(.success):
                 state.isLoading = false
@@ -113,9 +137,33 @@ public struct OnboardingDdayReducer {
                         leftButtonText: "확인",
                         rightButtonText: "시작하기"
                     )
-                    return .none
+                    return .cancel(id: CancelID.polling)
                 }
                 state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
+                return .none
+
+            case .pollingTick:
+                return .run { [onboardingClient] send in
+                    do {
+                        let status = try await onboardingClient.fetchStatus()
+                        await send(.pollingResult(.success(status)))
+                    } catch {
+                        await send(.pollingResult(.failure(error)))
+                    }
+                }
+
+            case let .pollingResult(.success(status)):
+                guard status == .completed else { return .none }
+                state.modal = .info(
+                    image: .Icon.Illustration.heart,
+                    title: "메이트가 기념일을 등록했어요!",
+                    subtitle: "이미 우리의 기념일이 저장됐어요.\n이제 함께 시작해봐요 :)",
+                    leftButtonText: "확인",
+                    rightButtonText: "시작하기"
+                )
+                return .cancel(id: CancelID.polling)
+
+            case .pollingResult(.failure):
                 return .none
 
             case .modalConfirmTapped:

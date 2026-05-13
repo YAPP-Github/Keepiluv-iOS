@@ -391,7 +391,7 @@ public struct OnboardingCoordinator {
             case .dday(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 state.dday = nil
-                return .none
+                return .cancel(id: OnboardingDdayReducer.CancelID.polling)
 
             case .dday(.delegate(.ddayCompleted)):
                 return .send(.startNotificationPermission)
