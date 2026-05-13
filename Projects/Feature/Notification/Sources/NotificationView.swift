@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import FeatureNotificationInterface
 import SharedDesignSystem
+import SharedUtil
 import SwiftUI
 
 /// 알림 화면입니다.
@@ -134,13 +135,21 @@ private extension NotificationView {
         Button {
             store.send(.notificationTapped(item))
         } label: {
-            HStack(spacing: 0) {
-                Text(item.message)
-                    .typography(.b1_14b)
-                    .foregroundStyle(Color.Gray.gray500)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                    .frame(width: 276, alignment: .leading)
+            HStack(spacing: Spacing.spacing9) {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(item.message)
+                        .typography(.b1_14b)
+                        .foregroundStyle(Color.Gray.gray500)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+
+                    Text(RelativeTimeFormatter().displayText(from: item.createdAt))
+                        .typography(.b1_14b)
+                        .foregroundStyle(Color.Gray.gray200)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.leading, Spacing.spacing3)
+                }
+                .frame(width: 280, alignment: .leading)
 
                 Spacer(minLength: 0)
 

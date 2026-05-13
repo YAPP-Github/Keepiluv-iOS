@@ -23,22 +23,25 @@ import Foundation
 /// ```
 public struct RelativeTimeFormatter {
     public init() { }
-    
+
     public func displayText(from raw: String?) -> String {
         guard let raw, !raw.isEmpty else { return "" }
-        
+
         let isoWithFractional = ISO8601DateFormatter()
         isoWithFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        
+
         let iso = ISO8601DateFormatter()
         iso.formatOptions = [.withInternetDateTime]
-        
+
         let date =
             isoWithFractional.date(from: raw) ??
             iso.date(from: raw)
-        
+
         guard let date else { return raw }
-        
+        return displayText(from: date)
+    }
+
+    public func displayText(from date: Date) -> String {
         let now = Date()
         let seconds = max(0, now.timeIntervalSince(date))
         let minutes = Int(seconds / 60)
