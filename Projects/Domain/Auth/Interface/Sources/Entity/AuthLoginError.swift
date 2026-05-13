@@ -46,23 +46,6 @@ extension AuthLoginError: LocalizedError {
     }
 }
 
-// MARK: - Case Name
-
-extension AuthLoginError {
-    public var caseName: String {
-        switch self {
-        case .unsupportedProvider: return "unsupportedProvider"
-        case .missingCredential:   return "missingCredential"
-        case .userCanceled:        return "userCanceled"
-        case .providerError:       return "providerError"
-        case .serverError:         return "serverError"
-        case .networkError:        return "networkError"
-        case .storageFailed:       return "storageFailed"
-        case .tokenRefreshFailed:  return "tokenRefreshFailed"
-        }
-    }
-}
-
 // MARK: - CustomNSError
 
 extension AuthLoginError: CustomNSError {
