@@ -32,6 +32,7 @@ public struct OnboardingDdayReducer {
         var showCalendarSheet: Bool = false
         var isLoading: Bool = false
         var toast: TXToastType?
+        var modal: TXModalStyle?
 
         public init() {
             self.selectedDate = TXCalendarDate()
@@ -52,6 +53,9 @@ public struct OnboardingDdayReducer {
 
         // MARK: - API Response
         case setAnniversaryResponse(Result<Void, Error>)
+
+        // MARK: - Modal
+        case modalConfirmTapped
 
         // MARK: - Delegate
         case delegate(Delegate)
@@ -100,13 +104,23 @@ public struct OnboardingDdayReducer {
 
             case let .setAnniversaryResponse(.failure(error)):
                 state.isLoading = false
-                // 이미 온보딩이 완료된 경우 (G4000), 성공과 동일하게 처리
                 if let onboardingError = error as? OnboardingError,
                    onboardingError == .alreadyOnboarded {
-                    return .send(.delegate(.ddayCompleted))
+                    state.modal = .info(
+                        image: .Icon.Illustration.heart,
+                        title: "메이트가 기념일을 등록했어요!",
+                        subtitle: "이미 우리의 기념일이 저장됐어요.\n이제 함께 시작해봐요 :)",
+                        leftButtonText: "확인",
+                        rightButtonText: "시작하기"
+                    )
+                    return .none
                 }
                 state.toast = .fit(message: "기념일 등록에 실패했어요. 다시 시도해주세요")
                 return .none
+
+            case .modalConfirmTapped:
+                state.modal = nil
+                return .send(.delegate(.ddayCompleted))
 
             case .delegate:
                 return .none
