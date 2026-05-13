@@ -9,19 +9,16 @@ import FirebaseCrashlytics
 
 extension CrashlyticsClient: DependencyKey {
     public static let liveValue = Self(
-        record: { error, keys in
+        record: { error, event in
             let instance = Crashlytics.crashlytics()
-            keys.forEach { instance.setCustomValue($0.value, forKey: $0.key) }
+            event.customKeys.forEach { instance.setCustomValue($0.value, forKey: $0.key) }
             instance.record(error: error)
         },
-        log: { message in
-            Crashlytics.crashlytics().log(message)
+        log: { event in
+            Crashlytics.crashlytics().log(event.message)
         },
         setUserIdentifier: { userId in
             Crashlytics.crashlytics().setUserID(userId)
-        },
-        setCustomValue: { value, key in
-            Crashlytics.crashlytics().setCustomValue(value, forKey: key)
         }
     )
 }

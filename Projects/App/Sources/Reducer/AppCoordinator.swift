@@ -157,7 +157,7 @@ struct AppCoordinator {
             case .checkAuthResult(.failure(let error)):
                 state.isCheckingAuth = false
                 state.route = .auth(AuthReducer.State())
-                crashlytics.record(error, [CrashlyticsKey.screen: "app_startup"])
+                crashlytics.record(error, AppCrashlyticsRecordEvent.appStartupFailed)
                 return .none
                 
             case let .checkOnboardingStatusResult(.success(status)):
@@ -204,11 +204,11 @@ struct AppCoordinator {
                 state.isCheckingAuth = false
                 if let networkError = error as? NetworkError,
                    case .authorizationError = networkError {
-                    crashlytics.log("session expired at onboarding status check")
+                    crashlytics.log(AppCrashlyticsLogEvent.sessionExpiredAtOnboardingStatusCheck)
                     state.route = .auth(AuthReducer.State())
                     return .none
                 }
-                crashlytics.record(error, [CrashlyticsKey.screen: "startup_onboarding_check"])
+                crashlytics.record(error, AppCrashlyticsRecordEvent.onboardingStatusCheckFailed)
                 state.route = .onboarding(OnboardingCoordinator.State(
                     pendingReceivedCode: state.pendingInviteCode
                 ))

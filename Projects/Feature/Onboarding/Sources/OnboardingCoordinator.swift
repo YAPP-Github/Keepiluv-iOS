@@ -274,7 +274,7 @@ public struct OnboardingCoordinator {
 
             case let .fetchInviteCodeResponse(.failure(error)):
                 state.isLoadingInviteCode = false
-                crashlytics.record(error, [CrashlyticsKey.screen: "onboarding_connect"])
+                crashlytics.record(error, OnboardingCrashlyticsRecordEvent.inviteCodeFetchFailed)
                 return .send(.showToast(.warning(message: "초대 코드를 불러오지 못했어요. 잠시 후 다시 시도해주세요.")))
 
             case let .showToast(toast):

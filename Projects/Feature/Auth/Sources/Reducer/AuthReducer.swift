@@ -144,9 +144,10 @@ private extension AuthReducer {
         #if DEBUG
         logger.error("로그인 실패 - \(error.localizedDescription)")
         #else
-        crashlytics.record(error, [
-            CrashlyticsKey.authErrorType: (error as? AuthLoginError)?.caseName ?? String(describing: error)
-        ])
+        crashlytics.record(
+            error,
+            AuthCrashlyticsRecordEvent.loginFailed(error as? AuthLoginError)
+        )
         #endif
         return .none
     }
