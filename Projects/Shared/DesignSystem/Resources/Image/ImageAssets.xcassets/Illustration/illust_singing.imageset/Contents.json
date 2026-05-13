@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "illust_singing.png",
+      "filename" : "illust_singing.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "illust_singing@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "illust_singing@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
