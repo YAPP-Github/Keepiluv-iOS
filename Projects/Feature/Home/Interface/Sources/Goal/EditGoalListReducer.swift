@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import FeatureCommonInterface
+import FeatureMakeGoalInterface
 import SharedDesignSystem
 import SharedUtil
 import SwiftUI
@@ -95,7 +96,7 @@ public struct EditGoalListReducer {
         
         public enum Delegate {
             case navigateBack
-            case goToGoalEdit(goalId: Int64)
+            case goToGoalEdit(MakeGoalReducer.State.MakeGoal)
             case goToCompletedStats
         }
     }

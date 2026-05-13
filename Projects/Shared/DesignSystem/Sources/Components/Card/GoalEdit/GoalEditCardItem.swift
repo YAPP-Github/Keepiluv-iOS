@@ -10,6 +10,7 @@ import SwiftUI
 public struct GoalEditCardItem: Identifiable, Equatable {
     public let id: Int64
     public let goalName: String
+    public let goalIcon: GoalIcon?
     public let iconImage: Image
     public let repeatCycle: String
     public let startDate: String
@@ -18,6 +19,7 @@ public struct GoalEditCardItem: Identifiable, Equatable {
     public init(
         id: Int64,
         goalName: String,
+        goalIcon: GoalIcon? = nil,
         iconImage: Image,
         repeatCycle: String,
         startDate: String,
@@ -25,6 +27,7 @@ public struct GoalEditCardItem: Identifiable, Equatable {
     ) {
         self.id = id
         self.goalName = goalName
+        self.goalIcon = goalIcon
         self.iconImage = iconImage
         self.repeatCycle = repeatCycle
         self.startDate = startDate

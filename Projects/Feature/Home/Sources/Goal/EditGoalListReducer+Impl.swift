@@ -9,9 +9,11 @@ import Foundation
 import SwiftUI
 
 import ComposableArchitecture
+import DomainCommonInterface
 import DomainGoalInterface
 import FeatureCommonInterface
 import FeatureHomeInterface
+import FeatureMakeGoalInterface
 import SharedDesignSystem
 import SharedUtil
 
@@ -87,7 +89,16 @@ extension EditGoalListReducer {
                     if isPast {
                         state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {
-                        return .send(.delegate(.goToGoalEdit(goalId: card.id)))
+                        let goalData = MakeGoalReducer.State.MakeGoal(
+                            goalId: card.id,
+                            category: .custom,
+                            icon: card.goalIcon,
+                            title: card.goalName,
+                            repeatCycle: RepeatCycle(displayText: card.repeatCycle),
+                            startDate: card.startDate.displayTextToAPIDateString,
+                            endDate: card.endDate.displayTextToAPIDateString
+                        )
+                        return .send(.delegate(.goToGoalEdit(goalData)))
                     }
                     
                 case .finish:
@@ -175,6 +186,7 @@ extension EditGoalListReducer {
                             GoalEditCardItem(
                                 id: $0.id,
                                 goalName: $0.title,
+                                goalIcon: GoalIcon(from: $0.goalIcon),
                                 iconImage: GoalIcon(from: $0.goalIcon).thinImage,
                                 repeatCycle: $0.repeatCycle?.text ?? "",
                                 startDate: $0.startDate?.dateDisplayString ?? "",
@@ -230,5 +242,17 @@ extension EditGoalListReducer {
         }
         
         self.init(reducer: reducer)
+    }
+}
+
+/// 재사용될 시 RepeatCycle 내부로 이동
+private extension RepeatCycle {
+    init?(displayText: String) {
+        switch displayText {
+        case RepeatCycle.daily.text: self = .daily
+        case RepeatCycle.weekly.text: self = .weekly
+        case RepeatCycle.monthly.text: self = .monthly
+        default: return nil
+        }
     }
 }

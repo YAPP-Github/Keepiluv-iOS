@@ -19,7 +19,7 @@ import SharedUtil
 /// ## 사용 예시
 /// ```swift
 /// let store = Store(
-///     initialState: MakeGoalReducer.State(category: .book)
+///     initialState: MakeGoalReducer.State(mode: .add(.book))
 /// ) {
 ///     MakeGoalReducer()
 /// }
@@ -34,7 +34,7 @@ public struct MakeGoalReducer {
     ///
     /// ## 사용 예시
     /// ```swift
-    /// let state = MakeGoalReducer.State(category: .book)
+    /// let state = MakeGoalReducer.State(mode: .add(.book))
     /// ```
     public struct State: Equatable {
         public let minimumPeriodCount = 1
@@ -46,30 +46,22 @@ public struct MakeGoalReducer {
         public let monthlyPeriodText: String = RepeatCycle.monthly.text
         
         public var mode: Mode
-        public var editingGoalId: Int64?
-        public var category: GoalCategory
-        public var goalTitle: String
-        public var selectedPeriod: RepeatCycle
-        public var weeklyPeriodCount: Int = 1
-        public var monthlyPeriodCount: Int = 1
-        public var startDate: TXCalendarDate
-        public var endDate: TXCalendarDate
+        public var goalData: MakeGoal
         public var calendarSheetDate: TXCalendarDate
         public var isCalendarSheetPresented: Bool = false
         public var calendarTarget: CalendarTarget?
-        public var isEndDateOn: Bool = false
         public var isPeriodSheetPresented: Bool = false
         public var selectedEmojiIndex: Int
         public var isGoalTitleFocused: Bool = false
         public var startDateText: String
         public var endDateText: String
         
-        public var showPeriodCount: Bool { selectedPeriod != .daily }
-        public var periodCountText: String { "\(selectedPeriod.text) \(periodCount)번" }
+        public var showPeriodCount: Bool { goalData.repeatCycle != .daily }
+        public var periodCountText: String { "\(goalData.repeatCycle.text) \(periodCount)번" }
         public var selectedEmoji: GoalIcon { icons[selectedEmojiIndex] }
         public var completeButtonDisabled: Bool { !isValidTitleLength || isLoading }
         public var isInvalidTitle: Bool { isValidTitleLength }
-        public var isValidTitleLength: Bool { 2 <= goalTitle.count && goalTitle.count <= 14 }
+        public var isValidTitleLength: Bool { 2 <= goalData.title.count && goalData.title.count <= 14 }
         
         public var modal: TXModalStyle?
         public var toast: TXToastType?
@@ -78,8 +70,8 @@ public struct MakeGoalReducer {
 
         /// 화면 모드를 구분합니다.
         public enum Mode: Equatable {
-            case add
-            case edit
+            case add(GoalCategory)
+            case edit(MakeGoal)
         }
 
         public enum CalendarTarget: Equatable {
@@ -91,36 +83,31 @@ public struct MakeGoalReducer {
         ///
         /// ## 사용 예시
         /// ```swift
-        /// let state = MakeGoalReducer.State(category: .book, mode: .add)
+        /// let state = MakeGoalReducer.State(mode: .add(.book))
         /// ```
         public init(
-            category: GoalCategory,
-            mode: Mode,
-            editingGoalId: Int64? = nil
+            mode: Mode
         ) {
-            let now = CalendarNow()
-            let today = TXCalendarDate(
-                year: now.year,
-                month: now.month,
-                day: now.day
-            )
-
+            let goalData: MakeGoal
+            switch mode {
+            case let .add(category):
+                goalData = .init(
+                    category: category,
+                    title: category != .custom ? category.title : "",
+                    startDate: nil,
+                    endDate: nil
+                )
+                
+            case let .edit(makeGoal):
+                goalData = makeGoal
+            }
+            
             self.mode = mode
-            self.editingGoalId = editingGoalId
-            self.category = category
-            self.goalTitle = category != .custom ? category.title : ""
-            self.selectedPeriod = category.repeatCycle
-            self.selectedEmojiIndex = category.iconIndex
-
-            self.startDate = today
-            self.endDate = today
-            self.calendarSheetDate = today
-            self.startDateText = "\(today.month)월 \(today.day ?? 1)일"
-            self.endDateText = "\(today.month)월 \(today.day ?? 1)일"
-
-            let repeatCycle = category.repeatCycle
-            self.weeklyPeriodCount = repeatCycle == .weekly ? category.repeatCount : minimumPeriodCount
-            self.monthlyPeriodCount = repeatCycle == .monthly ? category.repeatCount : minimumPeriodCount
+            self.goalData = goalData
+            self.selectedEmojiIndex = GoalIcon.allCases.firstIndex(of: goalData.icon) ?? goalData.category.iconIndex
+            self.calendarSheetDate = goalData.startDate
+            self.startDateText = "\(goalData.startDate.month)월 \(goalData.startDate.day ?? 1)일"
+            self.endDateText = "\(goalData.endDate.month)월 \(goalData.endDate.day ?? 1)일"
         }
     }
     
@@ -138,8 +125,6 @@ public struct MakeGoalReducer {
         case onDisappear
 
         // MARK: - Update State
-        case fetchGoalCompleted(Goal)
-        case fetchGoalFailed
         case createGoalFailed
         case updateGoalFailed
 
@@ -191,46 +176,32 @@ public struct MakeGoalReducer {
 // MARK: - Functions
 public extension MakeGoalReducer.State {
     var periodCount: Int {
-        switch selectedPeriod {
+        switch goalData.repeatCycle {
         case .daily: return 1
-        case .weekly: return weeklyPeriodCount
-        case .monthly: return monthlyPeriodCount
+        case .weekly: return goalData.weeklyPeriodCount
+        case .monthly: return goalData.monthlyPeriodCount
         }
     }
 
     var isMinusEnable: Bool { periodCount > minimumPeriodCount }
 
     var isPlusEnable: Bool {
-        if case .monthly = selectedPeriod {
+        if case .monthly = goalData.repeatCycle {
             return periodCount < monthlyMaximumPeriodCount
-        } else if case .weekly = selectedPeriod {
+        } else if case .weekly = goalData.repeatCycle {
             return periodCount < weeklyMaximumPeriodCount
         } else {
             return false
         }
     }
     
-    var selectedPeriodName: String {
-        get {
-            selectedPeriod.text
-        } set {
-            if newValue == dailyPeriodText {
-                selectedPeriod = .daily
-            } else if newValue == weeklyPeriodText {
-                selectedPeriod = .weekly
-            } else if newValue == monthlyPeriodText {
-                selectedPeriod = .monthly
-            }
-        }
-    }
-
     var calendarMinimumDate: TXCalendarDate? {
         switch calendarTarget {
         case .startDate:
             let now = CalendarNow()
             return TXCalendarDate(year: now.year, month: now.month, day: now.day)
         case .endDate:
-            return startDate
+            return goalData.startDate
             
         case .none:
             return nil

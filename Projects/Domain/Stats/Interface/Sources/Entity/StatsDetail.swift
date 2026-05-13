@@ -14,6 +14,7 @@ import DomainCommonInterface
 public struct StatsDetail: Equatable {
     public let goalId: Int64
     public let goalName: String
+    public let goalIcon: String
     public var isCompleted: Bool
     public let yearMonth: String
     public let completedDate: [CompletedDate]

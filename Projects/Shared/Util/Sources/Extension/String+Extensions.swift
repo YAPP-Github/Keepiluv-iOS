@@ -15,4 +15,12 @@ extension String {
         // components[0]: 년, [1]: 월, [2]: 일
         return Self(format: "%d년 %d월 %d일", components[0], components[1], components[2])
     }
+    
+    public var displayTextToAPIDateString: Self? {
+        let numbers = components(separatedBy: CharacterSet.decimalDigits.inverted)
+            .compactMap { Int($0) }
+        
+        guard numbers.count == 3 else { return nil }
+        return String(format: "%04d-%02d-%02d", numbers[0], numbers[1], numbers[2])
+    }
 }
