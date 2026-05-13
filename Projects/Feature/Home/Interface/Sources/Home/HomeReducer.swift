@@ -51,7 +51,7 @@ public struct HomeReducer {
         public var pendingDeletePhotologID: Int64?
         public var hasCards: Bool { !items.isEmpty }
         public var isEmptyVisible: Bool { !isLoading && items.isEmpty }
-        public let nowDate = CalendarNow()
+        public var nowDate: CalendarNow { CalendarNow() }
         public var toast: TXToastType?
         public var modal: TXModalStyle?
         public var isProofPhotoPresented: Bool = false
