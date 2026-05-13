@@ -47,13 +47,9 @@ extension StatsCoordinator {
                 )
                 return .none
 
-            case let .statsDetail(.delegate(.goToGoalEdit(goalId))):
+            case let .statsDetail(.delegate(.goToGoalEdit(goalData))):
                 state.routes.append(.makeGoal)
-                state.makeGoal = .init(
-                    category: .custom,
-                    mode: .edit,
-                    editingGoalId: goalId
-                )
+                state.makeGoal = .init(mode: .edit(goalData))
                 return .none
                 
             case .statsDetail(.delegate(.navigateBack)):

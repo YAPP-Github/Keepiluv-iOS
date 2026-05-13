@@ -40,7 +40,7 @@ extension HomeCoordinator {
                 
             case let .home(.delegate(.goToMakeGoal(category))):
                 state.routes.append(.makeGoal)
-                state.makeGoal = .init(category: category, mode: .add)
+                state.makeGoal = .init(mode: .add(category))
                 return .none
                 
             case let .home(.delegate(.goToEditGoalList(date))):
@@ -67,13 +67,9 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
                 
-            case let .statsDetail(.delegate(.goToGoalEdit(goalId))):
+            case let .statsDetail(.delegate(.goToGoalEdit(goalData))):
                 state.routes.append(.makeGoal)
-                state.makeGoal = .init(
-                    category: .custom,
-                    mode: .edit,
-                    editingGoalId: goalId
-                )
+                state.makeGoal = .init(mode: .edit(goalData))
                 return .none
                 
             case .statsDetail(.onDisappear):
@@ -111,9 +107,9 @@ extension HomeCoordinator {
                 popLastRoute(&state.routes)
                 return .none
 
-            case let .editGoalList(.delegate(.goToGoalEdit(goalId))):
+            case let .editGoalList(.delegate(.goToGoalEdit(goalData))):
                 state.routes.append(.makeGoal)
-                state.makeGoal = .init(category: .custom, mode: .edit, editingGoalId: goalId)
+                state.makeGoal = .init(mode: .edit(goalData))
                 return .none
 
             case .editGoalList(.delegate(.goToCompletedStats)):

@@ -10,6 +10,7 @@ import Foundation
 import ComposableArchitecture
 import DomainStatsInterface
 import FeatureCommonInterface
+import FeatureMakeGoalInterface
 import FeatureStatsInterface
 import SharedDesignSystem
 
@@ -102,8 +103,7 @@ extension StatsDetailReducer {
                 let goalItem = GoalEditCardItem(
                     id: detail.goalId,
                     goalName: detail.goalName,
-                    // FIXME: - image 연결
-                    iconImage: .Icon.Illustration.default,
+                    iconImage: GoalIcon(from: detail.goalIcon).thinImage,
                     repeatCycle: summary.repeatCycle.text,
                     startDate: summary.startDate,
                     endDate: summary.endDate ?? ""
@@ -113,7 +113,16 @@ extension StatsDetailReducer {
                 
                 switch item {
                 case .edit:
-                    return .send(.delegate(.goToGoalEdit(goalId: state.goalId)))
+                    let goalData = MakeGoalReducer.State.MakeGoal(
+                        goalId: state.goalId,
+                        category: .custom,
+                        icon: GoalIcon(from: detail.goalIcon),
+                        title: detail.goalName,
+                        repeatCycle: summary.repeatCycle,
+                        startDate: summary.startDate,
+                        endDate: summary.endDate
+                    )
+                    return .send(.delegate(.goToGoalEdit(goalData)))
                     
                 case .finish:
                     state.modal = .info(

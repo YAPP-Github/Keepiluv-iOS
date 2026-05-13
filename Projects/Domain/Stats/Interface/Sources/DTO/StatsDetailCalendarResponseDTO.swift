@@ -27,6 +27,7 @@ extension StatsDetailCalendarResponseDTO {
         StatsDetail(
             goalId: goalId,
             goalName: goalName,
+            goalIcon: goalIcon,
             isCompleted: isCompleted,
             yearMonth: yearMonth,
             completedDate: completedDates.map {
