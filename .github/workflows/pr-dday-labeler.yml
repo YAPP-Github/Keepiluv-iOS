@@ -1,0 +1,84 @@
+name: PR D-Day Labeler
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+  schedule:
+    # Runs every day at 00:15 KST.
+    - cron: "15 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  update-dday-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR D-Day labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ddayLabels = ["D-3", "D-2", "D-1"];
+            const dayMs = 24 * 60 * 60 * 1000;
+
+            function targetLabelFor(pr) {
+              const createdAt = new Date(pr.created_at).getTime();
+              const elapsedDays = Math.floor((Date.now() - createdAt) / dayMs);
+              const day = Math.max(1, 3 - elapsedDays);
+              return `D-${day}`;
+            }
+
+            async function updatePullRequest(pr) {
+              if (pr.draft) {
+                console.log(`Skip draft PR #${pr.number}`);
+                return;
+              }
+
+              const targetLabel = targetLabelFor(pr);
+              const currentLabels = pr.labels.map((label) => label.name);
+              const labelsToRemove = currentLabels.filter(
+                (label) => ddayLabels.includes(label) && label !== targetLabel
+              );
+              const hasTargetLabel = currentLabels.includes(targetLabel);
+
+              for (const label of labelsToRemove) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: label,
+                });
+                console.log(`Removed ${label} from PR #${pr.number}`);
+              }
+
+              if (!hasTargetLabel) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: [targetLabel],
+                });
+                console.log(`Added ${targetLabel} to PR #${pr.number}`);
+              } else {
+                console.log(`PR #${pr.number} already has ${targetLabel}`);
+              }
+            }
+
+            if (context.payload.pull_request) {
+              await updatePullRequest(context.payload.pull_request);
+              return;
+            }
+
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100,
+            });
+
+            for (const pr of pulls) {
+              await updatePullRequest(pr);
+            }
