@@ -98,7 +98,7 @@ private extension MakeGoalView {
     }
     
     var emojiCircle: some View {
-        store.selectedEmoji.thinImage
+        store.goalData.icon.thinImage
             .resizable()
             .frame(width: 64, height: 64)
             .padding(22)
