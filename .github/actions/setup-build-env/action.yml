@@ -8,10 +8,6 @@ inputs:
   keychain-password:
     description: "Keychain password"
     required: true
-  include-pulse:
-    description: "Whether to include Pulse in cache (false for production builds)"
-    required: false
-    default: "true"
   skip-spm-cache:
     description: "Skip SPM cache for release builds to avoid simulator artifacts"
     required: false
@@ -107,17 +103,7 @@ runs:
         if [ "${{ inputs.skip-spm-cache }}" == "true" ]; then
           echo "⏭️ SPM cache SKIPPED (release build)"
         elif [ "${{ steps.spm-cache.outputs.cache-hit }}" == "true" ]; then
-          echo "✅ SPM cache HIT - skipping tuist cache warm up"
+          echo "✅ SPM cache HIT - using restored Tuist/.build"
         else
-          echo "❌ SPM cache MISS - will build dependencies"
+          echo "❌ SPM cache MISS - dependencies will be compiled from source"
         fi
-
-    - name: 🏗 Warm up external dependencies (with Pulse)
-      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse == 'true'
-      shell: bash
-      run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
-
-    - name: 🏗 Warm up external dependencies (without Pulse)
-      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse != 'true'
-      shell: bash
-      run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift

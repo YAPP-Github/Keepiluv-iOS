@@ -15,7 +15,7 @@ clean:
 
 generate:
 	tuist install
-	tuist generate
+	tuist generate --cache-profile none
 
 module:
 	swift Scripts/GenerateModule.swift
