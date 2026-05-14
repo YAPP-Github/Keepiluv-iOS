@@ -20,6 +20,7 @@ let project = Project.makeModule(
                     .feature(interface: .notification),
                     .domain(interface: .notification),
                     .shared(implements: .designSystem),
+                    .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )
