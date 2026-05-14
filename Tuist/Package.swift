@@ -11,14 +11,7 @@ import PackageDescription
             "Pulse": .framework,
             "KakaoSDK": .staticLibrary,
             "GoogleSignIn": .staticLibrary,
-            "GoogleSignInSwift": .staticLibrary,
-            "FirebaseCore": .staticLibrary,
-            "FirebaseAnalytics": .staticLibrary,
-            "FirebaseRemoteConfig" : .staticLibrary,
-            "FirebaseMessaging": .staticLibrary,
-            "FirebaseCrashlytics": .staticLibrary,
-            "FirebaseAnalyticsTarget": .framework,
-            "FirebaseAnalyticsWrapper": .framework
+            "GoogleSignInSwift": .staticLibrary
         ]
     )
 #endif
