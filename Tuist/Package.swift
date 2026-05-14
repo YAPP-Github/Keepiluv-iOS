@@ -16,7 +16,9 @@ import PackageDescription
             "FirebaseAnalytics": .staticLibrary,
             "FirebaseRemoteConfig" : .staticLibrary,
             "FirebaseMessaging": .staticLibrary,
-            "FirebaseCrashlytics": .staticLibrary
+            "FirebaseCrashlytics": .staticLibrary,
+            "FirebaseAnalyticsTarget": .framework,
+            "FirebaseAnalyticsWrapper": .framework
         ]
     )
 #endif
