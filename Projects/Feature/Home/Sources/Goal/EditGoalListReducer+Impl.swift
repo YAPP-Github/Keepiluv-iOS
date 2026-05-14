@@ -13,9 +13,7 @@ import DomainCommonInterface
 import DomainGoalInterface
 import FeatureCommonInterface
 import FeatureHomeInterface
-import FeatureMakeGoalInterface
 import SharedDesignSystem
-import SharedUtil
 
 extension EditGoalListReducer {
     /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
@@ -89,16 +87,10 @@ extension EditGoalListReducer {
                     if isPast {
                         state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {
-                        let goalData = MakeGoalReducer.State.MakeGoal(
-                            goalId: card.id,
-                            category: .custom,
-                            icon: card.goalIcon,
-                            title: card.goalName,
-                            repeatCycle: RepeatCycle(displayText: card.repeatCycle),
-                            startDate: card.startDate.displayTextToAPIDateString,
-                            endDate: card.endDate.displayTextToAPIDateString
-                        )
-                        return .send(.delegate(.goToGoalEdit(goalData)))
+                        guard let editableGoal = state.editableGoals?.first(where: { $0.id == card.id }) else {
+                            return .send(.apiError("목표 수정에 실패했어요"))
+                        }
+                        return .send(.delegate(.goToGoalEdit(editableGoal)))
                     }
                     
                 case .finish:
@@ -181,29 +173,46 @@ extension EditGoalListReducer {
                 let date = state.calendarDate
                 return .run { send in
                     do {
-                        let items = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: date))
-                        let editItems = items.map {
-                            GoalEditCardItem(
-                                id: $0.id,
-                                goalName: $0.title,
-                                goalIcon: GoalIcon(from: $0.goalIcon),
-                                iconImage: GoalIcon(from: $0.goalIcon).thinImage,
-                                repeatCycle: $0.repeatCycle?.text ?? "",
-                                startDate: $0.startDate?.dateDisplayString ?? "",
-                                endDate: $0.endDate?.dateDisplayString ?? "미설정"
-                            )
-                        }
-                        await send(.fetchGoalsCompleted(editItems, date: date))
+                        let goals = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: date))
+                            .compactMap { goal -> EditableGoal? in
+                                guard let repeatCycle = goal.repeatCycle,
+                                      let startDate = goal.startDate else {
+                                    return nil
+                                }
+                                
+                                return EditableGoal(
+                                    id: goal.id,
+                                    name: goal.title,
+                                    icon: goal.goalIcon,
+                                    repeatCycle: repeatCycle,
+                                    repeatCount: goal.repeatCount,
+                                    startDate: startDate,
+                                    endDate: goal.endDate
+                                )
+                            }
+                        await send(.fetchGoalsCompleted(goals, date: date))
                     } catch {
                         await send(.apiError("목표 조회에 실패했어요"))
                     }
                 }
 
-            case let .fetchGoalsCompleted(items, date):
+            case let .fetchGoalsCompleted(goals, date):
                 if date != state.calendarDate {
                     return .none
                 }
                 state.isLoading = false
+                state.editableGoals = goals
+                let items = goals.map {
+                    GoalEditCardItem(
+                        id: $0.id,
+                        goalName: $0.name,
+                        goalIcon: GoalIcon(from: $0.icon),
+                        iconImage: GoalIcon(from: $0.icon).thinImage,
+                        repeatCycle: $0.repeatCycle.text,
+                        startDate: $0.startDate.dateDisplayString,
+                        endDate: $0.endDate?.dateDisplayString ?? "미설정"
+                    )
+                }
                 if state.cards != items {
                     state.cards = items
                 }
@@ -213,6 +222,7 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
+                state.editableGoals?.removeAll { $0.id == goalId }
                 state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
 
@@ -220,6 +230,7 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
+                state.editableGoals?.removeAll { $0.id == goalId }
                 state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.success(message: "목표를 이뤘어요", buttonText: "보러가기")))
 
@@ -242,17 +253,5 @@ extension EditGoalListReducer {
         }
         
         self.init(reducer: reducer)
-    }
-}
-
-/// 재사용될 시 RepeatCycle 내부로 이동
-private extension RepeatCycle {
-    init?(displayText: String) {
-        switch displayText {
-        case RepeatCycle.daily.text: self = .daily
-        case RepeatCycle.weekly.text: self = .weekly
-        case RepeatCycle.monthly.text: self = .monthly
-        default: return nil
-        }
     }
 }
