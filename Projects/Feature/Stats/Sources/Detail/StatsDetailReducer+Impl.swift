@@ -8,9 +8,9 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import DomainStatsInterface
 import FeatureCommonInterface
-import FeatureMakeGoalInterface
 import FeatureStatsInterface
 import SharedDesignSystem
 
@@ -113,16 +113,16 @@ extension StatsDetailReducer {
                 
                 switch item {
                 case .edit:
-                    let goalData = MakeGoalReducer.State.MakeGoal(
-                        goalId: state.goalId,
-                        category: .custom,
-                        icon: GoalIcon(from: detail.goalIcon),
-                        title: detail.goalName,
+                    let editableGoal = EditableGoal(
+                        id: state.goalId,
+                        name: detail.goalName,
+                        icon: detail.goalIcon,
                         repeatCycle: summary.repeatCycle,
+                        repeatCount: nil,
                         startDate: summary.startDate,
                         endDate: summary.endDate
                     )
-                    return .send(.delegate(.goToGoalEdit(goalData)))
+                    return .send(.delegate(.goToGoalEdit(editableGoal)))
                     
                 case .finish:
                     state.modal = .info(
