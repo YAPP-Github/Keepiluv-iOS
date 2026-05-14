@@ -24,6 +24,6 @@ let package = Package(
         .package(url: "https://github.com/kean/Pulse", from: "5.1.4"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.27.1"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "9.1.0"),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.9.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.13.0")
     ]
 )
