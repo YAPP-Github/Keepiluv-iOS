@@ -6,6 +6,10 @@
 //
 
 import ComposableArchitecture
+import CoreAnalytics
+import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
+import CoreLogging
 import CoreNetworkInterface
 import CorePushInterface
 import DomainAuthInterface
@@ -32,6 +36,12 @@ struct AppCoordinator {
     @Dependency(\.notificationClient)
     var notificationClient
 
+    @Dependency(\.analyticsClient)
+    var analyticsClient
+
+    @Dependency(\.crashlyticsClient)
+    var crashlytics
+
     private let authReducer: AuthReducer
     private let onboardingCoordinator: OnboardingCoordinator
     private let mainTabReducer: MainTabReducer
@@ -42,6 +52,7 @@ struct AppCoordinator {
         var isCheckingAuth: Bool = true
         var pendingInviteCode: String?
         var pendingNotificationDeepLink: NotificationDeepLink?
+        var userProfile: UserProfile?
 
         public init() { }
     }
@@ -95,6 +106,9 @@ struct AppCoordinator {
         // MARK: - FCM Token
         case registerFCMTokenCompleted
         case fcmTokenRefreshed(String)
+
+        // MARK: - User Profile
+        case fetchMyProfileCompleted(UserProfile)
     }
 
     @CasePathable
@@ -140,11 +154,12 @@ struct AppCoordinator {
                 }
                 return .none
 
-            case .checkAuthResult(.failure):
+            case .checkAuthResult(.failure(let error)):
                 state.isCheckingAuth = false
                 state.route = .auth(AuthReducer.State())
+                crashlytics.record(error, AppCrashlyticsRecordEvent.appStartupFailed)
                 return .none
-
+                
             case let .checkOnboardingStatusResult(.success(status)):
                 state.isCheckingAuth = false
                 switch status {
@@ -161,16 +176,22 @@ struct AppCoordinator {
                             notificationClient: notificationClient
                         )
                     ]
-
+                    
+                    if state.userProfile == nil {
+                        effects.append(fetchUserProfile(client: authClient))
+                    }
+                    
                     // pending 딥링크가 있으면 처리
                     if let pendingDeepLink = state.pendingNotificationDeepLink {
                         state.pendingNotificationDeepLink = nil
                         effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
                     }
-
+                    
                     return .merge(effects)
-
-                case .coupleConnection, .profileSetup, .anniversarySetup:
+                    
+                case .coupleConnection,
+                        .profileSetup,
+                        .anniversarySetup:
                     state.route = .onboarding(OnboardingCoordinator.State(
                         initialStatus: status,
                         pendingReceivedCode: state.pendingInviteCode
@@ -178,40 +199,42 @@ struct AppCoordinator {
                     state.pendingInviteCode = nil
                 }
                 return .none
-
+                
             case let .checkOnboardingStatusResult(.failure(error)):
                 state.isCheckingAuth = false
                 if let networkError = error as? NetworkError,
                    case .authorizationError = networkError {
+                    crashlytics.log(AppCrashlyticsLogEvent.sessionExpiredAtOnboardingStatusCheck)
                     state.route = .auth(AuthReducer.State())
                     return .none
                 }
-
+                crashlytics.record(error, AppCrashlyticsRecordEvent.onboardingStatusCheckFailed)
                 state.route = .onboarding(OnboardingCoordinator.State(
                     pendingReceivedCode: state.pendingInviteCode
                 ))
                 state.pendingInviteCode = nil
                 return .none
-
+                
             case let .deepLinkReceived(code):
                 state.pendingInviteCode = code
-
+                
                 if case .onboarding = state.route {
                     return .send(.route(.onboarding(.deepLinkReceived(code: code))))
                 }
                 return .none
-
+                
             case let .notificationDeepLinkReceived(deepLink):
                 // 메인탭 상태가 아니면 pending으로 저장
                 guard case .mainTab = state.route else {
                     state.pendingNotificationDeepLink = deepLink
                     return .none
                 }
-
+                
                 state.pendingNotificationDeepLink = nil
                 return .send(.route(.mainTab(.notificationDeepLinkReceived(deepLink))))
 
-            case .route(.auth(.delegate(.loginSucceeded))):
+            case let .route(.auth(.delegate(.loginSucceeded(authResult)))):
+                crashlytics.setUserIdentifier("\(authResult.userId)")
                 return .merge(
                     // 1. 온보딩 상태 체크
                     .run { [onboardingClient] send in
@@ -228,7 +251,7 @@ struct AppCoordinator {
                         notificationClient: notificationClient
                     )
                 )
-
+                
             case let .route(.onboarding(.delegate(.onboardingCompleted(isPushEnabled, isMarketingEnabled, isNightEnabled)))):
                 state.route = .mainTab(MainTabReducer.State())
                 // 온보딩 완료 시: initSettings + FCM 토큰 등록
@@ -237,7 +260,7 @@ struct AppCoordinator {
                     .run { [pushClient, notificationClient] _ in
                         // 1. 권한 결과 + 사용자 선택값으로 initSettings 호출
                         _ = try? await notificationClient.initSettings(isPushEnabled, isMarketingEnabled, isNightEnabled)
-
+                        
                         // 2. 권한 허용 시 FCM 토큰 등록
                         if isPushEnabled {
                             await pushClient.registerForRemoteNotifications()
@@ -251,26 +274,29 @@ struct AppCoordinator {
                     subscribeTokenRefreshEffect(
                         pushClient: pushClient,
                         notificationClient: notificationClient
-                    )
+                    ),
+                    fetchUserProfile(client: authClient)
                 ]
-
+                
                 if let pendingDeepLink = state.pendingNotificationDeepLink {
                     state.pendingNotificationDeepLink = nil
                     effects.append(.send(.route(.mainTab(.notificationDeepLinkReceived(pendingDeepLink)))))
                 }
-
+                
                 return .merge(effects)
-
+                
             case .route(.onboarding(.delegate(.logoutRequested))):
                 return .run { [authClient] send in
                     try? await authClient.signOut()
                     await send(.checkAuthResult(.failure(NSError(domain: "Logout", code: 0))))
                 }
-
+                
             case .route(.mainTab(.delegate(.logoutCompleted))),
-                 .route(.mainTab(.delegate(.withdrawCompleted))),
-                 .route(.mainTab(.delegate(.sessionExpired))):
+                    .route(.mainTab(.delegate(.withdrawCompleted))),
+                    .route(.mainTab(.delegate(.sessionExpired))):
                 state.route = .auth(AuthReducer.State())
+                state.userProfile = nil
+                analyticsClient.setUserProfile(nil)
                 return .none
 
             case .route:
@@ -287,6 +313,17 @@ struct AppCoordinator {
                     }
                     try? await notificationClient.registerFCMToken(token, deviceId)
                 }
+
+            case let .fetchMyProfileCompleted(profile):
+                state.userProfile = profile
+                analyticsClient.setUserProfile(
+                    AnalyticsUserProfile(
+                        id: Int64(profile.id),
+                        name: profile.name
+                    )
+                )
+
+                return .none
             }
         }
         .ifLet(\.route.auth, action: \.route.auth) {
@@ -334,6 +371,17 @@ private func subscribeTokenRefreshEffect(
     .run { send in
         for await token in pushClient.tokenRefreshStream() {
             await send(.fcmTokenRefreshed(token))
+        }
+    }
+}
+
+private func fetchUserProfile(client: AuthClient) -> Effect<AppCoordinator.Action> {
+    .run { send in
+        do {
+            let profile = try await client.fetchMyProfile()
+            await send(.fetchMyProfileCompleted(profile))
+        } catch {
+            TXLogger(label: "Analytics").error("Failed to fetch user profile for analytics: \(error)")
         }
     }
 }

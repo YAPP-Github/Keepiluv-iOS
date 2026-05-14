@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DomainCommonInterface
 
 /// 목표 생성 응답 DTO입니다.
 public struct GoalCreateResponseDTO: Decodable {
@@ -42,7 +43,7 @@ public extension GoalCreateResponseDTO {
                 imageURL: nil,
                 emoji: nil
             ),
-            repeatCycle: Goal.RepeatCycle(rawValue: response.repeatCycle),
+            repeatCycle: RepeatCycle(rawValue: response.repeatCycle),
             repeatCount: response.repeatCount,
             startDate: response.startDate,
             endDate: response.endDate

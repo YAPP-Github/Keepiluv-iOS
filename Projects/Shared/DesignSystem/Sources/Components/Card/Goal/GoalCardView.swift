@@ -138,6 +138,7 @@ private extension GoalCardView {
             } else {
                 unCompletedView(
                     placeholder: placeholder,
+                    isButtonDisabled: item.isButtonDisabled,
                     buttonAction: buttonAction
                 )
                     .frame(minWidth: 0, maxWidth: .infinity)
@@ -155,6 +156,7 @@ private extension GoalCardView {
     
     func unCompletedView(
         placeholder: Placeholder,
+        isButtonDisabled: Bool,
         buttonAction: (() -> Void)? = nil
     ) -> some View {
         VStack(spacing: 0) {
@@ -165,7 +167,7 @@ private extension GoalCardView {
                     shape: .round(
                         style: .illustLight(text: "찌르기!"),
                         size: .s,
-                        state: .standard
+                        state: isButtonDisabled ? .disabled : .standard
                     ),
                     onTap: { buttonAction?() }
                 )

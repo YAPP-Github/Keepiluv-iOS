@@ -49,7 +49,7 @@ private extension TXInfoModalContent {
     enum Constants {
         static let vStackSpacing: CGFloat = 0
         static let imageSize = CGSize(width: 60, height: 60)
-        static let imageTopPadding = Spacing.spacing8
+        static let imageTopPadding = Spacing.spacing10
         static let titleTopPadding = Spacing.spacing7
         static let subtitleTopPadding = Spacing.spacing5
         static let titleTypography = TypographyToken.t1_18eb

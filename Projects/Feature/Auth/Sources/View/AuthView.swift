@@ -24,10 +24,8 @@ public struct AuthView: View {
             backgroundIllustration
             foregroundContent
         }
-        .overlay {
-            loadingView
-        }
         .background(Color.Common.white)
+        .txLoading(isPresented: store.isLoading)
         .alert(
             "로그인 실패",
             isPresented: Binding(
@@ -96,12 +94,13 @@ private extension AuthView {
     }
 
     var titleView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("함께니까 멈추지 않아요.")
-            Text("지금 바로 키피럽 시작하기!")
-        }
-        .typography(.h3_22eb)
-        .foregroundStyle(Color.Gray.gray500)
+        Text("""
+            함께니까 멈추지 않아요.
+            지금 바로 키피럽 시작하기!
+            """)
+            .typography(.h3_22eb)
+            .foregroundStyle(Color.Gray.gray500)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var loginButtonsSection: some View {
@@ -191,13 +190,6 @@ private extension AuthView {
         .disabled(store.isLoading)
     }
 
-    @ViewBuilder
-    var loadingView: some View {
-        if store.isLoading {
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-    }
 }
 
 // swiftlint:enable no_magic_numbers

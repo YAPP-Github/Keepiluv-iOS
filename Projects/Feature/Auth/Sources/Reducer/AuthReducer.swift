@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
 import CoreLogging
 import DomainAuthInterface
 import Foundation
@@ -24,6 +26,8 @@ import Foundation
 /// ```
 @Reducer
 public struct AuthReducer {
+    @Dependency(\.analyticsClient) var analyticsClient
+    
     @ObservableState
     public struct State: Equatable {
         public var isLoading = false
@@ -34,6 +38,7 @@ public struct AuthReducer {
     }
 
     public enum Action {
+        case onAppear
         case appleLoginButtonTapped
         case kakaoLoginButtonTapped
         case googleLoginButtonTapped
@@ -52,6 +57,10 @@ public struct AuthReducer {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .onAppear:
+                analyticsClient.logEvent(AuthAnalyticsEvent.loginViewed)
+                return .none
+                
             case .appleLoginButtonTapped:
                 return Self.handleLogin(provider: .apple, state: &state)
 
@@ -83,6 +92,9 @@ public struct AuthReducer {
 private extension AuthReducer {
     @Dependency(\.authClient)
     static var authClient
+
+    @Dependency(\.crashlyticsClient)
+    static var crashlytics
 
     @Dependency(\.authLogger)
     static var logger
@@ -131,6 +143,11 @@ private extension AuthReducer {
         state.errorMessage = errorMessage(for: error)
         #if DEBUG
         logger.error("로그인 실패 - \(error.localizedDescription)")
+        #else
+        crashlytics.record(
+            error,
+            AuthCrashlyticsRecordEvent.loginFailed(error as? AuthLoginError)
+        )
         #endif
         return .none
     }

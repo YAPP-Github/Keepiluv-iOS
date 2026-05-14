@@ -4,7 +4,7 @@ init:
 	mise exec node@24 -- node -v
 	mise use --global node@24 go@1
 	mise install tuist
-	mise use tuist@4.115.1
+	mise use tuist@4.194.0
 	
 clean:
 	tuist clean
@@ -15,7 +15,7 @@ clean:
 
 generate:
 	tuist install
-	tuist generate
+	tuist generate --cache-profile none
 
 module:
 	swift Scripts/GenerateModule.swift

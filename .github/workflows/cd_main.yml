@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   deploy_main:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: 🔄 Checkout source code
         uses: actions/checkout@v4
@@ -22,7 +22,6 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          include-pulse: "false"
           skip-spm-cache: "true"
 
       - name: 🚀 Deploy to App Store Connect (Twix)

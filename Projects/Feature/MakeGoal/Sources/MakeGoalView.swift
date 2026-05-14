@@ -79,6 +79,8 @@ public struct MakeGoalView: View {
             }
         )
         .txToast(item: $store.toast, customPadding: 70)
+        .txLoading(isPresented: store.isLoading && store.submitMessage == nil)
+        .txLoading(item: store.submitMessage)
     }
 }
 
@@ -96,7 +98,7 @@ private extension MakeGoalView {
     }
     
     var emojiCircle: some View {
-        store.selectedEmoji.image
+        store.goalData.icon.thinImage
             .resizable()
             .frame(width: 64, height: 64)
             .padding(22)
@@ -132,7 +134,7 @@ private extension MakeGoalView {
     
     var goalTitleField: some View {
         TXTextField(
-            text: $store.goalTitle,
+            text: $store.goalData.title,
             placeholderText: "목표를 입력해 보세요",
             isFocused: $isGoalTitleTextFieldFocused,
             submitLabel: .done,
@@ -148,7 +150,7 @@ private extension MakeGoalView {
             divider
             endDateToggleRow
             
-            if store.isEndDateOn {
+            if store.goalData.isEndDateOn {
                 divider
                 endDateRow
             }
@@ -202,7 +204,7 @@ private extension MakeGoalView {
             
             Spacer()
             
-            TXToggleSwitch(isOn: $store.isEndDateOn)
+            TXToggleSwitch(isOn: $store.goalData.isEndDateOn)
         }
         .frame(height: 32)
         .padding(.vertical, 16)
@@ -279,7 +281,7 @@ private extension MakeGoalView {
                 shape: .rect(
                     style: .basic(text: store.weeklyPeriodText),
                     size: .s,
-                    state: store.selectedPeriod == .weekly ? .standard : .line
+                    state: store.goalData.repeatCycle == .weekly ? .standard : .line
                 ),
                 onTap: { store.send(.periodSheetWeeklyTapped) }
             )
@@ -288,7 +290,7 @@ private extension MakeGoalView {
                 shape: .rect(
                     style: .basic(text: store.monthlyPeriodText),
                     size: .s,
-                    state: store.selectedPeriod == .monthly ? .standard : .line
+                    state: store.goalData.repeatCycle == .monthly ? .standard : .line
                 ),
                 onTap: { store.send(.periodSheetMonthlyTapped) }
             )
@@ -353,17 +355,13 @@ private extension MakeGoalView {
 // MARK: - Private Methods
 private extension MakeGoalView {
     var validationState: TXTextField.SubTextConfiguration.State {
-        if store.goalTitle.isEmpty {
+        if store.goalData.title.isEmpty {
             return .empty
         }
         return store.isInvalidTitle ? .valid : .invalid
     }
     
     var selectedPeriodItem: PeriodItem {
-        switch store.selectedPeriod {
-        case .daily: return .daily
-        case .weekly: return .weekly
-        case .monthly: return .monthly
-        }
+        PeriodItem(repeatCycle: store.goalData.repeatCycle)
     }
 }

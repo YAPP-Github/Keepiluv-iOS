@@ -15,7 +15,11 @@ public struct CalendarNow: Equatable, Hashable {
 
     public init(
         date: Date = Date(),
-        calendar: Calendar = Calendar(identifier: .gregorian)
+        calendar: Calendar = {
+            var gregorian = Calendar(identifier: .gregorian)
+            gregorian.timeZone = .current
+            return gregorian
+        }()
     ) {
         self.year = calendar.component(.year, from: date)
         self.month = calendar.component(.month, from: date)

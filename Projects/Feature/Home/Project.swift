@@ -10,12 +10,14 @@ let project = Project.makeModule(
                 dependencies: [
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
+                    .feature(interface: .common),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
                     .feature(interface: .notification),
                     .feature(interface: .makeGoal),
                     .feature(interface: .settings),
                     .feature(interface: .stats),
+                    .core(interface: .analytics),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]
@@ -29,6 +31,7 @@ let project = Project.makeModule(
                     .domain(interface: .notification),
                     .domain(interface: .photoLog),
                     .domain(interface: .goal),
+                    .feature(interface: .common),
                     .feature(interface: .proofPhoto),
                     .feature(interface: .goalDetail),
                     .feature(interface: .notification),
@@ -36,6 +39,7 @@ let project = Project.makeModule(
                     .feature(interface: .settings),
                     .feature(interface: .stats),
                     .feature(interface: .home),
+                    .core(interface: .analytics),
                     .shared(implements: .designSystem),
                     .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
@@ -62,6 +66,7 @@ let project = Project.makeModule(
             example: .home,
             config: .init(
                 dependencies: [
+                    .feature(interface: .common),
                     .feature(implements: .home),
                     .feature(interface: .home),
                     .domain(interface: .goal),

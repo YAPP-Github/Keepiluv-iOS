@@ -14,8 +14,10 @@ let project = Project.makeModule(
                 resources: ["Resources/**"],
                 dependencies: [
                     .feature(interface: .onboarding),
+                    .core(interface: .analytics),
                     .domain(interface: .onboarding),
                     .core(interface: .push),
+                    .core(interface: .crashlytics),
                     .shared(implements: .designSystem),
                     .external(dependency: .ComposableArchitecture)
                 ]

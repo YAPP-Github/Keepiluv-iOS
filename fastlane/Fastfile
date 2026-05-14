@@ -103,17 +103,22 @@ platform :ios do
   lane :generate do
     UI.message("🏗️ Generating Tuist project...")
 
+    # --cache-profile none: SPM 의존성을 source에서 컴파일.
+    # Tuist의 binary cache(~/.cache/tuist/Binaries)가 채워져 있을 때
+    # 다수의 XCFramework 경로가 link line에 누적되어 ARG_MAX 초과로
+    # `Argument list too long` 빌드 실패가 발생하는 것을 방지.
     if ENV["CI"] == "true"
-      sh("cd .. && tuist generate")
+      sh("cd .. && tuist generate --no-open --cache-profile none")
     else
       sh("cd .. && make generate")
     end
-    
+
     UI.success("✅ Tuist project generated!")
 
     UI.message("📋 Available schemes:")
     sh("xcodebuild -workspace ../#{WORKSPACE_NAME} -list")
   end
+
 
   desc "Build all modules (without main app)"
   lane :build_modules do
@@ -190,6 +195,13 @@ platform :ios do
       }
     )
 
+    # build_app가 lane_context[SharedValues::DSYM_OUTPUT_PATH]에 모든 framework dSYM을 모은
+    # zip 경로를 채워둠 — upload_symbols_to_crashlytics가 그걸 자동 사용.
+    upload_symbols_to_crashlytics(
+      gsp_path: "Projects/App/Resources/GoogleService-Info.plist",
+      binary_path: "Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
+    )
+
     upload_to_testflight(
       api_key: api_key,
       app_identifier: BUNDLE_ID,
@@ -226,6 +238,11 @@ platform :ios do
           BUNDLE_ID => "match AppStore #{BUNDLE_ID}"
         }
       }
+    )
+
+    upload_symbols_to_crashlytics(
+      gsp_path: "Projects/App/Resources/GoogleService-Info.plist",
+      binary_path: "Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
     )
 
     upload_to_testflight(

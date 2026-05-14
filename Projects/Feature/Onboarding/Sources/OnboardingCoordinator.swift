@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
 import CorePushInterface
 import DomainOnboardingInterface
 import Foundation
@@ -30,6 +32,10 @@ public struct OnboardingCoordinator {
     private var pushClient
     @Dependency(\.continuousClock)
     private var clock
+    @Dependency(\.analyticsClient)
+    private var analyticsClient
+    @Dependency(\.crashlyticsClient)
+    private var crashlytics
 
     private enum CancelID {
         case couplePolling
@@ -38,6 +44,7 @@ public struct OnboardingCoordinator {
     @ObservableState
     public struct State: Equatable {
         var routes: [OnboardingRoute] = []
+        var loggedAnalyticsEvents: Set<OnboardingAnalyticsEvent> = []
         var connect: OnboardingConnectReducer.State
         var codeInput: OnboardingCodeInputReducer.State?
         var profile: OnboardingProfileReducer.State?
@@ -45,6 +52,7 @@ public struct OnboardingCoordinator {
         var myInviteCode: String
         var pendingReceivedCode: String?
         var isLoadingInviteCode: Bool = false
+        var toast: TXToastType?
         var initialStatus: OnboardingStatus
         var isCouplePolling: Bool = false
 
@@ -97,6 +105,9 @@ public struct OnboardingCoordinator {
         case fetchInviteCodeResponse(Result<String, Error>)
         case fetchStatusResponse(Result<OnboardingStatus, Error>)
 
+        // MARK: - Toast
+        case showToast(TXToastType)
+
         // MARK: - Navigation
         case navigateToCodeInputWithCode(myInviteCode: String, receivedCode: String)
 
@@ -146,8 +157,21 @@ public struct OnboardingCoordinator {
 
             // MARK: - LifeCycle
             case .onAppear:
-                // 커플 연결 단계가 아니면 폴링 불필요
-                guard state.initialStatus == .coupleConnection else { return .none }
+                switch state.initialStatus {
+                case .coupleConnection:
+                    logOnboardingEvent(.inviteViewed, state: &state, analyticsClient: analyticsClient)
+
+                case .profileSetup:
+                    logOnboardingEvent(.profileSetupViewed, state: &state, analyticsClient: analyticsClient)
+                    return .none
+
+                case .anniversarySetup:
+                    logOnboardingEvent(.anniversarySetupViewed, state: &state, analyticsClient: analyticsClient)
+                    return .none
+
+                case .completed:
+                    return .none
+                }
 
                 var effects: [Effect<Action>] = [.send(.startCouplePolling)]
 
@@ -209,6 +233,7 @@ public struct OnboardingCoordinator {
                     state.profile = OnboardingProfileReducer.State()
                     state.routes.removeAll(where: { $0 == .codeInput })
                     state.routes.append(.profile)
+                    logOnboardingEvent(.profileSetupViewed, state: &state, analyticsClient: analyticsClient)
                     return .cancel(id: CancelID.couplePolling)
 
                 case .coupleConnection:
@@ -247,9 +272,13 @@ public struct OnboardingCoordinator {
                 }
                 return .none
 
-            case .fetchInviteCodeResponse(.failure):
+            case let .fetchInviteCodeResponse(.failure(error)):
                 state.isLoadingInviteCode = false
-                // 에러 발생 시 임시 코드 사용 (또는 에러 처리)
+                crashlytics.record(error, OnboardingCrashlyticsRecordEvent.inviteCodeFetchFailed)
+                return .send(.showToast(.warning(message: "초대 코드를 불러오지 못했어요. 잠시 후 다시 시도해주세요.")))
+
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
 
             // MARK: - Navigation
@@ -259,6 +288,7 @@ public struct OnboardingCoordinator {
                     receivedCode: receivedCode
                 )
                 state.routes.append(.codeInput)
+                logOnboardingEvent(.inviteViewed, state: &state, analyticsClient: analyticsClient)
                 return .none
 
             // MARK: - Deep Link
@@ -275,6 +305,7 @@ public struct OnboardingCoordinator {
                         receivedCode: code
                     )
                     state.routes.append(.codeInput)
+                    logOnboardingEvent(.inviteViewed, state: &state, analyticsClient: analyticsClient)
                 }
                 return .none
 
@@ -293,6 +324,7 @@ public struct OnboardingCoordinator {
                 )
                 state.pendingReceivedCode = nil
                 state.routes.append(.codeInput)
+                logOnboardingEvent(.inviteViewed, state: &state, analyticsClient: analyticsClient)
                 return .none
 
             case .connect:
@@ -309,6 +341,7 @@ public struct OnboardingCoordinator {
                 state.isCouplePolling = false
                 state.profile = OnboardingProfileReducer.State()
                 state.routes.append(.profile)
+                logOnboardingEvent(.profileSetupViewed, state: &state, analyticsClient: analyticsClient)
                 return .cancel(id: CancelID.couplePolling)
 
             case .codeInput:
@@ -345,6 +378,7 @@ public struct OnboardingCoordinator {
                     // 기념일 설정 필요 → Dday로 이동
                     state.dday = OnboardingDdayReducer.State()
                     state.routes.append(.dday)
+                    logOnboardingEvent(.anniversarySetupViewed, state: &state, analyticsClient: analyticsClient)
                     return .none
 
                 default:
@@ -353,6 +387,7 @@ public struct OnboardingCoordinator {
                     // 일단 Dday로 진행 (사용자 경험 우선)
                     state.dday = OnboardingDdayReducer.State()
                     state.routes.append(.dday)
+                    logOnboardingEvent(.anniversarySetupViewed, state: &state, analyticsClient: analyticsClient)
                     return .none
                 }
 
@@ -361,13 +396,14 @@ public struct OnboardingCoordinator {
                 // 프로필 등록은 이미 성공했으므로 다음 단계로 진행하는 것이 UX에 유리
                 state.dday = OnboardingDdayReducer.State()
                 state.routes.append(.dday)
+                logOnboardingEvent(.anniversarySetupViewed, state: &state, analyticsClient: analyticsClient)
                 return .none
 
             // MARK: - Dday Delegate
             case .dday(.delegate(.navigateBack)):
                 popLastRoute(&state.routes)
                 state.dday = nil
-                return .none
+                return .cancel(id: OnboardingDdayReducer.CancelID.polling)
 
             case .dday(.delegate(.ddayCompleted)):
                 return .send(.startNotificationPermission)
@@ -389,11 +425,14 @@ public struct OnboardingCoordinator {
 
             case let .notificationModalConfirmed(isMarketing, isNight):
                 state.isNotificationModalPresented = false
-                return .send(.delegate(.onboardingCompleted(
-                    isPushEnabled: state.isPushPermissionGranted,
-                    isMarketingEnabled: isMarketing,
-                    isNightEnabled: isNight
-                )))
+                logOnboardingEvent(.onboardingCompleted, state: &state, analyticsClient: analyticsClient)
+                return .send(
+                    .delegate(.onboardingCompleted(
+                        isPushEnabled: state.isPushPermissionGranted,
+                        isMarketingEnabled: isMarketing,
+                        isNightEnabled: isNight
+                    ))
+                )
 
             case .delegate:
                 return .none
@@ -414,4 +453,13 @@ public struct OnboardingCoordinator {
 private func popLastRoute(_ routes: inout [OnboardingRoute]) {
     guard !routes.isEmpty else { return }
     routes.removeLast()
+}
+
+private func logOnboardingEvent(
+    _ event: OnboardingAnalyticsEvent,
+    state: inout OnboardingCoordinator.State,
+    analyticsClient: AnalyticsClient
+) {
+    guard state.loggedAnalyticsEvents.insert(event).inserted else { return }
+    analyticsClient.logEvent(event)
 }

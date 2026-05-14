@@ -31,7 +31,7 @@ private let commonInfoPlist: [String: Plist.Value] = Project.Environment.InfoPli
     "DEEPLINK_HOST": "$(DEEPLINK_HOST)",
     "API_BASE_URL": "$(API_BASE_URL)",
     "NSCameraUsageDescription": "UseCamera",
-    "CFBundleShortVersionString": "1.1.1"
+    "CFBundleShortVersionString": "1.1.2"
 ], uniquingKeysWith: { current, _ in current })
 
 private let commonDependencies: [TargetDependency] = [
@@ -45,7 +45,8 @@ private let commonDependencies: [TargetDependency] = [
     .external(dependency: .GoogleSignIn),
     .external(dependency: .FirebaseCore),
     .external(dependency: .FirebaseMessaging),
-    .external(dependency: .FirebaseRemoteConfig)
+    .external(dependency: .FirebaseRemoteConfig),
+    .core(implements: .crashlytics)
 ]
 
 private let commonBuildSettings: SettingsDictionary = [
@@ -60,7 +61,7 @@ private let commonBuildSettings: SettingsDictionary = [
     "KAKAO_APP_KEY": "fb2997e54bfe080cc5c1d9706d1251f4",
     "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
     "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3",
-    "DEEPLINK_HOST": "keepiluv.jiyong.xyz",
+    "DEEPLINK_HOST": "keepiluv.teamtwix.com",
     "API_BASE_URL": "https://api.dev.teamtwix.com"
 ]
 
@@ -75,8 +76,10 @@ let project = Project(
             config: .init(
                 infoPlist: .extendingDefault(with: commonInfoPlist),
                 entitlements: .file(path: "Support/Twix.entitlements"),
-                scripts: [.swiftLint],
-                dependencies: commonDependencies,
+                scripts: [.swiftLint, .crashlyticsUploadSymbols],
+                dependencies: commonDependencies + [
+                    .core(implements: .analytics)
+                ],
                 settings: .settings(
                     base: commonBuildSettings.merging([
                         "PROVISIONING_PROFILE_SPECIFIER": "match Development \(Project.Environment.BundleId.bundlePrefix)"

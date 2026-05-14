@@ -8,10 +8,6 @@ inputs:
   keychain-password:
     description: "Keychain password"
     required: true
-  include-pulse:
-    description: "Whether to include Pulse in cache (false for production builds)"
-    required: false
-    default: "true"
   skip-spm-cache:
     description: "Skip SPM cache for release builds to avoid simulator artifacts"
     required: false
@@ -33,6 +29,32 @@ runs:
         security list-keychains -d user -s "$KEYCHAIN_NAME" "$(security default-keychain | tr -d '"')"
         security default-keychain -s "$KEYCHAIN_NAME"
 
+    - name: 🧰 Select Xcode
+      shell: bash
+      run: |
+        set -euo pipefail
+        XCODE_APP="/Applications/Xcode_26.4.1.app"
+        if [ -d "$XCODE_APP" ]; then
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+        else
+          echo "::notice::$XCODE_APP is not installed. Falling back to the runner default Xcode."
+        fi
+
+    - name: 🧰 Verify Xcode SDK
+      shell: bash
+      run: |
+        set -euo pipefail
+        xcodebuild -version
+        SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+        echo "iPhoneOS SDK: $SDK_VERSION"
+        case "$SDK_VERSION" in
+          26.*|[3-9][0-9].*) ;;
+          *)
+            echo "::error::iPhoneOS SDK $SDK_VERSION is too old for App Store Connect upload. Use a runner with Xcode 26 or later."
+            exit 1
+            ;;
+        esac
+
     - name: 💫 Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -44,13 +66,13 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.tuist-bin
-        key: tuist-binary-${{ runner.os }}-4.118.0
+        key: tuist-binary-${{ runner.os }}-4.194.0
 
     - name: 🛠 Install Tuist (manual binary)
       if: steps.tuist-binary-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        TUIST_VERSION=4.118.0
+        TUIST_VERSION=4.194.0
         mkdir -p ~/.tuist-bin
         curl -L "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" -o tuist.zip
         unzip -o tuist.zip -d ~/.tuist-bin
@@ -66,9 +88,9 @@ runs:
       uses: actions/cache@v4
       with:
         path: Tuist/.build
-        key: tuist-spm-${{ runner.os }}-${{ hashFiles('Tuist/Package.resolved') }}
+        key: tuist-spm-xcode26-${{ runner.os }}-${{ hashFiles('Tuist/Package.resolved') }}
         restore-keys: |
-          tuist-spm-${{ runner.os }}-
+          tuist-spm-xcode26-${{ runner.os }}-
 
     - name: 🛠 Install tuist dependencies
       if: inputs.skip-spm-cache == 'true' || steps.spm-cache.outputs.cache-hit != 'true'
@@ -81,17 +103,7 @@ runs:
         if [ "${{ inputs.skip-spm-cache }}" == "true" ]; then
           echo "⏭️ SPM cache SKIPPED (release build)"
         elif [ "${{ steps.spm-cache.outputs.cache-hit }}" == "true" ]; then
-          echo "✅ SPM cache HIT - skipping tuist cache warm up"
+          echo "✅ SPM cache HIT - using restored Tuist/.build"
         else
-          echo "❌ SPM cache MISS - will build dependencies"
+          echo "❌ SPM cache MISS - dependencies will be compiled from source"
         fi
-
-    - name: 🏗 Warm up external dependencies (with Pulse)
-      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse == 'true'
-      shell: bash
-      run: tuist cache ComposableArchitecture Kingfisher Pulse KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift
-
-    - name: 🏗 Warm up external dependencies (without Pulse)
-      if: inputs.skip-spm-cache != 'true' && steps.spm-cache.outputs.cache-hit != 'true' && inputs.include-pulse != 'true'
-      shell: bash
-      run: tuist cache ComposableArchitecture Kingfisher KakaoSDKAuth KakaoSDKCommon GoogleSignIn GoogleSignInSwift

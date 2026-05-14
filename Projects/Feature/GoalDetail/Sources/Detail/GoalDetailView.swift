@@ -63,6 +63,7 @@ public struct GoalDetailView: View {
     public var body: some View {
         VStack(spacing: 0) {
             navigationBar
+                .zIndex(1)
             
             if store.item != nil {
                 cardView
@@ -111,12 +112,8 @@ public struct GoalDetailView: View {
         .overlay(alignment: .bottom) {
             myEmojiFlyingReactionOverlay
         }
-        .overlay {
-            if store.isSavingPhotoLog {
-                ProgressView()
-            }
-        }
         .txToast(item: $store.toast, customPadding: 54)
+        .txLoading(isPresented: store.isSavingPhotoLog)
     }
 }
 

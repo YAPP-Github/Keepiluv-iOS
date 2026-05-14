@@ -51,12 +51,6 @@ public struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .overlay {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
         .onAppear {
             store.send(.onAppear)
         }
@@ -136,6 +130,9 @@ private extension HomeView {
             ),
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
+            },
+            onSwipe: { swipe in
+                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)

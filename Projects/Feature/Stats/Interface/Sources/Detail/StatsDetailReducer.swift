@@ -8,7 +8,9 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import DomainStatsInterface
+import FeatureCommonInterface
 import SharedDesignSystem
 
 /// 통계 상세 화면의 상태와 액션을 관리하는 Reducer입니다.
@@ -132,7 +134,7 @@ public struct StatsDetailReducer {
         public enum Delegate {
             case navigateBack
             case goToGoalDetail(goalId: Int64, isCompletedPartner: Bool, date: String)
-            case goToGoalEdit(goalId: Int64)
+            case goToGoalEdit(EditableGoal)
         }
     }
 

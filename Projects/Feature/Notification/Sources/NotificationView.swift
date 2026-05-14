@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import FeatureNotificationInterface
 import SharedDesignSystem
+import SharedUtil
 import SwiftUI
 
 /// 알림 화면입니다.
@@ -23,9 +24,7 @@ public struct NotificationView: View {
             navigationBar
 
             ZStack {
-                if store.isLoading && store.notifications.isEmpty {
-                    loadingView
-                } else if filteredNotifications.isEmpty {
+                if filteredNotifications.isEmpty {
                     emptyView
                 } else {
                     contentView
@@ -39,6 +38,7 @@ public struct NotificationView: View {
             store.send(.onAppear)
         }
         .toolbar(.hidden, for: .navigationBar)
+        .txLoading(isPresented: store.isLoading && store.notifications.isEmpty)
     }
 }
 
@@ -71,19 +71,6 @@ private extension NotificationView {
             .padding(.top, Spacing.spacing6)
             .padding(.horizontal, Spacing.spacing8)
             .padding(.bottom, Spacing.spacing8)
-        }
-    }
-}
-
-// MARK: - Loading View
-
-private extension NotificationView {
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.Gray.gray500))
-            Spacer()
         }
     }
 }
@@ -148,13 +135,21 @@ private extension NotificationView {
         Button {
             store.send(.notificationTapped(item))
         } label: {
-            HStack(spacing: 0) {
-                Text(item.message)
-                    .typography(.b1_14b)
-                    .foregroundStyle(Color.Gray.gray500)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                    .frame(width: 276, alignment: .leading)
+            HStack(spacing: Spacing.spacing9) {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text(item.message)
+                        .typography(.b1_14b)
+                        .foregroundStyle(Color.Gray.gray500)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+
+                    Text(RelativeTimeFormatter().displayText(from: item.createdAt))
+                        .typography(.b1_14b)
+                        .foregroundStyle(Color.Gray.gray200)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.leading, Spacing.spacing3)
+                }
+                .frame(width: 280, alignment: .leading)
 
                 Spacer(minLength: 0)
 

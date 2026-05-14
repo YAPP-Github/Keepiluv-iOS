@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+import DomainCommonInterface
 import DomainGoalInterface
 import SharedDesignSystem
 
@@ -17,7 +18,7 @@ import SharedDesignSystem
 /// let category = GoalCategory.health
 /// print(category.title)
 /// ```
-public enum GoalCategory: CaseIterable, Equatable {
+public enum GoalCategory: String, CaseIterable, Equatable {
     case custom
     case health
     case vitamin
@@ -52,7 +53,7 @@ extension GoalCategory {
         }
     }
     
-    public var repeatCycle: Goal.RepeatCycle {
+    public var repeatCycle: RepeatCycle {
         switch self {
         case .custom: .daily
         case .health: .weekly

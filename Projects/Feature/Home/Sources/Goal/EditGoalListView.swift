@@ -8,6 +8,7 @@
 import SwiftUI
 
 import ComposableArchitecture
+import FeatureCommonInterface
 import FeatureHomeInterface
 import SharedDesignSystem
 
@@ -30,11 +31,6 @@ struct EditGoalListView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            
             if let cards = store.cards, cards.isEmpty {
                 emptyContent
             }
@@ -50,6 +46,9 @@ struct EditGoalListView: View {
             guard store.selectedCardMenu != nil else { return }
             store.send(.backgroundTapped)
         }
+        .transaction { transaction in
+            transaction.animation = nil
+        }
         .txModal(
             item: $store.modal,
             onAction: { action in
@@ -61,6 +60,7 @@ struct EditGoalListView: View {
         .txToast(item: $store.toast, onButtonTap: {
             store.send(.toastButtonTapped)
         })
+        .txLoading(isPresented: store.isLoading)
     }
 }
 
@@ -78,6 +78,9 @@ private extension EditGoalListView {
             weeks: store.calendarWeeks,
             onSelect: { item in
                 store.send(.calendarDateSelected(item))
+            },
+            onSwipe: { swipe in
+                store.send(.weekCalendarSwipe(swipe))
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)

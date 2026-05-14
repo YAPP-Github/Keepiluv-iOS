@@ -11,11 +11,7 @@ import PackageDescription
             "Pulse": .framework,
             "KakaoSDK": .staticLibrary,
             "GoogleSignIn": .staticLibrary,
-            "GoogleSignInSwift": .staticLibrary,
-            "FirebaseCore": .staticLibrary,
-            "FirebaseAnalytics": .staticLibrary,
-            "FirebaseRemoteConfig" : .staticLibrary,
-            "FirebaseMessaging": .staticLibrary
+            "GoogleSignInSwift": .staticLibrary
         ]
     )
 #endif
@@ -23,11 +19,11 @@ import PackageDescription
 let package = Package(
     name: "Twix",
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.1"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.2"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
         .package(url: "https://github.com/kean/Pulse", from: "5.1.4"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.27.1"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "9.1.0"),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.9.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.13.0")
     ]
 )

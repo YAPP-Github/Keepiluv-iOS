@@ -9,6 +9,7 @@ import Foundation
 
 import ComposableArchitecture
 import CoreNetworkInterface
+import DomainCommonInterface
 
 /// 통계 데이터 조회 API를 추상화한 클라이언트입니다.
 ///
@@ -176,6 +177,7 @@ extension StatsClient: TestDependencyKey {
             return .init(
                 goalId: 1,
                 goalName: "밥 잘 챙겨먹기",
+                goalIcon: "ICON_DEFAULT",
                 isCompleted: false,
                 yearMonth: "2026-02",
                 completedDate: [

@@ -8,6 +8,7 @@
 import Foundation
 
 import ComposableArchitecture
+import CoreAnalyticsInterface
 import DomainGoalInterface
 import FeatureMakeGoalInterface
 import SharedDesignSystem
@@ -16,68 +17,25 @@ extension MakeGoalReducer {
     // swiftlint:disable:next function_body_length
     public init() {
         @Dependency(\.goalClient) var goalClient
+        @Dependency(\.analyticsClient) var analyticsClient
         // swiftlint:disable:next closure_body_length
         let reducer = Reduce<State, Action> { state, action in
             switch action {
                 // MARK: - LifeCycle
             case .onAppear:
-                if case .edit = state.mode, let goalId = state.editingGoalId {
-                    state.isLoading = true
-                    return .run { send in
-                        do {
-                            let goal = try await goalClient.fetchGoalById(goalId)
-                            await send(.fetchGoalCompleted(goal))
-                        } catch {
-                            await send(.fetchGoalFailed)
-                        }
-                    }
-                }
                 return .none
 
             case .onDisappear:
                 return .none
 
-            case let .fetchGoalCompleted(goal):
-                state.isLoading = false
-                state.goalTitle = goal.title
-                state.selectedEmojiIndex = state.icons.firstIndex(
-                    of: GoalIcon(from: goal.goalIcon)
-                ) ?? 0
-                if let repeatCycle = goal.repeatCycle {
-                    state.selectedPeriod = repeatCycle
-                }
-                if let repeatCount = goal.repeatCount {
-                    switch state.selectedPeriod {
-                    case .weekly:
-                        state.weeklyPeriodCount = repeatCount
-                    case .monthly:
-                        state.monthlyPeriodCount = repeatCount
-                    case .daily:
-                        break
-                    }
-                }
-                // 시작일/종료일 설정
-                if let startDateString = goal.startDate,
-                   let startDate = TXCalendarUtil.parseAPIDateString(startDateString) {
-                    state.startDate = startDate
-                }
-                if let endDateString = goal.endDate,
-                   let endDate = TXCalendarUtil.parseAPIDateString(endDateString) {
-                    state.endDate = endDate
-                    state.isEndDateOn = true
-                }
-                return .send(.updateDateText)
-
-            case .fetchGoalFailed:
-                state.isLoading = false
-                return .send(.showToast(.warning(message: "목표 정보를 불러오지 못했어요")))
-
             case .createGoalFailed:
                 state.isLoading = false
+                state.submitMessage = nil
                 return .send(.showToast(.warning(message: "목표 생성에 실패했어요")))
 
             case .updateGoalFailed:
                 state.isLoading = false
+                state.submitMessage = nil
                 return .send(.showToast(.warning(message: "이미 완료한 목표입니다!")))
 
                 // MARK: - User Action
@@ -92,7 +50,7 @@ extension MakeGoalReducer {
                 return .none
                 
             case let .modalConfirmTapped(index):
-                state.selectedEmojiIndex = index
+                state.goalData.icon = state.icons[index]
                 return .none
 
             case let .goalTitleFocusChanged(isFocused):
@@ -104,14 +62,7 @@ extension MakeGoalReducer {
                 return .none
 
             case let .periodTabSelected(item):
-                switch item {
-                case .daily:
-                    state.selectedPeriod = .daily
-                case .weekly:
-                    state.selectedPeriod = .weekly
-                case .monthly:
-                    state.selectedPeriod = .monthly
-                }
+                state.goalData.repeatCycle = item.repeatCycle
                 return .none
                 
             case .periodSelected:
@@ -120,41 +71,41 @@ extension MakeGoalReducer {
                 return .none
                 
             case .periodSheetWeeklyTapped:
-                state.selectedPeriod = .weekly
+                state.goalData.repeatCycle = .weekly
                 return .none
                 
             case .periodSheetMonthlyTapped:
-                state.selectedPeriod = .monthly
+                state.goalData.repeatCycle = .monthly
                 return .none
                 
             case .periodSheetMinusTapped:
-                switch state.selectedPeriod {
+                switch state.goalData.repeatCycle {
                 case .daily:
                     return .none
                     
                 case .weekly:
-                    state.weeklyPeriodCount -= 1
-                    state.selectedPeriod = .weekly
+                    state.goalData.weeklyPeriodCount -= 1
+                    state.goalData.repeatCycle = .weekly
                     
                 case .monthly:
-                    state.monthlyPeriodCount -= 1
-                    state.selectedPeriod = .monthly
+                    state.goalData.monthlyPeriodCount -= 1
+                    state.goalData.repeatCycle = .monthly
                 }
                 
                 return .none
                 
             case .periodSheetPlusTapped:
-                switch state.selectedPeriod {
+                switch state.goalData.repeatCycle {
                 case .daily:
                     return .none
                     
                 case .weekly:
-                    state.weeklyPeriodCount += 1
-                    state.selectedPeriod = .weekly
+                    state.goalData.weeklyPeriodCount += 1
+                    state.goalData.repeatCycle = .weekly
                     
                 case .monthly:
-                    state.monthlyPeriodCount += 1
-                    state.selectedPeriod = .monthly
+                    state.goalData.monthlyPeriodCount += 1
+                    state.goalData.repeatCycle = .monthly
                 }
                 
                 return .none
@@ -166,19 +117,19 @@ extension MakeGoalReducer {
             case .startDateTapped:
                 state.isGoalTitleFocused = false
                 state.calendarTarget = .startDate
-                state.calendarSheetDate = state.startDate
+                state.calendarSheetDate = state.goalData.startDate
                 state.isCalendarSheetPresented = true
                 return .none
                 
             case .endDateTapped:
                 state.isGoalTitleFocused = false
                 state.calendarTarget = .endDate
-                if state.endDate < state.startDate {
-                    state.endDate = state.startDate
+                if state.goalData.endDate < state.goalData.startDate {
+                    state.goalData.endDate = state.goalData.startDate
                 }
-                state.calendarSheetDate = state.endDate
+                state.calendarSheetDate = state.goalData.endDate
                 state.isCalendarSheetPresented = true
-                return .send(.updateDateText)
+                return .none
                 
             case .monthCalendarConfirmTapped:
                 guard let target = state.calendarTarget else {
@@ -188,42 +139,47 @@ extension MakeGoalReducer {
                 
                 switch target {
                 case .startDate:
-                    state.startDate = state.calendarSheetDate
-                    if state.endDate < state.startDate {
-                        state.endDate = state.startDate
+                    state.goalData.startDate = state.calendarSheetDate
+                    if state.goalData.endDate < state.goalData.startDate {
+                        state.goalData.endDate = state.goalData.startDate
                     }
                     
                 case .endDate:
-                    state.endDate = state.calendarSheetDate
+                    state.goalData.endDate = state.calendarSheetDate
                 }
                 
                 state.isCalendarSheetPresented = false
-                return .send(.updateDateText)
+                return .none
                 
             case .completeButtonTapped:
                 guard !state.isLoading else { return .none }
                 guard !state.completeButtonDisabled  else {
                     return .send(.showToast(.warning(message: "목표 이름은 14글자 이내로 입력해 주세요!")))
                 }
-                
-                state.isLoading = true
-                let endDateString: String? = state.isEndDateOn
-                    ? TXCalendarUtil.apiDateString(for: state.endDate)
-                    : nil
 
+                state.isLoading = true
+                let endDateString: String? = state.goalData.isEndDateOn
+                ? TXCalendarUtil.apiDateString(for: state.goalData.endDate)
+                : nil
                 switch state.mode {
-                case .add:
+                case let .add(category):
+                    let category = category.rawValue
+                    state.submitMessage = "등록 중..."
                     let request = GoalCreateRequestDTO(
-                        name: state.goalTitle,
-                        icon: state.selectedEmoji.rawValue,
-                        repeatCycle: state.selectedPeriod.rawValue,
+                        name: state.goalData.title,
+                        icon: state.goalData.icon.rawValue,
+                        repeatCycle: state.goalData.repeatCycle.rawValue,
                         repeatCount: state.periodCount,
-                        startDate: TXCalendarUtil.apiDateString(for: state.startDate),
+                        startDate: TXCalendarUtil.apiDateString(for: state.goalData.startDate),
                         endDate: endDateString
                     )
                     return .run { send in
                         do {
-                            _ = try await goalClient.createGoal(request)
+                            let goal = try await goalClient.createGoal(request)
+                            analyticsClient
+                                .logEvent(
+                                    MakeGoalAnalyticsEvent.created(goalId: goal.id, kind: category)
+                                )
                             await send(.delegate(.navigateBack))
                         } catch {
                             await send(.createGoalFailed)
@@ -231,14 +187,16 @@ extension MakeGoalReducer {
                     }
 
                 case .edit:
-                    guard let goalId = state.editingGoalId else {
+                    state.submitMessage = "수정 중..."
+                    guard let goalId = state.goalData.goalId else {
                         state.isLoading = false
+                        state.submitMessage = nil
                         return .send(.showToast(.warning(message: "목표 수정에 실패했어요")))
                     }
                     let request = GoalUpdateRequestDTO(
-                        goalName: state.goalTitle,
-                        icon: state.selectedEmoji.rawValue,
-                        repeatCycle: state.selectedPeriod.rawValue,
+                        goalName: state.goalData.title,
+                        icon: state.goalData.icon.rawValue,
+                        repeatCycle: state.goalData.repeatCycle.rawValue,
                         repeatCount: state.periodCount,
                         endDate: endDateString
                     )
@@ -257,15 +215,6 @@ extension MakeGoalReducer {
 
             case let .showToast(toast):
                 state.toast = toast
-                return .none
-
-            case .updateDateText:
-                guard let startDay = state.startDate.day,
-                      let endDay = state.endDate.day
-                else { return .none}
-                
-                state.startDateText = "\(state.startDate.month)월 \(startDay)일"
-                state.endDateText = "\(state.endDate.month)월 \(endDay)일"
                 return .none
 
             case .delegate:

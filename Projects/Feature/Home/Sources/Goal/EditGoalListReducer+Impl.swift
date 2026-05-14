@@ -9,10 +9,11 @@ import Foundation
 import SwiftUI
 
 import ComposableArchitecture
+import DomainCommonInterface
 import DomainGoalInterface
+import FeatureCommonInterface
 import FeatureHomeInterface
 import SharedDesignSystem
-import SharedUtil
 
 extension EditGoalListReducer {
     /// 실제 로직을 포함한 EditGoalListReducer를 생성합니다.
@@ -86,7 +87,10 @@ extension EditGoalListReducer {
                     if isPast {
                         state.toast = .warning(message: "이미 완료한 목표입니다!")
                     } else {
-                        return .send(.delegate(.goToGoalEdit(goalId: card.id)))
+                        guard let editableGoal = state.editableGoals?.first(where: { $0.id == card.id }) else {
+                            return .send(.apiError("목표 수정에 실패했어요"))
+                        }
+                        return .send(.delegate(.goToGoalEdit(editableGoal)))
                     }
                     
                 case .finish:
@@ -169,28 +173,46 @@ extension EditGoalListReducer {
                 let date = state.calendarDate
                 return .run { send in
                     do {
-                        let items = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: date))
-                        let editItems = items.map {
-                            GoalEditCardItem(
-                                id: $0.id,
-                                goalName: $0.title,
-                                iconImage: GoalIcon(from: $0.goalIcon).image,
-                                repeatCycle: $0.repeatCycle?.text ?? "",
-                                startDate: $0.startDate?.dateDisplayString ?? "",
-                                endDate: $0.endDate?.dateDisplayString ?? "미설정"
-                            )
-                        }
-                        await send(.fetchGoalsCompleted(editItems, date: date))
+                        let goals = try await goalClient.fetchGoalEditList(TXCalendarUtil.apiDateString(for: date))
+                            .compactMap { goal -> EditableGoal? in
+                                guard let repeatCycle = goal.repeatCycle,
+                                      let startDate = goal.startDate else {
+                                    return nil
+                                }
+                                
+                                return EditableGoal(
+                                    id: goal.id,
+                                    name: goal.title,
+                                    icon: goal.goalIcon,
+                                    repeatCycle: repeatCycle,
+                                    repeatCount: goal.repeatCount,
+                                    startDate: startDate,
+                                    endDate: goal.endDate
+                                )
+                            }
+                        await send(.fetchGoalsCompleted(goals, date: date))
                     } catch {
                         await send(.apiError("목표 조회에 실패했어요"))
                     }
                 }
 
-            case let .fetchGoalsCompleted(items, date):
+            case let .fetchGoalsCompleted(goals, date):
                 if date != state.calendarDate {
                     return .none
                 }
                 state.isLoading = false
+                state.editableGoals = goals
+                let items = goals.map {
+                    GoalEditCardItem(
+                        id: $0.id,
+                        goalName: $0.name,
+                        goalIcon: GoalIcon(from: $0.icon),
+                        iconImage: GoalIcon(from: $0.icon).thinImage,
+                        repeatCycle: $0.repeatCycle.text,
+                        startDate: $0.startDate.dateDisplayString,
+                        endDate: $0.endDate?.dateDisplayString ?? "미설정"
+                    )
+                }
                 if state.cards != items {
                     state.cards = items
                 }
@@ -200,6 +222,7 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
+                state.editableGoals?.removeAll { $0.id == goalId }
                 state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.delete(message: "목표가 삭제되었어요")))
 
@@ -207,6 +230,7 @@ extension EditGoalListReducer {
                 state.isLoading = false
                 state.pendingGoalId = nil
                 state.pendingAction = nil
+                state.editableGoals?.removeAll { $0.id == goalId }
                 state.cards?.removeAll { $0.id == goalId }
                 return .send(.showToast(.success(message: "목표를 이뤘어요", buttonText: "보러가기")))
 
