@@ -50,7 +50,7 @@ extension MakeGoalReducer {
                 return .none
                 
             case let .modalConfirmTapped(index):
-                state.selectedEmojiIndex = index
+                state.goalData.icon = state.icons[index]
                 return .none
 
             case let .goalTitleFocusChanged(isFocused):
@@ -129,7 +129,7 @@ extension MakeGoalReducer {
                 }
                 state.calendarSheetDate = state.goalData.endDate
                 state.isCalendarSheetPresented = true
-                return .send(.updateDateText)
+                return .none
                 
             case .monthCalendarConfirmTapped:
                 guard let target = state.calendarTarget else {
@@ -149,7 +149,7 @@ extension MakeGoalReducer {
                 }
                 
                 state.isCalendarSheetPresented = false
-                return .send(.updateDateText)
+                return .none
                 
             case .completeButtonTapped:
                 guard !state.isLoading else { return .none }
@@ -167,7 +167,7 @@ extension MakeGoalReducer {
                     state.submitMessage = "등록 중..."
                     let request = GoalCreateRequestDTO(
                         name: state.goalData.title,
-                        icon: state.selectedEmoji.rawValue,
+                        icon: state.goalData.icon.rawValue,
                         repeatCycle: state.goalData.repeatCycle.rawValue,
                         repeatCount: state.periodCount,
                         startDate: TXCalendarUtil.apiDateString(for: state.goalData.startDate),
@@ -195,7 +195,7 @@ extension MakeGoalReducer {
                     }
                     let request = GoalUpdateRequestDTO(
                         goalName: state.goalData.title,
-                        icon: state.selectedEmoji.rawValue,
+                        icon: state.goalData.icon.rawValue,
                         repeatCycle: state.goalData.repeatCycle.rawValue,
                         repeatCount: state.periodCount,
                         endDate: endDateString
@@ -215,15 +215,6 @@ extension MakeGoalReducer {
 
             case let .showToast(toast):
                 state.toast = toast
-                return .none
-
-            case .updateDateText:
-                guard let startDay = state.goalData.startDate.day,
-                      let endDay = state.goalData.endDate.day
-                else { return .none}
-                
-                state.startDateText = "\(state.goalData.startDate.month)월 \(startDay)일"
-                state.endDateText = "\(state.goalData.endDate.month)월 \(endDay)일"
                 return .none
 
             case .delegate:
