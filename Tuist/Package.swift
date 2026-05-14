@@ -24,7 +24,7 @@ import PackageDescription
 let package = Package(
     name: "Twix",
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.1"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.2"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
         .package(url: "https://github.com/kean/Pulse", from: "5.1.4"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", from: "2.27.1"),
