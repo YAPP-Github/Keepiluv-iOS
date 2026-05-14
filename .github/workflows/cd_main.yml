@@ -22,7 +22,6 @@ jobs:
         with:
           keychain-name: ${{ secrets.KEYCHAIN_NAME }}
           keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          include-pulse: "false"
           skip-spm-cache: "true"
 
       - name: 🚀 Deploy to App Store Connect (Twix)
