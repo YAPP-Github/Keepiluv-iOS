@@ -8,8 +8,8 @@
 import Foundation
 
 import ComposableArchitecture
+import DomainGoalInterface
 import FeatureCommonInterface
-import FeatureMakeGoalInterface
 import SharedDesignSystem
 import SharedUtil
 import SwiftUI
@@ -38,6 +38,7 @@ public struct EditGoalListReducer {
         
         public var calendarDate: TXCalendarDate
         public var calendarWeeks: [[TXCalendarDateItem]]
+        public var editableGoals: [EditableGoal]?
         public var cards: [GoalEditCardItem]?
         public var hasCards: Bool { !(cards?.isEmpty ?? true) }
         public var selectedCardMenu: GoalEditCardItem?
@@ -85,7 +86,7 @@ public struct EditGoalListReducer {
         // MARK: - Update State
         case setCalendarDate(TXCalendarDate)
         case fetchGoals
-        case fetchGoalsCompleted([GoalEditCardItem], date: TXCalendarDate)
+        case fetchGoalsCompleted([EditableGoal], date: TXCalendarDate)
         case deleteGoalCompleted(goalId: Int64)
         case completeGoalCompleted(goalId: Int64)
         case apiError(String)
@@ -96,7 +97,7 @@ public struct EditGoalListReducer {
         
         public enum Delegate {
             case navigateBack
-            case goToGoalEdit(MakeGoalReducer.State.MakeGoal)
+            case goToGoalEdit(EditableGoal)
             case goToCompletedStats
         }
     }
