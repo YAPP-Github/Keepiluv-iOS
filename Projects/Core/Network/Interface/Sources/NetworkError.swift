@@ -52,3 +52,31 @@ extension NetworkError {
         }
     }
 }
+
+// MARK: - CustomNSError
+
+extension NetworkError: CustomNSError {
+    public static var errorDomain: String { "org.yapp.twix.network" }
+
+    public var errorCode: Int {
+        switch self {
+        case .invalidURLError:      return 1
+        case .invalidResponseError: return 2
+        case .authorizationError:   return 3
+        case .badRequestError:      return 4
+        case .notFoundError:        return 5
+        case .serverError:          return 6
+        case .decodingError:        return 7
+        case .encodingError:        return 8
+        case .unknownError:         return 9
+        }
+    }
+
+    public var errorUserInfo: [String: Any] {
+        var info: [String: Any] = [NSLocalizedDescriptionKey: errorMessage]
+        if case .badRequestError(let code) = self, let code {
+            info["serverCode"] = code
+        }
+        return info
+    }
+}

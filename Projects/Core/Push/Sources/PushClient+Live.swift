@@ -100,6 +100,19 @@ public enum PushError: Error, Sendable {
     case authorizationDenied
 }
 
+// MARK: - CustomNSError
+
+extension PushError: CustomNSError {
+    public static var errorDomain: String { "org.yapp.twix.push" }
+
+    public var errorCode: Int {
+        switch self {
+        case .tokenNotAvailable:   return 1
+        case .authorizationDenied: return 2
+        }
+    }
+}
+
 // MARK: - Notification.Name
 
 extension Notification.Name {

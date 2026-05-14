@@ -156,16 +156,44 @@ public enum KeychainError: Error, LocalizedError {
         switch self {
         case .saveFailed(let status):
             return "Keychain 저장 실패: \(status)"
-            
+
         case .loadFailed(let status):
             return "Keychain 불러오기 실패: \(status)"
-            
+
         case .deleteFailed(let status):
             return "Keychain 삭제 실패: \(status)"
-            
+
         case .invalidData:
             return "Keychain 데이터 형식 오류"
         }
+    }
+}
+
+// MARK: - CustomNSError
+
+extension KeychainError: CustomNSError {
+    public static var errorDomain: String { "org.yapp.twix.keychain" }
+
+    public var errorCode: Int {
+        switch self {
+        case .saveFailed:   return 1
+        case .loadFailed:   return 2
+        case .deleteFailed: return 3
+        case .invalidData:  return 4
+        }
+    }
+
+    public var errorUserInfo: [String: Any] {
+        var info: [String: Any] = [NSLocalizedDescriptionKey: errorDescription ?? ""]
+        switch self {
+        case .saveFailed(let status),
+             .loadFailed(let status),
+             .deleteFailed(let status):
+            info["osStatus"] = Int(status)
+        case .invalidData:
+            break
+        }
+        return info
     }
 }
 

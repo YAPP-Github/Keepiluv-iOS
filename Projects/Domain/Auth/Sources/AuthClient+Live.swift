@@ -82,7 +82,13 @@ private extension AuthClient {
         logger.debug("loginResult: \(loginResult)")
 
         let endpoint = createAuthEndpoint(from: loginResult)
-        let response: SignInResponse = try await networkClient.request(endpoint: endpoint)
+
+        let response: SignInResponse
+        do {
+            response = try await networkClient.request(endpoint: endpoint)
+        } catch {
+            throw AuthLoginError.networkError(error)
+        }
 
         let token = Token(
             accessToken: response.accessToken,
@@ -90,7 +96,11 @@ private extension AuthClient {
             expiresAt: Date().addingTimeInterval(oneHourInSeconds)
         )
 
-        try await tokenManager.saveTokenToStorage(token)
+        do {
+            try await tokenManager.saveTokenToStorage(token)
+        } catch {
+            throw AuthLoginError.storageFailed(error)
+        }
 
         return AuthResult(
             token: token,
@@ -110,7 +120,13 @@ private extension AuthClient {
         }
 
         let endpoint = AuthEndpoint.refresh(refreshToken: currentRefreshToken)
-        let response: RefreshResponse = try await networkClient.request(endpoint: endpoint)
+
+        let response: RefreshResponse
+        do {
+            response = try await networkClient.request(endpoint: endpoint)
+        } catch {
+            throw AuthLoginError.networkError(error)
+        }
 
         let token = Token(
             accessToken: response.accessToken,
@@ -118,7 +134,11 @@ private extension AuthClient {
             expiresAt: Date().addingTimeInterval(oneHourInSeconds)
         )
 
-        try await tokenManager.saveTokenToStorage(token)
+        do {
+            try await tokenManager.saveTokenToStorage(token)
+        } catch {
+            throw AuthLoginError.storageFailed(error)
+        }
 
         return token
     }

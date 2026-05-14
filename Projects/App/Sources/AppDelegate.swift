@@ -7,6 +7,7 @@
 
 import CoreLogging
 import FirebaseCore
+import FirebaseCrashlytics
 import FirebaseMessaging
 import UIKit
 import UserNotifications
@@ -21,6 +22,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Firebase 초기화
         FirebaseApp.configure()
 
+        #if DEBUG
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #else
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        #endif
+        
         // 푸시 알림 delegate 설정
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
