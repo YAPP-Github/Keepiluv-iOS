@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
 import CorePushInterface
 import DomainOnboardingInterface
 import Foundation
@@ -31,7 +32,10 @@ public struct OnboardingCoordinator {
     private var pushClient
     @Dependency(\.continuousClock)
     private var clock
-    @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.analyticsClient)
+    private var analyticsClient
+    @Dependency(\.crashlyticsClient)
+    private var crashlytics
 
     private enum CancelID {
         case couplePolling
@@ -48,6 +52,7 @@ public struct OnboardingCoordinator {
         var myInviteCode: String
         var pendingReceivedCode: String?
         var isLoadingInviteCode: Bool = false
+        var toast: TXToastType?
         var initialStatus: OnboardingStatus
         var isCouplePolling: Bool = false
 
@@ -99,6 +104,9 @@ public struct OnboardingCoordinator {
         // MARK: - API Response
         case fetchInviteCodeResponse(Result<String, Error>)
         case fetchStatusResponse(Result<OnboardingStatus, Error>)
+
+        // MARK: - Toast
+        case showToast(TXToastType)
 
         // MARK: - Navigation
         case navigateToCodeInputWithCode(myInviteCode: String, receivedCode: String)
@@ -264,9 +272,13 @@ public struct OnboardingCoordinator {
                 }
                 return .none
 
-            case .fetchInviteCodeResponse(.failure):
+            case let .fetchInviteCodeResponse(.failure(error)):
                 state.isLoadingInviteCode = false
-                // 에러 발생 시 임시 코드 사용 (또는 에러 처리)
+                crashlytics.record(error, OnboardingCrashlyticsRecordEvent.inviteCodeFetchFailed)
+                return .send(.showToast(.warning(message: "초대 코드를 불러오지 못했어요. 잠시 후 다시 시도해주세요.")))
+
+            case let .showToast(toast):
+                state.toast = toast
                 return .none
 
             // MARK: - Navigation

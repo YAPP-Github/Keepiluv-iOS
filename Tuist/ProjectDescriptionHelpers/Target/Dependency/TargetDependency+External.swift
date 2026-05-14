@@ -20,6 +20,7 @@ public extension TargetDependency {
         case FirebaseCore
         case FirebaseMessaging
         case FirebaseRemoteConfig
+        case FirebaseCrashlytics
         
         case GoogleSignIn
         case GoogleSignInSwift

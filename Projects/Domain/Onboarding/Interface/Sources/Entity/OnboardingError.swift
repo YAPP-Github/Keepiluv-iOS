@@ -44,3 +44,21 @@ extension OnboardingError: LocalizedError {
         }
     }
 }
+
+// MARK: - CustomNSError
+
+extension OnboardingError: CustomNSError {
+    public static var errorDomain: String { "org.yapp.twix.onboarding" }
+
+    public var errorCode: Int {
+        switch self {
+        case .invalidInviteCode:  return 1
+        case .inviteCodeNotFound: return 2
+        case .alreadyConnected:   return 3
+        case .alreadyOnboarded:   return 4
+        case .networkError:       return 5
+        case .serverError:        return 6
+        case .unknown:            return 7
+        }
+    }
+}

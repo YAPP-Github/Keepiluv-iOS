@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import CoreAnalytics
 import CoreAnalyticsInterface
+import CoreCrashlyticsInterface
 import CoreLogging
 import CoreNetworkInterface
 import CorePushInterface
@@ -35,7 +36,11 @@ struct AppCoordinator {
     @Dependency(\.notificationClient)
     var notificationClient
 
-    @Dependency(\.analyticsClient) var analyticsClient
+    @Dependency(\.analyticsClient)
+    var analyticsClient
+
+    @Dependency(\.crashlyticsClient)
+    var crashlytics
 
     private let authReducer: AuthReducer
     private let onboardingCoordinator: OnboardingCoordinator
@@ -149,9 +154,10 @@ struct AppCoordinator {
                 }
                 return .none
 
-            case .checkAuthResult(.failure):
+            case .checkAuthResult(.failure(let error)):
                 state.isCheckingAuth = false
                 state.route = .auth(AuthReducer.State())
+                crashlytics.record(error, AppCrashlyticsRecordEvent.appStartupFailed)
                 return .none
                 
             case let .checkOnboardingStatusResult(.success(status)):
@@ -198,10 +204,11 @@ struct AppCoordinator {
                 state.isCheckingAuth = false
                 if let networkError = error as? NetworkError,
                    case .authorizationError = networkError {
+                    crashlytics.log(AppCrashlyticsLogEvent.sessionExpiredAtOnboardingStatusCheck)
                     state.route = .auth(AuthReducer.State())
                     return .none
                 }
-                
+                crashlytics.record(error, AppCrashlyticsRecordEvent.onboardingStatusCheckFailed)
                 state.route = .onboarding(OnboardingCoordinator.State(
                     pendingReceivedCode: state.pendingInviteCode
                 ))
@@ -225,8 +232,9 @@ struct AppCoordinator {
                 
                 state.pendingNotificationDeepLink = nil
                 return .send(.route(.mainTab(.notificationDeepLinkReceived(deepLink))))
-                
-            case .route(.auth(.delegate(.loginSucceeded))):
+
+            case let .route(.auth(.delegate(.loginSucceeded(authResult)))):
+                crashlytics.setUserIdentifier("\(authResult.userId)")
                 return .merge(
                     // 1. 온보딩 상태 체크
                     .run { [onboardingClient] send in
