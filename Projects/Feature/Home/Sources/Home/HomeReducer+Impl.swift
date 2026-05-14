@@ -234,15 +234,16 @@ extension HomeReducer {
                     }
                     // 상대방 미인증 시 찌르기 API 호출
                     let goalId = card.id
-                    setPokeButtonDisabled(state: &state, goalId: goalId, isDisabled: true)
+                    let pokeDate = state.calendarDate
                     return .run { send in
                         PokeCooldownManager.recordPoke(goalId: goalId)
                         do {
                             try await goalClient.pokePartner(goalId)
+                            await send(.setPokeButtonDisabled(goalId: goalId, true, date: pokeDate))
                             await send(.showToast(.poke(message: "상대방을 찔렀어요!")))
                         } catch {
                             PokeCooldownManager.removePoke(goalId: goalId)
-                            await send(.setPokeButtonDisabled(goalId: goalId, false))
+                            await send(.setPokeButtonDisabled(goalId: goalId, false, date: pokeDate))
                             await send(.showToast(.warning(message: "찌르기에 실패했어요")))
                         }
                     }
@@ -314,7 +315,7 @@ extension HomeReducer {
                 }
                 
                 state.isLoading = false
-
+                
                 if state.items != items {
                     state.items = items
                 }
@@ -380,9 +381,17 @@ extension HomeReducer {
             case let .showToast(toast):
                 state.toast = toast
                 return .none
-
-            case let .setPokeButtonDisabled(goalId, isDisabled):
-                setPokeButtonDisabled(state: &state, goalId: goalId, isDisabled: isDisabled)
+                
+            case let .setPokeButtonDisabled(goalId, isDisabled, date):
+                if date == state.calendarDate {
+                    updatePokeButtonDisabled(in: &state.items, goalId: goalId, isDisabled: isDisabled)
+                }
+                
+                let cacheKey = TXCalendarUtil.apiDateString(for: date)
+                guard var cachedItems = state.goalsCache[cacheKey] else { return .none }
+                
+                updatePokeButtonDisabled(in: &cachedItems, goalId: goalId, isDisabled: isDisabled)
+                state.goalsCache[cacheKey] = cachedItems
                 return .none
                 
             case let .authorizationCompleted(id, isAuthorized):
@@ -484,7 +493,6 @@ extension HomeReducer {
             proofPhotoReducer: proofPhotoReducer
         )
     }
-    
 }
 
 private extension HomeGoalItem {
@@ -499,19 +507,6 @@ private extension HomeGoalItem {
 private func refreshPokeCooldownStates(state: inout HomeReducer.State) {
     state.items = state.items.map { $0.applyingPokeCooldownState() }
     state.goalsCache[TXCalendarUtil.apiDateString(for: state.calendarDate)] = state.items
-}
-
-private func setPokeButtonDisabled(
-    state: inout HomeReducer.State,
-    goalId: Int64,
-    isDisabled: Bool
-) {
-    updatePokeButtonDisabled(in: &state.items, goalId: goalId, isDisabled: isDisabled)
-
-    let cacheKey = TXCalendarUtil.apiDateString(for: state.calendarDate)
-    guard var cachedItems = state.goalsCache[cacheKey] else { return }
-    updatePokeButtonDisabled(in: &cachedItems, goalId: goalId, isDisabled: isDisabled)
-    state.goalsCache[cacheKey] = cachedItems
 }
 
 private func updatePokeButtonDisabled(

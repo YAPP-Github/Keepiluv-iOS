@@ -117,7 +117,7 @@ public struct HomeReducer {
         case setCalendarDate(TXCalendarDate)
         case setCalendarSheetPresented(Bool)
         case showToast(TXToastType)
-        case setPokeButtonDisabled(goalId: Int64, Bool)
+        case setPokeButtonDisabled(goalId: Int64, Bool, date: TXCalendarDate)
         case authorizationCompleted(id: Int64, isAuthorized: Bool)
         case proofPhotoDismissed
         case addGoalButtonTapped(GoalCategory)
