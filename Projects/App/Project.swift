@@ -61,7 +61,7 @@ private let commonBuildSettings: SettingsDictionary = [
     "KAKAO_APP_KEY": "fb2997e54bfe080cc5c1d9706d1251f4",
     "GOOGLE_CLIENT_ID": "48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3.apps.googleusercontent.com",
     "GOOGLE_REVERSED_CLIENT_ID": "com.googleusercontent.apps.48737424560-adiebqu29lsflj85v9vrd4e4a3cp6sa3",
-    "DEEPLINK_HOST": "keepiluv.jiyong.xyz",
+    "DEEPLINK_HOST": "keepiluv.teamtwix.com",
     "API_BASE_URL": "https://api.dev.teamtwix.com"
 ]
 

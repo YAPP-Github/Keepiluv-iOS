@@ -216,7 +216,7 @@ private extension TXCalendarBottomSheet {
     func datePickerView(height: CGFloat) -> some View {
         HStack(spacing: 0) {
             Picker("Year", selection: $selectedDate.year) {
-                ForEach(2026...2099, id: \.self) { year in
+                ForEach(1940...2099, id: \.self) { year in
                     Text(verbatim: "\(year)년").tag(year)
                 }
             }
