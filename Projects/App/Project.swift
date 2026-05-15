@@ -43,7 +43,6 @@ private let commonDependencies: [TargetDependency] = [
     .external(dependency: .KakaoSDKAuth),
     .external(dependency: .KakaoSDKCommon),
     .external(dependency: .GoogleSignIn),
-    .external(dependency: .FirebaseCore),
     .external(dependency: .FirebaseMessaging),
     .external(dependency: .FirebaseRemoteConfig),
     .core(implements: .crashlytics)
