@@ -48,12 +48,26 @@ Claude Code-specific guide:
 
 Do not treat Claude-specific workflow tips as universal agent rules unless also stated here or in technical docs.
 
-### `.pi/skills/`
+### Reusable agent skills
 
-Reusable Pi skills:
+Canonical skill instructions live under `.pi/skills/`.
+
+Cross-agent skills:
 
 - `docs-refactor`: documentation refactoring and architecture rule cleanup
 - `review-twix`: Twix iOS architecture/code review
+- `fix-review`: apply explicitly approved review findings with minimal diffs
+- `final-review`: pre-PR review, verification, commit preparation, and PR draft
+
+Agent-specific access:
+
+- Pi uses `.pi/skills/{name}/SKILL.md` directly.
+- Claude Code uses `.claude/skills/{name}/SKILL.md` thin links that point back to the canonical `.pi/skills/` files.
+- Codex CLI uses `.codex/skills/{name}/SKILL.md` thin links that point back to the canonical `.pi/skills/` files.
+
+Pi-only skill:
+
+- `handoff-twix` remains Pi-only because it orchestrates Pi-specific handoff, runner, review/fix/final-review flow.
 
 ### `docs/*.md`
 

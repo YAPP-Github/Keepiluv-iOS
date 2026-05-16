@@ -11,6 +11,76 @@ description: Use this skill to coordinate concise low-token handoffs between Pi,
 
 이 skill은 implementation skill이 아닙니다. 명시 요청이 없는 한 Pi가 feature를 직접 구현하지 않습니다. Pi가 계획과 handoff 파일을 만들고, Claude Code가 구현하며, Pi가 review/fix/finalize를 이어갈 수 있도록 간결한 handoff 파일과 runner를 사용합니다.
 
+## Invocation behavior
+
+`handoff-twix`는 누가 작업을 수행할지 조율하는 orchestration skill입니다. 사용자가 handoff를 명시적으로 요청한 경우, 의미상 가장 가까운 다른 skill로 collapse하거나 silent switch하지 않습니다. 명시 요청이 없는 한 Pi가 직접 구현/문서 rewrite를 수행하지 않습니다.
+
+Rules:
+
+1. 사용자가 concrete task 없이 `/skill:handoff-twix`만 호출한 경우:
+   - task를 추론하지 않습니다.
+   - `docs-refactor`, `review-twix`, `fix-review`, `final-review`로 전환하지 않습니다.
+   - 어떤 handoff workflow를 원하는지 질문합니다.
+   - 다음 선택지를 간결하게 제시합니다.
+     - full handoff with Claude Code
+     - create handoff files only
+     - continue after Claude implementation
+     - review implementation result
+     - apply approved fixes
+     - proceed to final-review
+
+2. 사용자가 `/skill:handoff-twix`와 concrete task/command를 함께 제공한 경우:
+   - matching handoff workflow를 즉시 수행합니다.
+   - 필수 정보가 빠진 경우가 아니면 redundant clarification을 묻지 않습니다.
+   - `handoff-twix` 책임 범위 안에 머무릅니다.
+   - 사용자가 명시적으로 요청하지 않는 한 Pi가 직접 requested change를 구현하지 않습니다.
+   - full handoff가 요청되면 Pi는 handoff 파일을 만들고 Claude Code runner를 사용하거나 준비합니다.
+   - partial mode가 요청되면 해당 partial mode만 수행합니다.
+
+3. 요청 task가 의미상 `docs-refactor`, `review-twix`, `fix-review`, `final-review`에 가까운 경우:
+   - 사용자가 `handoff-twix` full handoff를 요청했다면 해당 skill로 silent switch하지 않습니다.
+   - full handoff mode에서 해당 skills는 Claude implementation을 대체하지 않고 references/phases로만 사용합니다.
+   - `docs-refactor`, `review-twix`, `fix-review`, `final-review`는 적절한 phase에서만 사용하거나 사용자가 해당 partial workflow를 명시적으로 요청한 경우에만 사용합니다.
+
+4. task가 `handoff-twix` scope 밖인 경우:
+   - `handoff-twix` scope 밖이라고 말합니다.
+   - 적절한 skill을 제안하되, 사용자가 요청하지 않으면 자동 전환하지 않습니다.
+
+5. 사용자가 이미 다음을 제공한 경우 “진행할까요?”를 묻지 않습니다.
+   - workflow type
+   - implementation agent 또는 default Claude Code runner
+   - task
+   - handoff 파일 작성에 충분한 scope
+
+6. 다음처럼 필수 detail이 빠진 경우에만 질문합니다.
+   - task가 제공되지 않음
+   - full handoff와 files-only가 모호함
+   - external Claude Code 실행이 요청되었지만 approval이 필요함
+   - task에 owner decision이 필요함
+   - broad refactor 또는 public API change가 암시됨
+
+Examples:
+
+- Example A — skill only
+  - User: `/skill:handoff-twix`
+  - Expected behavior: 어떤 handoff workflow를 실행할지 질문합니다. `docs-refactor`나 implementation을 시작하지 않습니다.
+
+- Example B — full handoff
+  - User: `/skill:handoff-twix` + `Run full handoff with Claude Code: make docs-refactor/review-twix/fix-review/final-review usable by Codex/Claude Code through shared workflow docs.`
+  - Expected behavior: `PLAN.md`와 `IMPLEMENTATION_REQUEST.md`를 작성한 뒤 approval gates에 따라 Claude Code runner를 준비/실행합니다. Pi가 직접 docs를 수정하지 않습니다.
+
+- Example C — files only
+  - User: `/skill:handoff-twix` + `Create handoff files only for this task: ...`
+  - Expected behavior: `PLAN.md`와 `IMPLEMENTATION_REQUEST.md`를 작성한 뒤 중단합니다.
+
+- Example D — continue
+  - User: `/skill:handoff-twix` + `Claude implementation is done. Continue from IMPLEMENTATION_RESULT.md and git diff.`
+  - Expected behavior: result file과 `git diff`를 읽고 `review-twix` standard를 적용한 뒤 `REVIEW_REPORT.md`를 작성합니다.
+
+- Example E — outside scope
+  - User: handoff 없이 직접 docs rewrite를 요청합니다.
+  - Expected behavior: 사용자가 full handoff를 원하는 것이 아니라면 `docs-refactor`가 더 적절하다고 말합니다.
+
 ## Implementation agent
 
 Claude Code가 고정 implementation agent입니다.

@@ -16,6 +16,8 @@
 - 작업을 시작하기 전에 `AGENTS.md`의 문서 조회 순서와 편집 정책을 따르세요.
 - 팀 규칙이 필요한 작업은 [docs/Reference/ProjectRules.md](./docs/Reference/ProjectRules.md)를 함께 확인하세요.
 - 상세 구현은 작업 종류에 맞는 `docs/*.md`를 확인하세요.
+- 재사용 skill은 `.claude/skills/{name}/SKILL.md`에서 진입하되, 실제 원본 지침은 해당 파일이 가리키는 `.pi/skills/{name}/SKILL.md`를 읽으세요.
+- `handoff-twix`는 Pi 전용 orchestration skill이므로 Claude Code skill로 사용하지 않습니다.
 - 누락되었거나 링크가 깨진 문서는 추정하지 말고 사용자에게 확인하세요.
 
 ---
