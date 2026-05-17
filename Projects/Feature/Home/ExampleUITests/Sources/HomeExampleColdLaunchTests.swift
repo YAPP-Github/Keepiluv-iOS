@@ -4,7 +4,7 @@ import XCTest
 final class HomeExampleColdLaunchTests: XCTestCase {
     func testColdLaunch() {
         measure(metrics: [
-            XCTApplicationLaunchMetric(),
+            XCTClockMetric(),
             XCTMemoryMetric(),
             XCTCPUMetric()
         ]) {
