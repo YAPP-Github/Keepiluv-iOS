@@ -43,6 +43,9 @@ public struct HomeView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
+            if UITestMode.isEnabled {
+                perfActionHarness
+            }
             navigationBar
             calendar
             if store.hasCards {
@@ -52,6 +55,11 @@ public struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .perfStateMarker(
+            slug: "home",
+            key: "calendar-month",
+            value: "\(store.calendarDate.year)-\(store.calendarDate.month)"
+        )
         .onAppear {
             store.send(.onAppear)
         }
@@ -268,5 +276,37 @@ private extension HomeView {
             .padding(.bottom, 71 + 58)
             .padding(.trailing, 86)
             .ignoresSafeArea()
+    }
+
+    /// PERF-only controls used by Pass 3 same-screen state-change scenarios.
+    /// Production builds never enter this branch because `UITestMode.isEnabled`
+    /// requires the `-UITEST` launch argument. Buttons use a `Text` label
+    /// (44pt minimum hit target) so `XCUIElement.tap()` can resolve a valid
+    /// hit point. Visual opacity is `0.05` (effectively invisible) while
+    /// keeping the accessibility frame valid.
+    @ViewBuilder
+    var perfActionHarness: some View {
+        HStack(spacing: 0) {
+            Button {
+                var next = store.calendarDate
+                next.goToNextMonth()
+                store.send(.setCalendarDate(next))
+            } label: {
+                Text(verbatim: "▶")
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityIdentifier("feature.home.perf.calendar-next")
+
+            Button {
+                var prev = store.calendarDate
+                prev.goToPreviousMonth()
+                store.send(.setCalendarDate(prev))
+            } label: {
+                Text(verbatim: "◀")
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityIdentifier("feature.home.perf.calendar-prev")
+        }
+        .opacity(0.05)
     }
 }

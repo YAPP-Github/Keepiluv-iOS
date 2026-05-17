@@ -24,4 +24,15 @@ public extension View {
                 .accessibilityIdentifier("feature.\(slug).ready")
         }
     }
+
+    /// Exposes a deterministic accessibility marker whose identifier changes when
+    /// `value` changes. UITests can `waitForExistence` on a specific value to
+    /// detect that SwiftUI has reflected a state mutation.
+    func perfStateMarker(slug: String, key: String, value: String) -> some View {
+        overlay(alignment: .topLeading) {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityIdentifier("feature.\(slug).marker.\(key).\(value)")
+        }
+    }
 }
