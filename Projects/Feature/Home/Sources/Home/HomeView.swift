@@ -30,7 +30,7 @@ public struct HomeView: View {
     @Bindable public var store: StoreOf<HomeReducer>
     @Dependency(\.proofPhotoFactory) var proofPhotoFactory
     @State private var emptyScrollHeight: CGFloat = 0
-    
+
     /// HomeView를 생성합니다.
     ///
     /// ## 사용 예시
@@ -40,11 +40,18 @@ public struct HomeView: View {
     public init(store: StoreOf<HomeReducer>) {
         self.store = store
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
+            // PERF-only state-change harness (toast primary, calendar secondary).
+            // KNOWN LIMITATION: placed as VStack child rather than overlay
+            // because overlay placement produced `hit point {-1, -1}` for some
+            // buttons on iOS 26.2 simulator. This shifts the production layout
+            // ~44pt down ONLY in UITest mode; baseline and after both have the
+            // same shift, so DELTAs remain valid. See plan amendment B.
             if UITestMode.isEnabled {
                 perfActionHarness
+                PerfRebuildProxyPing("home.view.rebuild.proxy")
             }
             navigationBar
             calendar
@@ -55,10 +62,10 @@ public struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .perfStateMarker(
+        .modifier(PerfToastPresentationHarness(toast: $store.toast))
+        .perfCounterMarkers(
             slug: "home",
-            key: "calendar-month",
-            value: "\(store.calendarDate.year)-\(store.calendarDate.month)"
+            keys: ["home.view.rebuild.proxy"]
         )
         .onAppear {
             store.send(.onAppear)
@@ -128,7 +135,7 @@ private extension HomeView {
             }
         )
     }
-    
+
     var calendar: some View {
         TXCalendar(
             mode: .weekly,
@@ -145,8 +152,16 @@ private extension HomeView {
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
+        // Calendar-month marker lives inside the calendar sub-view so reading
+        // `store.calendarDate` for the marker value does NOT add a new read to
+        // the parent HomeView body.
+        .perfStateMarker(
+            slug: "home",
+            key: "calendar-month",
+            value: "\(store.calendarDate.year)-\(store.calendarDate.month)"
+        )
     }
-    
+
     var content: some View {
         ScrollView {
             Group {
@@ -193,14 +208,14 @@ private extension HomeView {
             }
         }
     }
-    
+
     var headerRow: some View {
         HStack(spacing: 0) {
             Text(store.goalSectionTitle)
                 .typography(.b1_14b)
-            
+
             Spacer()
-            
+
             Button {
                 store.send(.editButtonTapped)
             } label: {
@@ -211,7 +226,7 @@ private extension HomeView {
         }
         .frame(height: 24)
     }
-    
+
     var cardList: some View {
         LazyVStack(spacing: 16) {
             ForEach(store.items) { item in
@@ -237,7 +252,7 @@ private extension HomeView {
             actionRight: { store.send(.yourCardTapped(item.card)) }
         )
     }
-    
+
     @ViewBuilder
     var goalEmptyView: some View {
         Group {
@@ -246,7 +261,7 @@ private extension HomeView {
                     Image.Illustration.scare
                         .resizable()
                         .frame(width: 164, height: 164)
-                    
+
                     Text("이 날은 목표가 없어요!")
                         .typography(.t2_16b)
                         .foregroundStyle(Color.Gray.gray400)
@@ -255,12 +270,12 @@ private extension HomeView {
                 VStack(spacing: 0) {
                     Image.Illustration.emptyPoke
                         .frame(height: 116)
-                    
+
                     Text("첫 목표를 세워볼까요?")
                         .typography(.t2_16b)
                         .foregroundStyle(Color.Gray.gray400)
                         .padding(.top, 16)
-                    
+
                     Text("+ 버튼을 눌러 목표를 추가해보세요")
                         .typography(.c1_12r)
                         .foregroundStyle(Color.Gray.gray300)
@@ -270,7 +285,7 @@ private extension HomeView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     var emptyArrow: some View {
         Image.Illustration.arrow
             .padding(.bottom, 71 + 58)
@@ -280,13 +295,28 @@ private extension HomeView {
 
     /// PERF-only controls used by Pass 3 same-screen state-change scenarios.
     /// Production builds never enter this branch because `UITestMode.isEnabled`
-    /// requires the `-UITEST` launch argument. Buttons use a `Text` label
-    /// (44pt minimum hit target) so `XCUIElement.tap()` can resolve a valid
-    /// hit point. Visual opacity is `0.05` (effectively invisible) while
-    /// keeping the accessibility frame valid.
+    /// requires the `-UITEST` launch argument. Placed inside `.overlay` so it
+    /// does not shift production layout. Buttons use a Text label (44x44) so
+    /// `XCUIElement.tap()` can resolve a valid hit point.
     @ViewBuilder
     var perfActionHarness: some View {
         HStack(spacing: 0) {
+            Button {
+                store.send(.showToast(.warning(message: "perf-toast")))
+            } label: {
+                Text(verbatim: "T")
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityIdentifier("feature.home.perf.toast-show")
+
+            Button {
+                store.toast = nil
+            } label: {
+                Text(verbatim: "X")
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityIdentifier("feature.home.perf.toast-dismiss")
+
             Button {
                 var next = store.calendarDate
                 next.goToNextMonth()
@@ -308,5 +338,43 @@ private extension HomeView {
             .accessibilityIdentifier("feature.home.perf.calendar-prev")
         }
         .opacity(0.05)
+    }
+}
+
+// MARK: - PERF Toast Presentation Harness
+
+/// PERF-only modifier that observes `store.toast` and exposes a deterministic
+/// state-change marker. In production this modifier returns `content`
+/// unchanged so HomeView's read-set never includes `toast`. The toast field
+/// is already displayed at MainTab level in production, so any UITest-only
+/// rendering of toast here would not cause double-display.
+///
+/// Avoids `.txToast(item:)` because its 3-second auto-dismiss would add
+/// non-deterministic state changes during measurement. The lightweight
+/// overlay captures the same observation cost (HomeView body re-evaluating
+/// on `toast` mutation) without auto-dismiss noise.
+///
+/// After Pass 3 Commit 3 (read-set split) this modifier should be attached to
+/// the presentation sub-view instead of the parent HomeView so the observation
+/// stays scoped to the presentation layer.
+private struct PerfToastPresentationHarness: ViewModifier {
+    @Binding var toast: TXToastType?
+
+    func body(content: Content) -> some View {
+        if UITestMode.isEnabled {
+            content
+                .overlay(alignment: .bottom) {
+                    if toast != nil {
+                        Color.clear.frame(width: 1, height: 1)
+                    }
+                }
+                .perfStateMarker(
+                    slug: "home",
+                    key: "toast",
+                    value: toast == nil ? "hidden" : "visible"
+                )
+        } else {
+            content
+        }
     }
 }

@@ -1,16 +1,48 @@
 import SharedPerfTestingSupportUITests
 import XCTest
 
-/// Pass 3 PRIMARY action-latency scenario for FeatureHomeExample.
+/// Pass 3 action-latency scenarios for FeatureHomeExample.
 ///
-/// Toggles `HomeReducer.State.calendarDate` between two adjacent months via
-/// the production `.setCalendarDate` action (dispatched from a PERF-only
-/// hidden button inside `HomeView`). Each toggle exercises the HomeView
-/// read-set: calendarMonthTitle / calendarWeeks / isRefreshHidden change and
-/// items refetch, which today invalidates the whole HomeView body. After
-/// Pass 3 Phase E Commit 3 (read-set split), this scenario should only
-/// invalidate the calendar + nav sub-views.
+/// PRIMARY (`testActionLatency_toastShowDismiss`): toggles `HomeReducer.State.toast`
+/// between `nil` and `.warning(message:)` via PERF-only buttons in `HomeView`.
+/// Production HomeView does not observe `toast` (the field is consumed by
+/// `MainTabView` in the production app shell), so a `PerfToastPresentationHarness`
+/// modifier conditionally adds the observation only when `UITestMode.isEnabled`.
+/// This is a list-content-independent presentation-only state change, so the
+/// Pass 3 Phase E Commit 3 read-set split should narrow this observation into
+/// a presentation sub-view rather than the parent HomeView body.
+///
+/// SECONDARY (`testActionLatency_calendarMonthToggle`): toggles `calendarDate`
+/// via `.setCalendarDate`. Real production state change observed by the
+/// calendar sub-view but ALSO triggers `calendarWeeks`/`items` cascade. Useful
+/// for measuring read-set split effect on cascading invalidation.
+///
+/// Reported metrics (`Clock Monotonic Time`) are **bundle latency** for
+/// `repetitions: 5` iterations of show+dismiss (or next+prev). Per-action
+/// latency is `bundle / 5 / 2` (each repetition is two state changes).
 final class HomeExampleActionLatencyTests: XCTestCase {
+    func testActionLatency_toastShowDismiss() {
+        let app = XCUIApplication.launchForPerf(seed: "default")
+        waitForFeatureReady("home", timeout: 30)
+
+        let showButton = app.descendants(matching: .any)["feature.home.perf.toast-show"]
+        let dismissButton = app.descendants(matching: .any)["feature.home.perf.toast-dismiss"]
+        XCTAssertTrue(showButton.waitForExistence(timeout: 5), "PERF toast-show button missing")
+        XCTAssertTrue(dismissButton.exists, "PERF toast-dismiss button missing")
+        awaitPerfMarker(slug: "home", key: "toast", value: "hidden", timeout: 5)
+
+        measureActionLatency(repetitions: 5) {
+            showButton.tap()
+            awaitPerfMarker(slug: "home", key: "toast", value: "visible")
+            dismissButton.tap()
+            awaitPerfMarker(slug: "home", key: "toast", value: "hidden")
+        }
+
+        let rebuildProxy = readPerfCounter(slug: "home", key: "home.view.rebuild.proxy")
+        XCTAssertGreaterThan(rebuildProxy, 0, "home.view.rebuild.proxy counter never incremented")
+        print("[perf-counters] home.view.rebuild.proxy=\(rebuildProxy)")
+    }
+
     func testActionLatency_calendarMonthToggle() {
         let app = XCUIApplication.launchForPerf(seed: "default")
         waitForFeatureReady("home", timeout: 30)
@@ -20,9 +52,6 @@ final class HomeExampleActionLatencyTests: XCTestCase {
         XCTAssertTrue(nextButton.waitForExistence(timeout: 5), "PERF calendar-next button missing")
         XCTAssertTrue(prevButton.exists, "PERF calendar-prev button missing")
 
-        // Pin to a known base month so the cycle is deterministic across runs.
-        // The PERF buttons mutate from the current calendarDate, so we read the
-        // first observed marker to establish the cycle.
         let baseMarker = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'feature.home.marker.calendar-month.'"))
             .firstMatch
@@ -49,5 +78,9 @@ final class HomeExampleActionLatencyTests: XCTestCase {
             prevButton.tap()
             awaitPerfMarker(slug: "home", key: "calendar-month", value: baseValue)
         }
+
+        let rebuildProxy = readPerfCounter(slug: "home", key: "home.view.rebuild.proxy")
+        XCTAssertGreaterThan(rebuildProxy, 0, "home.view.rebuild.proxy counter never incremented")
+        print("[perf-counters] home.view.rebuild.proxy=\(rebuildProxy)")
     }
 }

@@ -38,6 +38,27 @@ public func awaitPerfMarker(
     )
 }
 
+/// Reads the latest value of a `PerfCounters` counter via its accessibility
+/// marker (see `perfCounterMarkers(slug:keys:)`). Returns `-1` if no marker is
+/// present (e.g. counter never written, or view body has not yet re-evaluated
+/// after the increment). Trigger a body re-render via a state-change marker
+/// before reading to ensure the marker reflects the latest counter value.
+public func readPerfCounter(slug: String, key: String) -> Int {
+    let app = XCUIApplication()
+    let prefix = "feature.\(slug).counter.\(key)."
+    let query = app.descendants(matching: .any).matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", prefix)
+    )
+    for index in 0..<query.count {
+        let identifier = query.element(boundBy: index).identifier
+        if let suffix = identifier.components(separatedBy: prefix).last,
+           let value = Int(suffix) {
+            return value
+        }
+    }
+    return -1
+}
+
 public var defaultPerfMetrics: [XCTMetric] {
     [
         XCTClockMetric(),

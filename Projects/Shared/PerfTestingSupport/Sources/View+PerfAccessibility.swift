@@ -35,4 +35,24 @@ public extension View {
                 .accessibilityIdentifier("feature.\(slug).marker.\(key).\(value)")
         }
     }
+
+    /// Exposes one accessibility marker per `PerfCounters` key. Each marker's
+    /// identifier embeds the current counter value, e.g.
+    /// `feature.home.counter.goal-section-title.42`. UITests can enumerate
+    /// `feature.<slug>.counter.*` after a scenario completes to capture deltas.
+    /// The markers are evaluated when the surrounding view body re-renders;
+    /// trigger a body re-render via a state-change marker before reading.
+    func perfCounterMarkers(slug: String, keys: [String]) -> some View {
+        overlay(alignment: .topLeading) {
+            VStack(spacing: 0) {
+                ForEach(keys, id: \.self) { key in
+                    Color.clear
+                        .frame(width: 1, height: 1)
+                        .accessibilityIdentifier(
+                            "feature.\(slug).counter.\(key).\(PerfCounters.value(for: key))"
+                        )
+                }
+            }
+        }
+    }
 }

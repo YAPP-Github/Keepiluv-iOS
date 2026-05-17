@@ -5,9 +5,10 @@ import SwiftUI
 public enum UITestMode {
     private static let arguments = ProcessInfo.processInfo.arguments
 
-    public static var isEnabled: Bool {
-        arguments.contains("-UITEST")
-    }
+    /// Cached so production code on the increment fast-path of `PerfCounters`
+    /// pays a single `let` read instead of scanning `ProcessInfo.arguments`
+    /// every call.
+    public static let isEnabled: Bool = arguments.contains("-UITEST")
 
     public static var seedName: String {
         value(after: "-UITEST_SEED") ?? "default"
