@@ -293,11 +293,22 @@ private extension HomeView {
             .ignoresSafeArea()
     }
 
-    /// PERF-only controls used by Pass 3 same-screen state-change scenarios.
-    /// Production builds never enter this branch because `UITestMode.isEnabled`
-    /// requires the `-UITEST` launch argument. Placed inside `.overlay` so it
-    /// does not shift production layout. Buttons use a Text label (44x44) so
-    /// `XCUIElement.tap()` can resolve a valid hit point.
+    /// PERF-only controls used by Pass 3 **probe scenarios** (toast / calendar
+    /// month toggle). Production builds never enter this branch because
+    /// `UITestMode.isEnabled` requires the `-UITEST` launch argument. Buttons
+    /// use a 44x44 Text label so `XCUIElement.tap()` can resolve a valid hit
+    /// point.
+    ///
+    /// **Known limitation**: this harness is the first child of HomeView's
+    /// VStack and shifts the production layout by ~44pt in UITest mode.
+    /// `.overlay` placement (which would be layout-neutral) produced
+    /// non-deterministic `hit point {-1, -1}` for some buttons on iOS 26.2
+    /// simulator. Baseline and after both share the shift, so DELTAs from
+    /// probe scenarios remain comparable. **The harness must NOT be mixed
+    /// into authoritative rendering scenarios** (e.g. feed scroll) where the
+    /// 44pt shift would affect scroll geometry, visible cell count, or
+    /// LazyVStack materialization range. Rendering scenarios should run in a
+    /// separate launch mode that does not activate this harness.
     @ViewBuilder
     var perfActionHarness: some View {
         HStack(spacing: 0) {
@@ -343,11 +354,18 @@ private extension HomeView {
 
 // MARK: - PERF Toast Presentation Harness
 
-/// PERF-only modifier that observes `store.toast` and exposes a deterministic
-/// state-change marker. In production this modifier returns `content`
-/// unchanged so HomeView's read-set never includes `toast`. The toast field
-/// is already displayed at MainTab level in production, so any UITest-only
-/// rendering of toast here would not cause double-display.
+/// PERF-only modifier used by Pass 3 **probe scenarios**. Observes
+/// `store.toast` and exposes a deterministic state-change marker. In
+/// production this modifier returns `content` unchanged so HomeView's
+/// read-set never includes `toast`.
+///
+/// **Probe context**: production HomeView does not observe `toast` (the
+/// field is displayed at the MainTab level in the production app shell).
+/// This modifier adds an artificial UITEST-only observation path so the
+/// toast probe scenario can exercise observation scoping experiments. The
+/// scenario is therefore **not representative of the user's real rendering
+/// path**, and the resulting XCTest numbers must not be cited as UI
+/// Rendering improvement evidence.
 ///
 /// Avoids `.txToast(item:)` because its 3-second auto-dismiss would add
 /// non-deterministic state changes during measurement. The lightweight

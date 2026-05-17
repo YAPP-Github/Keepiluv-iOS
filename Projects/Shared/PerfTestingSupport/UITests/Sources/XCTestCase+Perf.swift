@@ -67,8 +67,12 @@ public var defaultPerfMetrics: [XCTMetric] {
     ]
 }
 
-/// Metrics tuned for same-screen state-change action latency measurements.
-/// Excludes memory delta (dominated by SwiftUI internals and not the action path).
+/// Metrics tuned for **probe-only** driver/marker sanity measurements.
+/// Excludes memory delta (dominated by SwiftUI internals and not the action
+/// path). These numbers include XCUI tap synthesis, marker polling,
+/// accessibility-tree synchronization, and app/test process IPC — they do
+/// not isolate SwiftUI rendering cost and must not be cited as the
+/// authoritative UI Rendering metric.
 public var actionLatencyMetrics: [XCTMetric] {
     [
         XCTClockMetric(),
@@ -77,9 +81,19 @@ public var actionLatencyMetrics: [XCTMetric] {
 }
 
 public extension XCTestCase {
-    /// Wraps `measure(metrics:)` and repeats the supplied closure `repetitions`
-    /// times per iteration. Use for action-latency scenarios where each action
-    /// alone is too short to amortize XCTest measurement overhead.
+    /// **Probe-only** helper. Wraps `measure(metrics:)` and repeats the
+    /// supplied closure `repetitions` times per iteration to amortize XCTest
+    /// measurement overhead.
+    ///
+    /// The measured `Clock Monotonic Time` is the **bundle latency** for all
+    /// `repetitions` of `body`. To derive per-action latency you must divide
+    /// by `repetitions` and by the number of state changes per repetition.
+    ///
+    /// The reported numbers are a driver/marker sanity signal — they include
+    /// XCUI tap synthesis, marker polling, accessibility synchronization, and
+    /// app/test process IPC. They are **not** the authoritative UI Rendering
+    /// metric. Use Xcode Instruments / xctrace `Time Profiler` (or `SwiftUI`)
+    /// traces recorded on a real device for any final rendering comparison.
     func measureActionLatency(
         metrics: [XCTMetric] = actionLatencyMetrics,
         repetitions: Int = 5,

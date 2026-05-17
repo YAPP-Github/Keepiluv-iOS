@@ -38,10 +38,14 @@ public extension View {
 
     /// Exposes one accessibility marker per `PerfCounters` key. Each marker's
     /// identifier embeds the current counter value, e.g.
-    /// `feature.home.counter.goal-section-title.42`. UITests can enumerate
-    /// `feature.<slug>.counter.*` after a scenario completes to capture deltas.
-    /// The markers are evaluated when the surrounding view body re-renders;
-    /// trigger a body re-render via a state-change marker before reading.
+    /// `feature.home.counter.home.view.rebuild.proxy.42`. UITests can enumerate
+    /// `feature.<slug>.counter.*` after a scenario completes to capture
+    /// deltas. The markers are evaluated when the surrounding view body
+    /// re-renders; trigger a body re-render via a state-change marker before
+    /// reading.
+    ///
+    /// **Probe-only**. The counter values are sanity signals for the UITest
+    /// driver, not authoritative SwiftUI rendering metrics.
     func perfCounterMarkers(slug: String, keys: [String]) -> some View {
         overlay(alignment: .topLeading) {
             VStack(spacing: 0) {
