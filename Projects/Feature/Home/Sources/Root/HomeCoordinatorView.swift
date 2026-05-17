@@ -14,6 +14,7 @@ import FeatureNotificationInterface
 import FeatureMakeGoalInterface
 import FeatureSettingsInterface
 import FeatureStatsInterface
+import SharedPerfTestingSupport
 
 /// Home Feature의 NavigationStack을 제공하는 Root View입니다.
 ///
@@ -54,12 +55,14 @@ public struct HomeCoordinatorView: View {
                         IfLetStore(store.scope(state: \.goalDetail, action: \.goalDetail)) { store in
                             goalDetailFactory.makeView(store)
                                 .toolbar(.hidden, for: .tabBar)
+                                .perfReadyMarker("home-to-goal-detail")
                         }
 
                     case .statsDetail:
                         IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
                             statsDetailFactory.makeView(store)
                                 .toolbar(.hidden, for: .tabBar)
+                                .perfReadyMarker("home-to-stats-detail")
                         }
 
                     case .editGoalList:

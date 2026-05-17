@@ -11,6 +11,7 @@ import ComposableArchitecture
 import FeatureHomeInterface
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedPerfTestingSupport
 
 /// 홈 화면을 렌더링하는 View입니다.
 ///
@@ -207,11 +208,13 @@ private extension HomeView {
         LazyVStack(spacing: 16) {
             ForEach(store.items) { item in
                 goalCard(for: item)
+                    .perfCell(slug: "home", stableId: item.id)
             }
         }
         .padding(.top, 12)
+        .perfFeed("home")
     }
-    
+
     func goalCard(for item: HomeGoalItem) -> some View {
         GoalCardView(
             item: item.card,

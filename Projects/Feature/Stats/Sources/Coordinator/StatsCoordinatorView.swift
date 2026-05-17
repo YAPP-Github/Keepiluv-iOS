@@ -11,6 +11,7 @@ import ComposableArchitecture
 import FeatureGoalDetailInterface
 import FeatureMakeGoalInterface
 import FeatureStatsInterface
+import SharedPerfTestingSupport
 
 /// Stats Feature의 루트 화면을 렌더링하는 Coordinator View입니다.
 public struct StatsCoordinatorView: View {
@@ -46,6 +47,7 @@ public struct StatsCoordinatorView: View {
                         IfLetStore(store.scope(state: \.statsDetail, action: \.statsDetail)) { store in
                             StatsDetailView(store: store)
                                 .toolbar(.hidden, for: .tabBar)
+                                .perfReadyMarker("stats-to-stats-detail")
                         }
                         
                     case .goalDetail:

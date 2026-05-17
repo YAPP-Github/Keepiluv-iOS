@@ -5,14 +5,17 @@
 //  Created by 정지훈 on 1/23/26.
 //
 
+import AVFoundation
 import SwiftUI
 
 import ComposableArchitecture
 import CoreCaptureSession
+import CoreCaptureSessionInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
 import FeatureProofPhoto
 import FeatureProofPhotoInterface
+import SharedPerfTestingSupport
 import SharedDesignSystem
 
 struct GoalDetailExampleView: View {
@@ -29,7 +32,7 @@ struct GoalDetailExampleView: View {
                         proofPhotoReducer: ProofPhotoReducer()
                     )
                 }, withDependencies: {
-                    $0.captureSessionClient = .liveValue
+                    $0.captureSessionClient = UITestMode.isEnabled ? .perfMock : .liveValue
                     $0.proofPhotoFactory = .liveValue
                     $0.goalClient = .previewValue
                 }
@@ -40,4 +43,15 @@ struct GoalDetailExampleView: View {
 
 #Preview {
     GoalDetailExampleView()
+}
+
+private extension CaptureSessionClient {
+    static let perfMock = Self(
+        fetchIsAuthorized: { true },
+        setUpCaptureSession: { _ in AVCaptureSession() },
+        stopRunning: {},
+        capturePhoto: { Data() },
+        switchCamera: { _ in },
+        switchFlash: { _ in }
+    )
 }

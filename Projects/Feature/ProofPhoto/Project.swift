@@ -51,9 +51,15 @@ let project = Project.makeModule(
             example: .proofPhoto,
             config: .init(
                 dependencies: [
-                    .feature(interface: .proofPhoto)
+                    .feature(interface: .proofPhoto),
+                    .feature(implements: .proofPhoto),
+                    .core(implements: .captureSession),
+                    .core(interface: .crashlytics),
+                    .domain(interface: .photoLog),
+                    .external(dependency: .ComposableArchitecture)
                 ]
             )
-        )
+        ),
+        .feature(exampleUITests: .proofPhoto)
     ]
 )
