@@ -91,8 +91,8 @@ public struct HomeView: View {
             isPresented: $store.isProofPhotoPresented,
             onDismiss: { store.send(.proofPhotoDismissed) },
         ) {
-            IfLetStore(store.scope(state: \.proofPhoto, action: \.proofPhoto)) { store in
-                proofPhotoFactory.makeView(store)
+            if let proofPhotoStore = store.scope(state: \.proofPhoto, action: \.proofPhoto) {
+                proofPhotoFactory.makeView(proofPhotoStore)
             }
         }
         .cameraPermissionAlert(
