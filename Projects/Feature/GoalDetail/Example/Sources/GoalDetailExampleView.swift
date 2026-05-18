@@ -11,6 +11,7 @@ import SwiftUI
 import ComposableArchitecture
 import CoreCaptureSession
 import CoreCaptureSessionInterface
+import DomainGoalInterface
 import DomainPhotoLogInterface
 import FeatureGoalDetail
 import FeatureGoalDetailInterface
@@ -24,11 +25,18 @@ struct GoalDetailExampleView: View {
         GoalDetailView(
             store: Store(
                 initialState: GoalDetailReducer.State(
-                    // `.you` so `ReactionBarView` is visible
-                    // (`isShowReactionBar = !isFrontMyCard && isCompleted`).
-                    // Pass 3 GoalDetail rendering scenarios exercise the
-                    // reaction bar; with `.mySelf` the bar never appears.
-                    currentUser: .you,
+                    // Branch by launch scenario.
+                    //
+                    // - Probe / rendering scenarios target `ReactionBarView`,
+                    //   which is gated by `isShowReactionBar = !isFrontMyCard
+                    //   && isCompleted`. They require `.you`.
+                    // - Default-mode tests (Smoke / Navigation / ColdLaunch)
+                    //   target the primary-cta button (`feature.goal-detail
+                    //   .primary-cta`), which is only present when
+                    //   `isFrontMyCard` (i.e. `.mySelf`). Forcing `.you` for
+                    //   them would hide the button and break the navigation
+                    //   test.
+                    currentUser: Self.initialCurrentUser,
                     id: 1,
                     verificationDate: "2026-02-07"
                 ),
@@ -48,6 +56,19 @@ struct GoalDetailExampleView: View {
                 }
             )
         )
+    }
+}
+
+private extension GoalDetailExampleView {
+    /// Pick `.you` only when a Pass 3 PERF scenario is active so the
+    /// reaction bar is reachable. Otherwise default to `.mySelf` so the
+    /// primary-cta button is visible — required by the existing
+    /// `GoalDetailExampleNavigationTests`.
+    static var initialCurrentUser: GoalDetail.Owner {
+        if UITestMode.isProbeScenario || UITestMode.isRenderingScenario {
+            return .you
+        }
+        return .mySelf
     }
 }
 
