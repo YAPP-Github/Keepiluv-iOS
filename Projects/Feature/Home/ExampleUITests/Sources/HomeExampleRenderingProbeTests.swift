@@ -21,10 +21,15 @@ import XCTest
 ///   therefore an artificial path used to exercise observation scoping
 ///   experiments; it is NOT representative of the user's real rendering path.
 /// - The PERF action harness sits as the first VStack child in HomeView and
-///   shifts the production layout by ~44pt only in UITest mode. This is a
-///   known limitation (see plan amendment B). The harness must NOT be mixed
-///   into authoritative rendering scenarios (e.g. feed scroll) where layout
-///   shift affects scroll geometry / LazyVStack materialization.
+///   shifts the production layout by ~44pt **only when the probe scenario is
+///   active** (`-UITEST_PROBE_SCENARIO`). Plain UITest launches and
+///   `-UITEST_RENDERING_SCENARIO` launches do not activate the harness, so
+///   production layout / scroll geometry is preserved for those modes. Even
+///   inside the probe scenario, residual effects of the harness on SwiftUI
+///   layout pass, accessibility tree, scroll geometry, and LazyVStack
+///   materialization cannot be fully ruled out — probe DELTAs should be
+///   interpreted cautiously and any authoritative claim must be verified
+///   with an Instruments trace from a rendering-scenario launch.
 ///
 /// Treat the numbers below as **driver/probe sanity metrics**. Do not cite
 /// them as UI Rendering improvement evidence.
@@ -42,7 +47,7 @@ final class HomeExampleRenderingProbeTests: XCTestCase {
     /// `PerfToastPresentationHarness` marker + `home.view.rebuild.proxy`
     /// counter respond. Not an authoritative rendering metric.
     func testProbe_toastShowDismiss_markerAndCounter() {
-        let app = XCUIApplication.launchForPerf(seed: "default")
+        let app = XCUIApplication.launchForPerf(seed: "default", scenario: .probe)
         waitForFeatureReady("home", timeout: 30)
 
         let showButton = app.descendants(matching: .any)["feature.home.perf.toast-show"]
@@ -74,7 +79,7 @@ final class HomeExampleRenderingProbeTests: XCTestCase {
     /// includes more than a pure presentation-only state change. Not an
     /// authoritative rendering metric.
     func testProbe_calendarMonthToggle_markerAndCounter() {
-        let app = XCUIApplication.launchForPerf(seed: "default")
+        let app = XCUIApplication.launchForPerf(seed: "default", scenario: .probe)
         waitForFeatureReady("home", timeout: 30)
 
         let nextButton = app.descendants(matching: .any)["feature.home.perf.calendar-next"]

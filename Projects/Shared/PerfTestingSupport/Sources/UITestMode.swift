@@ -10,6 +10,20 @@ public enum UITestMode {
     /// every call.
     public static let isEnabled: Bool = arguments.contains("-UITEST")
 
+    /// True when launched for a **probe scenario** (driver/marker/counter
+    /// sanity test, e.g. `HomeExampleRenderingProbeTests`). Activates the
+    /// PERF action harness and probe markers / counters in `HomeView`. Do
+    /// not enable for authoritative rendering scenarios — the harness shifts
+    /// HomeView layout by ~44pt and that may affect SwiftUI layout pass,
+    /// scroll geometry, and LazyVStack materialization.
+    public static let isProbeScenario: Bool = arguments.contains("-UITEST_PROBE_SCENARIO")
+
+    /// True when launched for an **authoritative rendering scenario** driven
+    /// by Xcode Instruments / xctrace (e.g. home-heavy feed scroll). Keeps
+    /// the PERF probe harness disabled so the production layout / scroll
+    /// geometry is preserved during trace recording.
+    public static let isRenderingScenario: Bool = arguments.contains("-UITEST_RENDERING_SCENARIO")
+
     public static var seedName: String {
         value(after: "-UITEST_SEED") ?? "default"
     }

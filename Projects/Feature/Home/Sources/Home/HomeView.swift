@@ -43,13 +43,18 @@ public struct HomeView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // PERF-only state-change harness (toast primary, calendar secondary).
+            // PERF probe harness (toast / calendar month toggle drivers).
+            // Activated ONLY for probe scenarios (`-UITEST_PROBE_SCENARIO`),
+            // not for plain UITest launches and not for rendering scenarios.
             // KNOWN LIMITATION: placed as VStack child rather than overlay
-            // because overlay placement produced `hit point {-1, -1}` for some
-            // buttons on iOS 26.2 simulator. This shifts the production layout
-            // ~44pt down ONLY in UITest mode; baseline and after both have the
-            // same shift, so DELTAs remain valid. See plan amendment B.
-            if UITestMode.isEnabled {
+            // because overlay placement produced `hit point {-1, -1}` for
+            // some buttons on iOS 26.2 simulator. This shifts the production
+            // layout ~44pt down only when the probe scenario is active.
+            // DELTAs across probe baseline vs after are believed comparable
+            // since both share the shift, but SwiftUI layout pass /
+            // accessibility tree / scroll geometry side-effects of the
+            // harness are not fully ruled out — see plan amendment B.
+            if UITestMode.isProbeScenario {
                 perfActionHarness
                 PerfRebuildProxyPing("home.view.rebuild.proxy")
             }
@@ -63,10 +68,7 @@ public struct HomeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .modifier(PerfToastPresentationHarness(toast: $store.toast))
-        .perfCounterMarkers(
-            slug: "home",
-            keys: ["home.view.rebuild.proxy"]
-        )
+        .modifier(PerfHomeCounterMarkersHarness())
         .onAppear {
             store.send(.onAppear)
         }
@@ -136,8 +138,9 @@ private extension HomeView {
         )
     }
 
+    @ViewBuilder
     var calendar: some View {
-        TXCalendar(
+        let calendarView = TXCalendar(
             mode: .weekly,
             currentDate: $store.calendarDate,
             weeks: store.calendarWeeks,
@@ -152,14 +155,19 @@ private extension HomeView {
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
-        // Calendar-month marker lives inside the calendar sub-view so reading
-        // `store.calendarDate` for the marker value does NOT add a new read to
-        // the parent HomeView body.
-        .perfStateMarker(
-            slug: "home",
-            key: "calendar-month",
-            value: "\(store.calendarDate.year)-\(store.calendarDate.month)"
-        )
+
+        if UITestMode.isProbeScenario {
+            // Calendar-month marker lives inside the calendar sub-view so
+            // reading `store.calendarDate` for the marker value does NOT add
+            // a new read to the parent HomeView body. Probe-only.
+            calendarView.perfStateMarker(
+                slug: "home",
+                key: "calendar-month",
+                value: "\(store.calendarDate.year)-\(store.calendarDate.month)"
+            )
+        } else {
+            calendarView
+        }
     }
 
     var content: some View {
@@ -295,20 +303,23 @@ private extension HomeView {
 
     /// PERF-only controls used by Pass 3 **probe scenarios** (toast / calendar
     /// month toggle). Production builds never enter this branch because
-    /// `UITestMode.isEnabled` requires the `-UITEST` launch argument. Buttons
-    /// use a 44x44 Text label so `XCUIElement.tap()` can resolve a valid hit
-    /// point.
+    /// `UITestMode.isProbeScenario` requires the `-UITEST_PROBE_SCENARIO`
+    /// launch argument. Buttons use a 44x44 Text label so `XCUIElement.tap()`
+    /// can resolve a valid hit point.
     ///
     /// **Known limitation**: this harness is the first child of HomeView's
-    /// VStack and shifts the production layout by ~44pt in UITest mode.
-    /// `.overlay` placement (which would be layout-neutral) produced
-    /// non-deterministic `hit point {-1, -1}` for some buttons on iOS 26.2
-    /// simulator. Baseline and after both share the shift, so DELTAs from
-    /// probe scenarios remain comparable. **The harness must NOT be mixed
-    /// into authoritative rendering scenarios** (e.g. feed scroll) where the
-    /// 44pt shift would affect scroll geometry, visible cell count, or
-    /// LazyVStack materialization range. Rendering scenarios should run in a
-    /// separate launch mode that does not activate this harness.
+    /// VStack and shifts the production layout by ~44pt when the probe
+    /// scenario is active. `.overlay` placement (which would be
+    /// layout-neutral) produced non-deterministic `hit point {-1, -1}` for
+    /// some buttons on iOS 26.2 simulator. Probe baseline and probe after
+    /// both share the shift, so the 1st-order risk to probe DELTA comparison
+    /// is reduced — but residual effects of the harness on SwiftUI layout
+    /// pass, accessibility tree, scroll geometry, and LazyVStack
+    /// materialization are **not fully ruled out**. Interpret probe DELTAs
+    /// cautiously and verify any authoritative conclusion with an Instruments
+    /// trace. **The harness must NOT be mixed into authoritative rendering
+    /// scenarios** (e.g. feed scroll); rendering scenarios launch via
+    /// `-UITEST_RENDERING_SCENARIO` which keeps this harness disabled.
     @ViewBuilder
     var perfActionHarness: some View {
         HStack(spacing: 0) {
@@ -379,7 +390,7 @@ private struct PerfToastPresentationHarness: ViewModifier {
     @Binding var toast: TXToastType?
 
     func body(content: Content) -> some View {
-        if UITestMode.isEnabled {
+        if UITestMode.isProbeScenario {
             content
                 .overlay(alignment: .bottom) {
                     if toast != nil {
@@ -391,6 +402,22 @@ private struct PerfToastPresentationHarness: ViewModifier {
                     key: "toast",
                     value: toast == nil ? "hidden" : "visible"
                 )
+        } else {
+            content
+        }
+    }
+}
+
+/// Wraps `perfCounterMarkers` so the counter accessibility overlays only
+/// attach in probe scenarios. Rendering / smoke launches see no marker
+/// overlays at all.
+private struct PerfHomeCounterMarkersHarness: ViewModifier {
+    func body(content: Content) -> some View {
+        if UITestMode.isProbeScenario {
+            content.perfCounterMarkers(
+                slug: "home",
+                keys: ["home.view.rebuild.proxy"]
+            )
         } else {
             content
         }
