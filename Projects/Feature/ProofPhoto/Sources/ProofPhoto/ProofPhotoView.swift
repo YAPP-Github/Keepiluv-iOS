@@ -70,6 +70,19 @@ public struct ProofPhotoView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .observeKeyboardFrame($keyboardFrame)
         .background(Color.Gray.gray500)
+        .overlay(alignment: .topLeading) {
+            // Pass 3 rendering driver correctness marker. Mirrors
+            // `store.commentText` into a 1x1 Color.clear accessibility
+            // identifier so a UITest can verify the comment typing
+            // scenario actually delivered keystrokes (the on-device
+            // keyboard input mode may absorb ASCII input). Layout-neutral,
+            // production-visible identifier only — no behavior change.
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityIdentifier(
+                    "feature.proof-photo.marker.comment-text.\(store.commentText)"
+                )
+        }
         .onAppear {
             store.send(.onAppear)
         }
@@ -127,24 +140,27 @@ private extension ProofPhotoView {
     
     @ViewBuilder
     var photoPreview: some View {
-        if store.hasImage,
-           let imageData = store.imageData,
-           let image = UIImage(data: imageData) {
-            previewContainer {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
+        Group {
+            if store.hasImage,
+               let imageData = store.imageData,
+               let image = UIImage(data: imageData) {
+                previewContainer {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                }
+            } else if let session = store.captureSession {
+                previewContainer {
+                    CameraPreview(session: session)
+                }
+            } else {
+                Rectangle()
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 76))
             }
-        } else if let session = store.captureSession {
-            previewContainer {
-                CameraPreview(session: session)
-            }
-        } else {
-            Rectangle()
-                .frame(maxWidth: .infinity)
-                .aspectRatio(1, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 76))
         }
+        .accessibilityIdentifier("feature.proof-photo.preview")
     }
 
     var previewTopControls: some View {
@@ -349,6 +365,7 @@ private extension ProofPhotoView {
                 store.send(.focusChanged(isFocused))
             }
         )
+        .accessibilityIdentifier("feature.proof-photo.comment-circle")
     }
 }
 
