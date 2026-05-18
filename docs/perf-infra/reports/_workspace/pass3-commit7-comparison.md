@@ -6,8 +6,8 @@
 
 | 항목 | 값 |
 |---|---|
-| 커밋 | `2c1d689 perf(goal-detail): guard FlyingReactionOverlay TimelineView when idle` |
-| 직전 커밋 (Commit 7 직전 baseline) | `61d2bc7 chore(goal-detail): branch Example currentUser by UITest scenario` (Example fixture 변경, 렌더러 코드 무관) |
+| 커밋 | `261fe7d fix: GoalDetail 유휴 TimelineView 실행 방지 - #308` |
+| 직전 커밋 (Commit 7 직전 baseline) | `328a288 chore: GoalDetail 예제 사용자 상태 분기 - #308` (Example fixture 변경, 렌더러 코드 무관) |
 | 공식 before tag | `pass3-rendering-before` (baseline 12-trace 수집 시점) |
 
 ## 변경 요약
@@ -47,7 +47,7 @@ var body: some View {
 | Device 00008110-… Profile | `testRendering_goalDetailReactionRapidFire` | pass (24.0s) |
 
 기존 `GoalDetailExampleNavigationTests/testPrimaryCtaPresentsProofPhoto` 는
-브랜치 초기 커밋 `759ec85` 부터 깨져 있던 **pre-existing failure**. Commit 7 무관.
+브랜치 초기 커밋 `5594c1f` 부터 깨져 있던 **pre-existing failure**. Commit 7 무관.
 
 ## After trace 수집
 
@@ -87,7 +87,7 @@ top user-code frame #1 이 일관되게 `TimelineView<>.UpdateFilter.updateValue
 (`FlyingReactionOverlay` 의 unconditional 60Hz TimelineView) 가 그대로
 top 1 user-code 위치를 차지하고 있었다는 뜻.
 
-**After (commit `2c1d689`)**:
+**After (commit `261fe7d`)**:
 3/3 TP rep, 3/3 Hitches rep 모두에서 `TimelineView` 관련 frame 이 top-10
 user-code 리스트에서 **사라짐**.
 
@@ -128,7 +128,7 @@ small-but-real CPU 절약. 새 hot path 도입 없음.
 
 활성 입자 + GoalDetailView body re-evaluation 부담이 함께 보임. 정상 패턴.
 
-**After (commit `2c1d689`)**:
+**After (commit `261fe7d`)**:
 
 | rep | top user-code frame | 비고 |
 |---|---|---|

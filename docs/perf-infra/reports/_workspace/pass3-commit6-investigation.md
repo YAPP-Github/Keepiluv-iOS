@@ -87,7 +87,7 @@ cell 을 viewport 안으로 materialize 할 때만 `goalCard(for:)` 가 호출�
 
 #### Home feed-scroll TP rep1 — top 10 user-attributed frames
 
-| baseline (`pass3-rendering-before`) | after-Commit 3 (`a21b88a`) |
+| baseline (`pass3-rendering-before`) | after-Commit 3 (`d6482c9`) |
 |---|---|
 | `layoutSublayersOfLayer:` 66ms (0.1%) | `layoutSublayersOfLayer:` 71ms (0.1%) |
 | `DisplayList.ViewUpdater.Platform.updateItemView` 20ms | `__updateContentOverlayInsetsWithOurRect:` 21ms |

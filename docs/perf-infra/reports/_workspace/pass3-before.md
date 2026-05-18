@@ -10,7 +10,7 @@ estimation.
 |---|---|
 | date | 2026-05-18 |
 | baseline tag | `pass3-rendering-before` |
-| baseline commit | `ffc9ab9` |
+| baseline commit | `af07cc4` |
 | device | Jiyong의 iPhone (iOS 26.4.2, UDID `00008110-00096DC42632801E`) |
 | scheme | FeatureHomeExample |
 | configuration | Profile |

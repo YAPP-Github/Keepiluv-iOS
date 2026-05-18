@@ -1,6 +1,6 @@
 # Baseline — Simulator (iPhone 17 / iOS 26.2 / Profile)
 
-git: `414bd77` (tag `baseline-render-pass-1`)
+git: `56b5b63` (tag `baseline-render-pass-1`)
 recorded: 2026-05-17T05:58:32Z
 
 ## 환경

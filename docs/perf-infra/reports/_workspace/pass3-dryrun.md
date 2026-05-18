@@ -13,7 +13,7 @@ improvement evidence.
 | scheme | FeatureHomeExample |
 | configuration | Profile |
 | bundle id | `org.yapp.twix.example.home` |
-| driver commit | `c0bf8e2` |
+| driver commit | `5fabeb2` |
 | UITest | `HomeExampleFeedScrollRenderingTests.testRendering_homeHeavyFeedScroll` |
 | launch arguments | `-UITEST -UITEST_SEED home-heavy -UITEST_WAIT_READY -UITEST_DISABLE_ANIMATIONS -UITEST_RENDERING_SCENARIO` |
 | seed | `home-heavy` (200 cells) |
@@ -124,7 +124,7 @@ UpdatedHostingScrollView.updateValue()                                     4ms (
 
 1. Pick the scroll cadence and recording template for the authoritative
    before/after collection (likely Time Profiler + a denser scroll).
-2. Tag the current HEAD (`c0bf8e2` or its successor before any Phase E
+2. Tag the current HEAD (`5fabeb2` or its successor before any Phase E
    fix) as the rendering before-baseline. Suggested tag name:
    `pass3-rendering-before`.
 3. Collect the before trace using the sequencing recipe above. Save to
