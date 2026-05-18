@@ -155,6 +155,7 @@ private extension HomeView {
             }
         )
         .frame(maxWidth: .infinity, maxHeight: 76)
+        .perfControl(slug: "home", element: "calendar")
 
         if UITestMode.isProbeScenario {
             // Calendar-month marker lives inside the calendar sub-view so

@@ -41,6 +41,48 @@ import XCTest
 ///   pollutes a rendering trace with the 44pt layout shift.
 final class HomeExampleFeedScrollRenderingTests: XCTestCase {
 
+    /// Drives a same-screen state-change rendering scenario. Each calendar
+    /// swipe dispatches the production `weekCalendarSwipe` action, which
+    /// cascades through `.setCalendarDate` → `calendarWeeks` rebuild +
+    /// `.fetchGoals` → 200-cell list reload + LazyVStack re-render. No
+    /// navigation, no scroll-position change, no PERF harness. The
+    /// authoritative metric is the Instruments / xctrace trace recorded
+    /// while this driver runs. Not a benchmark.
+    func testRendering_homeHeavyCalendarWeekSweep() {
+        let app = XCUIApplication.launchForPerf(
+            seed: "home-heavy",
+            scenario: .rendering,
+            disableAnimations: false
+        )
+        waitForFeatureReady("home", timeout: 30)
+
+        let probeToastShow = app.descendants(matching: .any)["feature.home.perf.toast-show"]
+        XCTAssertFalse(
+            probeToastShow.exists,
+            "PERF probe harness is active under a rendering scenario launch. The trace would be polluted by the 44pt layout shift. Re-check launchForPerf(scenario:) arguments."
+        )
+
+        // `feature.home.calendar` may be present on multiple descendants
+        // because the TXCalendar composite propagates the accessibility
+        // identifier to its internal cells. The first match in document
+        // order is the calendar container — that's the swipe target.
+        let calendar = app.descendants(matching: .any)
+            .matching(identifier: "feature.home.calendar")
+            .firstMatch
+        XCTAssertTrue(calendar.waitForExistence(timeout: 10), "feature.home.calendar not found")
+
+        // Horizontal drag on the calendar bar fires onSwipe -> reducer
+        // `weekCalendarSwipe` -> `setCalendarDate(...)`. Each tick triggers
+        // calendarWeeks regeneration + items refetch + cardList re-render.
+        // 20 left + 20 right = 40 deterministic same-screen state changes.
+        let left = calendar.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.5))
+        let right = calendar.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5))
+        for _ in 0..<20 {
+            right.press(forDuration: 0.01, thenDragTo: left)
+            left.press(forDuration: 0.01, thenDragTo: right)
+        }
+    }
+
     /// Drives the home-heavy feed scroll. Not a benchmark — use Instruments
     /// for the rendering metric. See class doc.
     func testRendering_homeHeavyFeedScroll() {
