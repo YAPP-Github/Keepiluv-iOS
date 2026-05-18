@@ -63,6 +63,7 @@ let project = Project.makeModule(
                     .feature(implements: .goalDetail),
                     .feature(implements: .proofPhoto),
                     .core(implements: .captureSession),
+                    .domain(interface: .photoLog),
                     .external(dependency: .ComposableArchitecture)
                 ]
             )

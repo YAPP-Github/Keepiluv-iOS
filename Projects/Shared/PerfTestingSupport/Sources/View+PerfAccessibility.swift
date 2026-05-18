@@ -1,8 +1,21 @@
 import SwiftUI
 
 public extension View {
+    /// Exposes a root-level accessibility marker for the feature.
+    ///
+    /// IMPORTANT: applied as an overlay (Color.clear 1x1) rather than a
+    /// direct `.accessibilityIdentifier` on the receiver. `accessibilityIdentifier`
+    /// on a parent SwiftUI view propagates to descendant accessibility
+    /// elements that don't have their own — so a direct identifier here
+    /// would override child `perfControl(slug:element:)` / accessibility
+    /// identifiers everywhere in the feature tree. The overlay pattern
+    /// keeps the marker scoped to the inserted Color.clear element only.
     func perfRoot(_ slug: String) -> some View {
-        accessibilityIdentifier("feature.\(slug).root")
+        overlay(alignment: .topLeading) {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .accessibilityIdentifier("feature.\(slug).root")
+        }
     }
 
     func perfFeed(_ slug: String) -> some View {
