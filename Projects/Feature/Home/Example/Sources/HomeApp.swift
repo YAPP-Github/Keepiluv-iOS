@@ -67,14 +67,27 @@ struct HomeApp: App {
 
 private extension HomeApp {
     static func goalClient(for seed: String) -> GoalClient {
-        guard UITestMode.isEnabled, seed == "scroll-50" else {
+        guard UITestMode.isEnabled else { return .previewValue }
+        switch seed {
+        case "scroll-50":
+            return perfGoalClient(count: 50)
+        case "home-heavy":
+            // First authoritative rendering driver dataset. 200 cells is
+            // large enough to force multiple scroll passes and exercise
+            // LazyVStack materialization without making the recording window
+            // unbounded.
+            return perfGoalClient(count: 200)
+        default:
             return .previewValue
         }
+    }
+
+    static func perfGoalClient(count: Int) -> GoalClient {
         var client = GoalClient.previewValue
         client.fetchGoals = { _ in
             GoalList(
                 hasEverRegisteredGoal: true,
-                goals: (1...50).map(perfScrollGoal(index:))
+                goals: (1...count).map(perfScrollGoal(index:))
             )
         }
         return client
