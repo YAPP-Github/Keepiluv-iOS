@@ -3,39 +3,41 @@ import XCTest
 
 /// Pass 3 **rendering driver** UITest for FeatureHomeExample.
 ///
-/// This is the first authoritative rendering scenario for the home feed.
-/// It is NOT a benchmark. The XCTest pass/fail status and any timing the
-/// XCTest harness happens to print are not the rendering metric — they only
-/// indicate whether the deterministic UI script completed.
+/// This is a deterministic UI driver, **not a benchmark**. The XCTest
+/// pass/fail status and any timing the XCTest harness happens to print are
+/// not the rendering metric — they only indicate whether the deterministic
+/// UI script completed. The authoritative rendering metric is a real-device
+/// xctrace / Instruments trace recorded while this driver runs.
 ///
 /// ## Intended use
 ///
-/// 1. Start an Instruments / xctrace recording (Time Profiler or SwiftUI
-///    template) on a real device against the `FeatureHomeExample` bundle id.
-/// 2. Launch this test against the same device. The test launches with
-///    `-UITEST` + `-UITEST_RENDERING_SCENARIO` + `-UITEST_SEED home-heavy`,
-///    so the PERF probe harness (`perfActionHarness`,
-///    `PerfRebuildProxyPing`, calendar marker, `PerfToastPresentationHarness`,
-///    counter markers) is NOT activated and the production layout is
-///    preserved.
+/// 1. Launch this test against a real device. It launches with
+///    `-UITEST` + `-UITEST_RENDERING_SCENARIO` + `-UITEST_SEED home-heavy`
+///    and `disableAnimations: false`, so the PERF probe harness stays gated
+///    off and animations behave like production.
+/// 2. Attach `xcrun xctrace record --attach FeatureHomeExample` (Time
+///    Profiler or SwiftUI template) once the driver enters the scroll
+///    phase (UITest log shows `Synthesize event`).
 /// 3. Stop the trace when the test reports completion.
-/// 4. Compare before/after traces in Instruments — that comparison is the
+/// 4. Compare before/after traces in Instruments. That comparison is the
 ///    authoritative rendering metric.
 ///
 /// ## Determinism
 ///
-/// - Single seed (`home-heavy` → 200 cells, fixed per-index content) so the
-///   visible item set is reproducible across runs.
-/// - Fixed number of `swipeUp()` calls so the recording window covers the
-///   same logical workload each run.
-/// - `-UITEST_DISABLE_ANIMATIONS` reduces frame-to-frame variance from
-///   animation timing.
+/// - Single seed: `home-heavy` → 200 deterministic cells (`HomeApp.swift`).
+/// - Fixed coordinate-based drag pattern (25 up + 25 down = 50
+///   interactions). Coordinate-based drag is denser and produces less
+///   accessibility idle wait between gestures than `swipeUp()`, so a
+///   higher fraction of the recording window is actual scroll work.
+/// - `disableAnimations: false` so SwiftUI animation timing reflects
+///   production. (Smoke / probe scenarios use the default `true` for
+///   stability; rendering scenarios must NOT inherit that setting.)
 /// - No XCTest `measure(metrics:)`. The driver runs once per launch.
 ///
 /// ## Guardrails
 ///
-/// - Asserts that the probe harness identifiers are absent, to catch the
-///   bug where someone accidentally activates `-UITEST_PROBE_SCENARIO` and
+/// - Asserts that probe harness identifiers are absent, to catch the bug
+///   where someone accidentally activates `-UITEST_PROBE_SCENARIO` and
 ///   pollutes a rendering trace with the 44pt layout shift.
 final class HomeExampleFeedScrollRenderingTests: XCTestCase {
 
@@ -44,7 +46,8 @@ final class HomeExampleFeedScrollRenderingTests: XCTestCase {
     func testRendering_homeHeavyFeedScroll() {
         let app = XCUIApplication.launchForPerf(
             seed: "home-heavy",
-            scenario: .rendering
+            scenario: .rendering,
+            disableAnimations: false
         )
         waitForFeatureReady("home", timeout: 30)
 
@@ -62,10 +65,17 @@ final class HomeExampleFeedScrollRenderingTests: XCTestCase {
         let feed = app.descendants(matching: .any)["feature.home.feed"]
         XCTAssertTrue(feed.waitForExistence(timeout: 10), "feature.home.feed not found")
 
-        // Fixed-count scroll drive. The deterministic workload, not a
-        // benchmark. Instruments recording is the authoritative metric.
-        for _ in 0..<20 {
-            feed.swipeUp()
+        // Coordinate-based dense drag drive. Pressing-and-dragging between
+        // two normalized points produces a deterministic gesture without
+        // the trailing accessibility idle wait that swipeUp() inserts.
+        // 25 up + 25 down = 50 interactions per recording window.
+        let top = feed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.20))
+        let bottom = feed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
+        for _ in 0..<25 {
+            bottom.press(forDuration: 0.01, thenDragTo: top)
+        }
+        for _ in 0..<25 {
+            top.press(forDuration: 0.01, thenDragTo: bottom)
         }
     }
 }
