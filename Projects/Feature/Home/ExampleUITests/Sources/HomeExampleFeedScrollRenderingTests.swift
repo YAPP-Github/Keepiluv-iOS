@@ -107,12 +107,23 @@ final class HomeExampleFeedScrollRenderingTests: XCTestCase {
         let feed = app.descendants(matching: .any)["feature.home.feed"]
         XCTAssertTrue(feed.waitForExistence(timeout: 10), "feature.home.feed not found")
 
-        // Coordinate-based dense drag drive. Pressing-and-dragging between
-        // two normalized points produces a deterministic gesture without
-        // the trailing accessibility idle wait that swipeUp() inserts.
-        // 25 up + 25 down = 50 interactions per recording window.
-        let top = feed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.20))
-        let bottom = feed.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
+        // Coordinate-based dense drag drive.
+        //
+        // IMPORTANT: normalize coordinates against the *window*, NOT the
+        // `feed` element. `feed` is the LazyVStack inside a ScrollView and
+        // its accessibility frame reports the *content* size (200 cells
+        // ≈ 16,000pt tall on this fixture). Drag origins normalized to
+        // that frame land far below the visible viewport and the OS
+        // delivers them to Springboard, which backgrounds the app between
+        // every drag and contaminates the recording with system activity.
+        //
+        // Window-normalized coordinates with safe dy values stay inside
+        // the visible feed area (navbar + calendar bar live above dy 0.30,
+        // home indicator lives below dy 0.85).
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.waitForExistence(timeout: 5), "no window")
+        let top = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+        let bottom = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.80))
         for _ in 0..<25 {
             bottom.press(forDuration: 0.01, thenDragTo: top)
         }
