@@ -40,16 +40,28 @@ Phase 2 follow-up, NOT in Phase 1.
 
 ## Official scenarios
 
-| # | Feature | Test class | Test method | Seed | Approx wall (device) |
-|---|---|---|---|---|---|
-| 1 | Home | `HomeExampleFeedScrollRenderingTests` | `testRendering_homeHeavyFeedScroll` | `home-heavy` (200) | ~150s |
-| 2 | Home | `HomeExampleFeedScrollRenderingTests` | `testRendering_homeHeavyCalendarWeekSweep` | `home-heavy` | ~50s |
-| 3 | GoalDetail | `GoalDetailExampleRenderingTests` | `testRendering_goalDetailInitialRender` | `default` | ~13s |
-| 4 | GoalDetail | `GoalDetailExampleRenderingTests` | `testRendering_goalDetailReactionRapidFire` | `default` | ~25s |
-| 5 | ProofPhoto | `ProofPhotoExampleRenderingTests` | `testRendering_proofPhotoPreviewWithFixtureImage` | `proof-photo-prefilled` | ~12s |
-| 6 | ProofPhoto | `ProofPhotoExampleRenderingTests` | `testRendering_proofPhotoCommentTyping` | `proof-photo-prefilled` | ~13s |
-| 7 | Stats | `StatsExampleRenderingTests` | `testRendering_statsHeavyInitialRender` | `stats-heavy` (200) | ~13s |
-| 8 | Stats | `StatsExampleRenderingTests` | `testRendering_statsHeavyScroll` | `stats-heavy` | ~65s |
+Wall column updated from the dry-run pass (single clean device run per
+scenario, Time Profiler attached). Sim wall is shown for comparison;
+device is the authoritative time.
+
+| # | Feature | Test class | Test method | Seed | Wall — device (dry-run) | xctrace window |
+|---|---|---|---|---|---:|---:|
+| 1 | Home | `HomeExampleFeedScrollRenderingTests` | `testRendering_homeHeavyFeedScroll` | `home-heavy` (200) | 151.2s | 60s |
+| 2 | Home | `HomeExampleFeedScrollRenderingTests` | `testRendering_homeHeavyCalendarWeekSweep` | `home-heavy` | 50.8s | 50s |
+| 3 | GoalDetail | `GoalDetailExampleRenderingTests` | `testRendering_goalDetailInitialRender` | `default` | 11.7s | 8s (target app exits with test) |
+| 4 | GoalDetail | `GoalDetailExampleRenderingTests` | `testRendering_goalDetailReactionRapidFire` | `default` | 24.8s | 25s |
+| 5 | ProofPhoto | `ProofPhotoExampleRenderingTests` | `testRendering_proofPhotoPreviewWithFixtureImage` | `proof-photo-prefilled` | 12.2s | 8s |
+| 6 | ProofPhoto | `ProofPhotoExampleRenderingTests` | `testRendering_proofPhotoCommentTyping` | `proof-photo-prefilled` | 13.6s | 12s |
+| 7 | Stats | `StatsExampleRenderingTests` | `testRendering_statsHeavyInitialRender` | `stats-heavy` (200) | 13.2s | 8s |
+| 8 | Stats | `StatsExampleRenderingTests` | `testRendering_statsHeavyScroll` | `stats-heavy` | 140.5s | 60s |
+
+**Note on Stats heavy scroll wall**: device wall is consistently around
+140s (vs ~65s on iPhone 17 Pro sim). Not a contamination — confirmed
+clean run with no notification/Activate/springboard-idle interruption.
+The driver does 50 coordinate drags over 200 deterministic cells; the
+slowness reflects real rendering / accessibility query cost on device.
+Treat 140s as the new baseline expectation, not the contamination
+threshold.
 
 ## Launch arguments (all rendering scenarios)
 
