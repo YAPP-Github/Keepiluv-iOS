@@ -58,15 +58,27 @@ struct StatsApp: App {
 
 private extension StatsApp {
     static func statsClient(for seed: String) -> StatsClient {
-        guard UITestMode.isEnabled, seed == "scroll-50" else {
+        guard UITestMode.isEnabled else { return .previewValue }
+        switch seed {
+        case "scroll-50":
+            return perfStatsClient(count: 50)
+        case "stats-heavy":
+            // 200 deterministic stats items so the rendering driver can
+            // exercise multiple LazyVStack materialization windows. Mirrors
+            // the home-heavy seed scale used for Home rendering.
+            return perfStatsClient(count: 200)
+        default:
             return .previewValue
         }
+    }
+
+    static func perfStatsClient(count: Int) -> StatsClient {
         var client = StatsClient.previewValue
         client.fetchStats = { _, _ in
             Stats(
                 myNickname: "현수",
                 partnerNickname: "민정",
-                stats: (1...50).map { index in
+                stats: (1...count).map { index in
                     Stats.StatsItem(
                         goalId: Int64(index),
                         icon: index.isMultiple(of: 2) ? "ICON_BOOK" : "ICON_HEALTH",
