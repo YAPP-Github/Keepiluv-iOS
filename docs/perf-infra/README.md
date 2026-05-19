@@ -61,13 +61,15 @@ feature.<slug>.ready
 
 ## Build Configuration
 
-Tuist 모듈 프로젝트는 `Debug`, `Release`, `Profile` configuration을 생성합니다. `Profile`은 Release 계열이며 Time Profiler 분석을 위해 다음 값을 유지합니다.
+Tuist 모듈 프로젝트는 `Debug`, `Release`, `Profile`, `PerfProfile` configuration을 생성합니다. `Profile`과 `PerfProfile`은 Release 계열이며 Time Profiler 분석을 위해 다음 값을 유지합니다.
 
 ```text
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
 COPY_PHASE_STRIP = NO
 STRIP_INSTALLED_PRODUCT = NO
 ```
+
+`PerfProfile`은 Pass 3/Pass 4 perf UITest와 xctrace 측정 전용입니다. `Profile`과 동일한 Release-like 설정에 `SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) PERF_TESTING`만 추가합니다. `SharedPerfTestingSupport`의 accessibility marker / counter modifier는 `PERF_TESTING`이 켜진 빌드에서만 실제 marker를 붙이고, 일반 `Profile`/`Release`에서는 no-op입니다.
 
 Production 앱 signing은 기존 manual/match 설정을 유지합니다. Example 앱과 Example UITest target만 automatic signing을 사용합니다.
 
@@ -84,7 +86,7 @@ tuist generate
 ```bash
 xcodebuild test \
   -scheme FeatureHomeExample \
-  -configuration Profile \
+  -configuration PerfProfile \
   -destination 'platform=iOS,name=<DEVICE_NAME>' \
   -only-testing:FeatureHomeExampleUITests
 ```

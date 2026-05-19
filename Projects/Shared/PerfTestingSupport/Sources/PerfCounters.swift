@@ -11,23 +11,34 @@ import SwiftUI
 /// authoritative SwiftUI rendering metrics. The authoritative metric is an
 /// Xcode Instruments / xctrace trace.
 public enum PerfCounters {
+#if PERF_TESTING
     private static let lock = NSLock()
     private static var values: [String: Int] = [:]
+#endif
 
     /// Increments the named counter. No-op in production.
     public static func increment(_ key: String) {
+#if PERF_TESTING
         guard UITestMode.isEnabled else { return }
         lock.lock()
         values[key, default: 0] += 1
         lock.unlock()
+#else
+        _ = key
+#endif
     }
 
     /// Reads the current value of a counter. Always returns 0 in production.
     public static func value(for key: String) -> Int {
+#if PERF_TESTING
         guard UITestMode.isEnabled else { return 0 }
         lock.lock()
         defer { lock.unlock() }
         return values[key, default: 0]
+#else
+        _ = key
+        return 0
+#endif
     }
 }
 
@@ -44,7 +55,11 @@ public enum PerfCounters {
 /// Xcode Instruments / xctrace traces for authoritative analysis.
 public struct PerfRebuildProxyPing: View {
     public init(_ key: String) {
+#if PERF_TESTING
         PerfCounters.increment(key)
+#else
+        _ = key
+#endif
     }
 
     public var body: some View {

@@ -98,9 +98,8 @@ final class ProofPhotoExampleRenderingTests: XCTestCase {
             app.typeText(String(character))
         }
 
-        // Verify the typed text actually reached `store.commentText`. The
-        // marker `feature.proof-photo.marker.comment-text.<value>` is
-        // overlay-mirrored from the live state in ProofPhotoView. On a
+        // Verify the typed text actually reached `store.commentText`.
+        // `perfStateMarker` exposes this only in PERF_TESTING builds; on a
         // real device whose current keyboard input mode is not ASCII the
         // typeText() calls above may be absorbed by the IME — the test
         // must fail honestly in that case so the trace is not collected

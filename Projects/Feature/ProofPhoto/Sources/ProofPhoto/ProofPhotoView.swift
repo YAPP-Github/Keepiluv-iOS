@@ -11,6 +11,7 @@ import SwiftUI
 import ComposableArchitecture
 import FeatureProofPhotoInterface
 import SharedDesignSystem
+import SharedPerfTestingSupport
 import SharedUtil
 
 /// 인증샷 화면을 렌더링하는 View입니다.
@@ -70,19 +71,11 @@ public struct ProofPhotoView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .observeKeyboardFrame($keyboardFrame)
         .background(Color.Gray.gray500)
-        .overlay(alignment: .topLeading) {
-            // Pass 3 rendering driver correctness marker. Mirrors
-            // `store.commentText` into a 1x1 Color.clear accessibility
-            // identifier so a UITest can verify the comment typing
-            // scenario actually delivered keystrokes (the on-device
-            // keyboard input mode may absorb ASCII input). Layout-neutral,
-            // production-visible identifier only — no behavior change.
-            Color.clear
-                .frame(width: 1, height: 1)
-                .accessibilityIdentifier(
-                    "feature.proof-photo.marker.comment-text.\(store.commentText)"
-                )
-        }
+        .perfStateMarker(
+            slug: "proof-photo",
+            key: "comment-text",
+            value: store.commentText
+        )
         .onAppear {
             store.send(.onAppear)
         }

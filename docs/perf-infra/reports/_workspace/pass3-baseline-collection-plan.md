@@ -19,7 +19,7 @@ Phase 2 follow-up, NOT in Phase 1.
 |---|---|
 | device | `Jiyong의 iPhone` (UDID `00008110-00096DC42632801E`, iOS 26.4.2) |
 | Xcode | 26.2 SDK |
-| configuration | `Profile` (all targets) |
+| configuration | `PerfProfile` (all targets; Release-like + `PERF_TESTING`) |
 | host | macOS Darwin 25.2.0 |
 | trace template (1) | `Time Profiler` |
 | trace template (2) | `Animation Hitches` |
@@ -63,6 +63,14 @@ slowness reflects real rendering / accessibility query cost on device.
 Treat 140s as the new baseline expectation, not the contamination
 threshold.
 
+## Build configuration
+
+Use `PerfProfile` for Pass 4 and later perf runs. It is Release-like and
+keeps the `Profile` symbol/strip settings needed by Time Profiler, but
+adds `PERF_TESTING` so `SharedPerfTestingSupport` emits accessibility
+markers and probe counters. Plain `Profile` / `Release` builds compile the
+same helper calls as no-op modifiers.
+
 ## Launch arguments (all rendering scenarios)
 
 - `-UITEST`
@@ -81,7 +89,7 @@ threshold.
 xcodebuild test-without-building \
   -workspace Twix.xcworkspace \
   -scheme <SCHEME> \
-  -configuration Profile \
+  -configuration PerfProfile \
   -destination 'platform=iOS,id=00008110-00096DC42632801E' \
   -only-testing:<SCHEME>UITests/<TestClass>/<testMethod> \
   >/tmp/twix-perf-uitest-current.log 2>&1 &

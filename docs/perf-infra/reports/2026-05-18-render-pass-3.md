@@ -64,6 +64,11 @@ top-frame 에 잡힌 단 한 경우 (GoalDetail idle TimelineView) 는 Commit 7 
   signal 작음, loading-transition probe 분류로 **Phase 1.5 보류**.
 - **Production app full path** — dedicated rendering scenarios 에 한정.
   실제 사용 환경의 fetch + scroll 혼합 패턴은 별도 시나리오 필요.
+- **Pass 4 configuration note** — 후속 perf run 은 `PerfProfile`
+  configuration 을 사용한다. `PerfProfile` 은 Pass 3 의 `Profile`
+  측정 조건과 동일한 Release-like symbol/strip 설정을 유지하면서
+  `PERF_TESTING` compile condition 만 추가해 accessibility marker 를
+  일반 `Profile`/`Release` 빌드와 격리한다.
 
 ### 2.3 측정 규칙 (Pass 3 합의)
 

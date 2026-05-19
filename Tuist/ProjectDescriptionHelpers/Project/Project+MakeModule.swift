@@ -38,6 +38,24 @@ public extension Project {
                             "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)"
                         ]
                     ]
+                ),
+                .release(
+                    name: "PerfProfile",
+                    settings: [
+                        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                        "COPY_PHASE_STRIP": "NO",
+                        "STRIP_INSTALLED_PRODUCT": "NO",
+                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) PERF_TESTING",
+                        "CONFIGURATION_BUILD_DIR": "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)",
+                        "FRAMEWORK_SEARCH_PATHS": [
+                            "$(inherited)",
+                            "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)"
+                        ],
+                        "LIBRARY_SEARCH_PATHS": [
+                            "$(inherited)",
+                            "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)"
+                        ]
+                    ]
                 )
             ]
         )

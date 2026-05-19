@@ -26,6 +26,7 @@ let project = Project.makeModule(
                     .domain(interface: .goal),
                     .domain(interface: .photoLog),
                     .shared(implements: .designSystem),
+                    .shared(implements: .perfTestingSupport),
                     .shared(implements: .util),
                     .external(dependency: .ComposableArchitecture)
                 ]
