@@ -177,3 +177,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 src/SupportingFiles/Booket/GoogleService-Info.plist
+# Performance traces and local probe workspace (large, generated)
+.perf/
+
+# Claude Code scheduled-task runtime lock (per-machine, not shared)
+.claude/scheduled_tasks.lock
